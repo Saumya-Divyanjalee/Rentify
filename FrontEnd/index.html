@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rentify</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Roboto Mono Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <link rel="icon" type="image/x-icon" href="assets/imges/faviconlogo.ico">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --yellow-main: #facc15;
+            --white: #ffffff;
+        }
+
+        html, body {
+            font-family: "Roboto Mono", monospace;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+            min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .bg-video {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            filter: brightness(0.7);
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        /* Logo Section */
+        .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .logo-wrap img {
+            width: 70px;
+            height: 70px;
+        }
+
+        .logo-text {
+            font-size: clamp(32px, 8vw, 60px);
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .rent-white {
+            color: white;
+        }
+
+        .ify-yellow {
+            color: var(--yellow-main);
+        }
+
+        .tagline {
+            color: greenyellow;
+            letter-spacing: 2px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .hero-text {
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .hero-text h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .hero-text p {
+            font-size: 16px;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .hero-text span {
+            color: greenyellow;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 35px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: 0.3s ease;
+            font-family: "Roboto Mono", monospace;
+        }
+
+        .btn-signin {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            backdrop-filter: blur(6px);
+        }
+
+        .btn-signin:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .btn-signup {
+            background: yellow;
+            color: darkgreen;
+        }
+
+        .btn-signup:hover {
+            transform: translateY(-3px);
+        }
+
+        .bottom-badge {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 480px) {
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+                max-width: 260px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<video autoplay muted loop playsinline class="bg-video">
+    <source src="assets/video/background-video.mp4" type="video/mp4">
+</video>
+
+<div class="container">
+
+    <div class="logo-wrap">
+        <img src="assets/imges/rentify-logo-yellow.png" alt="Rentify Logo">
+        <div class="logo-text">
+            <span class="rent-white">Rent</span><span class="ify-yellow">ify</span>
+        </div>
+    </div>
+
+    <div class="tagline">Smart Cab Rentals</div>
+
+    <div class="hero-text">
+        <h1>Drive Your Way. Anywhere.</h1>
+        <p>
+            <span>Smooth</span>, <span>Reliable</span>, <span>Affordable</span> self-drive rentals — weddings, trips, events, daily adventures.
+        </p>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn btn-signin" onclick="location.href='pages/sign-in.html'">Sign In</button>
+        <button class="btn btn-signup" onclick="location.href='pages/sign-up.html'">Get Started →</button>
+    </div>
+
+    <div class="bottom-badge">
+        Available in your city • Book instantly • Drive freely
+    </div>
+
+</div>
+
+</body>
+</html>

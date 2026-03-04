@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rentify – Premium Purple Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --purple-main: #6366f1;
+            --purple-dark: #4338ca;
+            --purple-grad: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            --bg-light: #f8fafc;
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --sidebar-w: 260px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Roboto Mono", monospace;
+            font-optical-sizing: auto;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--purple-grad);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            padding: 24px;
+            box-shadow: 4px 0 15px rgba(99, 102, 241, 0.1);
+        }
+
+        .logo-section {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-menu {
+            flex: 1;
+            list-style: none;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            padding: 40px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+        }
+
+        /* Dashboard Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: darkmagenta;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--purple-dark);
+        }
+
+        /* Table Area */
+        .data-card {
+            background: var(--white);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px 24px;
+            background: #fcfcfd;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-active { background: #e0f2fe; color: #0369a1; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+
+        /* Toast Notification */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--text-main);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            display: none;
+            animation: slideUp 0.4s ease-out;
+            z-index: 1000;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 80px; padding: 15px; }
+            .logo-section span, .nav-item span { display: none; }
+            .main-content { margin-left: 80px; }
+        }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="logo-section">
+        <div style="background:white; color:var(--purple-main); width:35px; height:35px; border-radius:8px; display:grid; place-items:center;">R</div>
+        <span>Rentify</span>
+    </div>
+
+    <ul class="nav-menu">
+        <li class="nav-item active"><span>📊</span> <span>Dashboard</span></li>
+        <li class="nav-item"><span>🚗</span> <span>Vehicles</span></li>
+        <li class="nav-item"><span>👥</span> <span>Customers</span></li>
+        <li class="nav-item"><span>📅</span> <span>Bookings</span></li>
+        <li class="nav-item"><span>⚙️</span> <span>Settings</span></li>
+    </ul>
+
+    <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+        <div style="font-size: 12px; opacity: 0.8;">Admin: Saumya</div>
+        <button onclick="alert('Logging out...')" style="background:none; border:none; color:white; cursor:pointer; font-family:inherit; margin-top:10px;">Logout →</button>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="header">
+        <div>
+            <h1>Dashboard Overview</h1>
+            <p style="color: var(--text-muted); font-size: 14px;">Welcome back to your command center.</p>
+        </div>
+        <button onclick="showToast('Refreshing data...')" style="padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--white); cursor:pointer; font-family: inherit;">
+            🔄 Refresh
+        </button>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Monthly Revenue</div>
+            <div class="stat-value">$12,450.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Active Rentals</div>
+            <div class="stat-value">38</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Available Fleet</div>
+            <div class="stat-value">12 Cars</div>
+        </div>
+    </div>
+
+    <div class="data-card">
+        <div class="card-header">
+            <h3 style="font-family: 'Playfair Display', serif;">Recent Activity</h3>
+            <span style="color: var(--purple-main); cursor: pointer; font-size: 13px;">View All</span>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Vehicle</th>
+                <th>Status</th>
+                <th>Amount</th>
+            </tr>
+            </thead>
+            <tbody id="table-body">
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<div id="toast">Default Message</div>
+
+<script>
+    // Mock Data
+    const bookings = [
+        { user: "John Doe", car: "BMW M4", status: "Active", price: "$450" },
+        { user: "Jane Smith", car: "Tesla Model 3", status: "Pending", price: "$280" },
+        { user: "Mike Ross", car: "Audi A6", status: "Active", price: "$320" },
+        { user: "Sarah Connor", car: "Jeep Wrangler", status: "Active", price: "$150" }
+    ];
+
+    // Load Data
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = bookings.map(b => `
+            <tr>
+                <td style="font-weight:600">${b.user}</td>
+                <td>${b.car}</td>
+                <td><span class="status-badge ${b.status === 'Active' ? 'status-active' : 'status-pending'}">${b.status}</span></td>
+                <td style="color: var(--purple-dark); font-weight:700">${b.price}</td>
+            </tr>
+        `).join('');
+
+    // Toast Logic
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.style.display = 'block';
+        setTimeout(() => { t.style.display = 'none'; }, 3000);
+    }
+
+    // Initialize greeting
+    window.onload = () => {
+        console.log("Rentify Dashboard Loaded");
+    };
+</script>
+</body>
+</html>

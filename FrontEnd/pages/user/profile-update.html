@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rentify — My Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Young+Serif&family=Roboto+Slab:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+      --purple: #5b21b6;
+      --purple-light: #7c3aed;
+      --purple-soft: #ede9fe;
+      --purple-mid: #8b5cf6;
+      --purple-pale: #f5f3ff;
+      --white: #ffffff;
+      --off-white: #f8f7ff;
+      --text-dark: #1e1b2e;
+      --text-mid: #4b4669;
+      --text-muted: #9490a9;
+      --border: #ddd8f5;
+      --success: #22c55e;
+    }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--off-white);
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 12px rgba(91,33,182,0.06);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--purple-light), var(--purple));
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .nav-brand-name {
+      font-family: 'Young Serif', serif;
+      font-size: 22px;
+      color: var(--text-dark);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .nav-back {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--purple-light); }
+
+    .nav-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--purple-mid), var(--purple));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* PAGE LAYOUT */
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .page-title-wrap .eyebrow {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--purple-mid);
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .page-title-wrap h1 {
+      font-family: 'Young Serif', serif;
+      font-size: 30px;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+
+    .page-title-wrap p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* PROFILE CARD */
+    .profile-card {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(91,33,182,0.07);
+      animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* PROFILE HEADER */
+    .profile-banner {
+      height: 120px;
+      background: linear-gradient(135deg, var(--purple) 0%, var(--purple-mid) 50%, #a78bfa 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-banner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .profile-top {
+      padding: 0 36px 28px;
+      position: relative;
+    }
+
+    .avatar-wrap {
+      position: relative;
+      display: inline-block;
+      margin-top: -44px;
+      margin-bottom: 16px;
+    }
+
+    .avatar {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple-mid), var(--purple));
+      border: 4px solid white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: white;
+      font-weight: 700;
+      font-family: 'Young Serif', serif;
+      box-shadow: 0 4px 16px rgba(91,33,182,0.25);
+    }
+
+    .avatar-edit {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 28px;
+      height: 28px;
+      background: var(--purple-light);
+      border-radius: 50%;
+      border: 2px solid white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .avatar-edit:hover { background: var(--purple); }
+
+    .profile-name {
+      font-family: 'Young Serif', serif;
+      font-size: 22px;
+      color: var(--text-dark);
+      margin-bottom: 2px;
+    }
+
+    .profile-username {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .profile-badges {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .badge-verified {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-member {
+      background: var(--purple-soft);
+      color: var(--purple);
+    }
+
+    /* FORM SECTION */
+    .form-section {
+      padding: 36px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--purple-mid);
+      font-weight: 600;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 24px;
+    }
+
+    .span-full { grid-column: 1 / -1; }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .input-group label {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-mid);
+      margin-bottom: 7px;
+      font-weight: 500;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px;
+      pointer-events: none;
+      opacity: 0.45;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 13px 12px 40px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      color: var(--text-dark);
+      background: var(--off-white);
+      outline: none;
+      transition: all 0.25s;
+    }
+
+    .input-group input:focus {
+      border-color: var(--purple-light);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(124,58,237,0.08);
+    }
+
+    .input-group input::placeholder { color: var(--text-muted); }
+
+    .input-group input:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .toggle-pw {
+      position: absolute;
+      right: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 15px;
+      opacity: 0.4;
+      transition: opacity 0.2s;
+    }
+    .toggle-pw:hover { opacity: 0.8; }
+
+    /* Password change toggle */
+    .pw-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      color: var(--purple-light);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 16px;
+      transition: color 0.2s;
+    }
+    .pw-toggle-btn:hover { color: var(--purple); }
+
+    .pw-fields {
+      display: none;
+      grid-column: 1 / -1;
+    }
+
+    .pw-fields.open {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 24px;
+    }
+
+    /* Action bar */
+    .action-bar {
+      padding: 24px 36px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--purple-pale);
+    }
+
+    .action-bar-left {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-bar-right {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s;
+      border: none;
+    }
+
+    .btn-cancel {
+      background: white;
+      border: 1.5px solid var(--border);
+      color: var(--text-mid);
+    }
+    .btn-cancel:hover { border-color: var(--purple-light); color: var(--purple-light); }
+
+    .btn-save {
+      background: linear-gradient(135deg, var(--purple-light), var(--purple));
+      color: white;
+      box-shadow: 0 4px 16px rgba(91,33,182,0.28);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-save:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(91,33,182,0.38); }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      background: var(--text-dark);
+      color: white;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .danger-zone {
+      padding: 28px 36px;
+      border-top: 1px solid var(--border);
+    }
+
+    .danger-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: 1.5px solid #fee2e2;
+      background: #fff5f5;
+      color: #dc2626;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .danger-btn:hover { background: #fee2e2; border-color: #dc2626; }
+
+    @media(max-width:700px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .pw-fields.open { grid-template-columns: 1fr; }
+      nav { padding: 0 20px; }
+      .page { padding: 28px 16px 60px; }
+      .form-section { padding: 24px 20px; }
+      .action-bar { flex-direction: column; gap: 16px; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-brand-name">Rentify</div>
+  </div>
+  <div class="nav-actions">
+    <a href="signin.html" class="nav-back">← Back to Home</a>
+    <div class="nav-avatar" title="Your profile">JD</div>
+  </div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+  <div class="page-header">
+    <div class="page-title-wrap">
+      <div class="eyebrow">Account Settings</div>
+      <h1>My Profile</h1>
+      <p>Manage your personal information and account credentials.</p>
+    </div>
+  </div>
+
+  <div class="profile-card">
+
+    <!-- BANNER + AVATAR -->
+    <div class="profile-banner"></div>
+
+    <div class="profile-top">
+      <div class="avatar-wrap">
+        <div class="avatar" id="avatarDisplay">JD</div>
+        <div class="avatar-edit" title="Change photo">✏️</div>
+      </div>
+      <div class="profile-name" id="displayName">John Doe</div>
+      <div class="profile-username" id="displayUsername">@johndoe123</div>
+      <div class="profile-badges">
+        <span class="badge badge-verified">✅ Verified</span>
+        <span class="badge badge-member">🏅 Member since 2024</span>
+      </div>
+    </div>
+
+    <!-- PERSONAL INFO -->
+    <div class="form-section">
+      <div class="section-title">Personal Information</div>
+      <form id="profileForm">
+        <div class="form-grid">
+          <div class="input-group">
+            <label>First Name</label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input type="text" id="firstName" value="John" placeholder="First name" required>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Last Name</label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input type="text" id="lastName" value="Doe" placeholder="Last name" required>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Username</label>
+            <div class="input-wrap">
+              <span class="input-icon">🆔</span>
+              <input type="text" id="username" value="johndoe123" placeholder="Username" required>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Email Address</label>
+            <div class="input-wrap">
+              <span class="input-icon">✉️</span>
+              <input type="email" id="email" value="john@example.com" placeholder="Email" required>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Phone Number</label>
+            <div class="input-wrap">
+              <span class="input-icon">📱</span>
+              <input type="tel" id="phone" value="+1 (555) 000-0000" placeholder="Phone number">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Address</label>
+            <div class="input-wrap">
+              <span class="input-icon">📍</span>
+              <input type="text" id="address" value="123 Main Street, New York" placeholder="Address">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- PASSWORD SECTION -->
+    <div class="form-section">
+      <div class="section-title">Security</div>
+
+      <button class="pw-toggle-btn" id="pwToggleBtn" onclick="togglePasswordFields()">
+        🔐 Change Password
+      </button>
+
+      <div class="form-grid">
+        <div class="pw-fields" id="pwFields">
+          <div class="input-group">
+            <label>Current Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="currentPw" placeholder="Enter current password">
+              <span class="toggle-pw" data-target="currentPw">👁</span>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>New Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔑</span>
+              <input type="password" id="newPw" placeholder="Enter new password">
+              <span class="toggle-pw" data-target="newPw">👁</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTION BAR -->
+    <div class="action-bar">
+      <div class="action-bar-left">
+        <span>🔒</span> Your information is encrypted and secure.
+      </div>
+      <div class="action-bar-right">
+        <button class="btn btn-cancel" onclick="resetForm()">Cancel</button>
+        <button class="btn btn-save" onclick="saveProfile()">
+          <span>💾</span> Save Changes
+        </button>
+      </div>
+    </div>
+
+    <!-- DANGER ZONE -->
+    <div class="danger-zone">
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#dc2626;font-weight:600;margin-bottom:14px;">Danger Zone</div>
+      <button class="danger-btn" onclick="confirmDelete()">🗑 Delete Account</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span>✅</span> <span id="toastMsg">Profile updated successfully!</span>
+</div>
+
+<script>
+  function togglePasswordFields() {
+    const fields = document.getElementById('pwFields');
+    const btn = document.getElementById('pwToggleBtn');
+    const open = fields.classList.toggle('open');
+    btn.textContent = open ? '🔒 Hide Password Fields' : '🔐 Change Password';
+  }
+
+  document.querySelectorAll('.toggle-pw').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.dataset.target;
+      const input = document.getElementById(id);
+      input.type = input.type === 'password' ? 'text' : 'password';
+      this.textContent = input.type === 'password' ? '👁' : '🙈';
+    });
+  });
+
+  function showToast(msg, isError) {
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    toastMsg.textContent = msg;
+    toast.querySelector('span').textContent = isError ? '❌' : '✅';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+
+  function saveProfile() {
+    const fn = document.getElementById('firstName').value.trim();
+    const ln = document.getElementById('lastName').value.trim();
+    const un = document.getElementById('username').value.trim();
+
+    if (!fn || !ln || !un) {
+      showToast('Please fill in all required fields.', true);
+      return;
+    }
+
+    // Update display
+    document.getElementById('displayName').textContent = fn + ' ' + ln;
+    document.getElementById('displayUsername').textContent = '@' + un;
+    document.getElementById('avatarDisplay').textContent = fn[0].toUpperCase() + ln[0].toUpperCase();
+    document.querySelector('.nav-avatar').textContent = fn[0].toUpperCase() + ln[0].toUpperCase();
+
+    showToast('Profile updated successfully!', false);
+  }
+
+  function resetForm() {
+    document.getElementById('profileForm').reset();
+    document.getElementById('pwFields').classList.remove('open');
+    document.getElementById('pwToggleBtn').textContent = '🔐 Change Password';
+  }
+
+  function confirmDelete() {
+    if (confirm('Are you sure you want to delete your Rentify account? This action cannot be undone.')) {
+      showToast('Account deletion requested.', true);
+    }
+  }
+</script>
+</body>
+</html>
