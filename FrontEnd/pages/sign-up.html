@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
-    <!-- Bootstrap 5 -->
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -19,18 +18,13 @@
             --green-light: #bbf7d0;
             --green-soft: #f0fdf4;
             --yellow: #eab308;
-            --yellow-light: #fef9c3;
             --yellow-mid: #facc15;
-            --yellow-bright: #fde047;
             --text-dark: #0f1a14;
             --text-mid: #374151;
             --text-muted: #6b7280;
-            --border: #d1fae5;
             --white: #ffffff;
             --surface: #f9fefb;
         }
-
-        html { scroll-behavior: smooth; }
 
         body {
             font-family: 'DM Sans', sans-serif;
@@ -42,513 +36,142 @@
 
         /* ── LEFT PANEL ── */
         .left-panel {
-            width: 500px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 48px 40px;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            overflow: hidden;
-            font-family: "Roboto Mono", monospace;
-            font-weight: bold;
+            width: 500px; min-height: 100vh;
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 48px 40px; position: sticky; top: 0; height: 100vh; overflow: hidden;
         }
 
-        /* Background video inside left panel */
-        .left-panel .panel-video {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 0;
+        .panel-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+        .panel-overlay {
+            position: absolute; inset: 0; z-index: 1;
+            background: linear-gradient(to bottom, rgba(5,46,22,0.72) 0%, rgba(5,46,22,0.60) 50%, rgba(5,46,22,0.80) 100%);
         }
+        .left-panel > *:not(.panel-video):not(.panel-overlay) { position: relative; z-index: 3; }
 
-        /* Dark overlay on top of video */
-        .left-panel .panel-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(
-                    to bottom,
-                    rgba(5, 46, 22, 0.72) 0%,
-                    rgba(5, 46, 22, 0.60) 50%,
-                    rgba(5, 46, 22, 0.80) 100%
-            );
-            z-index: 1;
+        .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+        .brand-logo-fallback {
+            width: 48px; height: 48px; background: var(--yellow-mid); border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; color: var(--green-dark); font-size: 22px;
+            font-family: 'Roboto Mono', monospace;
         }
-
-        /* decorative circles */
-        .left-panel::before {
-            content: '';
-            position: absolute;
-            top: -80px;
-            right: -80px;
-            width: 280px;
-            height: 280px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(34,197,94,0.25) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        .left-panel::after {
-            content: '';
-            position: absolute;
-            bottom: -60px;
-            left: -60px;
-            width: 220px;
-            height: 220px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(234,179,8,0.18) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        /* all children above video */
-        .left-panel > *:not(.panel-video):not(.panel-overlay) {
-            position: relative;
-            z-index: 3;
-        }
-
-        /* ── BRAND BLOCK: logo + name in a row, tagline directly below ── */
-        .brand-block {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 14px;
-        }
-
-        /* PNG logo image */
-        .brand-logo-img {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
-            object-fit: contain;
-            box-shadow: 0 4px 12px rgba(6, 56, 1, 0.25);
-            background: #063801;
-            padding: 4px;
-        }
-
-        /* Fallback SVG logo (shown if PNG fails / not provided) */
-        .brand-logo {
-            width: 48px;
-            height: 48px;
-            background: var(--yellow-mid);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(6, 56, 1, 0.25);
-            flex-shrink: 0;
-        }
-
-        .brand-logo svg { width: 26px; height: 26px; }
-
-        .brand-name {
-            font-size: 40px;
-            font-weight: 800;
-            color: var(--white);
-            letter-spacing: -0.5px;
-            font-family: "Roboto Mono", monospace;
-            font-style: normal;
-        }
-
+        .brand-name { font-size: 40px; font-weight: 800; color: var(--white); font-family: "Roboto Mono", monospace; }
         .brand-name span { color: var(--yellow-mid); }
 
-        /* Tagline sits directly under brand row, left-aligned */
-        .panel-tagline {
-            text-align: left;
-        }
-
-        .panel-tagline h3 {
-            font-family: 'Syne', sans-serif;
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--white);
-            line-height: 1.3;
-            margin-bottom: 14px;
-            text-align: left;
-        }
-
-        .panel-tagline h3 em {
-            font-style: normal;
-            color: greenyellow;
-        }
-
-        .panel-tagline p {
-            font-size: 14px;
-            color: rgba(255,255,255,0.60);
-            line-height: 1.7;
-        }
-
-        .benefit-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .benefit-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .benefit-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.10);
-            border: 1px solid rgba(255,255,255,0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            flex-shrink: 0;
-            backdrop-filter: blur(4px);
-        }
-
-        .benefit-text {
-            font-size: 13px;
-            color: rgba(255,255,255,0.70);
-            font-weight: 400;
-        }
-
-        .benefit-text strong {
-            color: var(--white);
-            display: block;
-            font-weight: 600;
-            font-size: 13px;
-            margin-bottom: 1px;
-        }
-
-        .panel-footer {
-            font-size: 11.5px;
-            color: rgba(255,255,255,0.35);
-            line-height: 1.7;
-        }
+        .panel-tagline h3 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; color: var(--white); line-height: 1.3; margin-bottom: 14px; }
+        .panel-tagline h3 em { font-style: normal; color: greenyellow; }
+        .panel-tagline p { font-size: 14px; color: rgba(255,255,255,0.60); line-height: 1.7; }
+        .panel-footer { font-size: 11.5px; color: rgba(255,255,255,0.35); line-height: 1.7; }
 
         /* ── MAIN ── */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 60px 48px;
-            overflow-y: auto;
-        }
-
-        .form-container {
-            width: 100%;
-            max-width: 560px;
-            animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
-        }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(28px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
+        .main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 48px; overflow-y: auto; }
+        .form-container { width: 100%; max-width: 560px; animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
 
         .form-header { margin-bottom: 32px; }
+        .form-header h2 { font-size: 40px; font-weight: bold; color: darkgreen; font-family: "Roboto Mono", monospace; margin-bottom: 6px; }
+        .form-header p { font-size: 14px; color: var(--text-muted); }
 
-        .form-header h2 {
-            font-size: 40px;
-            font-weight: bold;
-            color: darkgreen;
-            letter-spacing: -0.5px;
-            margin-bottom: 6px;
-            font-family: "Roboto Mono", monospace;
-            font-style: normal;
-        }
-
-        .form-header p {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px 20px;
-        }
-
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; }
         .span-full { grid-column: 1 / -1; }
 
-        .field {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .field label {
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.6px;
-            text-transform: uppercase;
-            color: var(--text-mid);
-        }
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        .field label { font-size: 12px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-mid); }
 
         .input-wrap { position: relative; }
-
-        .input-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 18px;
-            height: 18px;
-            opacity: 0.45;
-            pointer-events: none;
-        }
+        .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; opacity: 0.45; pointer-events: none; color: var(--text-muted); }
 
         .field input {
-            width: 100%;
-            padding: 13px 14px 13px 44px;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 12px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
-            color: var(--text-dark);
-            background: var(--white);
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            width: 100%; padding: 13px 14px 13px 44px;
+            border: 1.5px solid #e5e7eb; border-radius: 12px;
+            font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text-dark);
+            background: var(--white); outline: none; transition: border-color 0.2s, box-shadow 0.2s;
         }
-
         .field input:hover { border-color: #a7f3d0; }
-
-        .field input:focus {
-            border-color: var(--green);
-            box-shadow: 0 0 0 4px rgba(22,163,74,0.1);
-            background: #fafffe;
-        }
-
-        .field input.error {
-            border-color: #f87171;
-            box-shadow: 0 0 0 4px rgba(248,113,113,0.1);
-        }
-
+        .field input:focus { border-color: var(--green); box-shadow: 0 0 0 4px rgba(22,163,74,0.1); }
+        .field input.error { border-color: #f87171; box-shadow: 0 0 0 4px rgba(248,113,113,0.1); }
         .field input::placeholder { color: #c4c9d4; }
 
         .toggle-pw {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            opacity: 0.35;
-            transition: opacity 0.2s;
-            background: none;
-            border: none;
-            padding: 0;
-            display: flex;
-            align-items: center;
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            cursor: pointer; opacity: 0.35; transition: opacity 0.2s;
+            background: none; border: none; padding: 0; display: flex; align-items: center;
         }
         .toggle-pw:hover { opacity: 0.7; }
 
-        .pw-strength-wrap { margin-top: 2px; }
-
-        .pw-bars { display: flex; gap: 4px; margin-bottom: 4px; }
-
-        .pw-bar {
-            height: 3px;
-            flex: 1;
-            border-radius: 3px;
-            background: #e5e7eb;
-            transition: background 0.3s;
-        }
-
+        .pw-bars { display: flex; gap: 4px; margin-top: 6px; margin-bottom: 4px; }
+        .pw-bar { height: 3px; flex: 1; border-radius: 3px; background: #e5e7eb; transition: background 0.3s; }
         .pw-bar.weak   { background: #f87171; }
         .pw-bar.medium { background: var(--yellow); }
         .pw-bar.strong { background: var(--green-mid); }
-
-        .pw-label {
-            font-size: 11px;
-            color: var(--text-muted);
-            transition: color 0.3s;
-        }
-
+        .pw-label { font-size: 11px; color: var(--text-muted); }
         .pw-label.weak   { color: #ef4444; }
         .pw-label.medium { color: var(--yellow); }
         .pw-label.strong { color: var(--green); }
 
         .agree-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 16px 18px;
-            background: var(--green-soft);
-            border-radius: 12px;
-            border: 1.5px solid var(--green-light);
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 16px 18px; background: var(--green-soft);
+            border-radius: 12px; border: 1.5px solid var(--green-light);
         }
-
-        .agree-row input[type="checkbox"] {
-            accent-color: var(--green);
-            width: 17px;
-            height: 17px;
-            margin-top: 2px;
-            flex-shrink: 0;
-            cursor: pointer;
-        }
-
-        .agree-row span {
-            font-size: 13px;
-            color: var(--text-mid);
-            line-height: 1.65;
-        }
-
-        .agree-row a {
-            color: var(--green);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
+        .agree-row input[type="checkbox"] { accent-color: var(--green); width: 17px; height: 17px; margin-top: 2px; flex-shrink: 0; cursor: pointer; }
+        .agree-row span { font-size: 13px; color: var(--text-mid); line-height: 1.65; }
+        .agree-row a { color: var(--green); text-decoration: none; font-weight: 600; }
         .agree-row a:hover { text-decoration: underline; }
 
         .section-label {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-            color: var(--green);
-            background: var(--green-soft);
-            border: 1px solid var(--green-light);
-            padding: 4px 12px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-bottom: 18px;
+            font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+            color: var(--green); background: var(--green-soft); border: 1px solid var(--green-light);
+            padding: 4px 12px; border-radius: 20px; display: inline-block; margin-bottom: 18px;
         }
 
         .section-sep {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 22px 0 18px;
+            font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+            color: var(--text-muted); display: flex; align-items: center; gap: 10px; margin: 22px 0 18px;
         }
+        .section-sep::before, .section-sep::after { content: ''; flex: 1; height: 1px; background: #e9faf0; }
 
-        .section-sep::before,
-        .section-sep::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #e9faf0;
-        }
-
-        .btn-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 24px;
-
-        }
+        .btn-stack { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
 
         .btn {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.22s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            letter-spacing: 0.1px;
+            width: 100%; padding: 15px; border: none; border-radius: 12px;
+            font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+            cursor: pointer; transition: all 0.22s; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
+        .btn-primary { background: var(--green); color: var(--white); box-shadow: 0 4px 20px rgba(22,163,74,0.3); }
+        .btn-primary:hover { background: #15803d; transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+        .btn-secondary { background: var(--white); color: var(--text-mid); border: 1.5px solid #e5e7eb; font-size: 14px; }
+        .btn-secondary:hover { border-color: var(--green-mid); color: var(--green); background: var(--green-soft); }
 
-        .btn-primary {
-            background: var(--green);
-            color: var(--white);
-            box-shadow: 0 4px 20px rgba(22,163,74,0.3);
-        }
-
-        .btn-primary:hover {
-            background: #15803d;
-            transform: translateY(-1px);
-            box-shadow: 0 8px 28px rgba(22,163,74,0.38);
-        }
-
-        .btn-primary:active { transform: translateY(0); }
-
-        .btn-secondary {
-            background: var(--white);
-            color: var(--text-mid);
-            border: 1.5px solid #e5e7eb;
-            font-size: 14px;
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--green-mid);
-            color: var(--green);
-            background: var(--green-soft);
-        }
-
-        .success-overlay {
-            display: none;
-            text-align: center;
-            padding: 40px 0;
-            animation: fadeUp 0.5s ease both;
-        }
-
+        .success-overlay { display: none; text-align: center; padding: 40px 0; animation: fadeUp 0.5s ease both; }
         .success-icon {
-            width: 72px;
-            height: 72px;
-            background: var(--green-soft);
-            border: 2px solid var(--green-light);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 34px;
+            width: 72px; height: 72px; background: var(--green-soft); border: 2px solid var(--green-light);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px; font-size: 34px;
         }
+        .success-overlay h3 { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: var(--text-dark); margin-bottom: 8px; }
+        .success-overlay p { font-size: 14px; color: var(--text-muted); margin-bottom: 28px; }
 
-        .success-overlay h3 {
-            font-family: 'Syne', sans-serif;
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-bottom: 8px;
+        /* Toast */
+        .toast-box {
+            position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+            background: #fff; border-radius: 12px; padding: 14px 18px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12); display: none;
+            border-left: 4px solid var(--green); max-width: 340px;
+            font-size: 14px; color: var(--text-mid); animation: slideIn 0.3s ease;
         }
+        .toast-box.error { border-left-color: #f87171; }
+        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .success-overlay p {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 28px;
-        }
+        .spinner { display: none; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── RESPONSIVE (Bootstrap breakpoints) ── */
         @media (max-width: 991.98px) {
             body { flex-direction: column; }
-            .left-panel {
-                width: 100%;
-                min-height: auto;
-                height: auto;
-                position: relative;
-                padding: 32px 24px 28px;
-            }
-            .left-panel::before,
-            .left-panel::after { display: none; }
+            .left-panel { width: 100%; min-height: auto; height: auto; position: relative; padding: 32px 24px; }
             .panel-footer { display: none; }
         }
-
         @media (max-width: 575.98px) {
             .form-grid { grid-template-columns: 1fr; }
             .main { padding: 28px 16px; }
@@ -559,48 +182,25 @@
 <body>
 
 <div class="left-panel">
-
-    <!-- Background video -->
     <video class="panel-video" autoplay muted loop playsinline>
         <source src="../assets/video/night-road.mp4" type="video/mp4">
     </video>
-
-    <!-- Dark overlay on video -->
     <div class="panel-overlay"></div>
 
-    <!-- BRAND BLOCK: logo row + tagline directly below it, all left-aligned -->
     <div class="brand-block">
         <div class="brand">
-            <!-- PNG logo — replace src with your actual logo path -->
-            <img
-                    src="../assets/imges/rentify-logo-yellow.png"
-                    alt="Rentify Logo"
-                    class="brand-logo-img"
-                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-            >
-            <!-- Fallback SVG logo (hidden by default, shown if PNG fails) -->
-            <div class="brand-logo" style="display:none;">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 9.5L12 3L21 9.5V20C21 20.5523 20.5523 21 20 21H15V15H9V21H4C3.44772 21 3 20.5523 3 20V9.5Z" fill="#14532d" stroke="#14532d" stroke-width="1"/>
-                    <path d="M9 21V15H15V21" fill="#facc15"/>
-                </svg>
-            </div>
+            <div class="brand-logo-fallback">R</div>
             <div class="brand-name">Rent<span>ify</span></div>
         </div>
-
-        <!-- Tagline directly under logo, left-aligned -->
         <div class="panel-tagline">
             <h3>One click. One key. <em>Unlimited freedom.</em></h3>
             <p>Join thousands of renters and landlords who trust Rentify to simplify the rental experience.</p>
         </div>
     </div>
 
-    <div class="panel-footer">
-        © 2025 Rentify Inc. · Privacy Policy · Terms of Service
-    </div>
+    <div class="panel-footer">© 2026 Rentify Inc. · Privacy Policy · Terms of Service</div>
 </div>
 
-<!-- ── MAIN ── -->
 <div class="main">
     <div class="form-container">
 
@@ -619,7 +219,7 @@
                         <label>First Name</label>
                         <div class="input-wrap">
                             <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10 10a4 4 0 100-8 4 4 0 000 8zm-7 8a7 7 0 1114 0H3z"/></svg>
-                            <input type="text" id="firstName" placeholder="Saumya" autocomplete="given-name">
+                            <input type="text" id="firstName" placeholder="John" autocomplete="given-name">
                         </div>
                     </div>
 
@@ -627,7 +227,7 @@
                         <label>Last Name</label>
                         <div class="input-wrap">
                             <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10 10a4 4 0 100-8 4 4 0 000 8zm-7 8a7 7 0 1114 0H3z"/></svg>
-                            <input type="text" id="lastName" placeholder="Divyanjalee" autocomplete="family-name">
+                            <input type="text" id="lastName" placeholder="Doe" autocomplete="family-name">
                         </div>
                     </div>
 
@@ -635,7 +235,7 @@
                         <label>Email Address</label>
                         <div class="input-wrap">
                             <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
-                            <input type="email" id="email" placeholder="saumya@example.com" autocomplete="email">
+                            <input type="email" id="email" placeholder="john@example.com" autocomplete="email">
                         </div>
                     </div>
 
@@ -644,14 +244,6 @@
                         <div class="input-wrap">
                             <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
                             <input type="tel" id="phone" placeholder="+1 (555) 000-0000" autocomplete="tel">
-                        </div>
-                    </div>
-
-                    <div class="field span-full">
-                        <label>Address</label>
-                        <div class="input-wrap">
-                            <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
-                            <input type="text" id="address" placeholder="123 Main Street, City, State" autocomplete="street-address">
                         </div>
                     </div>
                 </div>
@@ -663,7 +255,7 @@
                         <label>Username</label>
                         <div class="input-wrap">
                             <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
-                            <input type="text" id="username" placeholder="sau123" autocomplete="username">
+                            <input type="text" id="username" placeholder="john_doe" autocomplete="username">
                         </div>
                     </div>
 
@@ -672,11 +264,11 @@
                         <div class="input-wrap">
                             <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
                             <input type="password" id="pw1" placeholder="Create a password" autocomplete="new-password">
-                            <button type="button" class="toggle-pw" data-target="pw1" aria-label="Toggle password">
+                            <button type="button" class="toggle-pw" data-target="pw1">
                                 <svg id="eye-pw1" width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
                             </button>
                         </div>
-                        <div class="pw-strength-wrap">
+                        <div>
                             <div class="pw-bars">
                                 <div class="pw-bar" id="bar1"></div>
                                 <div class="pw-bar" id="bar2"></div>
@@ -687,11 +279,11 @@
                     </div>
 
                     <div class="field">
-                        <label>Re-enter Password</label>
+                        <label>Confirm Password</label>
                         <div class="input-wrap">
                             <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                             <input type="password" id="pw2" placeholder="Repeat your password" autocomplete="new-password">
-                            <button type="button" class="toggle-pw" data-target="pw2" aria-label="Toggle password">
+                            <button type="button" class="toggle-pw" data-target="pw2">
                                 <svg id="eye-pw2" width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
                             </button>
                         </div>
@@ -700,17 +292,18 @@
                     <div class="field span-full">
                         <div class="agree-row">
                             <input type="checkbox" id="agreeCheck">
-                            <span>I agree to Rentify's <a href="login.html">Terms of Service</a> and <a href="login.html">Privacy Policy</a>. I confirm I am at least 18 years old and that all information provided is accurate.</span>
+                            <span>I agree to Rentify's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. I confirm I am at least 18 years old and all information is accurate.</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="btn-stack">
-                    <button type="submit" class="btn btn-primary">
-                        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l3-3z" clip-rule="evenodd"/></svg>
-                        Sign Up — It's Free
+                    <button type="submit" class="btn btn-primary" id="signupBtn">
+                        <div class="spinner" id="signupSpinner"></div>
+                        <svg id="signupIcon" width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l3-3z" clip-rule="evenodd"/></svg>
+                        <span id="signupText">Sign Up — It's Free</span>
                     </button>
-                    <button type="button" class="btn btn-secondary" onclick="window.location.href='../pages/sign-in.html'">
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='sign-in.html'">
                         Already have an account? Sign in
                     </button>
                 </div>
@@ -718,11 +311,12 @@
             </form>
         </div>
 
+        <!-- Success View -->
         <div class="success-overlay" id="successView">
             <div class="success-icon">🎉</div>
             <h3>You're in, welcome!</h3>
-            <p>Your Rentify account has been created successfully.<br>Redirecting you to login...</p>
-            <button class="btn btn-primary" style="max-width:240px;margin:0 auto;" onclick="window.location.href='../pages/sign-in.html'">
+            <p>Your Rentify account has been created successfully.<br>A welcome email has been sent to your inbox.<br>Redirecting to login...</p>
+            <button class="btn btn-primary" style="max-width:240px;margin:0 auto;" onclick="window.location.href='sign-in.html'">
                 Go to Login
             </button>
         </div>
@@ -730,93 +324,139 @@
     </div>
 </div>
 
-<!-- Bootstrap 5 JS -->
+<!-- Toast -->
+<div class="toast-box" id="toastBox"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-    const pw1Input = document.getElementById('pw1');
-    const bars = [document.getElementById('bar1'), document.getElementById('bar2'), document.getElementById('bar3')];
-    const pwLabel = document.getElementById('pwLabel');
+    const API_BASE = 'http://localhost:8080/api/v1';
 
-    pw1Input.addEventListener('input', function () {
+    // ── Toast ──
+    function showToast(msg, isError = false) {
+        const t = document.getElementById('toastBox');
+        t.textContent = msg;
+        t.className = 'toast-box' + (isError ? ' error' : '');
+        t.style.display = 'block';
+        setTimeout(() => { t.style.display = 'none'; }, 4000);
+    }
+
+    // ── Password Strength ──
+    document.getElementById('pw1').addEventListener('input', function () {
         const pw = this.value;
-        bars.forEach(b => { b.className = 'pw-bar'; });
-        pwLabel.className = 'pw-label';
-        pwLabel.textContent = '';
+        const bars = [document.getElementById('bar1'), document.getElementById('bar2'), document.getElementById('bar3')];
+        const label = document.getElementById('pwLabel');
+        bars.forEach(b => b.className = 'pw-bar');
+        label.className = 'pw-label';
+        label.textContent = '';
         if (!pw) return;
-
         const score = (pw.length >= 8 ? 1 : 0) + (pw.length >= 12 ? 1 : 0)
             + (/[A-Z]/.test(pw) ? 1 : 0) + (/[0-9]/.test(pw) ? 1 : 0) + (/[^A-Za-z0-9]/.test(pw) ? 1 : 0);
-
         if (score <= 1) {
-            bars[0].classList.add('weak');
-            pwLabel.classList.add('weak');
-            pwLabel.textContent = 'Weak — add numbers & symbols';
+            bars[0].classList.add('weak'); label.classList.add('weak'); label.textContent = 'Weak — add numbers & symbols';
         } else if (score <= 3) {
-            bars[0].classList.add('medium'); bars[1].classList.add('medium');
-            pwLabel.classList.add('medium');
-            pwLabel.textContent = 'Fair — getting there!';
+            bars[0].classList.add('medium'); bars[1].classList.add('medium'); label.classList.add('medium'); label.textContent = 'Fair — getting there!';
         } else {
-            bars.forEach(b => b.classList.add('strong'));
-            pwLabel.classList.add('strong');
-            pwLabel.textContent = 'Strong — great password!';
+            bars.forEach(b => b.classList.add('strong')); label.classList.add('strong'); label.textContent = 'Strong password!';
         }
     });
 
+    // ── Toggle Password ──
     document.querySelectorAll('.toggle-pw').forEach(btn => {
         btn.addEventListener('click', function () {
-            const id = this.dataset.target;
-            const input = document.getElementById(id);
-            const eyeSvg = document.getElementById('eye-' + id);
+            const input = document.getElementById(this.dataset.target);
             input.type = input.type === 'password' ? 'text' : 'password';
-            eyeSvg.innerHTML = input.type === 'text'
-                ? `<path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd"/><path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z"/>`
-                : `<path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>`;
         });
     });
 
-    document.getElementById('signupForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const fields = ['firstName','lastName','email','phone','address','username','pw1','pw2'];
-        let valid = true;
+    // ── Clear errors on input ──
+    document.querySelectorAll('input').forEach(inp => {
+        inp.addEventListener('input', () => inp.classList.remove('error'));
+    });
 
-        fields.forEach(id => {
+    // ── Sign Up Submit ──
+    document.getElementById('signupForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName  = document.getElementById('lastName').value.trim();
+        const email     = document.getElementById('email').value.trim();
+        const phone     = document.getElementById('phone').value.trim();
+        const username  = document.getElementById('username').value.trim();
+        const pw1       = document.getElementById('pw1').value;
+        const pw2       = document.getElementById('pw2').value;
+
+        // Validate required fields
+        let valid = true;
+        ['firstName','lastName','email','phone','username','pw1','pw2'].forEach(id => {
             const el = document.getElementById(id);
-            el.classList.toggle('error', !el.value.trim());
-            if (!el.value.trim()) valid = false;
+            if (!el.value.trim()) { el.classList.add('error'); valid = false; }
         });
 
-        const emailEl = document.getElementById('email');
-        if (emailEl.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value)) {
-            emailEl.classList.add('error'); valid = false;
+        // Email format
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            document.getElementById('email').classList.add('error'); valid = false;
         }
 
-        const p1 = document.getElementById('pw1').value;
-        const p2 = document.getElementById('pw2').value;
-        if (p1 && p2 && p1 !== p2) {
+        // Password match
+        if (pw1 && pw2 && pw1 !== pw2) {
             document.getElementById('pw2').classList.add('error');
-            alert('Passwords do not match. Please try again.');
+            showToast('❌ Passwords do not match.', true);
             return;
         }
 
         if (!document.getElementById('agreeCheck').checked) {
-            alert('Please agree to the Terms of Service and Privacy Policy to continue.');
+            showToast('❌ Please agree to the Terms of Service to continue.', true);
             return;
         }
 
         if (!valid) {
             const firstErr = document.querySelector('.error');
             if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            showToast('❌ Please fill all required fields.', true);
             return;
         }
 
-        document.getElementById('formView').style.display = 'none';
-        document.getElementById('successView').style.display = 'block';
-        setTimeout(() => { window.location.href = 'login.html'; }, 3000);
-    });
+        // Loading state
+        const btn = document.getElementById('signupBtn');
+        btn.disabled = true;
+        document.getElementById('signupSpinner').style.display = 'block';
+        document.getElementById('signupIcon').style.display = 'none';
+        document.getElementById('signupText').textContent = 'Creating account...';
 
-    document.querySelectorAll('input').forEach(input => {
-        input.addEventListener('input', function () { this.classList.remove('error'); });
+        try {
+            // POST /api/v1/auth/signup
+            const response = await fetch(`${API_BASE}/auth/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fullName: firstName + ' ' + lastName,
+                    email: email,
+                    phone: phone,
+                    username: username,
+                    password: pw1,
+                    role: 'USER'   // new signups are always USER
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.code === 200) {
+                // Show success screen
+                document.getElementById('formView').style.display = 'none';
+                document.getElementById('successView').style.display = 'block';
+                setTimeout(() => { window.location.href = 'sign-in.html'; }, 4000);
+
+            } else {
+                throw new Error(result.message || 'Registration failed');
+            }
+
+        } catch (err) {
+            btn.disabled = false;
+            document.getElementById('signupSpinner').style.display = 'none';
+            document.getElementById('signupIcon').style.display = 'block';
+            document.getElementById('signupText').textContent = "Sign Up — It's Free";
+            showToast('❌ ' + (err.message || 'Something went wrong. Try again.'), true);
+        }
     });
 </script>
 </body>
