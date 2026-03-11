@@ -6,7 +6,9 @@ import lombok.Data;
 public class RegisterDTO {
 
     private String fullName;
-    private String userName;
+    private String username;
     private String password;
     private String email;
+    private String phone;
+    private String role;   // Lombok @Data auto-generates getRole() for you
 }

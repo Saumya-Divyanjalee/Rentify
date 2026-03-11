@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,65 +21,50 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JWTUtil jwtUtil;
     private final EmailService emailService;
-    private final InMemoryUserDetailsManager inMemoryUserDetailsManager;
 
-    //supports login by email or username + password.
-    //returns JWT token and role for frontend redirect
     public AuthResponseDTO authenticate(AuthDTO authDTO) {
         User user = userRepo.findByUsername(authDTO.getUsername())
-                .or(() -> userRepo.findByUsername(authDTO.getUsername()))
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found: " + authDTO.getUsername()));
+                .or(() -> userRepo.findByEmail(authDTO.getUsername()))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + authDTO.getUsername()));
 
-        //verify password
-        if(!passwordEncoder.matches(authDTO.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(authDTO.getPassword(), user.getPassword())) {
             throw new BadCredentialsException("Incorrect password");
         }
 
-        //generate JWT with role embedded
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
         return new AuthResponseDTO(token, user.getRole().name());
-
     }
 
-    //register new user (always USER role from signup page)
-    //sends welcome email asynchronously after saving
-
-    public String register(RegisterDTO  dto) {
-        //check for duplicate username
-        if (userRepo.existsByUsername((dto.getUserName())){
-            throw new RuntimeException("Username '"+dto.getUserName()+"' is already taken !");
+    public String register(RegisterDTO dto) {
+        if (userRepo.existsByUsername(dto.getUsername())) {
+            throw new RuntimeException("Username '" + dto.getUsername() + "' is already taken!");
         }
 
-        //check for duplicate email
-        if(dto.getEmail() != null && userRepo.existsByEmail(dto.getEmail())){
-            throw new RuntimeException("Email '"+dto.getEmail()+"' is already registered !");
+        if (dto.getEmail() != null && userRepo.existsByEmail(dto.getEmail())) {
+            throw new RuntimeException("Email '" + dto.getEmail() + "' is already registered!");
         }
 
-        //determine role
         Role role;
         try {
-            role = Role.valueOf(dto.getRole() != null? dto.getRole().toUpperCase() : "USER");
-
-        }catch (IllegalArgumentException e){
+            role = Role.valueOf(dto.getRole() != null ? dto.getRole().toUpperCase() : "USER");
+        } catch (IllegalArgumentException e) {
             role = Role.USER;
         }
 
         User user = User.builder()
                 .fullName(dto.getFullName())
-                .username(dto.getUserName())
+                .username(dto.getUsername())
                 .email(dto.getEmail())
                 .phone(dto.getPhone())
-                .password(passwordEncoder.encode((dto.getPassword())))
+                .password(passwordEncoder.encode(dto.getPassword()))
                 .role(role)
                 .build();
         userRepo.save(user);
 
-        //send welcome email asynchronously
         if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
-            emailService.sendWelcomeEmail(dto.getEmail(),dto.getFullName());
-
+            emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
         }
-        return "User registered successfully !";
-    }
 
+        return "User registered successfully!";
+    }
 }
