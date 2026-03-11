@@ -33,6 +33,7 @@
             overflow-x: hidden;
         }
 
+        /* LEFT PANEL */
         .left-panel {
             width: 500px;
             min-height: 100vh;
@@ -45,31 +46,12 @@
             height: 100vh;
             overflow: hidden;
         }
-
-        .panel-video {
-            position: absolute; inset: 0;
-            width: 100%; height: 100%;
-            object-fit: cover; z-index: 0; pointer-events: none;
-        }
-
-        .panel-overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(to bottom, rgba(5,46,22,0.8) 0%, rgba(5,46,22,0.6) 50%, rgba(5,46,22,0.9) 100%);
-            z-index: 1;
-        }
-
+        .panel-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; pointer-events: none; }
+        .panel-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(5,46,22,0.8) 0%, rgba(5,46,22,0.6) 50%, rgba(5,46,22,0.9) 100%); z-index: 1; }
         .left-panel > *:not(.panel-video):not(.panel-overlay) { position: relative; z-index: 3; }
 
         .brand-header { display: flex; align-items: center; gap: 16px; }
-
-        .brand-logo-fallback {
-            width: 52px; height: 52px;
-            background: var(--yellow-mid); border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 800; color: var(--green-dark); font-size: 24px;
-            font-family: 'Roboto Mono', monospace;
-        }
-
+        .brand-logo-fallback { width: 52px; height: 52px; background: var(--yellow-mid); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--green-dark); font-size: 24px; font-family: 'Roboto Mono', monospace; }
         .brand-name { font-size: 40px; font-weight: 800; color: var(--white); font-family: "Roboto Mono", monospace; letter-spacing: -1px; }
         .brand-name span { color: var(--yellow-mid); }
 
@@ -78,12 +60,7 @@
         .panel-tagline p { color: rgba(255,255,255,0.7); margin-top: 10px; font-size: 15px; }
 
         .feature-chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 30px 0; }
-        .chip {
-            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2); color: white;
-            padding: 6px 14px; border-radius: 50px; font-size: 12px;
-            display: flex; align-items: center; gap: 8px;
-        }
+        .chip { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 14px; border-radius: 50px; font-size: 12px; display: flex; align-items: center; gap: 8px; }
         .chip-dot { width: 6px; height: 6px; background: var(--yellow-mid); border-radius: 50%; }
 
         .stats-divider { height: 1px; background: rgba(255,255,255,0.1); margin-bottom: 20px; }
@@ -92,42 +69,24 @@
         .stat-label { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
         .panel-footer { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 30px; }
 
+        /* RIGHT FORM */
         .main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; }
         .form-container { width: 100%; max-width: 420px; }
 
-        .welcome-tag {
-            font-size: 12px; font-weight: 700; color: var(--green);
-            background: var(--green-soft); padding: 6px 12px;
-            border-radius: 20px; display: inline-block; margin-bottom: 12px;
-        }
-
+        .welcome-tag { font-size: 12px; font-weight: 700; color: var(--green); background: var(--green-soft); padding: 6px 12px; border-radius: 20px; display: inline-block; margin-bottom: 12px; }
         h2 { font-family: "Roboto Mono", monospace; font-weight: 700; color: var(--green-dark); }
 
         .field { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
         .field label { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-mid); }
-
         .input-wrap { position: relative; }
         .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; color: var(--text-muted); opacity: 0.6; }
-
-        .field input {
-            width: 100%; padding: 12px 14px 12px 42px;
-            border: 1.5px solid #e5e7eb; border-radius: 10px; transition: all 0.2s;
-            font-family: 'DM Sans', sans-serif; font-size: 14px;
-        }
+        .field input { width: 100%; padding: 12px 14px 12px 42px; border: 1.5px solid #e5e7eb; border-radius: 10px; transition: all 0.2s; font-family: 'DM Sans', sans-serif; font-size: 14px; }
         .field input:focus { border-color: var(--green); outline: none; box-shadow: 0 0 0 4px rgba(22,163,74,0.1); }
         .field input.error { border-color: #f87171; background: #fffafb; }
 
-        .toggle-pw {
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            border: none; background: none; color: var(--text-muted); cursor: pointer;
-        }
+        .toggle-pw { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); border: none; background: none; color: var(--text-muted); cursor: pointer; }
 
-        .btn-signin {
-            background: var(--green); border: none; padding: 12px;
-            border-radius: 10px; font-weight: 600; transition: 0.3s; width: 100%;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            margin-top: 10px; color: white; font-size: 15px; cursor: pointer;
-        }
+        .btn-signin { background: var(--green); border: none; padding: 12px; border-radius: 10px; font-weight: 600; transition: 0.3s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; color: white; font-size: 15px; cursor: pointer; }
         .btn-signin:hover { background: var(--green-dark); transform: translateY(-2px); }
         .btn-signin:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 
@@ -135,39 +94,38 @@
         .divider-line { flex: 1; height: 1px; background: #d1fae5; }
         .divider-text { font-size: 12px; color: var(--text-muted); }
 
-        .btn-secondary {
-            background: white; border: 1.5px solid #e5e7eb; padding: 10px;
-            border-radius: 10px; width: 100%; font-weight: 600;
-            color: var(--text-mid); transition: 0.2s; cursor: pointer; font-size: 14px;
-        }
-        .btn-secondary:hover { background: yellow; border-color: yellow; color: darkgreen; }
+        .btn-secondary { background: white; border: 1.5px solid #e5e7eb; padding: 10px; border-radius: 10px; width: 100%; font-weight: 600; color: var(--text-mid); transition: 0.2s; cursor: pointer; font-size: 14px; }
+        .btn-secondary:hover { background: #fefce8; border-color: var(--yellow-mid); color: var(--green-dark); }
 
-        .spinner {
-            display: none; width: 18px; height: 18px;
-            border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
-            border-radius: 50%; animation: spin 0.8s linear infinite;
-        }
+        .spinner { display: none; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .toast-box {
-            position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-            background: #fff; border-radius: 12px; padding: 14px 18px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12); display: none;
-            border-left: 4px solid var(--green); max-width: 320px;
-            font-size: 14px; color: var(--text-mid); animation: slideIn 0.3s ease;
+        /* Role badge shown after login */
+        .role-badge {
+            display: none;
+            align-items: center; justify-content: center; gap: 8px;
+            padding: 10px 16px; border-radius: 10px; margin-top: 12px;
+            font-weight: 700; font-size: 14px;
         }
+        .role-badge.admin { background: #ede9fe; color: #5b21b6; border: 1.5px solid #c4b5fd; }
+        .role-badge.user  { background: var(--green-soft); color: var(--green-dark); border: 1.5px solid var(--green-light); }
+
+        .toast-box { position: fixed; bottom: 24px; right: 24px; z-index: 9999; background: #fff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); display: none; border-left: 4px solid var(--green); max-width: 320px; font-size: 14px; color: var(--text-mid); }
+        .toast-box.show { display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease; }
         .toast-box.error { border-left-color: #f87171; }
         @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         @media (max-width: 991px) {
             body { flex-direction: column; }
-            .left-panel { width: 100%; height: auto; min-height: 280px; position: relative; padding: 32px 24px; }
+            .left-panel { width: 100%; height: auto; min-height: 260px; position: relative; padding: 28px 20px; }
             .stats, .panel-footer { display: none; }
+            .main { padding: 28px 20px; }
         }
     </style>
 </head>
 <body>
 
+<!-- LEFT PANEL -->
 <div class="left-panel">
     <video class="panel-video" autoplay muted loop playsinline>
         <source src="../assets/video/night-road.mp4" type="video/mp4">
@@ -202,6 +160,7 @@
     <div class="panel-footer">© 2026 Rentify Inc.</div>
 </div>
 
+<!-- RIGHT FORM -->
 <div class="main">
     <div class="form-container">
         <div class="welcome-tag">🥳 Welcome back</div>
@@ -238,16 +197,18 @@
 
             <div class="d-flex justify-content-between align-items-center mb-4" style="font-size:14px;">
                 <label class="d-flex align-items-center gap-2" style="cursor:pointer">
-                    <input type="checkbox" id="rememberMe"> Remember me
+                    <input type="checkbox" id="rememberMe" checked> Remember me
                 </label>
-                <!-- FIX: "Forgot password?" now correctly links to profile page -->
-                <a href="profile.html" class="text-success text-decoration-none fw-bold" style="font-size:13px;">Forgot password?</a>
+                <a href="../pages/user/profile-update.html" class="text-success text-decoration-none fw-bold" style="font-size:13px;">Forgot password?</a>
             </div>
 
             <button type="submit" class="btn-signin" id="loginBtn">
                 <div class="spinner" id="spinner"></div>
                 <span id="loginText">Sign In</span>
             </button>
+
+            <!-- Role badge appears after successful login -->
+            <div class="role-badge" id="roleBadge"></div>
 
             <div class="divider">
                 <div class="divider-line"></div>
@@ -268,38 +229,104 @@
 <script>
     const API_BASE = 'http://localhost:8080/api/v1';
 
-    function showToast(msg, isError = false) {
-        const t = document.getElementById('toastBox');
-        t.textContent = msg;
-        t.className = 'toast-box' + (isError ? ' error' : '');
-        t.style.display = 'block';
-        setTimeout(() => { t.style.display = 'none'; }, 3500);
+    // ── If already logged in → skip the form and redirect immediately ──
+    (function checkAlreadyLoggedIn() {
+        const t = localStorage.getItem('rentify_token');
+        const r = localStorage.getItem('rentify_role');
+        if (t && r) {
+            redirectByRole(r);
+        }
+    })();
+
+    // ── Redirect function used in two places ──
+    function redirectByRole(role) {
+        // role comes from backend as "ADMIN" or "USER"
+        if (role === 'ADMIN') {
+            window.location.href = '../pages/admin/admin-dashboard.html';
+        } else {
+            window.location.href = '../pages/user/user-dashboard.html';
+        }
     }
 
+    // ── Parse role out of JWT payload ──
+    // Backend stores: { "authorities": [{ "authority": "ROLE_ADMIN" }] }
+    function parseRoleFromToken(token) {
+        try {
+            // JWT = header.payload.signature — decode the middle part
+            const base64Payload = token.split('.')[1];
+            // Fix base64 padding if needed
+            const padded = base64Payload + '=='.slice((base64Payload.length % 4) || 4);
+            const payload = JSON.parse(atob(padded));
+
+            console.log('JWT payload:', payload); // helpful for debugging
+
+            const authorities = payload.authorities || payload.roles || [];
+
+            if (Array.isArray(authorities) && authorities.length > 0) {
+                const first = authorities[0];
+                // Handle both formats:
+                // Format A: [{ "authority": "ROLE_ADMIN" }]  ← Spring Security default
+                // Format B: ["ROLE_ADMIN"]                   ← simple string array
+                const raw = typeof first === 'string' ? first : (first.authority || first.role || '');
+                // Strip "ROLE_" prefix → returns "ADMIN" or "USER"
+                return raw.replace('ROLE_', '').toUpperCase();
+            }
+            return 'USER'; // safe default
+        } catch (e) {
+            console.error('Role parse error:', e);
+            return 'USER';
+        }
+    }
+
+    // ── Toast helper ──
+    function showToast(msg, isError = false) {
+        const t = document.getElementById('toastBox');
+        t.innerHTML = (isError ? '❌ ' : '✅ ') + msg;
+        t.className = 'toast-box show' + (isError ? ' error' : '');
+        clearTimeout(t._timer);
+        t._timer = setTimeout(() => { t.className = 'toast-box'; }, 3500);
+    }
+
+    // ── Toggle password visibility ──
     document.getElementById('togglePw').addEventListener('click', function () {
         const pw = document.getElementById('pwField');
         pw.type = pw.type === 'password' ? 'text' : 'password';
     });
 
-    document.querySelectorAll('input').forEach(inp => {
+    // ── Clear errors on input ──
+    document.querySelectorAll('input[type=text], input[type=password]').forEach(inp => {
         inp.addEventListener('input', () => inp.classList.remove('error'));
     });
 
+    // ── MAIN SIGN IN SUBMIT ──
     document.getElementById('loginForm').addEventListener('submit', async function (e) {
         e.preventDefault();
 
         const username = document.getElementById('emailField').value.trim();
         const password = document.getElementById('pwField').value;
 
-        if (!username) { document.getElementById('emailField').classList.add('error'); return; }
-        if (!password) { document.getElementById('pwField').classList.add('error'); return; }
+        // Client-side validation
+        if (!username) {
+            document.getElementById('emailField').classList.add('error');
+            showToast('Please enter your username or email.', true);
+            return;
+        }
+        if (!password) {
+            document.getElementById('pwField').classList.add('error');
+            showToast('Please enter your password.', true);
+            return;
+        }
 
-        const btn = document.getElementById('loginBtn');
+        // Show loading state
+        const btn  = document.getElementById('loginBtn');
+        const spin = document.getElementById('spinner');
+        const text = document.getElementById('loginText');
         btn.disabled = true;
-        document.getElementById('spinner').style.display = 'block';
-        document.getElementById('loginText').textContent = 'Authenticating...';
+        spin.style.display = 'block';
+        text.textContent = 'Authenticating...';
 
         try {
+            // ── CALL BACKEND ──
             const response = await fetch(`${API_BASE}/auth/signin`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -307,56 +334,66 @@
             });
 
             const result = await response.json();
+            console.log('Login response:', result); // debug
 
-            if (response.ok && result.code === 200) {
-                const token = result.data.accessToken;
-                // FIX: use localStorage so token persists across page navigations
-                localStorage.setItem('rentify_token', token);
-                localStorage.setItem('rentify_auth', 'true');
-
-                const role = parseRole(token);
-                localStorage.setItem('rentify_role', role);
-
-                document.getElementById('loginText').textContent = '✓ Success!';
-                btn.style.background = '#14532d';
-
-                showToast('Login successful! Redirecting...');
-
-                setTimeout(() => {
-                    if (role === 'ADMIN') {
-                        window.location.href = 'admin-dashboard.html';
-                    } else {
-                        window.location.href = 'user-dashboard.html';
-                    }
-                }, 800);
-
-            } else {
-                throw new Error(result.message || 'Invalid credentials');
+            if (!response.ok || result.code !== 200) {
+                throw new Error(result.message || 'Invalid credentials. Please try again.');
             }
 
+            // ── EXTRACT TOKEN AND ROLE ──
+            const token = result.data.accessToken;
+            // Backend also returns role directly — use it (most reliable)
+            // Fallback to parsing from JWT if backend doesn't send it
+            const roleFromBackend = (result.data.role || '').toUpperCase();
+            const roleFromToken   = parseRoleFromToken(token);
+            const role = roleFromBackend || roleFromToken;
+
+            console.log('Role from backend:', roleFromBackend);
+            console.log('Role from token:', roleFromToken);
+            console.log('Final role used:', role);
+
+            // ── SAVE TO localStorage ──
+            localStorage.setItem('rentify_token',    token);
+            localStorage.setItem('rentify_role',     role);
+            localStorage.setItem('rentify_auth',     'true');
+            localStorage.setItem('rentify_username', username);
+
+            // ── SHOW ROLE BADGE ──
+            const badge = document.getElementById('roleBadge');
+            if (role === 'ADMIN') {
+                badge.innerHTML = '👑 Logged in as <strong>ADMIN</strong> — redirecting...';
+                badge.className = 'role-badge admin';
+            } else {
+                badge.innerHTML = '✅ Logged in as <strong>USER</strong> — redirecting...';
+                badge.className = 'role-badge user';
+            }
+            badge.style.display = 'flex';
+
+            // Update button to show success
+            text.textContent = '✓ Success!';
+            btn.style.background = '#14532d';
+            spin.style.display = 'none';
+
+            showToast('Login successful!');
+
+            // ── REDIRECT after short delay ──
+            setTimeout(() => redirectByRole(role), 1000);
+
         } catch (err) {
+            // Restore button
             btn.disabled = false;
-            document.getElementById('spinner').style.display = 'none';
-            document.getElementById('loginText').textContent = 'Sign In';
+            spin.style.display = 'none';
+            text.textContent = 'Sign In';
+            btn.style.background = '';
+
+            // Mark fields as error
             document.getElementById('emailField').classList.add('error');
             document.getElementById('pwField').classList.add('error');
             document.getElementById('pwField').value = '';
-            showToast('❌ ' + (err.message || 'Login failed. Please try again.'), true);
+
+            showToast(err.message || 'Login failed. Please try again.', true);
         }
     });
-
-    function parseRole(token) {
-        try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            const auth = payload.authorities || payload.roles || [];
-            if (Array.isArray(auth)) {
-                const a = auth[0];
-                const val = typeof a === 'string' ? a : (a.authority || '');
-                return val.replace('ROLE_', '');
-            }
-            return 'USER';
-        } catch { return 'USER'; }
-    }
 </script>
 </body>
 </html>
