@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rentify Admin — Payments</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../admin-css/admin.css">
+    <style>
+        .pay-icon{font-size:22px;}
+        .method-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:600;background:#f1f5f9;color:var(--text-mid);}
+    </style>
+</head>
+<body>
+<div id="sidebar-root"></div>
+<main class="main-content">
+    <div class="page-header">
+        <div><div class="page-title">💳 Payments</div><div class="page-subtitle">Track all transactions</div></div>
+        <button class="btn btn-primary" onclick="openModal()">+ Record Payment</button>
+    </div>
+
+    <div class="stats-grid" style="margin-bottom:24px">
+        <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Total Revenue</div><div class="stat-value" id="totalRev">$0</div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-label">Paid</div><div class="stat-value" id="totalPaid">0</div></div>
+        <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-label">Pending</div><div class="stat-value" id="totalPending">0</div></div>
+        <div class="stat-card"><div class="stat-icon">❌</div><div class="stat-label">Failed</div><div class="stat-value" id="totalFailed">0</div></div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+        <div class="search-bar"><span>🔍</span><input id="searchInput" placeholder="Search user, booking ID..." oninput="renderTable()"></div>
+        <select class="form-select" style="max-width:160px" id="filterMethod" onchange="renderTable()">
+            <option value="">All Methods</option><option>Cash</option><option>Card</option><option>Online</option><option>Bank Transfer</option>
+        </select>
+        <select class="form-select" style="max-width:140px" id="filterStatus" onchange="renderTable()">
+            <option value="">All Status</option><option>Paid</option><option>Pending</option><option>Failed</option><option>Refunded</option>
+        </select>
+        <button class="btn btn-outline" onclick="exportCSV()">⬇ Export</button>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">All Transactions</span>
+            <span id="countBadge" class="badge badge-blue"></span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>#Pay ID</th><th>User ID</th><th>Booking ID</th><th>Method</th><th>Amount</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="payTable"></tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title" id="modalTitle">Record Payment</div>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="form-grid">
+            <div class="form-group"><label class="form-label">User ID</label><input class="form-input" id="f-uid" placeholder="U001"></div>
+            <div class="form-group"><label class="form-label">Booking ID</label><input class="form-input" id="f-bid" placeholder="B001"></div>
+            <div class="form-group"><label class="form-label">Amount ($)</label><input class="form-input" id="f-amount" type="number" placeholder="45.00"></div>
+            <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="f-date"></div>
+            <div class="form-group"><label class="form-label">Payment Method</label>
+                <select class="form-select" id="f-method"><option>Cash</option><option>Card</option><option>Online</option><option>Bank Transfer</option></select>
+            </div>
+            <div class="form-group"><label class="form-label">Status</label>
+                <select class="form-select" id="f-status"><option>Paid</option><option>Pending</option><option>Failed</option><option>Refunded</option></select>
+            </div>
+            <div class="form-group full"><label class="form-label">Note (optional)</label><input class="form-input" id="f-note" placeholder="Any additional note"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="savePayment()">Save Payment</button>
+        </div>
+    </div>
+</div>
+<div id="toast"></div>
+<script src="../admin-js/admin-js.js"></script>
+<script>
+    document.getElementById('sidebar-root').innerHTML = getSidebar('payment');
+    const KEY='r_payments';
+    const methodIcons={Cash:'💵',Card:'💳',Online:'🌐','Bank Transfer':'🏦'};
+    let data=JSON.parse(localStorage.getItem(KEY)||'null')||[
+        {id:'P001',userId:'U001',bookingId:'B001',method:'Card',amount:45,date:'2026-03-10',status:'Paid',note:''},
+        {id:'P002',userId:'U002',bookingId:'B002',method:'Cash',amount:60,date:'2026-03-11',status:'Pending',note:''},
+        {id:'P003',userId:'U001',bookingId:'B003',method:'Online',amount:30,date:'2026-03-09',status:'Paid',note:'PayPal'},
+        {id:'P004',userId:'U003',bookingId:'B004',method:'Bank Transfer',amount:120,date:'2026-03-08',status:'Refunded',note:'Trip cancelled'},
+    ];
+    let editId=null;
+    const save=()=>localStorage.setItem(KEY,JSON.stringify(data));
+    const sc=s=>s==='Paid'?'badge-green':s==='Pending'?'badge-yellow':s==='Refunded'?'badge-blue':'badge-red';
+    function updateStats(){
+        const total=data.reduce((a,p)=>a+(p.status==='Paid'?+p.amount:0),0);
+        document.getElementById('totalRev').textContent='$'+total.toFixed(2);
+        document.getElementById('totalPaid').textContent=data.filter(p=>p.status==='Paid').length;
+        document.getElementById('totalPending').textContent=data.filter(p=>p.status==='Pending').length;
+        document.getElementById('totalFailed').textContent=data.filter(p=>p.status==='Failed').length;
+    }
+    function renderTable(){
+        updateStats();
+        const q=document.getElementById('searchInput').value.toLowerCase();
+        const fm=document.getElementById('filterMethod').value;
+        const fs=document.getElementById('filterStatus').value;
+        const filtered=data.filter(p=>(!q||(p.userId+p.bookingId).toLowerCase().includes(q))&&(!fm||p.method===fm)&&(!fs||p.status===fs));
+        document.getElementById('countBadge').textContent=filtered.length+' records';
+        document.getElementById('payTable').innerHTML=filtered.map(p=>`
+    <tr>
+      <td><span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text-muted)">${p.id}</span></td>
+      <td>${p.userId}</td><td>${p.bookingId}</td>
+      <td><span class="method-badge">${methodIcons[p.method]||'💳'} ${p.method}</span></td>
+      <td style="font-weight:700;color:var(--green)">$${(+p.amount).toFixed(2)}</td>
+      <td>${p.date}</td>
+      <td><span class="badge ${sc(p.status)}">${p.status}</span></td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-outline btn-sm" onclick="editPayment('${p.id}')">✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deletePayment('${p.id}')">🗑️</button>
+      </td>
+    </tr>`).join('');
+    }
+    function openModal(clear=true){
+        if(clear){
+            editId=null;
+            ['f-uid','f-bid','f-amount','f-note'].forEach(i=>document.getElementById(i).value='');
+            document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+            document.getElementById('f-method').value='Cash';document.getElementById('f-status').value='Paid';
+            document.getElementById('modalTitle').textContent='Record Payment';
+        }
+        document.getElementById('modalOverlay').classList.add('open');
+    }
+    function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+    function savePayment(){
+        const p={userId:document.getElementById('f-uid').value.trim(),bookingId:document.getElementById('f-bid').value.trim(),amount:document.getElementById('f-amount').value,date:document.getElementById('f-date').value,method:document.getElementById('f-method').value,status:document.getElementById('f-status').value,note:document.getElementById('f-note').value.trim()};
+        if(!p.userId||!p.amount){showToast('Fill required fields','error');return;}
+        if(editId){const idx=data.findIndex(x=>x.id===editId);data[idx]={...data[idx],...p};}
+        else{p.id='P'+String(data.length+1).padStart(3,'0');data.unshift(p);}
+        save();renderTable();closeModal();showToast(editId?'Payment updated!':'Payment recorded!');
+    }
+    function editPayment(id){
+        const p=data.find(x=>x.id===id);editId=id;
+        document.getElementById('f-uid').value=p.userId;
+        document.getElementById('f-bid').value=p.bookingId;
+        document.getElementById('f-amount').value=p.amount;
+        document.getElementById('f-date').value=p.date;
+        document.getElementById('f-method').value=p.method;
+        document.getElementById('f-status').value=p.status;
+        document.getElementById('f-note').value=p.note||'';
+        document.getElementById('modalTitle').textContent='Edit Payment';
+        openModal(false);
+    }
+    function deletePayment(id){if(confirm('Delete this payment?')){data=data.filter(x=>x.id!==id);save();renderTable();showToast('Payment deleted','error');}}
+    function exportCSV(){const rows=[['ID','User ID','Booking ID','Method','Amount','Date','Status'],...data.map(p=>[p.id,p.userId,p.bookingId,p.method,p.amount,p.date,p.status])];const csv=rows.map(r=>r.join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv,'+encodeURIComponent(csv);a.download='payments.csv';a.click();}
+    renderTable();
+</script>
+</body></html>

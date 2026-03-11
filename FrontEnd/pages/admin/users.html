@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rentify Admin — Users</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../admin-css/admin.css">
+    <style>
+        .avatar-circle{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:white;flex-shrink:0;}
+    </style>
+</head>
+<body>
+<div id="sidebar-root"></div>
+<main class="main-content">
+    <div class="page-header">
+        <div><div class="page-title">👥 Users</div><div class="page-subtitle">Manage registered users</div></div>
+        <button class="btn btn-primary" onclick="openModal()">+ Add User</button>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+        <div class="search-bar"><span>🔍</span><input id="searchInput" placeholder="Search name, email..." oninput="renderTable()"></div>
+        <select class="form-select" style="max-width:140px" id="filterRole" onchange="renderTable()">
+            <option value="">All Roles</option><option>USER</option><option>ADMIN</option>
+        </select>
+        <button class="btn btn-outline" onclick="exportCSV()">⬇ Export</button>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">All Users</span>
+            <span id="countBadge" class="badge badge-blue"></span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>#ID</th><th>Name</th><th>Email</th><th>Address</th><th>Mobile</th><th>Role</th><th>Actions</th></tr></thead>
+                <tbody id="userTable"></tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title" id="modalTitle">Add User</div>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="form-grid">
+            <div class="form-group"><label class="form-label">First Name</label><input class="form-input" id="f-fname" placeholder="First name"></div>
+            <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" id="f-lname" placeholder="Last name"></div>
+            <div class="form-group full"><label class="form-label">Email</label><input class="form-input" id="f-email" type="email" placeholder="email@example.com"></div>
+            <div class="form-group full"><label class="form-label">Address</label><input class="form-input" id="f-address" placeholder="Full address"></div>
+            <div class="form-group"><label class="form-label">Mobile</label><input class="form-input" id="f-mobile" placeholder="+94 77 000 0000"></div>
+            <div class="form-group"><label class="form-label">Role</label>
+                <select class="form-select" id="f-role"><option>USER</option><option>ADMIN</option></select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveUser()">Save User</button>
+        </div>
+    </div>
+</div>
+<div id="toast"></div>
+<script src="../admin-js/admin-js.js"></script>
+<script>
+    document.getElementById('sidebar-root').innerHTML = getSidebar('users');
+    const KEY='r_users';
+    const colors=['#16a34a','#6366f1','#f59e0b','#ec4899','#0ea5e9','#8b5cf6'];
+    let data=JSON.parse(localStorage.getItem(KEY)||'null')||[
+        {id:'U001',firstName:'Amal',lastName:'Perera',email:'amal@gmail.com',address:'23 Galle Rd, Colombo',mobile:'+94 77 123 4567',role:'USER'},
+        {id:'U002',firstName:'Nimal',lastName:'Silva',email:'nimal@gmail.com',address:'45 Kandy Rd, Kandy',mobile:'+94 71 987 6543',role:'USER'},
+        {id:'U003',firstName:'Saumya',lastName:'Admin',email:'admin@rentify.com',address:'Rentify HQ, Colombo',mobile:'+94 76 000 0001',role:'ADMIN'},
+    ];
+    let editId=null;
+    const save=()=>localStorage.setItem(KEY,JSON.stringify(data));
+    const initials=u=>(u.firstName[0]+u.lastName[0]).toUpperCase();
+    const color=i=>colors[i%colors.length];
+    function renderTable(){
+        const q=document.getElementById('searchInput').value.toLowerCase();
+        const fr=document.getElementById('filterRole').value;
+        const filtered=data.filter(u=>{
+            const m=!q||(u.firstName+u.lastName+u.email+u.mobile).toLowerCase().includes(q);
+            return m&&(!fr||u.role===fr);
+        });
+        document.getElementById('countBadge').textContent=filtered.length+' users';
+        document.getElementById('userTable').innerHTML=filtered.map((u,i)=>`
+    <tr>
+      <td><span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text-muted)">${u.id}</span></td>
+      <td><div style="display:flex;align-items:center;gap:10px">
+        <div class="avatar-circle" style="background:${color(i)}">${initials(u)}</div>
+        <span><strong>${u.firstName} ${u.lastName}</strong></span></div></td>
+      <td>${u.email}</td>
+      <td>${u.address}</td>
+      <td>${u.mobile}</td>
+      <td><span class="badge ${u.role==='ADMIN'?'badge-blue':'badge-green'}">${u.role}</span></td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-outline btn-sm" onclick="editUser('${u.id}')">✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}')">🗑️</button>
+      </td>
+    </tr>`).join('');
+    }
+    function openModal(clear=true){
+        if(clear){editId=null;['f-fname','f-lname','f-email','f-address','f-mobile'].forEach(i=>document.getElementById(i).value='');document.getElementById('f-role').value='USER';document.getElementById('modalTitle').textContent='Add User';}
+        document.getElementById('modalOverlay').classList.add('open');
+    }
+    function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+    function saveUser(){
+        const u={firstName:document.getElementById('f-fname').value.trim(),lastName:document.getElementById('f-lname').value.trim(),email:document.getElementById('f-email').value.trim(),address:document.getElementById('f-address').value.trim(),mobile:document.getElementById('f-mobile').value.trim(),role:document.getElementById('f-role').value};
+        if(!u.firstName||!u.email){showToast('Fill required fields','error');return;}
+        if(editId){const idx=data.findIndex(x=>x.id===editId);data[idx]={...data[idx],...u};}
+        else{u.id='U'+String(data.length+1).padStart(3,'0');data.unshift(u);}
+        save();renderTable();closeModal();showToast(editId?'User updated!':'User added!');
+    }
+    function editUser(id){
+        const u=data.find(x=>x.id===id);editId=id;
+        document.getElementById('f-fname').value=u.firstName;
+        document.getElementById('f-lname').value=u.lastName;
+        document.getElementById('f-email').value=u.email;
+        document.getElementById('f-address').value=u.address;
+        document.getElementById('f-mobile').value=u.mobile;
+        document.getElementById('f-role').value=u.role;
+        document.getElementById('modalTitle').textContent='Edit User';
+        openModal(false);
+    }
+    function deleteUser(id){if(confirm('Delete this user?')){data=data.filter(x=>x.id!==id);save();renderTable();showToast('User deleted','error');}}
+    function exportCSV(){const rows=[['ID','First','Last','Email','Address','Mobile','Role'],...data.map(u=>[u.id,u.firstName,u.lastName,u.email,u.address,u.mobile,u.role])];const csv=rows.map(r=>r.join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv,'+encodeURIComponent(csv);a.download='users.csv';a.click();}
+    renderTable();
+</script>
+</body></html>

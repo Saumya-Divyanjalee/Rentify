@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rentify Admin — Bookings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../admin-css/admin.css">
+</head>
+<body>
+<div id="sidebar-root"></div>
+<main class="main-content">
+    <div class="page-header">
+        <div><div class="page-title">📅 Bookings</div><div class="page-subtitle">Manage all cab bookings</div></div>
+        <button class="btn btn-primary" onclick="openModal()">+ New Booking</button>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+        <div class="search-bar"><span>🔍</span><input id="searchInput" placeholder="Search customer, cab..." oninput="renderTable()"></div>
+        <select class="form-select" style="max-width:160px" id="filterStatus" onchange="renderTable()">
+            <option value="">All Status</option>
+            <option>Confirmed</option><option>Pending</option><option>Completed</option><option>Cancelled</option>
+        </select>
+        <button class="btn btn-outline" onclick="exportCSV()">⬇ Export</button>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">All Bookings</span>
+            <span id="countBadge" class="badge badge-green"></span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr>
+                    <th>#ID</th><th>Customer</th><th>Model</th><th>Pickup Date</th>
+                    <th>Pickup Time</th><th>Pickup Location</th><th>Drop Location</th>
+                    <th>Status</th><th>Actions</th>
+                </tr></thead>
+                <tbody id="bookingTable"></tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title" id="modalTitle">New Booking</div>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="form-grid">
+            <div class="form-group"><label class="form-label">Customer Name</label><input class="form-input" id="f-customer" placeholder="Full name"></div>
+            <div class="form-group"><label class="form-label">Cab Model</label><input class="form-input" id="f-model" placeholder="e.g. Toyota Axio"></div>
+            <div class="form-group"><label class="form-label">Pickup Date</label><input class="form-input" type="date" id="f-date"></div>
+            <div class="form-group"><label class="form-label">Pickup Time</label><input class="form-input" type="time" id="f-time"></div>
+            <div class="form-group"><label class="form-label">Pickup Location</label><input class="form-input" id="f-pickup" placeholder="From"></div>
+            <div class="form-group"><label class="form-label">Drop Location</label><input class="form-input" id="f-drop" placeholder="To"></div>
+            <div class="form-group"><label class="form-label">Status</label>
+                <select class="form-select" id="f-status">
+                    <option>Pending</option><option>Confirmed</option><option>Completed</option><option>Cancelled</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveBooking()">Save Booking</button>
+        </div>
+    </div>
+</div>
+<div id="toast"></div>
+<script src="../admin-js/admin-js.js"></script>
+<script>
+    document.getElementById('sidebar-root').innerHTML = getSidebar('bookings');
+    const KEY = 'r_bookings';
+    let data = JSON.parse(localStorage.getItem(KEY)||'null') || [
+        {id:'B001',customerName:'Amal Perera',cabModel:'Toyota Axio',pickupDate:'2026-03-10',pickupTime:'08:00',pickupLocation:'Colombo Fort',dropLocation:'Kandy',status:'Confirmed'},
+        {id:'B002',customerName:'Nimal Silva',cabModel:'Honda Fit',pickupDate:'2026-03-11',pickupTime:'10:30',pickupLocation:'Galle',dropLocation:'Colombo',status:'Pending'},
+        {id:'B003',customerName:'Dilani Fernando',cabModel:'KIA Picanto',pickupDate:'2026-03-09',pickupTime:'14:00',pickupLocation:'Negombo',dropLocation:'Airport',status:'Completed'},
+        {id:'B004',customerName:'Kamal Jayasuriya',cabModel:'Suzuki Alto',pickupDate:'2026-03-12',pickupTime:'07:00',pickupLocation:'Matara',dropLocation:'Galle',status:'Cancelled'},
+    ];
+    let editId = null;
+    const save = ()=>localStorage.setItem(KEY,JSON.stringify(data));
+    const sc = s=>s==='Confirmed'?'badge-green':s==='Pending'?'badge-yellow':s==='Completed'?'badge-blue':'badge-red';
+    function renderTable(){
+        const q=document.getElementById('searchInput').value.toLowerCase();
+        const fs=document.getElementById('filterStatus').value;
+        const filtered=data.filter(b=>{
+            const match=!q||(b.customerName+b.cabModel+b.pickupLocation+b.dropLocation).toLowerCase().includes(q);
+            const st=!fs||b.status===fs;
+            return match&&st;
+        });
+        document.getElementById('countBadge').textContent=filtered.length+' records';
+        document.getElementById('bookingTable').innerHTML=filtered.map(b=>`
+    <tr>
+      <td><span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text-muted)">${b.id}</span></td>
+      <td><strong>${b.customerName}</strong></td>
+      <td>${b.cabModel}</td>
+      <td>${b.pickupDate}</td>
+      <td>${b.pickupTime}</td>
+      <td>📍 ${b.pickupLocation}</td>
+      <td>🏁 ${b.dropLocation}</td>
+      <td><span class="badge ${sc(b.status)}">${b.status}</span></td>
+      <td style="display:flex;gap:6px;">
+        <button class="btn btn-outline btn-sm" onclick="editBooking('${b.id}')">✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteBooking('${b.id}')">🗑️</button>
+      </td>
+    </tr>`).join('');
+    }
+    function openModal(clear=true){
+        if(clear){editId=null;['f-customer','f-model','f-date','f-time','f-pickup','f-drop'].forEach(i=>document.getElementById(i).value='');document.getElementById('f-status').value='Pending';document.getElementById('modalTitle').textContent='New Booking';}
+        document.getElementById('modalOverlay').classList.add('open');
+    }
+    function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+    function saveBooking(){
+        const b={
+            customerName:document.getElementById('f-customer').value.trim(),
+            cabModel:document.getElementById('f-model').value.trim(),
+            pickupDate:document.getElementById('f-date').value,
+            pickupTime:document.getElementById('f-time').value,
+            pickupLocation:document.getElementById('f-pickup').value.trim(),
+            dropLocation:document.getElementById('f-drop').value.trim(),
+            status:document.getElementById('f-status').value,
+        };
+        if(!b.customerName||!b.cabModel){showToast('Fill required fields','error');return;}
+        if(editId){const idx=data.findIndex(x=>x.id===editId);data[idx]={...data[idx],...b};}
+        else{b.id='B'+String(data.length+1).padStart(3,'0');data.unshift(b);}
+        save();renderTable();closeModal();showToast(editId?'Booking updated!':'Booking added!');
+    }
+    function editBooking(id){
+        const b=data.find(x=>x.id===id);editId=id;
+        document.getElementById('f-customer').value=b.customerName;
+        document.getElementById('f-model').value=b.cabModel;
+        document.getElementById('f-date').value=b.pickupDate;
+        document.getElementById('f-time').value=b.pickupTime;
+        document.getElementById('f-pickup').value=b.pickupLocation;
+        document.getElementById('f-drop').value=b.dropLocation;
+        document.getElementById('f-status').value=b.status;
+        document.getElementById('modalTitle').textContent='Edit Booking';
+        openModal(false);
+    }
+    function deleteBooking(id){if(confirm('Delete this booking?')){data=data.filter(x=>x.id!==id);save();renderTable();showToast('Booking deleted','error');}}
+    function exportCSV(){
+        const rows=[['ID','Customer','Model','Date','Time','Pickup','Drop','Status'],...data.map(b=>[b.id,b.customerName,b.cabModel,b.pickupDate,b.pickupTime,b.pickupLocation,b.dropLocation,b.status])];
+        const csv=rows.map(r=>r.join(',')).join('\n');
+        const a=document.createElement('a');a.href='data:text/csv,'+encodeURIComponent(csv);a.download='bookings.csv';a.click();
+    }
+    renderTable();
+</script>
+</body></html>

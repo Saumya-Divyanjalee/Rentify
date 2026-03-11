@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rentify Admin — Drivers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../admin-css/admin.css">
+    <style>
+        .driver-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--green-light);}
+        .driver-avatar-placeholder{width:40px;height:40px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;border:2px solid var(--green-light);}
+        .pic-upload-area{border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:0.2s;background:#f8fafc;}
+        .pic-upload-area:hover{border-color:var(--green);background:var(--green-soft);}
+        .pic-preview{width:80px;height:80px;border-radius:50%;object-fit:cover;margin:0 auto 10px;display:block;border:3px solid var(--green-light);}
+        .exp-warning{color:#dc2626;font-size:11px;font-weight:600;}
+    </style>
+</head>
+<body>
+<div id="sidebar-root"></div>
+<main class="main-content">
+    <div class="page-header">
+        <div><div class="page-title">🧑‍✈️ Drivers</div><div class="page-subtitle">Manage your driver fleet</div></div>
+        <button class="btn btn-primary" onclick="openModal()">+ Add Driver</button>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+        <div class="search-bar"><span>🔍</span><input id="searchInput" placeholder="Search driver, licence..." oninput="renderTable()"></div>
+        <select class="form-select" style="max-width:160px" id="filterType" onchange="renderTable()">
+            <option value="">All Vehicle Types</option><option>Sedan</option><option>SUV</option><option>Mini</option><option>Van</option><option>Luxury</option>
+        </select>
+        <button class="btn btn-outline" onclick="exportCSV()">⬇ Export</button>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">All Drivers</span>
+            <span id="countBadge" class="badge badge-green"></span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>#ID</th><th>Profile</th><th>Name</th><th>Phone</th><th>Licence No</th><th>Licence Expiry</th><th>Vehicle Type</th><th>Actions</th></tr></thead>
+                <tbody id="driverTable"></tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title" id="modalTitle">Add Driver</div>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+
+        <!-- Profile Pic Upload -->
+        <div class="pic-upload-area" onclick="document.getElementById('picInput').click()" id="uploadArea">
+            <img id="picPreview" class="pic-preview" style="display:none">
+            <div id="uploadPlaceholder">
+                <div style="font-size:32px">📷</div>
+                <div style="font-size:13px;color:var(--text-muted);margin-top:6px">Click to upload profile photo</div>
+            </div>
+        </div>
+        <input type="file" id="picInput" accept="image/*" style="display:none" onchange="handlePic(event)">
+
+        <div class="form-grid" style="margin-top:16px">
+            <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="f-name" placeholder="Driver full name"></div>
+            <div class="form-group"><label class="form-label">Phone No</label><input class="form-input" id="f-phone" placeholder="+94 77 000 0000"></div>
+            <div class="form-group"><label class="form-label">Licence No</label><input class="form-input" id="f-licence" placeholder="B1234567"></div>
+            <div class="form-group"><label class="form-label">Licence Expiry Date</label><input class="form-input" type="date" id="f-expiry"></div>
+            <div class="form-group"><label class="form-label">Vehicle Type</label>
+                <select class="form-select" id="f-vtype"><option>Sedan</option><option>SUV</option><option>Mini</option><option>Van</option><option>Luxury</option></select>
+            </div>
+            <div class="form-group"><label class="form-label">Status</label>
+                <select class="form-select" id="f-status"><option>Active</option><option>Inactive</option><option>On Trip</option></select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveDriver()">Save Driver</button>
+        </div>
+    </div>
+</div>
+<div id="toast"></div>
+<script src="../admin-js/admin-js.js"></script>
+<script>
+    document.getElementById('sidebar-root').innerHTML = getSidebar('drivers');
+    const KEY='r_drivers';
+    let data=JSON.parse(localStorage.getItem(KEY)||'null')||[
+        {id:'D001',name:'Karim Perera',phone:'+94 77 111 2222',licence:'B1001234',expiry:'2027-06-15',vtype:'Sedan',status:'Active',pic:''},
+        {id:'D002',name:'Suresh Fernando',phone:'+94 71 333 4444',licence:'B2003456',expiry:'2025-12-01',vtype:'SUV',status:'On Trip',pic:''},
+        {id:'D003',name:'Malik Silva',phone:'+94 76 555 6666',licence:'B3005678',expiry:'2026-09-20',vtype:'Mini',status:'Active',pic:''},
+    ];
+    let editId=null; let currentPic='';
+    const save=()=>localStorage.setItem(KEY,JSON.stringify(data));
+    const sc=s=>s==='Active'?'badge-green':s==='On Trip'?'badge-yellow':'badge-gray';
+    function isExpired(d){return d&&new Date(d)<new Date();}
+    function isExpiringSoon(d){if(!d)return false;const diff=(new Date(d)-new Date())/(1000*60*60*24);return diff<90&&diff>0;}
+    function renderTable(){
+        const q=document.getElementById('searchInput').value.toLowerCase();
+        const ft=document.getElementById('filterType').value;
+        const filtered=data.filter(d=>(!q||(d.name+d.licence+d.phone).toLowerCase().includes(q))&&(!ft||d.vtype===ft));
+        document.getElementById('countBadge').textContent=filtered.length+' drivers';
+        document.getElementById('driverTable').innerHTML=filtered.map(d=>`
+    <tr>
+      <td><span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text-muted)">${d.id}</span></td>
+      <td>${d.pic?`<img src="${d.pic}" class="driver-avatar">`:`<div class="driver-avatar-placeholder">${d.name[0]}</div>`}</td>
+      <td><strong>${d.name}</strong><br><span class="badge ${sc(d.status)}" style="margin-top:4px">${d.status}</span></td>
+      <td>${d.phone}</td>
+      <td><span style="font-family:'Roboto Mono',monospace;font-size:12px">${d.licence}</span></td>
+      <td>${d.expiry}${isExpired(d.expiry)?'<br><span class="exp-warning">⚠️ EXPIRED</span>':isExpiringSoon(d.expiry)?'<br><span style="color:#f59e0b;font-size:11px;font-weight:600">⚠️ Expiring soon</span>':''}</td>
+      <td><span class="badge badge-blue">${d.vtype}</span></td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-outline btn-sm" onclick="editDriver('${d.id}')">✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteDriver('${d.id}')">🗑️</button>
+      </td>
+    </tr>`).join('');
+    }
+    function handlePic(e){
+        const file=e.target.files[0];if(!file)return;
+        const reader=new FileReader();
+        reader.onload=ev=>{
+            currentPic=ev.target.result;
+            const img=document.getElementById('picPreview');
+            img.src=currentPic;img.style.display='block';
+            document.getElementById('uploadPlaceholder').style.display='none';
+        };
+        reader.readAsDataURL(file);
+    }
+    function openModal(clear=true){
+        if(clear){
+            editId=null;currentPic='';
+            ['f-name','f-phone','f-licence','f-expiry'].forEach(i=>document.getElementById(i).value='');
+            document.getElementById('f-vtype').value='Sedan';document.getElementById('f-status').value='Active';
+            document.getElementById('picPreview').style.display='none';
+            document.getElementById('uploadPlaceholder').style.display='block';
+            document.getElementById('modalTitle').textContent='Add Driver';
+        }
+        document.getElementById('modalOverlay').classList.add('open');
+    }
+    function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+    function saveDriver(){
+        const d={name:document.getElementById('f-name').value.trim(),phone:document.getElementById('f-phone').value.trim(),licence:document.getElementById('f-licence').value.trim(),expiry:document.getElementById('f-expiry').value,vtype:document.getElementById('f-vtype').value,status:document.getElementById('f-status').value,pic:currentPic};
+        if(!d.name||!d.licence){showToast('Fill required fields','error');return;}
+        if(editId){const idx=data.findIndex(x=>x.id===editId);data[idx]={...data[idx],...d};}
+        else{d.id='D'+String(data.length+1).padStart(3,'0');data.unshift(d);}
+        save();renderTable();closeModal();showToast(editId?'Driver updated!':'Driver added!');
+    }
+    function editDriver(id){
+        const d=data.find(x=>x.id===id);editId=id;currentPic=d.pic||'';
+        document.getElementById('f-name').value=d.name;
+        document.getElementById('f-phone').value=d.phone;
+        document.getElementById('f-licence').value=d.licence;
+        document.getElementById('f-expiry').value=d.expiry;
+        document.getElementById('f-vtype').value=d.vtype;
+        document.getElementById('f-status').value=d.status;
+        const img=document.getElementById('picPreview');
+        if(d.pic){img.src=d.pic;img.style.display='block';document.getElementById('uploadPlaceholder').style.display='none';}
+        else{img.style.display='none';document.getElementById('uploadPlaceholder').style.display='block';}
+        document.getElementById('modalTitle').textContent='Edit Driver';
+        openModal(false);
+    }
+    function deleteDriver(id){if(confirm('Delete this driver?')){data=data.filter(x=>x.id!==id);save();renderTable();showToast('Driver deleted','error');}}
+    function exportCSV(){const rows=[['ID','Name','Phone','Licence','Expiry','Vehicle Type','Status'],...data.map(d=>[d.id,d.name,d.phone,d.licence,d.expiry,d.vtype,d.status])];const csv=rows.map(r=>r.join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv,'+encodeURIComponent(csv);a.download='drivers.csv';a.click();}
+    renderTable();
+</script>
+</body></html>

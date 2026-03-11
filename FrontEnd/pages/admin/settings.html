@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rentify Admin — Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../admin-css/admin.css">
+    <style>
+        .settings-tabs{display:flex;gap:4px;background:#f1f5f9;border-radius:12px;padding:4px;margin-bottom:28px;flex-wrap:wrap;}
+        .tab-btn{padding:9px 18px;border-radius:9px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:none;color:var(--text-muted);transition:0.2s;}
+        .tab-btn.active{background:white;color:var(--green);box-shadow:0 1px 4px rgba(0,0,0,0.1);}
+        .tab-panel{display:none;}.tab-panel.active{display:block;}
+
+        /* Calculator */
+        .calc-wrap{max-width:320px;}
+        .calc-screen{background:#0f172a;color:#22c55e;font-family:'Roboto Mono',monospace;font-size:28px;font-weight:700;padding:20px 20px 12px;border-radius:12px 12px 0 0;text-align:right;min-height:72px;word-break:break-all;}
+        .calc-expr{font-size:12px;color:#94a3b8;min-height:18px;text-align:right;margin-bottom:4px;}
+        .calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:#f8fafc;padding:16px;border-radius:0 0 12px 12px;border:1.5px solid var(--border);border-top:none;}
+        .calc-btn{padding:14px;border-radius:9px;border:none;font-family:'Roboto Mono',monospace;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+        .calc-btn:hover{transform:scale(0.97);}
+        .calc-num{background:white;color:var(--text);border:1.5px solid var(--border);}
+        .calc-num:hover{border-color:var(--green);color:var(--green);}
+        .calc-op{background:var(--green-soft);color:var(--green);border:1.5px solid var(--green-light);}
+        .calc-op:hover{background:var(--green);color:white;}
+        .calc-eq{background:var(--green);color:white;grid-column:span 2;}
+        .calc-eq:hover{background:var(--green-dark);}
+        .calc-clear{background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;}
+        .calc-clear:hover{background:#fecaca;}
+        .calc-zero{grid-column:span 2;}
+
+        /* Calendar */
+        .cal-wrap{max-width:360px;}
+        .cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+        .cal-month{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;}
+        .cal-nav{background:none;border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px;transition:0.2s;}
+        .cal-nav:hover{border-color:var(--green);color:var(--green);}
+        .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+        .cal-day-name{text-align:center;font-size:11px;font-weight:700;color:var(--text-muted);padding:6px 0;text-transform:uppercase;}
+        .cal-day{text-align:center;padding:8px 4px;border-radius:8px;font-size:13px;cursor:pointer;transition:0.15s;border:1.5px solid transparent;}
+        .cal-day:hover{background:var(--green-soft);border-color:var(--green-light);}
+        .cal-day.today{background:var(--green);color:white;font-weight:700;}
+        .cal-day.selected{background:var(--yellow);color:var(--green-dark);font-weight:700;}
+        .cal-day.other-month{color:var(--text-muted);opacity:0.4;}
+        .cal-day.has-event::after{content:'';display:block;width:4px;height:4px;background:var(--green);border-radius:50%;margin:2px auto 0;}
+        .cal-day.today.has-event::after{background:white;}
+        .cal-events{margin-top:16px;}
+        .event-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--green-soft);border-radius:10px;margin-bottom:8px;font-size:13px;border:1px solid var(--green-light);}
+        .event-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;}
+
+        /* Analytics */
+        .analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+        .chart-bar-h{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+        .chart-bar-fill{height:28px;border-radius:6px;background:var(--green);transition:width 0.6s ease;min-width:4px;display:flex;align-items:center;padding-left:8px;color:white;font-size:11px;font-weight:700;}
+        .chart-bar-label{font-size:12px;color:var(--text-muted);width:80px;flex-shrink:0;}
+        .chart-bar-val{font-size:12px;font-weight:700;color:var(--text);flex-shrink:0;}
+
+        /* Profile Settings */
+        .setting-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #f1f5f9;}
+        .setting-row:last-child{border:none;}
+        .setting-label{font-weight:600;font-size:14px;}
+        .setting-desc{font-size:12px;color:var(--text-muted);margin-top:2px;}
+        .toggle-switch{position:relative;width:44px;height:24px;}
+        .toggle-switch input{opacity:0;width:0;height:0;}
+        .toggle-slider{position:absolute;inset:0;background:#e2e8f0;border-radius:24px;cursor:pointer;transition:0.3s;}
+        .toggle-slider:before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;}
+        .toggle-switch input:checked+.toggle-slider{background:var(--green);}
+        .toggle-switch input:checked+.toggle-slider:before{transform:translateX(20px);}
+    </style>
+</head>
+<body>
+<div id="sidebar-root"></div>
+<main class="main-content">
+    <div class="page-header">
+        <div><div class="page-title">⚙️ Settings</div><div class="page-subtitle">Configure your Rentify system</div></div>
+    </div>
+
+    <div class="settings-tabs">
+        <button class="tab-btn active" onclick="switchTab('analytics')">📊 Analytics</button>
+        <button class="tab-btn" onclick="switchTab('calculator')">🧮 Calculator</button>
+        <button class="tab-btn" onclick="switchTab('calendar')">📅 Calendar</button>
+        <button class="tab-btn" onclick="switchTab('profile')">👤 Profile</button>
+        <button class="tab-btn" onclick="switchTab('system')">🔧 System</button>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div id="tab-analytics" class="tab-panel active">
+        <div class="stats-grid" style="margin-bottom:24px">
+            <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-label">Total Bookings</div><div class="stat-value" id="an-bookings">0</div></div>
+            <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-label">Total Users</div><div class="stat-value" id="an-users">0</div></div>
+            <div class="stat-card"><div class="stat-icon">🚗</div><div class="stat-label">Total Cabs</div><div class="stat-value" id="an-cabs">0</div></div>
+            <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Total Revenue</div><div class="stat-value" id="an-rev">$0</div></div>
+        </div>
+        <div class="analytics-grid">
+            <div class="card">
+                <div class="card-header"><span class="card-title">Bookings by Status</span></div>
+                <div class="card-body" id="bookingStatusChart"></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span class="card-title">Revenue by Payment Method</span></div>
+                <div class="card-body" id="revenueMethodChart"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CALCULATOR -->
+    <div id="tab-calculator" class="tab-panel">
+        <div class="card" style="max-width:360px">
+            <div class="card-body" style="padding:20px">
+                <div class="calc-wrap">
+                    <div class="calc-screen">
+                        <div class="calc-expr" id="calcExpr"></div>
+                        <div id="calcDisplay">0</div>
+                    </div>
+                    <div class="calc-grid">
+                        <button class="calc-btn calc-clear" onclick="calcClear()">C</button>
+                        <button class="calc-btn calc-op" onclick="calcInput('±')">±</button>
+                        <button class="calc-btn calc-op" onclick="calcInput('%')">%</button>
+                        <button class="calc-btn calc-op" onclick="calcInput('/')">÷</button>
+                        <button class="calc-btn calc-num" onclick="calcInput('7')">7</button>
+                        <button class="calc-btn calc-num" onclick="calcInput('8')">8</button>
+                        <button class="calc-btn calc-num" onclick="calcInput('9')">9</button>
+                        <button class="calc-btn calc-op" onclick="calcInput('*')">×</button>
+                        <button class="calc-btn calc-num" onclick="calcInput('4')">4</button>
+                        <button class="calc-btn calc-num" onclick="calcInput('5')">5</button>
+                        <button class="calc-btn calc-num" onclick="calcInput('6')">6</button>
+                        <button class="calc-btn calc-op" onclick="calcInput('-')">−</button>
+                        <button class="calc-btn calc-num" onclick="calcInput('1')">1</button>
+                        <button class="calc-btn calc-num" onclick="calcInput('2')">2</button>
+                        <button class="calc-btn calc-num" onclick="calcInput('3')">3</button>
+                        <button class="calc-btn calc-op" onclick="calcInput('+')">+</button>
+                        <button class="calc-btn calc-num calc-zero" onclick="calcInput('0')">0</button>
+                        <button class="calc-btn calc-num" onclick="calcInput('.')">.</button>
+                        <button class="calc-btn calc-eq" onclick="calcEquals()">=</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div id="tab-calendar" class="tab-panel">
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start">
+            <div class="card" style="min-width:340px">
+                <div class="card-body">
+                    <div class="cal-wrap">
+                        <div class="cal-header">
+                            <button class="cal-nav" onclick="calNav(-1)">◀</button>
+                            <div class="cal-month" id="calMonthLabel"></div>
+                            <button class="cal-nav" onclick="calNav(1)">▶</button>
+                        </div>
+                        <div class="cal-grid" id="calGrid"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title" id="calEventsTitle">Events</span>
+                    <button class="btn btn-primary btn-sm" onclick="addEvent()">+ Add Event</button>
+                </div>
+                <div class="card-body" id="calEventsList">
+                    <p style="color:var(--text-muted);font-size:13px">Select a day to see events.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="tab-profile" class="tab-panel">
+        <div class="card" style="max-width:560px">
+            <div class="card-header"><span class="card-title">Admin Profile</span></div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group"><label class="form-label">First Name</label><input class="form-input" id="p-fname" value="Admin"></div>
+                    <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" id="p-lname" value="Rentify"></div>
+                    <div class="form-group full"><label class="form-label">Email</label><input class="form-input" id="p-email" value="admin@rentify.com"></div>
+                    <div class="form-group full"><label class="form-label">New Password</label><input class="form-input" type="password" id="p-pw" placeholder="Leave blank to keep current"></div>
+                </div>
+                <div style="margin-top:20px">
+                    <button class="btn btn-primary" onclick="saveProfile()">💾 Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SYSTEM -->
+    <div id="tab-system" class="tab-panel">
+        <div class="card" style="max-width:560px">
+            <div class="card-header"><span class="card-title">System Preferences</span></div>
+            <div class="card-body">
+                <div class="setting-row">
+                    <div><div class="setting-label">Email Notifications</div><div class="setting-desc">Receive booking alerts via email</div></div>
+                    <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                    <div><div class="setting-label">SMS Alerts</div><div class="setting-desc">Driver and payment notifications</div></div>
+                    <label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                    <div><div class="setting-label">Auto Confirm Bookings</div><div class="setting-desc">Automatically confirm new bookings</div></div>
+                    <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                    <div><div class="setting-label">Maintenance Mode</div><div class="setting-desc">Disable user access temporarily</div></div>
+                    <label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+                </div>
+                <div style="margin-top:20px;display:flex;gap:10px">
+                    <button class="btn btn-primary" onclick="showToast('Settings saved!')">💾 Save Settings</button>
+                    <button class="btn btn-danger" onclick="if(confirm('Clear all data?')){localStorage.clear();showToast('Data cleared','error');}">🗑️ Clear All Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<div id="toast"></div>
+<script src="../admin-js/admin-js.js"></script>
+<script>
+    document.getElementById('sidebar-root').innerHTML = getSidebar('settings');
+
+    // ── TABS ──
+    function switchTab(id){
+        document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+        document.getElementById('tab-'+id).classList.add('active');
+        event.target.classList.add('active');
+        if(id==='analytics')loadAnalytics();
+        if(id==='calendar')renderCalendar();
+    }
+
+    // ── ANALYTICS ──
+    function loadAnalytics(){
+        const bookings=JSON.parse(localStorage.getItem('r_bookings')||'[]');
+        const users=JSON.parse(localStorage.getItem('r_users')||'[]');
+        const cabs=JSON.parse(localStorage.getItem('r_cabs')||'[]');
+        const payments=JSON.parse(localStorage.getItem('r_payments')||'[]');
+        document.getElementById('an-bookings').textContent=bookings.length||4;
+        document.getElementById('an-users').textContent=users.length||3;
+        document.getElementById('an-cabs').textContent=cabs.length||4;
+        const rev=payments.reduce((a,p)=>a+(p.status==='Paid'?+p.amount:0),0);
+        document.getElementById('an-rev').textContent='$'+(rev||135).toFixed(2);
+
+        // Status chart
+        const statuses=['Confirmed','Pending','Completed','Cancelled'];
+        const colors={'Confirmed':'var(--green)','Pending':'#f59e0b','Completed':'#6366f1','Cancelled':'#ef4444'};
+        const bData=bookings.length?bookings:
+            [{status:'Confirmed'},{status:'Pending'},{status:'Completed'},{status:'Cancelled'},{status:'Confirmed'}];
+        const maxB=Math.max(...statuses.map(s=>bData.filter(b=>b.status===s).length))||1;
+        document.getElementById('bookingStatusChart').innerHTML=statuses.map(s=>{
+            const cnt=bData.filter(b=>b.status===s).length;
+            return `<div class="chart-bar-h">
+      <span class="chart-bar-label">${s}</span>
+      <div style="flex:1;background:#f1f5f9;border-radius:6px;overflow:hidden">
+        <div class="chart-bar-fill" style="width:${cnt/maxB*100}%;background:${colors[s]}">${cnt||''}</div>
+      </div>
+      <span class="chart-bar-val">${cnt}</span>
+    </div>`;}).join('');
+
+        // Method chart
+        const methods=['Cash','Card','Online','Bank Transfer'];
+        const methodColors={'Cash':'#22c55e','Card':'#6366f1','Online':'#f59e0b','Bank Transfer':'#0ea5e9'};
+        const pData=payments.length?payments:
+            [{method:'Card',amount:45,status:'Paid'},{method:'Cash',amount:30,status:'Paid'},{method:'Online',amount:60,status:'Paid'}];
+        const mRevs=methods.map(m=>pData.filter(p=>p.method===m&&p.status==='Paid').reduce((a,p)=>a+(+p.amount),0));
+        const maxM=Math.max(...mRevs)||1;
+        document.getElementById('revenueMethodChart').innerHTML=methods.map((m,i)=>`
+    <div class="chart-bar-h">
+      <span class="chart-bar-label">${m}</span>
+      <div style="flex:1;background:#f1f5f9;border-radius:6px;overflow:hidden">
+        <div class="chart-bar-fill" style="width:${mRevs[i]/maxM*100}%;background:${methodColors[m]}">$${mRevs[i]||''}</div>
+      </div>
+      <span class="chart-bar-val">$${mRevs[i]}</span>
+    </div>`).join('');
+    }
+    loadAnalytics();
+
+    // ── CALCULATOR ──
+    let calcExpr=''; let calcResult='0'; let calcFresh=false;
+    function calcInput(val){
+        const disp=document.getElementById('calcDisplay');
+        const ops=['+','-','*','/','%'];
+        if(val==='±'){calcResult=(+calcResult*-1).toString();disp.textContent=calcResult;return;}
+        if(calcFresh&&!ops.includes(val)){calcExpr='';calcResult='0';calcFresh=false;}
+        if(ops.includes(val)){calcExpr=calcResult+val;calcResult='0';document.getElementById('calcExpr').textContent=calcExpr;return;}
+        if(val==='.'&&calcResult.includes('.'))return;
+        calcResult=calcResult==='0'&&val!=='.'?val:calcResult+val;
+        disp.textContent=calcResult;
+    }
+    function calcEquals(){
+        if(!calcExpr)return;
+        try{
+            const expr=calcExpr+calcResult;
+            document.getElementById('calcExpr').textContent=expr+' =';
+            const res=Function('"use strict";return('+expr+')')();
+            calcResult=parseFloat(res.toFixed(10)).toString();
+            document.getElementById('calcDisplay').textContent=calcResult;
+            calcExpr='';calcFresh=true;
+        }catch(e){document.getElementById('calcDisplay').textContent='Error';calcExpr='';calcResult='0';}
+    }
+    function calcClear(){calcExpr='';calcResult='0';calcFresh=false;document.getElementById('calcDisplay').textContent='0';document.getElementById('calcExpr').textContent='';}
+    document.addEventListener('keydown',e=>{
+        if(document.getElementById('tab-calculator').classList.contains('active')){
+            if('0123456789.'.includes(e.key))calcInput(e.key);
+            else if('+-*/%'.includes(e.key))calcInput(e.key);
+            else if(e.key==='Enter'||e.key==='=')calcEquals();
+            else if(e.key==='Escape')calcClear();
+            else if(e.key==='Backspace'){calcResult=calcResult.length>1?calcResult.slice(0,-1):'0';document.getElementById('calcDisplay').textContent=calcResult;}
+        }
+    });
+
+    // ── CALENDAR ──
+    let calYear=new Date().getFullYear();
+    let calMonth=new Date().getMonth();
+    let calSelected=null;
+    const calEvents=JSON.parse(localStorage.getItem('r_cal_events')||'{}');
+    const saveCalEvents=()=>localStorage.setItem('r_cal_events',JSON.stringify(calEvents));
+    const today=new Date();
+    const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    function renderCalendar(){
+        document.getElementById('calMonthLabel').textContent=monthNames[calMonth]+' '+calYear;
+        const grid=document.getElementById('calGrid');
+        grid.innerHTML='';
+        ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d=>{
+            const el=document.createElement('div');el.className='cal-day-name';el.textContent=d;grid.appendChild(el);
+        });
+        const first=new Date(calYear,calMonth,1).getDay();
+        const days=new Date(calYear,calMonth+1,0).getDate();
+        const prevDays=new Date(calYear,calMonth,0).getDate();
+        for(let i=first-1;i>=0;i--){
+            const el=document.createElement('div');el.className='cal-day other-month';el.textContent=prevDays-i;grid.appendChild(el);
+        }
+        for(let d=1;d<=days;d++){
+            const el=document.createElement('div');el.className='cal-day';
+            el.textContent=d;
+            const key=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            if(calYear===today.getFullYear()&&calMonth===today.getMonth()&&d===today.getDate())el.classList.add('today');
+            if(calSelected===key)el.classList.add('selected');
+            if(calEvents[key]&&calEvents[key].length)el.classList.add('has-event');
+            el.onclick=()=>selectDay(key,d);
+            grid.appendChild(el);
+        }
+    }
+    function calNav(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+    function selectDay(key,d){
+        calSelected=key;renderCalendar();
+        const evts=calEvents[key]||[];
+        document.getElementById('calEventsTitle').textContent=`Events — ${key}`;
+        document.getElementById('calEventsList').innerHTML=evts.length
+            ?evts.map((e,i)=>`<div class="event-item"><span class="event-dot"></span><span style="flex:1">${e}</span><button class="btn btn-danger btn-sm" onclick="deleteEvent('${key}',${i})">✕</button></div>`).join('')
+            :'<p style="color:var(--text-muted);font-size:13px">No events for this day.</p>';
+    }
+    function addEvent(){
+        if(!calSelected){showToast('Select a day first','error');return;}
+        const name=prompt('Event name:');if(!name)return;
+        if(!calEvents[calSelected])calEvents[calSelected]=[];
+        calEvents[calSelected].push(name);saveCalEvents();renderCalendar();selectDay(calSelected);showToast('Event added!');
+    }
+    function deleteEvent(key,idx){calEvents[key].splice(idx,1);if(!calEvents[key].length)delete calEvents[key];saveCalEvents();renderCalendar();selectDay(key);}
+    renderCalendar();
+
+    // ── PROFILE ──
+    function saveProfile(){showToast('Profile updated!');}
+</script>
+</body></html>
