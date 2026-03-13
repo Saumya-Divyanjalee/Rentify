@@ -2,12 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Rentify — Sign In</title>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name ="keywords" content="Rentify,HTML,CSS,JavaScript,Spring,SpringBoot,ORM,Mysql">
+    <meta name ="description" content="Rentify-Smart Cab Renting Platform">
+    <meta name ="author" content="Saumya Divyanjalee">
+
+    <title>Rentify — Sign In</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../assets/icons/favicon.ico">
+
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -100,7 +108,6 @@
         .spinner { display: none; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Role badge shown after login */
         .role-badge {
             display: none;
             align-items: center; justify-content: center; gap: 8px;
@@ -207,7 +214,6 @@
                 <span id="loginText">Sign In</span>
             </button>
 
-            <!-- Role badge appears after successful login -->
             <div class="role-badge" id="roleBadge"></div>
 
             <div class="divider">
@@ -229,18 +235,55 @@
 <script>
     const API_BASE = 'http://localhost:8080/api/v1';
 
-    // ── If already logged in → skip the form and redirect immediately ──
-    (function checkAlreadyLoggedIn() {
-        const t = localStorage.getItem('rentify_token');
-        const r = localStorage.getItem('rentify_role');
-        if (t && r) {
-            redirectByRole(r);
+    // ─────────────────────────────────────────────────────────────────────────
+    // FIX: The old code redirected EVERY time the sign-in page loaded if a
+    // token existed — causing the user-home page to load instead of sign-in.
+    //
+    // NEW BEHAVIOUR:
+    //  • If URL has ?logout=1  → clear storage, show sign-in normally
+    //  • If URL has ?redirect=1 → user was sent here intentionally, show form
+    //  • Otherwise (direct visit with valid token) → redirect to their dashboard
+    //    BUT only if the token is still valid (not expired)
+    // ─────────────────────────────────────────────────────────────────────────
+    (function checkSession() {
+        const params  = new URLSearchParams(window.location.search);
+
+        // Explicit logout — wipe session and show form
+        if (params.has('logout')) {
+            clearSession();
+            return;
         }
+
+        // Explicit redirect to sign-in (e.g. from a "sign in" button)
+        if (params.has('redirect')) {
+            return; // show the form, do not auto-redirect
+        }
+
+        const token = localStorage.getItem('rentify_token');
+        const role  = localStorage.getItem('rentify_role');
+
+        if (token && role) {
+            // Validate token isn't expired before blindly redirecting
+            if (isTokenValid(token)) {
+                redirectByRole(role);
+            } else {
+                // Token expired — clear and show sign-in form
+                clearSession();
+            }
+        }
+        // No token → just show the form normally (do nothing)
     })();
 
-    // ── Redirect function used in two places ──
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    function clearSession() {
+        localStorage.removeItem('rentify_token');
+        localStorage.removeItem('rentify_role');
+        localStorage.removeItem('rentify_auth');
+        localStorage.removeItem('rentify_username');
+    }
+
     function redirectByRole(role) {
-        // role comes from backend as "ADMIN" or "USER"
         if (role === 'ADMIN') {
             window.location.href = '../pages/admin/admin-dashboard.html';
         } else {
@@ -248,37 +291,40 @@
         }
     }
 
-    // ── Parse role out of JWT payload ──
-    // Backend stores: { "authorities": [{ "authority": "ROLE_ADMIN" }] }
+    // Returns false if JWT exp claim is in the past
+    function isTokenValid(token) {
+        try {
+            const base64Payload = token.split('.')[1];
+            const padded = base64Payload + '=='.slice((base64Payload.length % 4) || 4);
+            const payload = JSON.parse(atob(padded));
+            if (!payload.exp) return true; // no expiry claim → assume valid
+            return payload.exp * 1000 > Date.now();
+        } catch (e) {
+            return false; // malformed token → treat as invalid
+        }
+    }
+
     function parseRoleFromToken(token) {
         try {
-            // JWT = header.payload.signature — decode the middle part
             const base64Payload = token.split('.')[1];
-            // Fix base64 padding if needed
             const padded = base64Payload + '=='.slice((base64Payload.length % 4) || 4);
             const payload = JSON.parse(atob(padded));
 
-            console.log('JWT payload:', payload); // helpful for debugging
+            console.log('JWT payload:', payload);
 
             const authorities = payload.authorities || payload.roles || [];
-
             if (Array.isArray(authorities) && authorities.length > 0) {
                 const first = authorities[0];
-                // Handle both formats:
-                // Format A: [{ "authority": "ROLE_ADMIN" }]  ← Spring Security default
-                // Format B: ["ROLE_ADMIN"]                   ← simple string array
                 const raw = typeof first === 'string' ? first : (first.authority || first.role || '');
-                // Strip "ROLE_" prefix → returns "ADMIN" or "USER"
                 return raw.replace('ROLE_', '').toUpperCase();
             }
-            return 'USER'; // safe default
+            return 'USER';
         } catch (e) {
             console.error('Role parse error:', e);
             return 'USER';
         }
     }
 
-    // ── Toast helper ──
     function showToast(msg, isError = false) {
         const t = document.getElementById('toastBox');
         t.innerHTML = (isError ? '❌ ' : '✅ ') + msg;
@@ -287,25 +333,24 @@
         t._timer = setTimeout(() => { t.className = 'toast-box'; }, 3500);
     }
 
-    // ── Toggle password visibility ──
+    // ── Password toggle ───────────────────────────────────────────────────────
     document.getElementById('togglePw').addEventListener('click', function () {
         const pw = document.getElementById('pwField');
         pw.type = pw.type === 'password' ? 'text' : 'password';
     });
 
-    // ── Clear errors on input ──
+    // ── Clear error state on input ────────────────────────────────────────────
     document.querySelectorAll('input[type=text], input[type=password]').forEach(inp => {
         inp.addEventListener('input', () => inp.classList.remove('error'));
     });
 
-    // ── MAIN SIGN IN SUBMIT ──
+    // ── MAIN SIGN IN SUBMIT ───────────────────────────────────────────────────
     document.getElementById('loginForm').addEventListener('submit', async function (e) {
         e.preventDefault();
 
         const username = document.getElementById('emailField').value.trim();
         const password = document.getElementById('pwField').value;
 
-        // Client-side validation
         if (!username) {
             document.getElementById('emailField').classList.add('error');
             showToast('Please enter your username or email.', true);
@@ -317,7 +362,6 @@
             return;
         }
 
-        // Show loading state
         const btn  = document.getElementById('loginBtn');
         const spin = document.getElementById('spinner');
         const text = document.getElementById('loginText');
@@ -326,39 +370,35 @@
         text.textContent = 'Authenticating...';
 
         try {
-            // ── CALL BACKEND ──
             const response = await fetch(`${API_BASE}/auth/signin`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: username, password: password })
+                body: JSON.stringify({ username, password })
             });
 
             const result = await response.json();
-            console.log('Login response:', result); // debug
+            console.log('Login response:', result);
 
             if (!response.ok || result.code !== 200) {
                 throw new Error(result.message || 'Invalid credentials. Please try again.');
             }
 
-            // ── EXTRACT TOKEN AND ROLE ──
-            const token = result.data.accessToken;
-            // Backend also returns role directly — use it (most reliable)
-            // Fallback to parsing from JWT if backend doesn't send it
+            const token           = result.data.accessToken;
             const roleFromBackend = (result.data.role || '').toUpperCase();
             const roleFromToken   = parseRoleFromToken(token);
-            const role = roleFromBackend || roleFromToken;
+            const role            = roleFromBackend || roleFromToken;
 
             console.log('Role from backend:', roleFromBackend);
-            console.log('Role from token:', roleFromToken);
-            console.log('Final role used:', role);
+            console.log('Role from token:',   roleFromToken);
+            console.log('Final role used:',   role);
 
-            // ── SAVE TO localStorage ──
+            // Persist session
             localStorage.setItem('rentify_token',    token);
             localStorage.setItem('rentify_role',     role);
             localStorage.setItem('rentify_auth',     'true');
             localStorage.setItem('rentify_username', username);
 
-            // ── SHOW ROLE BADGE ──
+            // Show role badge
             const badge = document.getElementById('roleBadge');
             if (role === 'ADMIN') {
                 badge.innerHTML = '👑 Logged in as <strong>ADMIN</strong> — redirecting...';
@@ -369,24 +409,19 @@
             }
             badge.style.display = 'flex';
 
-            // Update button to show success
             text.textContent = '✓ Success!';
             btn.style.background = '#14532d';
             spin.style.display = 'none';
 
             showToast('Login successful!');
-
-            // ── REDIRECT after short delay ──
             setTimeout(() => redirectByRole(role), 1000);
 
         } catch (err) {
-            // Restore button
             btn.disabled = false;
             spin.style.display = 'none';
             text.textContent = 'Sign In';
             btn.style.background = '';
 
-            // Mark fields as error
             document.getElementById('emailField').classList.add('error');
             document.getElementById('pwField').classList.add('error');
             document.getElementById('pwField').value = '';

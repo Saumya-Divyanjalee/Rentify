@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UserRepo extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsername(String username);
 
@@ -17,5 +17,6 @@ public interface UserRepo extends JpaRepository<User, Long> {
 
     boolean existsByEmail(String email);
 
-    String username(String username);
+    // ❌ REMOVED: String username(String username) — මේක invalid method එකක්
+    //    JPA repository methods return types entity/primitive විය යුතුයි
 }

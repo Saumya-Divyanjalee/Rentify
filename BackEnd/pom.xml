@@ -1,79 +1,126 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<!-- XML declaration. Defines this file as an XML file with UTF-8 encoding -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!-- Root tag for Maven project. Links Maven POM schema to validate file structure -->
+
     <modelVersion>4.0.0</modelVersion>
+    <!-- Maven model version. Always 4.0.0 for standard Maven projects -->
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>4.0.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
+    <!-- Defines Spring Boot parent POM. Provides default dependency versions and plugins -->
+
     <groupId>lk.ijse.aad</groupId>
     <artifactId>BackEnd</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>BackEnd</name>
     <description>BackEnd</description>
+    <!-- Project coordinates and basic info. groupId + artifactId + version uniquely identify your project -->
+
     <url/>
+    <!-- Optional project URL (can be website, GitHub repo, etc.) -->
+
     <licenses>
         <license/>
     </licenses>
+    <!-- Project license info. Optional -->
+
     <developers>
         <developer/>
     </developers>
+    <!-- Developer info. Optional -->
+
     <scm>
         <connection/>
         <developerConnection/>
         <tag/>
         <url/>
     </scm>
+    <!-- Source Control Management info (Git/SVN). Optional -->
+
     <properties>
         <java.version>17</java.version>
     </properties>
+    <!-- Defines project properties. Here Java 17 is used for compilation -->
+
     <dependencies>
+        <!-- Dependencies your project needs -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+        <!-- Spring Data JPA for database access -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+        <!-- Spring Security for authentication and authorization -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
+        <!-- Spring Web MVC for building REST APIs / web apps -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <!-- Bean Validation support. Needed for @Valid, @NotBlank etc. -->
 
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <!-- MySQL JDBC driver to connect to MySQL database -->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
+        <!-- Spring Mail for sending emails -->
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+        <!-- Lombok to reduce boilerplate code (getters, setters, constructors) -->
+
+        <!-- Test dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Testing support for JPA -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Testing support for Spring Security -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- JWT (jjwt) -->
+        <!-- Testing support for Spring MVC / Web -->
+
+        <!-- JWT (JSON Web Token) dependencies -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -91,10 +138,26 @@
             <version>0.11.5</version>
             <scope>runtime</scope>
         </dependency>
+        <!-- Libraries to create, sign, and parse JWT tokens -->
+        <!--        Model Mapper-->
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
     </dependencies>
+
 
     <build>
         <plugins>
+            <!-- Plugins to customize Maven build -->
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -107,6 +170,8 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <!-- Compiler plugin. Needed so Lombok annotations are processed at compile time -->
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -119,7 +184,9 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <!-- Spring Boot plugin for packaging project as executable jar/war -->
         </plugins>
     </build>
 
 </project>
+        <!-- End of POM -->

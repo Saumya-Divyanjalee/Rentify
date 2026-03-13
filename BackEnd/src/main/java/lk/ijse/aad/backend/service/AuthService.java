@@ -5,7 +5,7 @@ import lk.ijse.aad.backend.dto.AuthResponseDTO;
 import lk.ijse.aad.backend.dto.RegisterDTO;
 import lk.ijse.aad.backend.entity.Role;
 import lk.ijse.aad.backend.entity.User;
-import lk.ijse.aad.backend.repository.UserRepo;
+import lk.ijse.aad.backend.repository.UserRepository;
 import lk.ijse.aad.backend.utill.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -17,12 +17,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepo userRepo;
+    private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
     private final JWTUtil jwtUtil;
     private final EmailService emailService;
 
-    // ─── SIGN IN ────────────────────────────────────────────────
+    // ─── SIGN IN ─────────────────────────────────────────────────────────────
     public AuthResponseDTO authenticate(AuthDTO authDTO) {
         User user = userRepo.findByUsername(authDTO.getUsername())
                 .or(() -> userRepo.findByEmail(authDTO.getUsername()))
@@ -35,7 +35,6 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
 
-        // ✅ Send login notification email (async – never delays the response)
         if (user.getEmail() != null && !user.getEmail().isBlank()) {
             emailService.sendLoginNotificationEmail(user.getEmail(), user.getUsername());
         }
@@ -43,7 +42,7 @@ public class AuthService {
         return new AuthResponseDTO(token, user.getRole().name());
     }
 
-    // ─── SIGN UP ────────────────────────────────────────────────
+    // ─── SIGN UP ─────────────────────────────────────────────────────────────
     public String register(RegisterDTO dto) {
         if (userRepo.existsByUsername(dto.getUsername())) {
             throw new RuntimeException("Username '" + dto.getUsername() + "' is already taken!");
@@ -54,7 +53,8 @@ public class AuthService {
 
         Role role;
         try {
-            role = Role.valueOf(dto.getRole() != null ? dto.getRole().toUpperCase() : "USER");
+            role = Role.valueOf(dto.getRole() != null
+                    ? dto.getRole().toUpperCase() : "USER");
         } catch (IllegalArgumentException e) {
             role = Role.USER;
         }
@@ -70,7 +70,6 @@ public class AuthService {
 
         userRepo.save(user);
 
-        // ✅ Send welcome email (async – never delays the signup response)
         if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
             emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
         }
