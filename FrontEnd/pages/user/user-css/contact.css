@@ -1,5 +1,4 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bungee&family=Roboto:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500;600;700&display=swap');
 
 :root{--y:#FFC107;--yd:#e6a800;--blk:#0a0a0a;--wh:#fff;--g:#f4f4f0;--muted:#777;--shadow:0 4px 28px rgba(0,0,0,0.08);--shadow-lg:0 16px 60px rgba(0,0,0,0.14);}
 *{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
@@ -19,7 +18,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 56px;height:68px;
 @keyframes zoom{from{transform:scale(1);}to{transform:scale(1.08);}}
 .hero-cnt{position:relative;text-align:center;color:#fff;padding:60px 20px;}
 .hbadge{display:inline-block;background:var(--y);color:var(--blk);font-family:'Roboto Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:6px 18px;border-radius:100px;margin-bottom:18px;}
-.hero-cnt h1{font-family:'Roboto Mono',monospace;font-size:clamp(38px,6vw,66px);font-weight:800;line-height:1.05;margin-bottom:14px;}
+
+/* ── H1: Bungee only ── */
+.hero-cnt h1{
+    font-family:'Bungee',sans-serif;
+    font-weight:400;
+    font-style:normal;
+    font-size:clamp(38px,6vw,66px);
+    line-height:1.05;
+    margin-bottom:14px;
+}
 .hero-cnt h1 span{color:var(--y);}
 .hero-cnt p{font-size:16px;color:rgba(255,255,255,.7);max-width:480px;margin:0 auto;font-family:'Roboto',sans-serif;}
 
