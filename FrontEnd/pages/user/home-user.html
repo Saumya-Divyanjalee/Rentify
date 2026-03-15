@@ -6,15 +6,12 @@
     <meta name ="keywords" content="Rentify,HTML,CSS,JavaScript,Spring,SpringBoot,ORM,Mysql">
     <meta name ="description" content="Rentify-Smart Cab Renting Platform">
     <meta name ="author" content="Saumya Divyanjalee">
-
     <title>Rentify — Sri Lanka's #1 Cab & Travel Platform</title>
     <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="../../assets/icons/favicon.ico">
     <link rel="stylesheet" href="user-css/home-user.css">
-
-
 </head>
 <body>
 
@@ -28,8 +25,6 @@
         <a href="../user/gallery.html">Gallery</a>
         <a href="../user/contact.html">Contact</a>
     </div>
-
-    <!-- NAV RIGHT — shows Sign In + Book Now when logged out, avatar + Book Now when logged in -->
     <div class="nav-right" id="navRight">
         <!-- Injected by JS below -->
     </div>
@@ -67,7 +62,7 @@
         <div class="s-field"><label>To</label><input type="text" placeholder="Destination"></div>
         <div class="s-field"><label>Date</label><input type="date"></div>
         <div class="s-field"><label>Vehicle</label><select><option>Any Vehicle</option><option>Car</option><option>Van</option><option>Bus</option><option>Wheelchair</option></select></div>
-        <button class="s-btn" onclick="window.location.href='../pages/cabs.html'"><i class="fas fa-search"></i> Search Cabs</button>
+        <button class="s-btn" onclick="window.location.href='../user/cabs.html'"><i class="fas fa-search"></i> Search Cabs</button>
     </div>
 </div>
 
@@ -125,11 +120,11 @@
 <section style="padding-top:0;">
     <div class="reveal"><div class="sec-tag">Top Destinations</div><h2 class="sec-title">Places Worth Exploring</h2><p class="sec-sub">Handpicked destinations with curated travel guides, cab routes and local insider tips.</p></div>
     <div class="dest-grid reveal">
-        <div class="dest-card" onclick="location.href='../pages/destinations.html'"><div class="dest-img"><img src="https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=500&q=80" alt="Sigiriya"><div class="dest-tag-wrap"><span class="dest-tag-b">Heritage</span></div></div><div class="dest-body"><h3>Sigiriya</h3><p>The Lion Rock fortress rising 200m above lush jungle — Sri Lanka's most iconic UNESCO World Heritage Site.</p><div class="dest-footer"><span class="dest-price">From LKR 8,500</span><div class="dest-arr">→</div></div></div></div>
-        <div class="dest-card" onclick="location.href='../pages/destinations.html'"><div class="dest-img"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&q=80" alt="Beach"><div class="dest-tag-wrap"><span class="dest-tag-b">Beach</span></div></div><div class="dest-body"><h3>Mirissa Beach</h3><p>Crystal waters, fresh seafood, whale watching & golden sunsets on Sri Lanka's most beloved south coast beach.</p><div class="dest-footer"><span class="dest-price">From LKR 12,000</span><div class="dest-arr">→</div></div></div></div>
-        <div class="dest-card" onclick="location.href='../pages/destinations.html'"><div class="dest-img"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80" alt="Tea"><div class="dest-tag-wrap"><span class="dest-tag-b">Highlands</span></div></div><div class="dest-body"><h3>Nuwara Eliya</h3><p>Emerald tea estates, colonial bungalows & cool misty highlands — Sri Lanka's charming "Little England".</p><div class="dest-footer"><span class="dest-price">From LKR 15,000</span><div class="dest-arr">→</div></div></div></div>
+        <div class="dest-card" onclick="location.href='../user/destinations.html'"><div class="dest-img"><img src="https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=500&q=80" alt="Sigiriya"><div class="dest-tag-wrap"><span class="dest-tag-b">Heritage</span></div></div><div class="dest-body"><h3>Sigiriya</h3><p>The Lion Rock fortress rising 200m above lush jungle — Sri Lanka's most iconic UNESCO World Heritage Site.</p><div class="dest-footer"><span class="dest-price">From LKR 8,500</span><div class="dest-arr">→</div></div></div></div>
+        <div class="dest-card" onclick="location.href='../user/destinations.html'"><div class="dest-img"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&q=80" alt="Beach"><div class="dest-tag-wrap"><span class="dest-tag-b">Beach</span></div></div><div class="dest-body"><h3>Mirissa Beach</h3><p>Crystal waters, fresh seafood, whale watching & golden sunsets on Sri Lanka's most beloved south coast beach.</p><div class="dest-footer"><span class="dest-price">From LKR 12,000</span><div class="dest-arr">→</div></div></div></div>
+        <div class="dest-card" onclick="location.href='../user/destinations.html'"><div class="dest-img"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80" alt="Tea"><div class="dest-tag-wrap"><span class="dest-tag-b">Highlands</span></div></div><div class="dest-body"><h3>Nuwara Eliya</h3><p>Emerald tea estates, colonial bungalows & cool misty highlands — Sri Lanka's charming "Little England".</p><div class="dest-footer"><span class="dest-price">From LKR 15,000</span><div class="dest-arr">→</div></div></div></div>
     </div>
-    <div style="text-align:center;margin-top:40px;"><a href="../pages/destinations.html" class="btn-y" style="display:inline-flex;"><i class="fas fa-map-marked-alt"></i> View All Destinations</a></div>
+    <div style="text-align:center;margin-top:40px;"><a href="../user/destinations.html" class="btn-y" style="display:inline-flex;"><i class="fas fa-map-marked-alt"></i> View All Destinations</a></div>
 </section>
 
 <!-- TESTIMONIALS -->
@@ -160,7 +155,11 @@
 <a class="wa" href="https://wa.me/94771234567" target="_blank"><span class="wa-ring"></span><i class="fab fa-whatsapp"></i><span class="wa-tip">Chat with us!</span></a>
 
 <script>
-    // ── Nav: render Sign In btn OR user avatar based on session ──────────────────
+    // ── home-user.html is in /pages/user/ ────────────────────────────────────
+    // sign-in.html is in /pages/ → path from here is ../sign-in.html
+    // profile-update.html is in /pages/user/ → same folder: profile-update.html
+    // admin-dashboard.html is in /pages/admin/ → path: ../admin/admin-dashboard.html
+
     (function buildNav() {
         const token    = localStorage.getItem('rentify_token');
         const role     = localStorage.getItem('rentify_role');
@@ -168,10 +167,9 @@
         const navRight = document.getElementById('navRight');
 
         if (token && role) {
-            // Logged in — show avatar dropdown + Book Now
             const initial = username.charAt(0).toUpperCase();
             navRight.innerHTML = `
-            <a href="../pages/cabs.html" class="nav-btn"><i class="fas fa-car"></i> Book Now</a>
+            <a href="../user/cabs.html" class="nav-btn"><i class="fas fa-car"></i> Book Now</a>
             <div class="user-menu">
                 <div class="user-avatar" id="avatarBtn" title="${username}">${initial}</div>
                 <div class="user-dropdown" id="userDropdown">
@@ -181,15 +179,14 @@
                     </div>
                     ${role === 'ADMIN'
                 ? `<a class="ud-item" href="../admin/admin-dashboard.html"><span>🏠</span> Admin Dashboard</a>`
-                : `<a class="ud-item" href="../user/profile-update.html"><span>👤</span> My Profile</a>`
+                : `<a class="ud-item" href="profile-update.html"><span>👤</span> My Profile</a>`
             }
-                    <a class="ud-item" href="../pages/user/my-bookings.html"><span>📅</span> My Bookings</a>
+                    <a class="ud-item" href="#"><span>📅</span> My Bookings</a>
                     <hr style="margin:6px 0;border-color:#f1f1f1;">
                     <button class="ud-item logout" id="logoutBtn"><span>🚪</span> Sign Out</button>
                 </div>
             </div>`;
 
-            // Toggle dropdown
             document.getElementById('avatarBtn').addEventListener('click', function(e) {
                 e.stopPropagation();
                 document.getElementById('userDropdown').classList.toggle('open');
@@ -199,17 +196,14 @@
                 if (dd) dd.classList.remove('open');
             });
 
-            // Logout
             document.getElementById('logoutBtn').addEventListener('click', function() {
-                localStorage.removeItem('rentify_token');
-                localStorage.removeItem('rentify_role');
-                localStorage.removeItem('rentify_auth');
-                localStorage.removeItem('rentify_username');
-                window.location.href = '../../sign-in.html?logout=1';
+                // home-user.html is in /pages/user/ → sign-in.html is ../sign-in.html
+                ['rentify_token','rentify_role','rentify_auth','rentify_username',
+                    'rentify_fullName','rentify_email','rentify_phone'].forEach(k => localStorage.removeItem(k));
+                window.location.href = '../sign-in.html?logout=1';
             });
 
         } else {
-            // Not logged in — show Sign In + Book Now
             navRight.innerHTML = `
             <a href="../sign-in.html?redirect=1" class="nav-btn-outline">
                 <i class="fas fa-sign-in-alt"></i> Sign In
@@ -221,13 +215,22 @@
     })();
 
     // Counter animation
-    document.querySelectorAll('.stat-n').forEach(el=>{
-        const t=parseInt(el.dataset.c);let c=0;const step=Math.max(1,Math.floor(t/60));
-        const go=setInterval(()=>{c=Math.min(c+step,t);el.textContent=t>=98?c+'%':c.toLocaleString();if(c>=t)clearInterval(go);},25);
+    document.querySelectorAll('.stat-n').forEach(el => {
+        const t = parseInt(el.dataset.c);
+        let c = 0;
+        const step = Math.max(1, Math.floor(t / 60));
+        const go = setInterval(() => {
+            c = Math.min(c + step, t);
+            el.textContent = t >= 98 ? c + '%' : c.toLocaleString();
+            if (c >= t) clearInterval(go);
+        }, 25);
     });
+
     // Scroll reveal
-    const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vis');}),{threshold:.1});
-    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+    const obs = new IntersectionObserver(e => e.forEach(x => {
+        if (x.isIntersecting) x.target.classList.add('vis');
+    }), { threshold: .1 });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 </script>
 </body>
 </html>
