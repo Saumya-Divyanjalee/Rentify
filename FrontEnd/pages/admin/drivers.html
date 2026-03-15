@@ -169,4 +169,89 @@
     function exportCSV(){const rows=[['ID','Name','Phone','Licence','Expiry','Vehicle Type','Status'],...data.map(d=>[d.id,d.name,d.phone,d.licence,d.expiry,d.vtype,d.status])];const csv=rows.map(r=>r.join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv,'+encodeURIComponent(csv);a.download='drivers.csv';a.click();}
     renderTable();
 </script>
+<script>
+    // FIX: URL must match your server.port=8081 in application.properties
+    const BASE_URL = 'http://localhost:8081/api/v1/drivers';
+    let editId = null;
+    let currentPic = '';
+
+    $(document).ready(function() {
+        document.getElementById('sidebar-root').innerHTML = getSidebar('drivers');
+        renderTable(); // Initial load from Database
+    });
+
+    // GET - Fetch all or searched drivers
+    function renderTable() {
+        const query = $('#searchInput').val();
+        const vehicleType = $('#filterType').val();
+
+        $.ajax({
+            url: BASE_URL,
+            method: 'GET',
+            data: { query: query, vehicleType: vehicleType },
+            success: function(res) {
+                const drivers = res.data;
+                $('#countBadge').text(drivers.length + ' drivers');
+
+                let html = '';
+                drivers.forEach(d => {
+                    html += `
+                    <tr>
+                      <td><span style="font-family:'Roboto Mono'">D${String(d.id).padStart(3,'0')}</span></td>
+                      <td>${d.profilePic ? `<img src="${d.profilePic}" class="driver-avatar">` : `<div class="driver-avatar-placeholder">${d.name[0]}</div>`}</td>
+                      <td><strong>${d.name}</strong><br><span class="badge ${sc(d.status)}" style="margin-top:4px">${d.status}</span></td>
+                      <td>${d.phone}</td>
+                      <td>${d.licenceNo}</td> <td>${d.licenceExpiry || 'N/A'}</td>
+                      <td><span class="badge badge-blue">${d.vehicleType}</span></td>
+                      <td style="display:flex;gap:6px">
+                        <button class="btn btn-outline btn-sm" onclick="editDriver(${d.id})">✏️ Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteDriver(${d.id})">🗑️</button>
+                      </td>
+                    </tr>`;
+                });
+                $('#driverTable').html(html);
+            }
+        });
+    }
+
+    // POST/PUT - Save Driver to Backend
+    function saveDriver() {
+        const dto = {
+            name: $('#f-name').val(),
+            phone: $('#f-phone').val(),
+            licenceNo: $('#f-licence').val(), // FIX: property name must match DriverDTO
+            licenceExpiry: $('#f-expiry').val(),
+            vehicleType: $('#f-vtype').val(),
+            status: $('#f-status').val(),
+            profilePic: currentPic
+        };
+
+        const isEdit = editId !== null;
+        $.ajax({
+            url: isEdit ? `${BASE_URL}/${editId}` : BASE_URL,
+            method: isEdit ? 'PUT' : 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(dto),
+            success: function(res) {
+                showToast(res.message || 'Success');
+                closeModal();
+                renderTable();
+            },
+            error: function(xhr) { showToast(xhr.responseJSON?.message || 'Error', 'error'); }
+        });
+    }
+
+    // DELETE - Remove from Database
+    function deleteDriver(id) {
+        if (!confirm('Are you sure?')) return;
+        $.ajax({
+            url: `${BASE_URL}/${id}`,
+            method: 'DELETE',
+            success: function() { renderTable(); showToast('Deleted', 'error'); }
+        });
+    }
+
+    // Listener for Search
+    $('#searchInput, #filterType').on('input change', renderTable);
+</script>
 </body></html>

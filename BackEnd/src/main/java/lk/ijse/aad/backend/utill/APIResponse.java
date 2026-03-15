@@ -1,14 +1,10 @@
 package lk.ijse.aad.backend.utill;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
+@AllArgsConstructor
 public class APIResponse<T> {
     private int code;
     private String message;
