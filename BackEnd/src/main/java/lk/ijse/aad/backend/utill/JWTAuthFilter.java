@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -25,42 +24,28 @@ public class JWTAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain)
+                                    FilterChain chain)
             throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
+        String header = request.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
+        if (header == null || !header.startsWith("Bearer ")) {
+            chain.doFilter(request, response);
             return;
         }
 
-        final String token = authHeader.substring(7);
+        String token    = header.substring(7);
+        String username = jwtUtil.extractUsername(token);
 
-        try {
-            if (jwtUtil.validateToken(token)) {
-                String username = jwtUtil.extractUsername(token);
-
-                if (username != null &&
-                        SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                    UserDetails userDetails =
-                            userDetailsService.loadUserByUsername(username);
-
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails, null, userDetails.getAuthorities());
-
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request));
-
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            var ud = userDetailsService.loadUserByUsername(username);
+            if (jwtUtil.isValid(token, ud.getUsername())) {
+                var auth = new UsernamePasswordAuthenticationToken(
+                        ud, null, ud.getAuthorities());
+                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }
-        } catch (Exception e) {
-            // Token invalid — SecurityContext හිස්ව තබා filter chain continue
         }
-
-        filterChain.doFilter(request, response);
+        chain.doFilter(request, response);
     }
 }

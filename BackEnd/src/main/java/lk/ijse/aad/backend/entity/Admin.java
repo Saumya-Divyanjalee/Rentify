@@ -4,16 +4,16 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "user")
+@Table(name = "admin")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class Admin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Long userId;
+    @Column(name = "admin_id")
+    private Long adminId;
 
     @Column(name = "full_name", nullable = false)
     private String fullName;
@@ -34,7 +34,7 @@ public class User {
     @Column(name = "role", nullable = false)
     private Role role;
 
-    // profile image store
+    // profile image
     @Lob
     @Column(name = "profile_image")
     private byte[] profileImage;

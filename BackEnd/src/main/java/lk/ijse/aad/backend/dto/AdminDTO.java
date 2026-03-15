@@ -2,16 +2,21 @@ package lk.ijse.aad.backend.dto;
 
 import lombok.*;
 
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
-@ToString
-public class RegisterDTO {
+@AllArgsConstructor
+public class AdminDTO {
+
+    private Integer adminId;
     private String fullName;
     private String username;
     private String email;
     private String phone;
+
+    // receive only — never returned
     private String password;
-    private String role; // "USER" or "ADMIN"
+
+    private String profileImageBase64;
+    private String imageType;
+
 }

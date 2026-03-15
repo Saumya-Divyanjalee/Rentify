@@ -1,15 +1,19 @@
 package lk.ijse.aad.backend.service;
 
-import lk.ijse.aad.backend.dto.AuthDTO;
 import lk.ijse.aad.backend.dto.AuthResponseDTO;
 import lk.ijse.aad.backend.dto.RegisterDTO;
+import lk.ijse.aad.backend.dto.SignInDTO;
+import lk.ijse.aad.backend.entity.Admin;
 import lk.ijse.aad.backend.entity.Role;
 import lk.ijse.aad.backend.entity.User;
+import lk.ijse.aad.backend.repository.AdminRepository;
 import lk.ijse.aad.backend.repository.UserRepository;
+import lk.ijse.aad.backend.service.impl.EmailService;
 import lk.ijse.aad.backend.utill.JWTUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,63 +21,71 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepository userRepo;
+    private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authManager;
     private final JWTUtil jwtUtil;
     private final EmailService emailService;
 
-    // ─── SIGN IN ─────────────────────────────────────────────────────────────
-    public AuthResponseDTO authenticate(AuthDTO authDTO) {
-        User user = userRepo.findByUsername(authDTO.getUsername())
-                .or(() -> userRepo.findByEmail(authDTO.getUsername()))
-                .orElseThrow(() -> new UsernameNotFoundException(
-                        "No account found for: " + authDTO.getUsername()));
+    // SIGNUP - Logic to separate Admin and User storage
+    public String signup(RegisterDTO dto) {
+        String role = (dto.getRole() != null) ? dto.getRole().toUpperCase() : "USER";
 
-        if (!passwordEncoder.matches(authDTO.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException("Incorrect password");
+        if ("ADMIN".equals(role)) {
+            if (adminRepository.existsByUsername(dto.getUsername())) throw new RuntimeException("Admin Username taken");
+
+            Admin admin = new Admin();
+            admin.setFullName(dto.getFullName());
+            admin.setUsername(dto.getUsername());
+            admin.setEmail(dto.getEmail());
+            admin.setPhone(dto.getPhone());
+            admin.setPassword(passwordEncoder.encode(dto.getPassword()));
+            admin.setRole(Role.ADMIN);
+            adminRepository.save(admin); // Saves to 'admin' table
+
+            emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
+            return "Admin registered successfully!";
+        } else {
+            if (userRepository.existsByUsername(dto.getUsername())) throw new RuntimeException("User Username taken");
+
+            User user = new User();
+            user.setFullName(dto.getFullName());
+            user.setUsername(dto.getUsername());
+            user.setEmail(dto.getEmail());
+            user.setPhone(dto.getPhone());
+            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+            user.setRole(Role.USER);
+            userRepository.save(user); // Saves to 'user' table
+
+            emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
+            return "User registered successfully!";
         }
-
-        String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
-
-        if (user.getEmail() != null && !user.getEmail().isBlank()) {
-            emailService.sendLoginNotificationEmail(user.getEmail(), user.getUsername());
-        }
-
-        return new AuthResponseDTO(token, user.getRole().name());
     }
 
-    // ─── SIGN UP ─────────────────────────────────────────────────────────────
-    public String register(RegisterDTO dto) {
-        if (userRepo.existsByUsername(dto.getUsername())) {
-            throw new RuntimeException("Username '" + dto.getUsername() + "' is already taken!");
-        }
-        if (dto.getEmail() != null && userRepo.existsByEmail(dto.getEmail())) {
-            throw new RuntimeException("Email '" + dto.getEmail() + "' is already registered!");
-        }
+    // SIGNIN - Logic to check both tables and send Login Email
+    public AuthResponseDTO signin(SignInDTO dto) {
+        // This triggers the UserDetailsService which checks both tables
+        authManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
 
-        Role role;
-        try {
-            role = Role.valueOf(dto.getRole() != null
-                    ? dto.getRole().toUpperCase() : "USER");
-        } catch (IllegalArgumentException e) {
-            role = Role.USER;
+        // Check Admin table first for response data
+        var adminOpt = adminRepository.findByUsername(dto.getUsername());
+        if (adminOpt.isPresent()) {
+            Admin a = adminOpt.get();
+            String token = jwtUtil.generateToken(a.getUsername(), "ADMIN");
+            emailService.sendLoginNotificationEmail(a.getEmail(), a.getUsername());
+            return new AuthResponseDTO(token, "ADMIN", a.getAdminId(), a.getFullName(), a.getEmail(), a.getUsername());
         }
 
-        User user = User.builder()
-                .fullName(dto.getFullName())
-                .username(dto.getUsername())
-                .email(dto.getEmail())
-                .phone(dto.getPhone())
-                .password(passwordEncoder.encode(dto.getPassword()))
-                .role(role)
-                .build();
-
-        userRepo.save(user);
-
-        if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
-            emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
+        // Check User table
+        var userOpt = userRepository.findByUsername(dto.getUsername());
+        if (userOpt.isPresent()) {
+            User u = userOpt.get();
+            String token = jwtUtil.generateToken(u.getUsername(), "USER");
+            emailService.sendLoginNotificationEmail(u.getEmail(), u.getUsername());
+            return new AuthResponseDTO(token, "USER", u.getUserId(), u.getFullName(), u.getEmail(), u.getUsername());
         }
 
-        return "User registered successfully!";
+        throw new RuntimeException("User not found after authentication");
     }
 }

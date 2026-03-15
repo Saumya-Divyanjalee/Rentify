@@ -1,160 +1,111 @@
-package lk.ijse.aad.backend.service;
+package lk.ijse.aad.backend.service.impl;
 
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class EmailService {
 
     private final JavaMailSender mailSender;
 
     @Value("${spring.mail.username}")
-    private String fromEmail;
+    private String from;
 
-    // ──────────────────────────────────────────────────
-    // 1. WELCOME EMAIL — triggered on signup
-    // ──────────────────────────────────────────────────
+    // ── Public API ────────────────────────────────────────────────────────────
+
+    /**
+     * General-purpose email sender used by controllers directly.
+     * Fixed: was missing — controllers called emailService.sendEmail() but the
+     * method did not exist publicly. Previously only private send() existed.
+     */
     @Async
-    public void sendWelcomeEmail(String toEmail, String fullName) {
+    public void sendEmail(String to, String subject, String body) {
+        sendHtml(to, subject, wrap(
+                "<p style='color:#555;line-height:1.8;white-space:pre-line'>" + body + "</p>"
+        ));
+    }
+
+    /** Welcome email sent after signup. */
+    @Async
+    public void sendWelcomeEmail(String to, String fullName) {
+        sendHtml(to, "Welcome to Rentify 🚗", buildWelcomeHtml(fullName));
+    }
+
+    /** Login notification email. */
+
+    @Async
+    public void sendLoginNotificationEmail(String to, String username) {
+        String subject = "New Sign-In Detected 🔐";
+        String htmlBody = buildLoginHtml(username);
+        sendHtml(to, subject, htmlBody);
+    }
+
+    // ── Internal send helper ──────────────────────────────────────────────────
+
+    private void sendHtml(String to, String subject, String html) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom(fromEmail);
-            helper.setTo(toEmail);
-            helper.setSubject("🏠 Welcome to Rentify — Your Account is Ready!");
-            helper.setText(buildWelcomeHtml(fullName), true);
-            mailSender.send(message);
-            log.info("✅ Welcome email sent → {}", toEmail);
+            MimeMessage msg = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(msg, true, "UTF-8");
+            helper.setFrom(from);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(html, true);
+            mailSender.send(msg);
         } catch (Exception e) {
-            log.error("❌ Welcome email failed for {}: {}", toEmail, e.getMessage());
+            System.err.println("[EmailService] Failed to send to " + to + " : " + e.getMessage());
         }
     }
 
-    // ──────────────────────────────────────────────────
-    // 2. LOGIN NOTIFICATION EMAIL — triggered on signin
-    // ──────────────────────────────────────────────────
-    @Async
-    public void sendLoginNotificationEmail(String toEmail, String username) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom(fromEmail);
-            helper.setTo(toEmail);
-            helper.setSubject("🔔 Rentify — New Login to Your Account");
-            helper.setText(buildLoginHtml(username), true);
-            mailSender.send(message);
-            log.info("✅ Login notification sent → {}", toEmail);
-        } catch (Exception e) {
-            log.error("❌ Login email failed for {}: {}", toEmail, e.getMessage());
-        }
+    // ── HTML templates ────────────────────────────────────────────────────────
+
+    private String wrap(String body) {
+        return "<!DOCTYPE html><html><body style='margin:0;padding:0;background:#f4f4f0;font-family:monospace'>"
+                + "<div style='max-width:580px;margin:40px auto;background:#fff;border-radius:16px;"
+                + "overflow:hidden;border:2px solid #FFC107'>"
+                + "<div style='background:#0a0a0a;padding:28px 36px;display:flex;align-items:center;gap:14px'>"
+                + "<div style='width:42px;height:42px;background:#FFC107;border-radius:10px;"
+                + "display:flex;align-items:center;justify-content:center;font-weight:700;"
+                + "font-size:18px;color:#0a0a0a'>R</div>"
+                + "<span style='font-size:26px;font-weight:700;color:#fff'>Rent"
+                + "<span style=\"color:#FFC107\">ify</span></span></div>"
+                + "<div style='padding:36px'>" + body + "</div>"
+                + "<div style='background:#f4f4f0;padding:16px 36px;text-align:center;"
+                + "font-size:11px;color:#999'>© 2026 Rentify Inc. · Sri Lanka 🇱🇰</div>"
+                + "</div></body></html>";
     }
 
-    // ──────────────────────────────────────────────────
-    // HTML BUILDERS
-    // ──────────────────────────────────────────────────
     private String buildWelcomeHtml(String fullName) {
-        return """
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="UTF-8">
-              <style>
-                body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;margin:0;padding:0}
-                .wrap{max-width:560px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)}
-                .head{background:linear-gradient(135deg,#14532d 0%%,#16a34a 100%%);padding:40px 32px;text-align:center}
-                .logo{font-size:36px;font-weight:800;color:#fff;letter-spacing:-1px}
-                .logo span{color:#facc15}
-                .tag{color:rgba(255,255,255,0.8);font-size:14px;margin-top:6px}
-                .body{padding:36px 32px}
-                .hi{font-size:22px;font-weight:700;color:#14532d;margin-bottom:12px}
-                .txt{font-size:15px;color:#374151;line-height:1.7;margin-bottom:16px}
-                .box{background:#f0fdf4;border-left:4px solid #16a34a;border-radius:8px;padding:16px 20px;margin:20px 0}
-                .box p{margin:0;font-size:14px;color:#14532d;font-weight:500}
-                .btn{display:inline-block;background:#16a34a;color:#fff;text-decoration:none;padding:14px 32px;border-radius:10px;font-weight:700;font-size:15px}
-                .foot{background:#f9fefb;padding:20px 32px;text-align:center;font-size:12px;color:#9ca3af;border-top:1px solid #d1fae5}
-              </style>
-            </head>
-            <body>
-              <div class="wrap">
-                <div class="head">
-                  <div class="logo">Rent<span>ify</span></div>
-                  <div class="tag">One click. One key. Unlimited freedom.</div>
-                </div>
-                <div class="body">
-                  <div class="hi">Hi %s, welcome aboard! 🎉</div>
-                  <p class="txt">Thank you for joining <strong>Rentify</strong>. Your account is active and ready to use.</p>
-                  <div class="box">
-                    <p>✅ Account created successfully<br>🔑 Log in anytime to browse listings<br>🏠 Start booking your first rental</p>
-                  </div>
-                  <p style="text-align:center;margin-top:28px">
-                    <a href="http://localhost/pages/sign-in.html" class="btn">Go to Dashboard →</a>
-                  </p>
-                </div>
-                <div class="foot">© 2026 Rentify Inc. · If you didn't create this account, ignore this email.</div>
-              </div>
-            </body>
-            </html>
-            """.formatted(fullName == null ? "there" : fullName);
+        return wrap(
+                "<h2 style='color:#0a0a0a;margin:0 0 14px;font-size:22px'>Welcome, " + fullName + "! 🎉</h2>"
+                        + "<p style='color:#555;line-height:1.8;margin:0 0 20px'>Your Rentify account is ready. "
+                        + "Explore Sri Lanka's #1 cab rental platform with verified drivers, transparent pricing "
+                        + "and instant booking.</p>"
+                        + "<div style='margin:28px 0;text-align:center'>"
+                        + "<a href='http://localhost/pages/sign-in.html' style='background:#16a34a;color:#fff;"
+                        + "padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;"
+                        + "font-size:14px'>Get Started →</a></div>"
+                        + "<p style='color:#aaa;font-size:12px'>If you didn't create this account, "
+                        + "please ignore this email.</p>"
+        );
     }
 
     private String buildLoginHtml(String username) {
-        String time = LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"));
-        return """
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="UTF-8">
-              <style>
-                body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;margin:0;padding:0}
-                .wrap{max-width:560px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)}
-                .head{background:linear-gradient(135deg,#1e3a5f 0%%,#1d4ed8 100%%);padding:36px 32px;text-align:center}
-                .logo{font-size:32px;font-weight:800;color:#fff;letter-spacing:-1px}
-                .logo span{color:#facc15}
-                .tag{color:rgba(255,255,255,0.7);font-size:13px;margin-top:4px}
-                .body{padding:32px 32px 24px}
-                .title{font-size:20px;font-weight:700;color:#1e3a5f;margin-bottom:10px}
-                .txt{font-size:14px;color:#374151;line-height:1.7;margin-bottom:12px}
-                .info{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px 20px;margin:18px 0}
-                .row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid #dbeafe}
-                .row:last-child{border-bottom:none}
-                .lbl{color:#64748b;font-weight:600}
-                .val{color:#1e3a5f;font-weight:700}
-                .warn{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px 18px;font-size:13px;color:#92400e;margin-top:16px}
-                .foot{background:#f8fafc;padding:18px 32px;text-align:center;font-size:12px;color:#94a3b8;border-top:1px solid #e2e8f0}
-              </style>
-            </head>
-            <body>
-              <div class="wrap">
-                <div class="head">
-                  <div class="logo">Rent<span>ify</span></div>
-                  <div class="tag">Security Notification</div>
-                </div>
-                <div class="body">
-                  <div class="title">🔔 New Login Detected</div>
-                  <p class="txt">A sign-in was just recorded on your <strong>Rentify</strong> account.</p>
-                  <div class="info">
-                    <div class="row"><span class="lbl">Username</span><span class="val">%s</span></div>
-                    <div class="row"><span class="lbl">Time</span><span class="val">%s</span></div>
-                    <div class="row"><span class="lbl">Status</span><span class="val" style="color:#16a34a">✅ Successful</span></div>
-                  </div>
-                  <div class="warn">⚠️ If this wasn't you, <strong>change your password immediately</strong> and contact support.</div>
-                </div>
-                <div class="foot">© 2026 Rentify · Automated security notification.</div>
-              </div>
-            </body>
-            </html>
-            """.formatted(username, time);
+        return wrap(
+                "<h2 style='color:#0a0a0a;margin:0 0 14px;font-size:22px'>New Sign-In Detected 🔐</h2>"
+                        + "<p style='color:#555;line-height:1.8;margin:0 0 16px'>A login was recorded for account: "
+                        + "<strong style='color:#0a0a0a'>" + username + "</strong></p>"
+                        + "<div style='background:#fefce8;border:1.5px solid #fde68a;padding:14px 18px;"
+                        + "border-radius:10px;margin-bottom:20px'>"
+                        + "<p style='margin:0;color:#92400e;font-size:13px'>⚠️ If this wasn't you, "
+                        + "change your password immediately to secure your account.</p></div>"
+                        + "<p style='color:#aaa;font-size:12px'>This is an automated security notification "
+                        + "from Rentify.</p>"
+        );
     }
 }
