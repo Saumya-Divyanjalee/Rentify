@@ -65,12 +65,11 @@ public class ApplicationConfig {
     // Inject UserDetailsService as parameter — fixes red underline in IntelliJ
     @Bean
     public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
-
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();  // ← no-arg constructor
+        provider.setUserDetailsService(userDetailsService);                     // ← explicit setter
+        provider.setPasswordEncoder(passwordEncoder());                         // ← explicit setter
         return provider;
     }
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
         return cfg.getAuthenticationManager();

@@ -4,7 +4,7 @@ import lk.ijse.aad.backend.dto.AuthResponseDTO;
 import lk.ijse.aad.backend.dto.RegisterDTO;
 import lk.ijse.aad.backend.dto.SignInDTO;
 import lk.ijse.aad.backend.entity.Admin;
-import lk.ijse.aad.backend.entity.Role;
+import lk.ijse.aad.backend.enums.Role;
 import lk.ijse.aad.backend.entity.User;
 import lk.ijse.aad.backend.repository.AdminRepository;
 import lk.ijse.aad.backend.repository.UserRepository;
@@ -13,7 +13,6 @@ import lk.ijse.aad.backend.utill.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

@@ -31,6 +31,14 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
+
+                        // Swagger
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+
                         // Ensure this is open
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
@@ -50,7 +58,7 @@ public class SecurityConfig {
     }
 
 
-    // ───── CORS CONFIGURATION ─────
+    //   CORS CONFIGURATION
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
@@ -67,4 +75,6 @@ public class SecurityConfig {
 
         return source;
     }
+
+
 }
