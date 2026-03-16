@@ -1,6 +1,7 @@
 package lk.ijse.aad.backend.entity;
 
 import jakarta.persistence.*;
+import lk.ijse.aad.backend.enums.Role;
 import lombok.*;
 
 @Entity

@@ -1,11 +1,16 @@
 package lk.ijse.aad.backend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lk.ijse.aad.backend.enums.Role;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -37,10 +42,15 @@ public class User {
 
     // profile image store
     @Lob
-    @Column(name = "profile_image")
+    @Column(name = "profile_image",columnDefinition = "LONGBLOB")
     private byte[] profileImage;
 
     @Column(name = "image_type")
     private String imageType;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
 
 }
