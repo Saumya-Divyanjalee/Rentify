@@ -8,7 +8,7 @@ import lk.ijse.aad.backend.enums.Role;
 import lk.ijse.aad.backend.entity.User;
 import lk.ijse.aad.backend.repository.AdminRepository;
 import lk.ijse.aad.backend.repository.UserRepository;
-import lk.ijse.aad.backend.service.impl.EmailService;
+import lk.ijse.aad.backend.service.EmailService;
 import lk.ijse.aad.backend.utill.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
