@@ -3,154 +3,619 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name ="keywords" content="Rentify,HTML,CSS,JavaScript,Spring,SpringBoot,ORM,Mysql">
-    <meta name ="description" content="Rentify-Smart Cab Renting Platform">
-    <meta name ="author" content="Saumya Divyanjalee">
-
     <title>Rentify Admin — Bookings</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../admin-css/p-admin.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <link rel="icon" type="image/x-icon" href="../../assets/icons/favicon.ico">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+        :root{
+            --green:#16a34a;--green-dark:#14532d;--green-mid:#22c55e;
+            --green-light:#bbf7d0;--green-soft:#f0fdf4;
+            --yellow:#eab308;--yellow-mid:#facc15;
+            --red:#ef4444;--blue:#3b82f6;--orange:#f59e0b;--purple:#a855f7;
+            --text-dark:#111827;--text-mid:#374151;--text-muted:#6b7280;
+            --white:#fff;--surface:#f9fafb;--border:#e5e7eb;--card:#fff;
+            --sidebar:#111827;
+            --sans:'Syne',sans-serif;--mono:'DM Sans',sans-serif;--code:'Roboto Mono',monospace;
+        }
+        body{font-family:var(--mono);background:var(--surface);color:var(--text-dark);min-height:100vh;display:flex;}
 
+        /* SIDEBAR */
+        .sidebar{width:240px;min-height:100vh;background:var(--sidebar);display:flex;flex-direction:column;padding:24px 16px;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+        .sn-logo{font-family:var(--code);font-size:22px;font-weight:700;color:#fff;letter-spacing:-1px;margin-bottom:32px;padding:0 8px;}
+        .sn-logo span{color:var(--yellow-mid);}
+        .sn-badge{font-size:9px;background:var(--yellow-mid);color:var(--green-dark);padding:2px 7px;border-radius:20px;font-weight:700;margin-left:6px;vertical-align:middle;}
+        .sn-sec{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#6b7280;margin:20px 0 8px;padding:0 8px;}
+        .sn-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;text-decoration:none;color:#9ca3af;font-size:13px;font-weight:500;transition:all .2s;margin-bottom:2px;}
+        .sn-link:hover{background:#1f2937;color:#fff;}
+        .sn-link.active{background:#facc1520;color:var(--yellow-mid);font-weight:600;border:1px solid #facc1530;}
+        .sn-link .ico{font-size:16px;width:20px;text-align:center;}
+        .sn-bottom{margin-top:auto;padding-top:16px;border-top:1px solid #1f2937;}
+        .sn-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:#1f2937;}
+        .sn-av{width:32px;height:32px;border-radius:50%;background:var(--yellow-mid);display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:13px;font-weight:800;color:var(--green-dark);flex-shrink:0;}
+        .sn-name{font-size:13px;font-weight:600;color:#fff;}
+        .sn-role{font-size:10px;color:#6b7280;letter-spacing:.5px;text-transform:uppercase;}
+
+        /* MAIN */
+        .main{margin-left:240px;flex:1;padding:32px;}
+
+        /* API BAR */
+        .api-bar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-muted);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 14px;margin-bottom:24px;}
+        .api-dot{width:7px;height:7px;border-radius:50%;background:#d1d5db;transition:background .4s;flex-shrink:0;}
+        .api-dot.online{background:var(--green-mid);box-shadow:0 0 6px rgba(34,197,94,.4);}
+        .api-dot.offline{background:var(--red);}
+
+        /* PAGE HEADER */
+        .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:14px;}
+        .page-title{font-family:var(--sans);font-size:24px;font-weight:800;color:var(--text-dark);letter-spacing:-1px;}
+        .page-sub{font-size:13px;color:var(--text-muted);margin-top:3px;}
+        .header-btns{display:flex;gap:10px;flex-wrap:wrap;}
+
+        /* STATS */
+        .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:28px;}
+        .sc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden;}
+        .sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ac,var(--green));border-radius:14px 14px 0 0;}
+        .sc.y::before{--ac:var(--yellow);}
+        .sc.b::before{--ac:var(--blue);}
+        .sc.g::before{--ac:var(--green-mid);}
+        .sc.r::before{--ac:var(--red);}
+        .sc.p::before{--ac:var(--purple);}
+        .sc-lbl{font-size:10px;color:var(--text-muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;}
+        .sc-val{font-family:var(--sans);font-size:22px;font-weight:800;color:var(--text-dark);letter-spacing:-1px;}
+        .sc-ico{position:absolute;top:14px;right:14px;font-size:18px;opacity:.25;}
+
+        /* FILTER BAR */
+        .filter-bar{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+        .search-bar{display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;flex:1;min-width:220px;transition:border-color .2s;}
+        .search-bar:focus-within{border-color:var(--green);}
+        .search-bar input{border:none;outline:none;font-family:var(--mono);font-size:13px;color:var(--text-dark);background:transparent;width:100%;}
+        .search-bar input::placeholder{color:#9ca3af;}
+        .fsel{padding:9px 13px;background:var(--card);border:1.5px solid var(--border);border-radius:10px;color:var(--text-mid);font-size:13px;font-family:var(--mono);outline:none;cursor:pointer;transition:border-color .2s;}
+        .fsel:focus{border-color:var(--green);}
+        .date-in{padding:9px 13px;background:var(--card);border:1.5px solid var(--border);border-radius:10px;color:var(--text-mid);font-size:13px;font-family:var(--mono);outline:none;cursor:pointer;}
+        .date-in:focus{border-color:var(--green);}
+
+        /* BUTTONS */
+        .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;font-family:var(--mono);border:none;cursor:pointer;transition:all .2s;}
+        .btn-primary{background:var(--green);color:#fff;box-shadow:0 2px 12px rgba(22,163,74,.25);}
+        .btn-primary:hover{background:var(--green-dark);transform:translateY(-1px);}
+        .btn-outline{background:var(--card);color:var(--text-mid);border:1.5px solid var(--border);}
+        .btn-outline:hover{border-color:var(--green);color:var(--green);}
+        .btn-pdf{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;box-shadow:0 2px 12px rgba(220,38,38,.25);}
+        .btn-pdf:hover{background:linear-gradient(135deg,#b91c1c,#991b1b);transform:translateY(-1px);}
+        .btn-pdf:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+        .btn-sm{padding:5px 11px;font-size:11px;border-radius:7px;}
+        .btn-del-sm{background:transparent;border:1.5px solid #fecaca;color:var(--red);padding:5px 10px;font-size:11px;border-radius:7px;cursor:pointer;font-family:var(--mono);transition:all .2s;}
+        .btn-del-sm:hover{background:#fef2f2;}
+
+        /* CARD TABLE */
+        .card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+        .card-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+        .card-title{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--text-dark);}
+        .table-wrap{overflow-x:auto;}
+        table{width:100%;border-collapse:collapse;}
+        thead th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);background:#f9fafb;white-space:nowrap;}
+        tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
+        tbody tr:last-child{border-bottom:none;}
+        tbody tr:hover{background:#f9fafb;}
+        tbody td{padding:11px 14px;font-size:13px;color:var(--text-mid);vertical-align:middle;}
+        .td-b{font-weight:600;color:var(--text-dark);}
+        .td-m{font-family:var(--code);font-size:11px;color:var(--text-muted);}
+
+        /* BADGES */
+        .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+        .badge-green    {background:rgba(22,163,74,.1);color:var(--green);border:1px solid rgba(22,163,74,.3);}
+        .badge-PENDING  {background:rgba(245,158,11,.1);color:#b45309;border:1px solid rgba(245,158,11,.3);}
+        .badge-CONFIRMED{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.3);}
+        .badge-COMPLETED{background:rgba(22,163,74,.1);color:var(--green);border:1px solid rgba(22,163,74,.3);}
+        .badge-CANCELLED{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25);}
+
+        /* EMPTY/LOAD */
+        .empty-row td{text-align:center;padding:48px;color:var(--text-muted);}
+        .loading-row td{text-align:center;padding:40px;color:var(--text-muted);}
+        .spin{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle;}
+        @keyframes spin{to{transform:rotate(360deg)}}
+
+        /* TOAST */
+        #toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--text-dark);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;display:none;box-shadow:0 8px 24px rgba(0,0,0,.15);max-width:320px;}
+        #toast.success{background:var(--green);}
+        #toast.error{background:var(--red);}
+
+        /* MODAL */
+        .modal-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);}
+        .modal-overlay.open{display:flex;animation:fadeIn .2s ease;}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        .modal{background:var(--card);border-radius:18px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;animation:scaleUp .25s cubic-bezier(.34,1.56,.64,1);box-shadow:0 40px 100px rgba(0,0,0,.2);}
+        @keyframes scaleUp{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+        .modal-hd{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid var(--border);}
+        .modal-title{font-family:var(--sans);font-size:17px;font-weight:700;color:var(--text-dark);}
+        .modal-close{width:30px;height:30px;background:#f3f4f6;border:none;border-radius:7px;cursor:pointer;font-size:13px;transition:all .2s;}
+        .modal-close:hover{background:var(--border);}
+        .modal-bd{padding:22px 24px;}
+        .modal-ft{display:flex;justify-content:flex-end;gap:9px;padding:16px 24px;border-top:1px solid var(--border);}
+
+        /* DETAIL */
+        .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+        .di{background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:12px;}
+        .di.full{grid-column:1/-1;}
+        .di .lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;}
+        .di .val{font-size:13px;font-weight:600;color:var(--text-dark);}
+        .price-big{font-family:var(--sans);font-size:24px;font-weight:800;color:var(--green);}
+
+        /* PDF MODAL */
+        .pdf-sec{background:#f9fafb;border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;}
+        .pdf-sec-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px;}
+        .pdf-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+        .pdf-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;}
+        .pdf-opt:has(input:checked){border-color:var(--green);background:var(--green-soft);}
+        .pdf-opt input[type=checkbox]{accent-color:var(--green);width:15px;height:15px;}
+        .pdf-opt label{font-size:12px;color:var(--text-mid);cursor:pointer;}
+        .date-row{display:flex;gap:10px;margin-top:12px;}
+        .date-row input{flex:1;padding:9px 12px;background:#fff;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-family:var(--mono);outline:none;color:var(--text-dark);}
+        .date-row input:focus{border-color:var(--green);}
+        .sum-prev{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:12px;}
+        .sum-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text-mid);padding:9px 14px;border-bottom:1px solid var(--border);}
+        .sum-row:last-child{border:none;font-weight:700;color:var(--text-dark);}
+        .sum-row span:last-child{color:var(--green);font-weight:700;}
+
+        @media(max-width:1024px){.sidebar{display:none;}.main{margin-left:0;}.stats{grid-template-columns:repeat(3,1fr);}}
+        @media(max-width:640px){.stats{grid-template-columns:1fr 1fr;}.filter-bar{flex-direction:column;align-items:stretch;}.detail-grid,.pdf-opts{grid-template-columns:1fr;}}
+    </style>
 </head>
 <body>
-<div id="sidebar-root"></div>
-<main class="main-content">
-    <div class="page-header">
-        <div><div class="page-title">📅 Bookings</div><div class="page-subtitle">Manage all cab bookings</div></div>
-        <button class="btn btn-primary" onclick="openModal()">+ New Booking</button>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="sn-logo">Rent<span>ify</span> <span class="sn-badge">ADMIN</span></div>
+    <div class="sn-sec">Fleet</div>
+    <a href="admin-vehicles.html" class="sn-link"><span class="ico">🚗</span> Vehicles</a>
+    <a href="booking.html"        class="sn-link active"><span class="ico">📋</span> Bookings</a>
+    <a href="payment.html"        class="sn-link"><span class="ico">💳</span> Payments</a>
+    <div class="sn-sec">Manage</div>
+    <a href="users.html"          class="sn-link"><span class="ico">👥</span> Users</a>
+    <a href="drivers.html"        class="sn-link"><span class="ico">🧑‍✈️</span> Drivers</a>
+    <div class="sn-sec">System</div>
+    <a href="#"                   class="sn-link"><span class="ico">📊</span> Reports</a>
+    <a href="#"                   class="sn-link"><span class="ico">⚙️</span> Settings</a>
+    <div class="sn-bottom">
+        <div class="sn-user">
+            <div class="sn-av" id="snAv">AD</div>
+            <div>
+                <div class="sn-name" id="snName">Admin</div>
+                <div class="sn-role">Administrator</div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+    <div class="api-bar">
+        <div class="api-dot" id="apiDot"></div>
+        <span id="apiTxt">Checking connection…</span>
+        <span style="margin-left:auto;font-size:10px;color:#9ca3af" id="lastFetch"></span>
     </div>
 
-    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
-        <div class="search-bar"><span>🔍</span><input id="searchInput" placeholder="Search customer, cab..." oninput="renderTable()"></div>
-        <select class="form-select" style="max-width:160px" id="filterStatus" onchange="renderTable()">
+    <div class="page-header">
+        <div>
+            <div class="page-title">📋 Booking Management</div>
+            <div class="page-sub">View and filter all vehicle bookings from the system.</div>
+        </div>
+        <div class="header-btns">
+            <button class="btn btn-outline" id="refreshBtn">↺ Refresh</button>
+            <button class="btn btn-pdf"     id="pdfBtn">📄 PDF Report</button>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="sc y"><div class="sc-lbl">Total Bookings</div><div class="sc-val" id="st-total">—</div><div class="sc-ico">📋</div></div>
+        <div class="sc" style="--ac:var(--orange)"><div class="sc-lbl">Pending</div><div class="sc-val" id="st-pending">—</div><div class="sc-ico">⏳</div></div>
+        <div class="sc b"><div class="sc-lbl">Confirmed</div><div class="sc-val" id="st-confirmed">—</div><div class="sc-ico">✅</div></div>
+        <div class="sc g"><div class="sc-lbl">Completed</div><div class="sc-val" id="st-completed">—</div><div class="sc-ico">🏁</div></div>
+        <div class="sc p"><div class="sc-lbl">Total Revenue</div><div class="sc-val" id="st-revenue" style="font-size:16px">—</div><div class="sc-ico">💰</div></div>
+    </div>
+
+    <div class="filter-bar">
+        <div class="search-bar">
+            <span>🔍</span>
+            <input id="searchInput" placeholder="Search vehicle, location, booking ID…" oninput="renderTable()">
+        </div>
+        <select class="fsel" id="filterStatus" onchange="renderTable()">
             <option value="">All Status</option>
-            <option>Confirmed</option><option>Pending</option><option>Completed</option><option>Cancelled</option>
+            <option value="PENDING">PENDING</option>
+            <option value="CONFIRMED">CONFIRMED</option>
+            <option value="COMPLETED">COMPLETED</option>
+            <option value="CANCELLED">CANCELLED</option>
         </select>
-        <button class="btn btn-outline" onclick="exportCSV()">⬇ Export</button>
+        <input type="date" class="date-in" id="filterFrom" onchange="renderTable()" title="From date">
+        <input type="date" class="date-in" id="filterTo"   onchange="renderTable()" title="To date">
+        <button class="btn btn-outline btn-sm" onclick="clearFilters()">✕ Clear</button>
     </div>
 
     <div class="card">
-        <div class="card-header">
+        <div class="card-hd">
             <span class="card-title">All Bookings</span>
-            <span id="countBadge" class="badge badge-green"></span>
+            <span id="countBadge" class="badge badge-green">0 records</span>
         </div>
         <div class="table-wrap">
             <table>
-                <thead><tr>
-                    <th>#ID</th><th>Customer</th><th>Model</th><th>Pickup Date</th>
-                    <th>Pickup Time</th><th>Pickup Location</th><th>Drop Location</th>
-                    <th>Status</th><th>Actions</th>
-                </tr></thead>
-                <tbody id="bookingTable"></tbody>
+                <thead>
+                <tr>
+                    <th>#ID</th><th>User</th><th>Vehicle</th>
+                    <th>Start</th><th>End</th>
+                    <th>Pickup</th><th>Drop</th>
+                    <th>Price</th><th>Status</th><th>Action</th>
+                </tr>
+                </thead>
+                <tbody id="bookingTable">
+                <tr class="loading-row"><td colspan="10"><span class="spin"></span>Loading bookings from backend…</td></tr>
+                </tbody>
             </table>
         </div>
     </div>
 </main>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay">
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal">
     <div class="modal">
-        <div class="modal-header">
-            <div class="modal-title" id="modalTitle">New Booking</div>
-            <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-hd">
+            <div class="modal-title">Booking Details</div>
+            <button class="modal-close" id="detailClose">✕</button>
         </div>
-        <div class="form-grid">
-            <div class="form-group"><label class="form-label">Customer Name</label><input class="form-input" id="f-customer" placeholder="Full name"></div>
-            <div class="form-group"><label class="form-label">Cab Model</label><input class="form-input" id="f-model" placeholder="e.g. Toyota Axio"></div>
-            <div class="form-group"><label class="form-label">Pickup Date</label><input class="form-input" type="date" id="f-date"></div>
-            <div class="form-group"><label class="form-label">Pickup Time</label><input class="form-input" type="time" id="f-time"></div>
-            <div class="form-group"><label class="form-label">Pickup Location</label><input class="form-input" id="f-pickup" placeholder="From"></div>
-            <div class="form-group"><label class="form-label">Drop Location</label><input class="form-input" id="f-drop" placeholder="To"></div>
-            <div class="form-group"><label class="form-label">Status</label>
-                <select class="form-select" id="f-status">
-                    <option>Pending</option><option>Confirmed</option><option>Completed</option><option>Cancelled</option>
-                </select>
-            </div>
+        <div class="modal-bd">
+            <div class="detail-grid" id="detailGrid"></div>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
-            <button class="btn btn-primary" onclick="saveBooking()">Save Booking</button>
+        <div class="modal-ft">
+            <button class="btn btn-outline" id="detailClose2">Close</button>
         </div>
     </div>
 </div>
+
+<!-- PDF MODAL -->
+<div class="modal-overlay" id="pdfModal">
+    <div class="modal" style="max-width:600px">
+        <div class="modal-hd">
+            <div class="modal-title">📄 Generate PDF Report</div>
+            <button class="modal-close" id="pdfClose">✕</button>
+        </div>
+        <div class="modal-bd">
+            <div class="pdf-sec">
+                <div class="pdf-sec-title">Include in Report</div>
+                <div class="pdf-opts">
+                    <div class="pdf-opt"><input type="checkbox" id="opt-summary"  checked><label for="opt-summary">📊 Summary Statistics</label></div>
+                    <div class="pdf-opt"><input type="checkbox" id="opt-bookings" checked><label for="opt-bookings">📋 All Bookings Table</label></div>
+                    <div class="pdf-opt"><input type="checkbox" id="opt-revenue"  checked><label for="opt-revenue">💰 Revenue Breakdown</label></div>
+                    <div class="pdf-opt"><input type="checkbox" id="opt-vehicles" checked><label for="opt-vehicles">🚗 Vehicle-wise Stats</label></div>
+                </div>
+            </div>
+            <div class="pdf-sec">
+                <div class="pdf-sec-title">Date Range <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></div>
+                <div class="date-row">
+                    <input type="date" id="pdf-from" onchange="updatePdfPreview()">
+                    <input type="date" id="pdf-to"   onchange="updatePdfPreview()">
+                </div>
+            </div>
+            <div class="pdf-sec">
+                <div class="pdf-sec-title">Report Preview</div>
+                <div class="sum-prev" id="pdfPreview"></div>
+            </div>
+        </div>
+        <div class="modal-ft">
+            <button class="btn btn-outline" id="pdfCancel">Cancel</button>
+            <button class="btn btn-pdf"     id="generateBtn">📄 Generate &amp; Download</button>
+        </div>
+    </div>
+</div>
+
 <div id="toast"></div>
-<script src="../../js/admin-js/p-admin-js.js"></script>
+
 <script>
-    document.getElementById('sidebar-root').innerHTML = getSidebar('bookings');
-    const KEY = 'r_bookings';
-    let data = JSON.parse(localStorage.getItem(KEY)||'null') || [
-        {id:'B001',customerName:'Amal Perera',cabModel:'Toyota Axio',pickupDate:'2026-03-10',pickupTime:'08:00',pickupLocation:'Colombo Fort',dropLocation:'Kandy',status:'Confirmed'},
-        {id:'B002',customerName:'Nimal Silva',cabModel:'Honda Fit',pickupDate:'2026-03-11',pickupTime:'10:30',pickupLocation:'Galle',dropLocation:'Colombo',status:'Pending'},
-        {id:'B003',customerName:'Dilani Fernando',cabModel:'KIA Picanto',pickupDate:'2026-03-09',pickupTime:'14:00',pickupLocation:'Negombo',dropLocation:'Airport',status:'Completed'},
-        {id:'B004',customerName:'Kamal Jayasuriya',cabModel:'Suzuki Alto',pickupDate:'2026-03-12',pickupTime:'07:00',pickupLocation:'Matara',dropLocation:'Galle',status:'Cancelled'},
-    ];
-    let editId = null;
-    const save = ()=>localStorage.setItem(KEY,JSON.stringify(data));
-    const sc = s=>s==='Confirmed'?'badge-green':s==='Pending'?'badge-yellow':s==='Completed'?'badge-blue':'badge-red';
-    function renderTable(){
-        const q=document.getElementById('searchInput').value.toLowerCase();
-        const fs=document.getElementById('filterStatus').value;
-        const filtered=data.filter(b=>{
-            const match=!q||(b.customerName+b.cabModel+b.pickupLocation+b.dropLocation).toLowerCase().includes(q);
-            const st=!fs||b.status===fs;
-            return match&&st;
+    /* ═══════════════════════════════════════════════════════
+       CONFIG
+    ═══════════════════════════════════════════════════════ */
+    const API = 'http://localhost:8081/api/v1';
+    let allBookings = [];
+
+    /* ── AUTH ─────────────────────────────────────────────── */
+    function getToken() { return localStorage.getItem('rentify_token') || ''; }
+    function authH()    { const t=getToken(); return t ? {Authorization:'Bearer '+t} : {}; }
+    function getAdmin() { return localStorage.getItem('rentify_fullName') || localStorage.getItem('rentify_username') || 'Admin'; }
+
+    function loadSidebar() {
+        const name = getAdmin();
+        const init = name.trim().split(/\s+/).map(x=>x[0].toUpperCase()).join('').slice(0,2)||'AD';
+        $('#snAv').text(init); $('#snName').text(name);
+    }
+
+    /* ── UTILS ─────────────────────────────────────────────── */
+    const esc  = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const fmtP = p => 'Rs ' + Number(p||0).toLocaleString('en-LK');
+    const fmtD = d => d ? new Date(d+'T00:00:00').toLocaleDateString('en-LK',{year:'numeric',month:'short',day:'2-digit'}) : '—';
+    const fmtDT= d => d ? new Date(d).toLocaleDateString('en-LK',{year:'numeric',month:'short',day:'2-digit'}) : '—';
+
+    function showToast(msg, type='') {
+        const $t=$('#toast'); $t.text(msg).attr('class',type).show();
+        clearTimeout($t.data('t')); $t.data('t',setTimeout(()=>$t.hide(),3500));
+    }
+
+    /* ── API CHECK ──────────────────────────────────────────── */
+    function checkApi() {
+        $.ajax({url:API+'/vehicles',method:'GET',timeout:5000,
+            success:()=>{$('#apiDot').addClass('online').removeClass('offline');$('#apiTxt').text('API Online — localhost:8081');},
+            error:()=>{$('#apiDot').addClass('offline').removeClass('online');$('#apiTxt').text('API Offline');}
         });
-        document.getElementById('countBadge').textContent=filtered.length+' records';
-        document.getElementById('bookingTable').innerHTML=filtered.map(b=>`
-    <tr>
-      <td><span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text-muted)">${b.id}</span></td>
-      <td><strong>${b.customerName}</strong></td>
-      <td>${b.cabModel}</td>
-      <td>${b.pickupDate}</td>
-      <td>${b.pickupTime}</td>
-      <td>📍 ${b.pickupLocation}</td>
-      <td>🏁 ${b.dropLocation}</td>
-      <td><span class="badge ${sc(b.status)}">${b.status}</span></td>
-      <td style="display:flex;gap:6px;">
-        <button class="btn btn-outline btn-sm" onclick="editBooking('${b.id}')">✏️ Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteBooking('${b.id}')">🗑️</button>
-      </td>
-    </tr>`).join('');
     }
-    function openModal(clear=true){
-        if(clear){editId=null;['f-customer','f-model','f-date','f-time','f-pickup','f-drop'].forEach(i=>document.getElementById(i).value='');document.getElementById('f-status').value='Pending';document.getElementById('modalTitle').textContent='New Booking';}
-        document.getElementById('modalOverlay').classList.add('open');
+
+    /* ── FETCH BOOKINGS ─────────────────────────────────────── */
+    function fetchBookings() {
+        $('#bookingTable').html('<tr class="loading-row"><td colspan="10"><span class="spin"></span>Loading bookings…</td></tr>');
+        $.ajax({
+            url:API+'/bookings', method:'GET', headers:authH(),
+            success: function(res) {
+                allBookings = Array.isArray(res) ? res : (res.data||[]);
+                updateStats(); renderTable(); updatePdfPreview();
+                $('#lastFetch').text('Updated: '+new Date().toLocaleTimeString('en-LK'));
+            },
+            error: function(xhr) {
+                let msg = xhr.responseJSON?.message || 'Failed to load bookings.';
+                if (xhr.status===401) msg='401 — Not authorized. Sign in as ADMIN.';
+                if (xhr.status===403) msg='403 — ADMIN access required.';
+                if (xhr.status===0)   msg='Cannot reach server — check port 8081.';
+                $('#bookingTable').html(`<tr class="empty-row"><td colspan="10">⚠️ ${esc(msg)}</td></tr>`);
+                showToast(msg,'error');
+            }
+        });
     }
-    function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
-    function saveBooking(){
-        const b={
-            customerName:document.getElementById('f-customer').value.trim(),
-            cabModel:document.getElementById('f-model').value.trim(),
-            pickupDate:document.getElementById('f-date').value,
-            pickupTime:document.getElementById('f-time').value,
-            pickupLocation:document.getElementById('f-pickup').value.trim(),
-            dropLocation:document.getElementById('f-drop').value.trim(),
-            status:document.getElementById('f-status').value,
-        };
-        if(!b.customerName||!b.cabModel){showToast('Fill required fields','error');return;}
-        if(editId){const idx=data.findIndex(x=>x.id===editId);data[idx]={...data[idx],...b};}
-        else{b.id='B'+String(data.length+1).padStart(3,'0');data.unshift(b);}
-        save();renderTable();closeModal();showToast(editId?'Booking updated!':'Booking added!');
+
+    /* ── STATS ──────────────────────────────────────────────── */
+    function updateStats() {
+        const rev = allBookings.filter(b=>b.status!=='CANCELLED').reduce((s,b)=>s+(b.totalPrice||0),0);
+        $('#st-total').text(allBookings.length);
+        $('#st-pending').text(allBookings.filter(b=>b.status==='PENDING').length);
+        $('#st-confirmed').text(allBookings.filter(b=>b.status==='CONFIRMED').length);
+        $('#st-completed').text(allBookings.filter(b=>b.status==='COMPLETED').length);
+        $('#st-revenue').text('Rs '+Number(rev).toLocaleString('en-LK'));
     }
-    function editBooking(id){
-        const b=data.find(x=>x.id===id);editId=id;
-        document.getElementById('f-customer').value=b.customerName;
-        document.getElementById('f-model').value=b.cabModel;
-        document.getElementById('f-date').value=b.pickupDate;
-        document.getElementById('f-time').value=b.pickupTime;
-        document.getElementById('f-pickup').value=b.pickupLocation;
-        document.getElementById('f-drop').value=b.dropLocation;
-        document.getElementById('f-status').value=b.status;
-        document.getElementById('modalTitle').textContent='Edit Booking';
-        openModal(false);
+
+    /* ── FILTER ─────────────────────────────────────────────── */
+    function getFiltered() {
+        const q=$('#searchInput').val().toLowerCase().trim();
+        const st=$('#filterStatus').val();
+        const fr=$('#filterFrom').val(), to=$('#filterTo').val();
+        return allBookings.filter(b=>{
+            if(st&&b.status!==st)return false;
+            if(fr&&b.startDate<fr)return false;
+            if(to&&b.startDate>to)return false;
+            if(q){const h=[b.vehicleModel,b.vehiclePlate,b.pickupLocation,b.dropLocation,String(b.id),String(b.userId)].join(' ').toLowerCase();if(!h.includes(q))return false;}
+            return true;
+        });
     }
-    function deleteBooking(id){if(confirm('Delete this booking?')){data=data.filter(x=>x.id!==id);save();renderTable();showToast('Booking deleted','error');}}
-    function exportCSV(){
-        const rows=[['ID','Customer','Model','Date','Time','Pickup','Drop','Status'],...data.map(b=>[b.id,b.customerName,b.cabModel,b.pickupDate,b.pickupTime,b.pickupLocation,b.dropLocation,b.status])];
-        const csv=rows.map(r=>r.join(',')).join('\n');
-        const a=document.createElement('a');a.href='data:text/csv,'+encodeURIComponent(csv);a.download='bookings.csv';a.click();
+
+    function clearFilters(){$('#searchInput').val('');$('#filterStatus').val('');$('#filterFrom').val('');$('#filterTo').val('');renderTable();}
+
+    /* ── RENDER TABLE ───────────────────────────────────────── */
+    function renderTable() {
+        const list=getFiltered();
+        $('#countBadge').text(list.length+' records');
+        if(!list.length){$('#bookingTable').html('<tr class="empty-row"><td colspan="10">🔍 No bookings match your filters.</td></tr>');return;}
+        const rows=list.map(b=>{
+            const days=b.startDate&&b.endDate?Math.max(1,Math.round((new Date(b.endDate)-new Date(b.startDate))/86400000)):'—';
+            return `<tr>
+            <td><span class="td-m" style="color:var(--green)">#${b.id}</span></td>
+            <td><span class="td-b">User #${b.userId}</span></td>
+            <td>
+                <div class="td-b">${esc(b.vehicleModel||'—')}</div>
+                <div class="td-m">${esc(b.vehiclePlate||'')}</div>
+            </td>
+            <td>${fmtD(b.startDate)}</td>
+            <td>${fmtD(b.endDate)} <span style="font-size:10px;color:#9ca3af">· ${days}d</span></td>
+            <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📍 ${esc(b.pickupLocation||'—')}</td>
+            <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🏁 ${esc(b.dropLocation||'—')}</td>
+            <td style="font-weight:700;color:var(--green);font-family:var(--sans)">${fmtP(b.totalPrice)}</td>
+            <td><span class="badge badge-${esc(b.status)}">${esc(b.status)}</span></td>
+            <td><button class="btn btn-outline btn-sm" onclick="openDetail(${b.id})">👁 View</button></td>
+        </tr>`;
+        }).join('');
+        $('#bookingTable').html(rows);
     }
-    renderTable();
+
+    /* ── DETAIL MODAL ───────────────────────────────────────── */
+    function openDetail(id) {
+        const b=allBookings.find(x=>x.id===id); if(!b)return;
+        const days=b.startDate&&b.endDate?Math.max(1,Math.round((new Date(b.endDate)-new Date(b.startDate))/86400000)):1;
+        $('#detailGrid').html(`
+        <div class="di"><div class="lbl">Booking ID</div><div class="val" style="font-family:var(--code);color:var(--green)">#${b.id}</div></div>
+        <div class="di"><div class="lbl">Status</div><div class="val"><span class="badge badge-${esc(b.status)}">${esc(b.status)}</span></div></div>
+        <div class="di"><div class="lbl">Customer (User ID)</div><div class="val">User #${b.userId}</div></div>
+        <div class="di"><div class="lbl">Vehicle</div><div class="val">${esc(b.vehicleModel||'—')}</div></div>
+        <div class="di"><div class="lbl">Plate Number</div><div class="val" style="font-family:var(--code)">${esc(b.vehiclePlate||'—')}</div></div>
+        <div class="di"><div class="lbl">Duration</div><div class="val">${days} day${days!==1?'s':''}</div></div>
+        <div class="di"><div class="lbl">Start Date</div><div class="val">${fmtD(b.startDate)}</div></div>
+        <div class="di"><div class="lbl">End Date</div><div class="val">${fmtD(b.endDate)}</div></div>
+        <div class="di full"><div class="lbl">Pickup Location</div><div class="val">📍 ${esc(b.pickupLocation||'—')}</div></div>
+        <div class="di full"><div class="lbl">Drop Location</div><div class="val">🏁 ${esc(b.dropLocation||'—')}</div></div>
+        <div class="di full" style="background:var(--green-soft);border-color:var(--green-light)">
+            <div class="lbl">Total Price</div><div class="val price-big">${fmtP(b.totalPrice)}</div>
+        </div>
+        <div class="di"><div class="lbl">Booked On</div><div class="val">${fmtDT(b.createdAt)}</div></div>
+        <div class="di"><div class="lbl">Reference</div><div class="val" style="font-family:var(--code)">BK-${b.id}</div></div>
+    `);
+        $('#detailModal').addClass('open');
+    }
+
+    /* ── PDF PREVIEW ────────────────────────────────────────── */
+    function updatePdfPreview() {
+        const fr=$('#pdf-from').val(), to=$('#pdf-to').val();
+        let d=allBookings;
+        if(fr) d=d.filter(b=>b.startDate>=fr);
+        if(to) d=d.filter(b=>b.startDate<=to);
+        const rev=d.filter(b=>b.status!=='CANCELLED').reduce((s,b)=>s+(b.totalPrice||0),0);
+        $('#pdfPreview').html(`
+        <div class="sum-row"><span>Total Bookings</span><span>${d.length}</span></div>
+        <div class="sum-row"><span>Pending</span><span>${d.filter(b=>b.status==='PENDING').length}</span></div>
+        <div class="sum-row"><span>Confirmed</span><span>${d.filter(b=>b.status==='CONFIRMED').length}</span></div>
+        <div class="sum-row"><span>Completed</span><span>${d.filter(b=>b.status==='COMPLETED').length}</span></div>
+        <div class="sum-row"><span>Cancelled</span><span>${d.filter(b=>b.status==='CANCELLED').length}</span></div>
+        <div class="sum-row"><span>Total Revenue</span><span>Rs ${Number(rev).toLocaleString('en-LK')}</span></div>
+    `);
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       PDF GENERATION
+    ═══════════════════════════════════════════════════════ */
+    function generatePDF() {
+        const {jsPDF}=window.jspdf;
+        const incS=$('#opt-summary').prop('checked');
+        const incB=$('#opt-bookings').prop('checked');
+        const incR=$('#opt-revenue').prop('checked');
+        const incV=$('#opt-vehicles').prop('checked');
+        const fr=$('#pdf-from').val(), to=$('#pdf-to').val();
+        let data=allBookings;
+        if(fr) data=data.filter(b=>b.startDate>=fr);
+        if(to) data=data.filter(b=>b.startDate<=to);
+
+        const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+        const W=doc.internal.pageSize.getWidth();
+        const H=doc.internal.pageSize.getHeight();
+        let y=0;
+
+        function chk(h=30){if(y+h>H-20){doc.addPage();y=20;phdr();}}
+
+        function phdr(){
+            doc.setFillColor(17,24,39);doc.rect(0,0,W,13,'F');
+            doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(234,179,8);doc.text('Rentify',14,8.5);
+            doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(156,163,175);
+            doc.text('Booking Report — Confidential',W/2,8.5,{align:'center'});
+            doc.text('Page '+doc.getCurrentPageInfo().pageNumber,W-14,8.5,{align:'right'});
+        }
+
+        /* COVER */
+        doc.setFillColor(249,250,251);doc.rect(0,0,W,H,'F');
+        doc.setFillColor(22,163,74);doc.rect(0,0,5,H,'F');
+        doc.setFont('helvetica','bold');doc.setFontSize(44);doc.setTextColor(17,24,39);doc.text('Rent',28,60);
+        doc.setTextColor(22,163,74);doc.text('ify',73,60);
+        doc.setFont('helvetica','normal');doc.setFontSize(12);doc.setTextColor(107,114,128);doc.text('Booking Management Report',28,72);
+        doc.setDrawColor(229,231,235);doc.setLineWidth(0.5);doc.line(28,80,W-20,80);
+        const now=new Date();
+        doc.setFontSize(9);doc.setTextColor(107,114,128);
+        doc.text('Generated:  '+now.toLocaleDateString('en-LK',{year:'numeric',month:'long',day:'numeric'})+' · '+now.toLocaleTimeString('en-LK'),28,90);
+        doc.text('Generated by: '+getAdmin(),28,98);
+        if(fr||to) doc.text('Period: '+(fr||'All time')+' → '+(to||'Present'),28,106);
+
+        const boxes=[
+            {label:'Total',     val:data.length,color:[22,163,74]},
+            {label:'Pending',   val:data.filter(b=>b.status==='PENDING').length,color:[245,158,11]},
+            {label:'Completed', val:data.filter(b=>b.status==='COMPLETED').length,color:[59,130,246]},
+            {label:'Revenue',   val:'Rs '+data.filter(b=>b.status!=='CANCELLED').reduce((s,b)=>s+(b.totalPrice||0),0).toLocaleString('en-LK'),color:[168,85,247]},
+        ];
+        const bx=28,by=130,bw=(W-50)/4-4,bh=36;
+        boxes.forEach((box,i)=>{
+            const xi=bx+i*(bw+5);
+            doc.setFillColor(255,255,255);doc.roundedRect(xi,by,bw,bh,3,3,'F');
+            doc.setDrawColor(...box.color);doc.setLineWidth(0.3);doc.roundedRect(xi,by,bw,bh,3,3,'S');
+            doc.setFillColor(...box.color);doc.roundedRect(xi,by,bw,2,1,1,'F');
+            doc.setFont('helvetica','bold');doc.setFontSize(typeof box.val==='string'?8:18);doc.setTextColor(17,24,39);
+            doc.text(String(box.val),xi+bw/2,by+21,{align:'center'});
+            doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(107,114,128);
+            doc.text(box.label,xi+bw/2,by+30,{align:'center'});
+        });
+        doc.setFontSize(8);doc.setTextColor(156,163,175);
+        doc.text('© '+now.getFullYear()+' Rentify Inc. · Sri Lanka · Confidential',W/2,H-10,{align:'center'});
+
+        /* PAGE 2 */
+        doc.addPage();y=20;phdr();y=24;
+        const TH={fillColor:[22,163,74],textColor:[255,255,255],fontStyle:'bold',fontSize:8};
+        const TB={textColor:[55,65,81],fontSize:8,fillColor:[255,255,255]};
+        const TA={fillColor:[249,250,251]};
+
+        function shdr(n,t){
+            chk(18);
+            doc.setFillColor(22,163,74);doc.roundedRect(14,y,4,7,1,1,'F');
+            doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(17,24,39);
+            doc.text(n+' · '+t,22,y+5.5);y+=13;
+        }
+
+        /* SUMMARY */
+        if(incS){
+            shdr('01','SUMMARY STATISTICS');
+            const rev=data.filter(b=>b.status!=='CANCELLED').reduce((s,b)=>s+(b.totalPrice||0),0);
+            doc.autoTable({startY:y,head:[['Metric','Value']],
+                body:[['Total Bookings',data.length],['Pending',data.filter(b=>b.status==='PENDING').length],
+                    ['Confirmed',data.filter(b=>b.status==='CONFIRMED').length],['Completed',data.filter(b=>b.status==='COMPLETED').length],
+                    ['Cancelled',data.filter(b=>b.status==='CANCELLED').length],
+                    ['Total Revenue (LKR)','Rs '+Number(rev).toLocaleString('en-LK')],
+                    ['Avg. Booking Value',data.length?'Rs '+Math.round(rev/data.length).toLocaleString('en-LK'):'N/A'],
+                    ['Report Period',(fr||'All time')+' → '+(to||'Present')],
+                    ['Generated',now.toLocaleDateString('en-LK')]],
+                theme:'grid',headStyles:TH,bodyStyles:TB,alternateRowStyles:TA,
+                columnStyles:{0:{fontStyle:'bold',textColor:[107,114,128]}},margin:{left:14,right:14}});
+            y=doc.lastAutoTable.finalY+14;
+        }
+
+        /* REVENUE */
+        if(incR){
+            chk(60);shdr('02','REVENUE BY STATUS');
+            const sts=['PENDING','CONFIRMED','COMPLETED','CANCELLED'];
+            const rrows=sts.map(s=>{const bks=data.filter(b=>b.status===s);const rv=bks.reduce((a,b)=>a+(b.totalPrice||0),0);return[s,bks.length,'Rs '+Number(rv).toLocaleString('en-LK'),data.length?(bks.length/data.length*100).toFixed(1)+'%':'0%'];});
+            const totRev=data.filter(b=>b.status!=='CANCELLED').reduce((s,b)=>s+(b.totalPrice||0),0);
+            rrows.push(['TOTAL',data.length,'Rs '+Number(totRev).toLocaleString('en-LK'),'100%']);
+            const sc={PENDING:[180,83,9],CONFIRMED:[29,78,216],COMPLETED:[21,128,61],CANCELLED:[185,28,28],TOTAL:[22,163,74]};
+            doc.autoTable({startY:y,head:[['Status','Bookings','Revenue (LKR)','Share']],body:rrows,
+                theme:'grid',headStyles:TH,bodyStyles:TB,alternateRowStyles:TA,
+                didParseCell:(d)=>{if(d.section==='body'&&d.column.index===0){d.cell.styles.textColor=sc[d.cell.raw]||[55,65,81];d.cell.styles.fontStyle='bold';}if(d.section==='body'&&d.row.index===rrows.length-1){d.cell.styles.fillColor=[240,253,244];d.cell.styles.fontStyle='bold';}},
+                margin:{left:14,right:14}});
+            y=doc.lastAutoTable.finalY+14;
+        }
+
+        /* VEHICLES */
+        if(incV){
+            chk(60);shdr('03','VEHICLE-WISE BREAKDOWN');
+            const vm={};
+            data.forEach(b=>{const k=b.vehicleModel||'Unknown';if(!vm[k])vm[k]={model:k,plate:b.vehiclePlate||'—',count:0,revenue:0,completed:0};vm[k].count++;if(b.status!=='CANCELLED')vm[k].revenue+=(b.totalPrice||0);if(b.status==='COMPLETED')vm[k].completed++;});
+            const vrows=Object.values(vm).sort((a,b)=>b.revenue-a.revenue).map(v=>[v.model,v.plate,v.count,v.completed,'Rs '+Number(v.revenue).toLocaleString('en-LK')]);
+            doc.autoTable({startY:y,head:[['Vehicle','Plate','Total','Completed','Revenue (LKR)']],
+                body:vrows.length?vrows:[['No data','—','—','—','—']],
+                theme:'grid',headStyles:TH,bodyStyles:TB,alternateRowStyles:TA,
+                columnStyles:{0:{fontStyle:'bold'},4:{textColor:[21,128,61],fontStyle:'bold'}},margin:{left:14,right:14}});
+            y=doc.lastAutoTable.finalY+14;
+        }
+
+        /* ALL BOOKINGS */
+        if(incB){
+            chk(40);shdr('04','BOOKING HISTORY ('+data.length+' records)');
+            const brows=data.map(b=>['#'+b.id,'User #'+b.userId,(b.vehicleModel||'—').substring(0,15),b.startDate||'—',b.endDate||'—',(b.pickupLocation||'—').substring(0,15),b.status,'Rs '+Number(b.totalPrice||0).toLocaleString('en-LK')]);
+            const sc2={PENDING:[180,83,9],CONFIRMED:[29,78,216],COMPLETED:[21,128,61],CANCELLED:[185,28,28]};
+            doc.autoTable({startY:y,head:[['ID','User','Vehicle','Start','End','Pickup','Status','Price']],
+                body:brows.length?brows:[['—','—','—','—','—','—','—','—']],
+                theme:'grid',headStyles:TH,bodyStyles:{...TB,fontSize:7},alternateRowStyles:TA,
+                didParseCell:(d)=>{if(d.section==='body'&&d.column.index===6){d.cell.styles.textColor=sc2[d.cell.raw]||[55,65,81];d.cell.styles.fontStyle='bold';}if(d.section==='body'&&d.column.index===7){d.cell.styles.textColor=[21,128,61];}},
+                didDrawPage:()=>{phdr();},margin:{left:14,right:14}});
+        }
+
+        const fn='Rentify_Bookings_'+now.toISOString().slice(0,10)+'.pdf';
+        doc.save(fn);
+        showToast('✅ PDF downloaded: '+fn,'success');
+        $('#pdfModal').removeClass('open');
+    }
+
+    /* ── INIT ─────────────────────────────────────────────────── */
+    $(function(){
+        loadSidebar(); checkApi(); fetchBookings();
+
+        $('#refreshBtn').on('click',fetchBookings);
+        $('#pdfBtn').on('click',function(){ updatePdfPreview(); $('#pdfModal').addClass('open'); });
+        $('#generateBtn').on('click',function(){
+            $(this).prop('disabled',true).text('Generating…');
+            setTimeout(()=>{ generatePDF(); $(this).prop('disabled',false).text('📄 Generate & Download'); },100);
+        });
+        $('#detailClose,#detailClose2').on('click',()=>$('#detailModal').removeClass('open'));
+        $('#pdfClose,#pdfCancel').on('click',()=>$('#pdfModal').removeClass('open'));
+        $('.modal-overlay').on('click',function(e){if(e.target===this)$(this).removeClass('open');});
+    });
 </script>
-</body></html>
+</body>
+</html>
