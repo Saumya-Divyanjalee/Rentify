@@ -3,297 +3,796 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name ="keywords" content="Rentify,HTML,CSS,JavaScript,Spring,SpringBoot,ORM,Mysql">
-    <meta name ="description" content="Rentify-Smart Cab Renting Platform">
-    <meta name ="author" content="Saumya Divyanjalee">
-
-    <title>Cabs — Rentify Sri Lanka</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="icon" type="image/x-icon" href="../../assets/icons/favicon.ico">
-    <link rel="stylesheet" href="user-css/cabs.css">
-
-
-
+    <title>Rentify – Browse Vehicles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        :root{--bg:#fff;--surface:#f7f7f5;--border:#e8e7e3;--border2:#d0cfc9;--y:#e8a020;--yd:#c98010;--y-dim:rgba(232,160,32,0.08);--y-glow:rgba(232,160,32,0.2);--dark:#141414;--muted:#a09e97;--muted2:#7a7870;--text:#2a2825;--text2:#5a5850;--green:#1e9e5e;--red:#e85050;--blue:#2563eb;--r:10px;--r2:18px;--mono:'DM Sans',sans-serif;--sans:'Syne',sans-serif;}
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}body{font-family:var(--mono);background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+        nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;padding:0 48px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.97);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);box-shadow:0 1px 0 rgba(0,0,0,.04);}
+        .logo{font-family:var(--sans);font-size:24px;font-weight:800;text-decoration:none;color:var(--dark);letter-spacing:-1px;}.logo span{color:var(--y);}
+        .nav-links{display:flex;gap:2px;}.nav-links a{text-decoration:none;color:var(--muted2);font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all .2s;}.nav-links a:hover{color:var(--text);background:var(--surface);}.nav-links a.active{color:var(--y);background:var(--y-dim);font-weight:600;}
+        .nav-right{display:flex;align-items:center;gap:10px;}
+        .nav-tag{font-size:12px;color:var(--muted2);border:1px solid var(--border);padding:6px 12px;border-radius:20px;background:var(--surface);}
+        .nav-book-btn{background:var(--y);color:#fff;padding:9px 22px;border-radius:10px;font-size:13px;font-weight:700;font-family:var(--sans);transition:all .2s;border:none;cursor:pointer;box-shadow:0 2px 12px var(--y-glow);}.nav-book-btn:hover{background:var(--yd);transform:translateY(-1px);}
+        .nav-profile-wrap{position:relative;}
+        .nav-profile-btn{width:40px;height:40px;border-radius:50%;background:var(--dark);display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--border);transition:all .2s;text-decoration:none;color:#fff;overflow:hidden;}.nav-profile-btn:hover{border-color:var(--y);transform:scale(1.05);}
+        .profile-dropdown{position:absolute;top:calc(100% + 10px);right:0;background:#fff;border:1px solid var(--border);border-radius:var(--r2);min-width:200px;padding:8px;box-shadow:0 12px 40px rgba(0,0,0,.12);opacity:0;pointer-events:none;z-index:999;transform:translateY(-8px);transition:opacity .2s,transform .2s;}
+        .nav-profile-wrap:hover .profile-dropdown{opacity:1;pointer-events:all;transform:translateY(0);}
+        .profile-dropdown a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;text-decoration:none;color:var(--text2);font-size:13px;transition:all .2s;font-weight:500;}.profile-dropdown a:hover{background:var(--surface);color:var(--text);}
+        .profile-dropdown .pd-divider{height:1px;background:var(--border);margin:4px 0;}
+        .profile-initials{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:15px;font-weight:700;}
+        .api-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
+        .api-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);transition:background .4s;}.api-dot.online{background:var(--green);box-shadow:0 0 6px rgba(30,158,94,.4);}.api-dot.offline{background:var(--red);}
+        .toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column-reverse;gap:10px;align-items:center;pointer-events:none;}
+        .toast{background:var(--dark);color:#fff;padding:12px 24px;border-radius:12px;font-size:13px;font-weight:500;box-shadow:0 8px 28px rgba(0,0,0,.2);animation:toastIn .3s ease;min-width:240px;text-align:center;pointer-events:all;}
+        .toast.success{background:var(--green);}.toast.error{background:var(--red);}.toast.warning{background:var(--y);}
+        @keyframes toastIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateY(16px)}}
+        .hero{padding-top:68px;min-height:340px;background:linear-gradient(160deg,#fdf9f0 0%,#fff8ee 40%,#f9f9f7 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+        .hero-dots{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle,rgba(232,160,32,.12) 1px,transparent 1px);background-size:30px 30px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 20%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 20%,transparent 100%);}
+        .hero-content{position:relative;text-align:center;padding:60px 20px;}
+        .hero-badge{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(232,160,32,.3);color:var(--y);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:7px 18px;border-radius:20px;margin-bottom:20px;box-shadow:0 2px 12px rgba(232,160,32,.1);}
+        .hero-badge::before{content:'●';font-size:7px;animation:blink 1.5s infinite;}@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+        .hero-content h1{font-family:var(--sans);font-weight:800;font-size:clamp(34px,5vw,64px);line-height:1.0;margin-bottom:14px;letter-spacing:-3px;color:var(--dark);}
+        .hero-content h1 em{color:var(--y);font-style:normal;}
+        .hero-content>p{font-size:15px;color:var(--muted2);max-width:440px;margin:0 auto;line-height:1.7;}
+        .hero-stats{display:flex;margin-top:36px;background:#fff;border:1px solid var(--border);border-radius:16px;max-width:480px;margin-left:auto;margin-right:auto;box-shadow:0 4px 24px rgba(0,0,0,.06);overflow:hidden;}
+        .h-stat{flex:1;text-align:center;padding:16px 10px;border-right:1px solid var(--border);}.h-stat:last-child{border-right:none;}
+        .h-stat .num{font-family:var(--sans);font-size:22px;font-weight:800;color:var(--dark);letter-spacing:-1px;}
+        .h-stat .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px;font-weight:500;}
+        .filter-zone{background:#fff;padding:18px 48px;border-bottom:1px solid var(--border);position:sticky;top:68px;z-index:900;box-shadow:0 4px 16px rgba(0,0,0,.04);}
+        .search-row{display:flex;gap:12px;align-items:center;margin-bottom:14px;}
+        .search-wrap{flex:1;position:relative;}.search-icon-inner{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none;}
+        .search-input{width:100%;padding:10px 16px 10px 42px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text);font-size:13px;font-family:var(--mono);outline:none;transition:all .2s;}.search-input:focus{border-color:var(--y);background:#fff;box-shadow:0 0 0 3px var(--y-dim);}.search-input::placeholder{color:var(--muted);}
+        .sort-sel{padding:10px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text2);font-size:13px;font-family:var(--mono);outline:none;cursor:pointer;min-width:190px;}.sort-sel:focus{border-color:var(--y);}
+        .filter-pills{display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
+        .pill-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-right:2px;font-weight:600;}
+        .pill{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;font-family:var(--mono);cursor:pointer;transition:all .2s;border:1.5px solid var(--border);background:var(--surface);color:var(--muted2);}.pill:hover{border-color:var(--y);color:var(--text);background:var(--y-dim);}.pill.active{background:var(--dark);color:#fff;border-color:var(--dark);font-weight:600;}
+        .divider-v{width:1px;height:20px;background:var(--border);margin:0 4px;}
+        .main-wrap{display:grid;grid-template-columns:250px 1fr;min-height:calc(100vh - 68px);background:var(--surface);}
+        .sidebar{padding:24px 20px;border-right:1px solid var(--border);position:sticky;top:calc(68px + 110px);height:fit-content;background:#fff;}
+        .sb-title{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dark);margin-bottom:20px;display:flex;align-items:center;gap:8px;}.sb-title::after{content:'';flex:1;height:1px;background:var(--border);}
+        .sb-section{margin-bottom:24px;}.sb-section h4{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:10px;letter-spacing:.3px;}
+        .price-slider{width:100%;appearance:none;-webkit-appearance:none;height:3px;background:linear-gradient(to right,var(--y) 100%,var(--border) 100%);border-radius:2px;outline:none;cursor:pointer;margin-bottom:8px;}.price-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--y);border-radius:50%;cursor:pointer;box-shadow:0 0 0 4px rgba(232,160,32,.15);border:2px solid #fff;}
+        .price-vals{display:flex;justify-content:space-between;font-size:11px;color:var(--muted2);}.price-vals span:last-child{color:var(--y);font-weight:700;}
+        .check-group{display:flex;flex-direction:column;gap:8px;}
+        .check-label{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text2);cursor:pointer;user-select:none;transition:color .2s;}.check-label:hover{color:var(--text);}.check-label input[type=checkbox]{display:none;}
+        .check-box{width:16px;height:16px;border:1.5px solid var(--border2);border-radius:4px;background:var(--surface);flex-shrink:0;transition:all .2s;display:flex;align-items:center;justify-content:center;}.check-label input:checked~.check-box{background:var(--dark);border-color:var(--dark);}.check-label input:checked~.check-box::after{content:'✓';font-size:10px;color:#fff;font-weight:700;}
+        .content-zone{padding:24px 28px;background:var(--surface);min-width:0;}
+        .content-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+        .result-meta{font-size:13px;color:var(--muted2);font-weight:500;}.result-meta strong{color:var(--dark);font-weight:700;}
+        .loading-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+        .skeleton{background:#fff;border:1.5px solid var(--border);border-radius:var(--r2);overflow:hidden;}.skel-img{height:195px;background:linear-gradient(90deg,#f0ede9 25%,#e8e5e1 50%,#f0ede9 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;}.skel-body{padding:16px;}.skel-line{height:11px;background:linear-gradient(90deg,#f0ede9 25%,#e8e5e1 50%,#f0ede9 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:5px;margin-bottom:9px;}.skel-line.w60{width:60%;}.skel-line.w40{width:40%;}
+        @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+        .v-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+        .v-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:all .3s;cursor:pointer;position:relative;box-shadow:0 2px 8px rgba(0,0,0,.04);}.v-card:hover{border-color:var(--y);transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.1),0 0 0 1px rgba(232,160,32,.15);}.v-card:hover .card-img-wrap img{transform:scale(1.05);}
+        .v-card-img{height:195px;background:var(--surface);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;}
+        .card-img-wrap{width:100%;height:100%;overflow:hidden;}.card-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
+        .card-img-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:68px;background:linear-gradient(135deg,#f5f4f0,#eeede9);}
+        .status-badge{position:absolute;top:10px;right:10px;z-index:2;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 9px;border-radius:20px;}
+        .status-AVAILABLE{background:rgba(30,158,94,.15);color:var(--green);border:1px solid rgba(30,158,94,.3);}
+        .status-BOOKED{background:rgba(232,80,80,.12);color:var(--red);border:1px solid rgba(232,80,80,.25);}
+        .status-MAINTENANCE{background:rgba(120,120,120,.12);color:var(--muted2);border:1px solid var(--border);}
+        .ins-warn{position:absolute;bottom:10px;left:10px;z-index:2;font-size:9px;font-weight:700;padding:4px 9px;border-radius:20px;background:rgba(245,158,11,.9);color:#fff;}
+        .v-card-body{padding:16px;}.card-type{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--y);margin-bottom:4px;font-family:var(--sans);}
+        .card-name{font-family:var(--sans);font-size:16px;font-weight:700;color:var(--dark);margin-bottom:6px;letter-spacing:-.5px;}
+        .card-desc{font-size:12px;color:var(--muted2);margin-bottom:10px;line-height:1.5;}
+        .card-specs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}.spec-tag{font-size:10px;color:var(--text2);background:var(--surface);border:1px solid var(--border);padding:3px 9px;border-radius:20px;font-weight:500;}
+        .card-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1.5px solid var(--border);}
+        .card-price .amount{font-family:var(--sans);font-size:19px;font-weight:800;color:var(--dark);letter-spacing:-.5px;}.card-price .amount span{font-size:12px;color:var(--y);}.card-price .per{font-size:10px;color:var(--muted);margin-top:1px;}
+        .book-btn{background:var(--dark);color:#fff;padding:8px 18px;border-radius:9px;font-size:12px;font-weight:600;font-family:var(--sans);border:none;cursor:pointer;transition:all .2s;}.book-btn:not(:disabled):hover{background:var(--y);transform:scale(1.04);}.book-btn:disabled{background:var(--border);color:var(--muted2);cursor:not-allowed;font-size:10px;}
+        .no-results{grid-column:1/-1;text-align:center;padding:70px 20px;}.no-results .icon{font-size:44px;margin-bottom:14px;opacity:.4;}.no-results h3{font-family:var(--sans);font-size:17px;font-weight:700;color:var(--text2);margin-bottom:7px;}.no-results p{font-size:12px;color:var(--muted);}
+        .hidden{display:none!important;}
+        /* BOOKING MODAL */
+        .modal-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);}
+        .modal-overlay.open{display:flex;animation:fadeInBg .2s ease;}
+        @keyframes fadeInBg{from{opacity:0}to{opacity:1}}
+        .modal{background:#fff;border:1px solid var(--border);border-radius:24px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;animation:scaleUp .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 40px 100px rgba(0,0,0,.2);}
+        @keyframes scaleUp{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
+        .modal-header{display:flex;justify-content:space-between;align-items:center;padding:24px 28px 0;}
+        .modal-header h2{font-family:var(--sans);font-size:19px;font-weight:700;color:var(--dark);letter-spacing:-.5px;}
+        .modal-header-right{display:flex;align-items:center;gap:10px;}
+        .step-badge{font-size:11px;color:var(--muted2);background:var(--surface);padding:5px 11px;border-radius:20px;border:1px solid var(--border);}
+        .modal-close{width:32px;height:32px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}.modal-close:hover{background:var(--border);}
+        .progress-track{display:flex;gap:6px;padding:16px 28px 0;}.prog-seg{flex:1;height:3px;border-radius:2px;background:var(--border);transition:background .3s;}.prog-seg.active{background:var(--y);}.prog-seg.done{background:var(--green);}
+        .modal-body{padding:22px 28px;}
+        .vehicle-summary{display:flex;align-items:center;gap:12px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:18px;}
+        .vs-img{width:68px;height:50px;object-fit:cover;border-radius:7px;flex-shrink:0;}.vs-icon-big{font-size:34px;flex-shrink:0;}
+        .vs-info h3{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--dark);margin-bottom:2px;}.vs-info p{font-size:11px;color:var(--muted2);}
+        .vs-price{margin-left:auto;text-align:right;flex-shrink:0;}.vs-price .amount{font-family:var(--sans);font-size:16px;font-weight:800;color:var(--dark);}.vs-price .per{font-size:10px;color:var(--muted);}
+        .form-group{margin-bottom:12px;}.form-group label{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-bottom:5px;}
+        .form-input{width:100%;padding:10px 13px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text);font-size:13px;font-family:var(--mono);outline:none;transition:all .2s;}.form-input::placeholder{color:var(--muted);}.form-input:focus{border-color:var(--y);background:#fff;box-shadow:0 0 0 3px var(--y-dim);}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+        .cat-btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+        .cat-btn{padding:8px 18px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:600;font-family:var(--mono);cursor:pointer;transition:all .2s;white-space:nowrap;}
+        .cat-btn:hover{border-color:var(--y);color:var(--dark);background:var(--y-dim);}
+        .cat-btn.active{background:var(--dark);color:#fff;border-color:var(--dark);}
+        .payment-grid{display:flex;gap:8px;margin-bottom:14px;}.pay-opt{flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:13px;cursor:pointer;transition:all .2s;text-align:center;user-select:none;}.pay-opt:hover{border-color:var(--y);}.pay-opt.selected{border-color:var(--dark);background:var(--dark);}.pay-opt.selected .pn{color:#fff;}.pay-opt .pi{font-size:22px;margin-bottom:5px;}.pay-opt .pn{font-size:12px;font-weight:700;color:var(--text);transition:color .2s;}
+        .card-visual{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);border-radius:13px;padding:18px 20px;margin-bottom:14px;}.card-num-disp{font-size:17px;font-weight:500;color:#fff;letter-spacing:3px;margin:14px 0 9px;font-family:monospace;}.card-dets{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.6);}
+        .msg-box{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:18px;text-align:center;margin-bottom:12px;}.msg-box .bi{font-size:26px;margin-bottom:7px;}.msg-box p{font-size:12px;color:var(--muted2);line-height:1.7;}
+        .order-summary{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:14px;}.order-line{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);padding:6px 0;border-bottom:1px solid var(--border);}.order-line:last-child{border:none;}.order-line.total{color:var(--dark);font-weight:700;font-size:14px;padding-top:9px;}.order-line.total .total-num{color:var(--y);}
+        .modal-footer{display:flex;justify-content:flex-end;gap:9px;padding:14px 28px 22px;border-top:1px solid var(--border);}
+        .btn-back{padding:10px 20px;background:transparent;border:1.5px solid var(--border);border-radius:var(--r);color:var(--text2);font-size:13px;font-family:var(--mono);cursor:pointer;transition:all .2s;}.btn-back:hover{border-color:var(--dark);color:var(--text);}
+        .btn-next{padding:10px 26px;background:var(--dark);border:none;border-radius:var(--r);color:#fff;font-size:13px;font-weight:700;font-family:var(--sans);cursor:pointer;transition:all .2s;}.btn-next:not(:disabled):hover{background:var(--y);transform:scale(1.03);}.btn-next:disabled{opacity:.6;cursor:not-allowed;transform:none!important;}.btn-next.confirm{background:var(--green);}.btn-next.confirm:not(:disabled):hover{background:#15784a;}
+        .success-screen{text-align:center;padding:36px 20px;}.success-icon{font-size:52px;margin-bottom:14px;animation:pop .4s cubic-bezier(.34,1.56,.64,1);}@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+        .success-screen h2{font-family:var(--sans);font-size:22px;font-weight:800;color:var(--dark);margin-bottom:9px;}.success-screen p{font-size:13px;color:var(--muted2);line-height:1.7;margin-bottom:18px;}
+        .booking-id{display:inline-block;background:var(--y-dim);border:1.5px solid rgba(232,160,32,.3);color:var(--y);font-family:var(--sans);font-size:20px;font-weight:800;padding:10px 24px;border-radius:var(--r);letter-spacing:2px;margin-bottom:10px;}
+        .booking-details-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px;text-align:left;}.bd-item{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:11px;}.bd-item .label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}.bd-item .value{font-size:12px;font-weight:600;color:var(--dark);}
+        .feats-strip{background:var(--dark);padding:56px 48px;display:grid;grid-template-columns:repeat(4,1fr);gap:30px;}.feat-item{text-align:center;}.feat-icon{font-size:30px;margin-bottom:12px;}.feat-item h4{font-family:var(--sans);font-size:14px;font-weight:700;color:#fff;margin-bottom:7px;}.feat-item p{font-size:12px;color:rgba(255,255,255,.45);line-height:1.6;}
+        footer{background:#0e0e0e;padding:56px 48px 0;}.ft-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:44px;margin-bottom:44px;}.ft-logo{font-family:var(--sans);font-size:21px;font-weight:800;color:#fff;margin-bottom:11px;letter-spacing:-1px;}.ft-logo span{color:var(--y);}.ft-desc{font-size:12px;color:rgba(255,255,255,.4);line-height:1.8;max-width:250px;}.ft-col h5{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--y);margin-bottom:14px;}.ft-col a{display:block;text-decoration:none;color:rgba(255,255,255,.4);font-size:12px;margin-bottom:8px;transition:color .2s;}.ft-col a:hover{color:#fff;}.ft-bottom{border-top:1px solid rgba(255,255,255,.08);padding:18px 0;display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.3);}.ft-bottom span.hi{color:var(--y);}
+        .wa{position:fixed;bottom:28px;right:28px;z-index:998;width:54px;height:54px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:24px;color:#fff;box-shadow:0 8px 28px rgba(37,211,102,.35);transition:transform .2s;}.wa:hover{transform:scale(1.1);}
+        @media(max-width:1024px){.main-wrap{grid-template-columns:1fr;}.sidebar{position:static;border-right:none;border-bottom:1px solid var(--border);}.feats-strip{grid-template-columns:1fr 1fr;}.ft-grid{grid-template-columns:1fr 1fr;}}
+        @media(max-width:680px){nav{padding:0 20px;}.nav-links{display:none;}.filter-zone{padding:14px 20px;}.content-zone{padding:18px;}.feats-strip{grid-template-columns:1fr;padding:36px 20px;}footer{padding:36px 20px 0;}.ft-grid{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}.booking-details-grid{grid-template-columns:1fr;}.api-status{display:none;}}
+    </style>
 </head>
 <body>
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- NAV -->
 <nav>
-    <a href="../user/home-user.html" class="logo">Rent<span>ify</span></a>
-    <div class="nav-links"><a href="../user/home-user.html">Home</a><a href="about.html">About</a><a href="destinations.html">Destinations</a><a href="cabs.html" class="active">Cabs</a><a href="gallery.html">Gallery</a><a href="contact.html">Contact</a></div>
-    <a href="#booking" class="nav-btn"><i class="fas fa-car" style="margin-right:6px;"></i>Book Now</a>
+    <a href="home-user.html" class="logo">Rent<span>ify</span></a>
+    <div class="nav-links">
+        <a href="home-user.html">Home</a>
+        <a href="cabs.html" class="active">Vehicles</a>
+        <a href="destinations.html">Destinations</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="contact.html">Contact</a>
+    </div>
+    <div class="nav-right">
+        <div class="api-status"><div class="api-dot" id="apiDot"></div><span id="apiStatusText">Connecting…</span></div>
+        <span class="nav-tag">🇱🇰 Sri Lanka</span>
+        <button class="nav-book-btn" id="navBookBtn">Book Now</button>
+        <div class="nav-profile-wrap">
+            <a href="#" class="nav-profile-btn" id="profileBtn"><div class="profile-initials" id="profileInitials">?</div></a>
+            <div class="profile-dropdown">
+                <a href="#" id="navUserLabel" style="font-weight:700;color:var(--dark);cursor:default">Not signed in</a>
+                <div class="pd-divider"></div>
+                <a href="#">📋 &nbsp;My Bookings</a>
+                <a href="profile-update.html">⚙️ &nbsp;Profile</a>
+                <div class="pd-divider"></div>
+                <a href="#" id="signOutBtn" style="color:#e85050;display:none">🚪 &nbsp;Sign Out</a>
+            </div>
+        </div>
+    </div>
 </nav>
 
 <!-- HERO -->
-<div class="hero">
-    <div class="hero-bg"></div>
+<section class="hero">
+    <div class="hero-dots"></div>
     <div class="hero-content">
-        <div class="hero-badge">🚗 Premium Fleet</div>
-        <h1>Choose Your <span>Perfect</span><br>Vehicle</h1>
-        <p>Cars, Vans, Buses & Wheelchair-accessible vehicles — every ride comfortable and professional.</p>
-    </div>
-</div>
-
-<!-- BOOKING FORM -->
-<div class="booking-strip" id="booking">
-    <h3>⚡ Quick Book a Cab</h3>
-    <div class="b-form">
-        <div class="b-group"><label>Pick-up Location</label><input type="text" placeholder="e.g. Colombo Fort"></div>
-        <div class="b-group"><label>Drop-off Location</label><input type="text" placeholder="e.g. BIA Airport"></div>
-        <div class="b-group"><label>Date & Time</label><input type="datetime-local"></div>
-        <div class="b-group"><label>Vehicle Type</label><select><option>Any Vehicle</option><option>Car (Standard)</option><option>Car (Premium)</option><option>Van</option><option>Minibus</option><option>Bus</option><option>Wheelchair Cab</option></select></div>
-        <button class="b-btn"><i class="fas fa-search"></i> Find Cabs</button>
-    </div>
-</div>
-
-<!-- CATEGORY TABS -->
-<div class="cat-tabs">
-    <div class="cat-tabs-inner">
-        <div class="cat-tab active" onclick="showCat('cars',this)"><span class="tab-icon">🚗</span><span>Cars</span><span class="tab-count">8 vehicles</span></div>
-        <div class="cat-tab" onclick="showCat('vans',this)"><span class="tab-icon">🚐</span><span>Vans</span><span class="tab-count">5 vehicles</span></div>
-        <div class="cat-tab" onclick="showCat('buses',this)"><span class="tab-icon">🚌</span><span>Buses</span><span class="tab-count">4 vehicles</span></div>
-        <div class="cat-tab" onclick="showCat('wheelchair',this)"><span class="tab-icon">♿</span><span>Wheelchair</span><span class="tab-count">3 vehicles</span></div>
-        <div class="cat-tab" onclick="showCat('cabs',this)"><span class="tab-icon">🟡</span><span>Cabs / Taxis</span><span class="tab-count">6 vehicles</span></div>
-    </div>
-</div>
-
-<!-- VEHICLES -->
-<div class="vehicles-wrap">
-
-    <!-- CARS -->
-    <div class="cat-section active" id="cat-cars">
-        <div class="cat-header"><h2>🚗 Cars</h2><p>Comfortable sedans and hatchbacks for city rides, airport transfers and short trips.</p></div>
-        <div class="v-grid">
-            <div class="v-card featured" onclick="openVModal('Toyota Axio','Standard Sedan','https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=700&q=80','Perfect city car with great fuel efficiency and comfort for up to 4 passengers. Air-conditioned with music system.',4,4,'LKR 60',['AC','Music System','GPS'])">
-                <div class="v-img"><img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=600&q=80" alt="Axio"><span class="v-avail avail-y">● Available</span></div>
-                <div class="v-body"><h3>Toyota Axio</h3><div class="v-sub">Standard Sedan</div>
-                    <div class="v-specs"><div class="v-spec"><i class="fas fa-users"></i>4 Seats</div><div class="v-spec"><i class="fas fa-suitcase"></i>2 Bags</div><div class="v-spec"><i class="fas fa-snowflake"></i>AC</div><div class="v-spec"><i class="fas fa-gas-pump"></i>Petrol</div></div>
-                    <div class="v-feats"><span class="v-feat">GPS</span><span class="v-feat">Music</span><span class="v-feat">USB</span></div>
-                    <div class="v-footer"><div class="v-price">LKR 60<span>/km</span></div><button class="btn-book"><i class="fas fa-car"></i>Book Now</button></div></div>
-            </div>
-            <div class="v-card" onclick="openVModal('Toyota Prius','Hybrid Sedan','https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=700&q=80','Eco-friendly hybrid with premium interior. Great for long trips with excellent fuel economy.',4,3,'LKR 80',['AC','Leather Seats','GPS','USB'])">
-                <div class="v-img"><img src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=600&q=80" alt="Prius"><span class="v-avail avail-y">● Available</span></div>
-                <div class="v-body"><h3>Toyota Prius</h3><div class="v-sub">Hybrid Premium</div>
-                    <div class="v-specs"><div class="v-spec"><i class="fas fa-users"></i>4 Seats</div><div class="v-spec"><i class="fas fa-suitcase"></i>3 Bags</div><div class="v-spec"><i class="fas fa-snowflake"></i>AC</div><div class="v-spec"><i class="fas fa-leaf"></i>Hybrid</div></div>
-                    <div class="v-feats"><span class="v-feat">Leather Seats</span><span class="v-feat">GPS</span><span class="v-feat">USB</span></div>
-                    <div class="v-footer"><div class="v-price">LKR 80<span>/km</span></div><button class="btn-book">Book Now</button></div></div>
-            </div>
-            <div class="v-card" onclick="openVModal('BMW 3 Series','Luxury Car','https://images.unsplash.com/photo-1555215695-3004980ad54e?w=700&q=80','Premium luxury sedan with leather interior, panoramic roof and premium sound system. Perfect for corporate travel.',4,3,'LKR 150',['AC','Leather','Panoramic','WiFi'])">
-                <div class="v-img"><img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80" alt="BMW"><span class="v-avail avail-y">● Available</span></div>
-                <div class="v-body"><h3>BMW 3 Series</h3><div class="v-sub">Luxury Car</div>
-                    <div class="v-specs"><div class="v-spec"><i class="fas fa-users"></i>4 Seats</div><div class="v-spec"><i class="fas fa-suitcase"></i>3 Bags</div><div class="v-spec"><i class="fas fa-snowflake"></i>AC</div><div class="v-spec"><i class="fas fa-wifi"></i>WiFi</div></div>
-                    <div class="v-feats"><span class="v-feat">Luxury</span><span class="v-feat">WiFi</span><span class="v-feat">Panoramic</span></div>
-                    <div class="v-footer"><div class="v-price">LKR 150<span>/km</span></div><button class="btn-book">Book Now</button></div></div>
-            </div>
+        <div class="hero-badge">Fleet Available Now</div>
+        <h1>Find Your<br><em>Perfect Ride</em></h1>
+        <p>Browse our curated fleet of cabs, vans, buses &amp; three-wheelers across Sri Lanka.</p>
+        <div class="hero-stats">
+            <div class="h-stat"><div class="num" id="statTotal">—</div><div class="lbl">Total Fleet</div></div>
+            <div class="h-stat"><div class="num" id="statAvailable">—</div><div class="lbl">Available</div></div>
+            <div class="h-stat"><div class="num">24/7</div><div class="lbl">Support</div></div>
+            <div class="h-stat"><div class="num">4</div><div class="lbl">Categories</div></div>
         </div>
     </div>
+</section>
 
-    <!-- VANS -->
-    <div class="cat-section" id="cat-vans">
-        <div class="cat-header"><h2>🚐 Vans</h2><p>Spacious vans perfect for family trips, group travel and island tours.</p></div>
-        <div class="v-grid">
-            <div class="v-card featured" onclick="openVModal('Toyota HiAce','Standard Van','https://images.unsplash.com/photo-1502877338535-766e1452684a?w=700&q=80','The most popular family & group van in Sri Lanka. Spacious, comfortable and great for island tours.',8,6,'LKR 120',['AC','GPS','Music','Large Boot'])">
-                <div class="v-img"><img src="https://images.unsplash.com/photo-1502877338535-766e1452684a?w=600&q=80" alt="HiAce"><span class="v-avail avail-y">● Available</span></div>
-                <div class="v-body"><h3>Toyota HiAce</h3><div class="v-sub">Standard Van</div>
-                    <div class="v-specs"><div class="v-spec"><i class="fas fa-users"></i>8 Seats</div><div class="v-spec"><i class="fas fa-suitcase"></i>6 Bags</div><div class="v-spec"><i class="fas fa-snowflake"></i>AC</div><div class="v-spec"><i class="fas fa-road"></i>4WD Opt.</div></div>
-                    <div class="v-feats"><span class="v-feat">GPS</span><span class="v-feat">Music</span><span class="v-feat">Large Boot</span></div>
-                    <div class="v-footer"><div class="v-price">LKR 120<span>/km</span></div><button class="btn-book">Book Now</button></div></div>
-            </div>
-            <div class="v-card" onclick="openVModal('Toyota KDH Van','Super Long Van','https://images.unsplash.com/photo-1558618047-3c8c76ca7a4b?w=700&q=80','Extended van with extra luggage space — ideal for large groups with lots of bags.',10,10,'LKR 140',['AC','GPS','Extra Luggage','TV'])">
-                <div class="v-img"><img src="https://images.unsplash.com/photo-1463453091185-61582044d556?w=600&q=80" alt="KDH"><span class="v-avail avail-y">● Available</span></div>
-                <div class="v-body"><h3>Toyota KDH Van</h3><div class="v-sub">Super Long Van</div>
-                    <div class="v-specs"><div class="v-spec"><i class="fas fa-users"></i>10 Seats</div><div class="v-spec"><i class="fas fa-suitcase"></i>10 Bags</div><div class="v-spec"><i class="fas fa-snowflake"></i>AC</div><div class="v-spec"><i class="fas fa-tv"></i>TV</div></div>
-                    <div class="v-feats"><span class="v-feat">TV Screen</span><span class="v-feat">USB Ports</span><span class="v-feat">Fridge Opt.</span></div>
-                    <div class="v-footer"><div class="v-price">LKR 140<span>/km</span></div><button class="btn-book">Book Now</button></div></div>
-            </div>
-            <div class="v-card" onclick="openVModal('Mercedes Vito','Luxury Van','https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=700&q=80','Premium Mercedes van with leather captain chairs, WiFi and individual climate control. The ultimate luxury group experience.',6,6,'LKR 220',['AC','Leather','WiFi','Mini Bar'])">
-                <div class="v-img"><img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80" alt="Vito"><span class="v-avail avail-y">● Available</span></div>
-                <div class="v-body"><h3>Mercedes Vito</h3><div class="v-sub">Luxury Van</div>
-                    <div class="v-specs"><div class="v-spec"><i class="fas fa-users"></i>6 Seats</div><div class="v-spec"><i class="fas fa-suitcase"></i>6 Bags</div><div class="v-spec"><i class="fas fa-snowflake"></i>Dual AC</div><div class="v-spec"><i class="fas fa-wifi"></i>WiFi</div></div>
-                    <div class="v-feats"><span class="v-feat">Leather</span><span class="v-feat">WiFi</span><span class="v-feat">Bar</span><span class="v-feat">Premium</span></div>
-                    <div class="v-footer"><div class="v-price">LKR 220<span>/km</span></div><button class="btn-book">Book Now</button></div></div>
-            </div>
+<!-- FILTER BAR -->
+<div class="filter-zone">
+    <div class="search-row">
+        <div class="search-wrap">
+            <span class="search-icon-inner">🔍</span>
+            <input class="search-input" id="searchInput" type="text" placeholder="Search model, type, plate…">
         </div>
+        <select class="sort-sel" id="sortBy">
+            <option value="default">Sort: Default</option>
+            <option value="price_asc">Price: Low → High</option>
+            <option value="price_desc">Price: High → Low</option>
+            <option value="name">Name A–Z</option>
+            <option value="seats">Seat Count</option>
+        </select>
     </div>
-
-    <!-- BUSES -->
-    <div class="cat-section" id="cat-buses">
-        <div class="cat-header"><h2>🚌 Buses</h2><p>Comfortable buses for large groups, school excursions and corporate outings.</p></div>
-        <div class="v-grid">
-            <div class="v-card featured" onclick="openVModal('Rosa Minibus','20-Seat Minibus','https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=700&q=80','Perfect for medium groups — tours, weddings, corporate outings and school trips across Sri Lanka.',20,15,'LKR 180',['AC','Reclining Seats','TV','Music'])">
-                <div class="v-img"><img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&q=80" alt="Rosa"><span class="v-avail avail-y">● Available</span></div>
-                <div class="v-body"><h3>Rosa Minibus</h3><div class="v-sub">20-Seat Minibus</div>
-                    <div class="v-specs"><div class="v-spec"><i class="fas fa-users"></i>20 Seats</div><div class="v-spec"><i class="fas fa-suitcase"></i>15 Bags</div><div class="v-spec"><i class="fas fa-snowflake"></i>AC</div><div class="v-spec"><i class="fas fa-tv"></i>TV</div></div>
-                    <div class="v-feats"><span class="v-feat">Reclining</span><span class="v-feat">TV</span><span class="v-feat">AC</span></div>
-                    <div class="v-footer"><div class="v-price">LKR 180<span>/km</span></div><button class="btn-book">Book Now</button></div></div>
-            </div>
-            <div class="v-card" onclick="openVModal('Coaster Bus','35-Seat Coach','https://images.unsplash.com/photo-1464219789935-c2d9d9aba644?w=700&q=80','Full-size luxury coach for large groups. Perfect for corporate retreats and large tour groups.',35,25,'LKR 280',['AC','Reclining','TV/DVD','PA System'])">
-                <div class="v-img"><img src="https://images.unsplash.com/photo-1464219789935-c2d9d9aba644?w=600&q=80" alt="Coach"><span class="v-avail avail-y">● Available</span></div>
-                <div class="v-body"><h3>Coaster Bus</h3><div class="v-sub">35-Seat Coach</div>
-                    <div class="v-specs"><div class="v-spec"><i class="fas fa-users"></i>35 Seats</div><div class="v-spec"><i class="fas fa-suitcase"></i>25 Bags</div><div class="v-spec"><i class="fas fa-snowflake"></i>AC</div><div class="v-spec"><i class="fas fa-microphone"></i>PA</div></div>
-                    <div class="v-feats"><span class="v-feat">TV/DVD</span><span class="v-feat">PA System</span><span class="v-feat">WC</span></div>
-                    <div class="v-footer"><div class="v-price">LKR 280<span>/km</span></div><button class="btn-book">Book Now</button></div></div>
-            </div>
-            <div class="v-card" onclick="openVModal('Luxury Coach','50-Seat Premium','https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=80','Premium 50-seat air-conditioned coach with onboard toilet, WiFi and entertainment for long-distance travel.',50,40,'LKR 380',['AC','WiFi','Toilet','Entertainment'])">
-                <div class="v-img"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80" alt="Luxury Coach"><span class="v-avail avail-n">● On Trip</span></div>
-                <div class="v-body"><h3>Luxury Coach</h3><div class="v-sub">50-Seat Premium</div>
-                    <div class="v-specs"><div class="v-spec"><i class="fas fa-users"></i>50 Seats</div><div class="v-spec"><i class="fas fa-suitcase"></i>40 Bags</div><div class="v-spec"><i class="fas fa-wifi"></i>WiFi</div><div class="v-spec"><i class="fas fa-restroom"></i>WC</div></div>
-                    <div class="v-feats"><span class="v-feat">WiFi</span><span class="v-feat">Toilet</span><span class="v-feat">Premium</span></div>
-                    <div class="v-footer"><div class="v-price">LKR 380<span>/km</span></div><button class="btn-book">Book Now</button></div></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- WHEELCHAIR -->
-    <div class="cat-section" id="cat-wheelchair">
-        <div class="cat-header"><h2>♿ Wheelchair Accessible Vehicles</h2><p>Specially equipped vehicles with ramps and securing systems for passengers with mobility needs.</p></div>
-        <div class="v-grid">
-            <div class="v-card featured" onclick="openVModal('Toyota Wish (WAV)','Wheelchair Accessible Car','https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=700&q=80','Converted with hydraulic ramp and wheelchair securing system. Comfortable for both passengers in wheelchairs and companions.',4,1,'LKR 90',['AC','Hydraulic Ramp','Securing System','Hand Controls'])">
-                <div class="v-img"><img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=600&q=80" alt="WAV"><span class="v-avail avail-y">● Available</span></div>
-                <div class="v-body"><h3>Toyota Wish (WAV)</h3><div class="v-sub">Wheelchair Accessible Car</div>
-                    <div class="v-specs"><div class="v-spec"><i class="fas fa-users"></i>4 Seats</div><div class="v-spec"><i class="fas fa-wheelchair"></i>1 Wheelchair</div><div class="v-spec"><i class="fas fa-snowflake"></i>AC</div><div class="v-spec"><i class="fas fa-hand-paper"></i>Hand Ctrl</div></div>
-                    <div class="v-feats"><span class="v-feat">Hydraulic Ramp</span><span class="v-feat">Securement</span><span class="v-feat">Hand Controls</span></div>
-                    <div class="v-footer"><div class="v-price">LKR 90<span>/km</span></div><button class="btn-book">Book Now</button></div></div>
-            </div>
-            <div class="v-card" onclick="openVModal('Accessible Van','Wheelchair Van','https://images.unsplash.com/photo-1502877338535-766e1452684a?w=700&q=80','Large van with full rear-entry ramp, space for 2 wheelchairs and trained assistance driver.',6,2,'LKR 140',['AC','Rear Ramp','2 Wheelchair Spots','Trained Driver'])">
-                <div class="v-img"><img src="https://images.unsplash.com/photo-1502877338535-766e1452684a?w=600&q=80" alt="Access Van"><span class="v-avail avail-y">● Available</span></div>
-                <div class="v-body"><h3>Accessible Van</h3><div class="v-sub">Wheelchair Van</div>
-                    <div class="v-specs"><div class="v-spec"><i class="fas fa-users"></i>6 Seats</div><div class="v-spec"><i class="fas fa-wheelchair"></i>2 Wheelchairs</div><div class="v-spec"><i class="fas fa-snowflake"></i>AC</div><div class="v-spec"><i class="fas fa-user-nurse"></i>Trained</div></div>
-                    <div class="v-feats"><span class="v-feat">Rear Ramp</span><span class="v-feat">2 Spots</span><span class="v-feat">Care Driver</span></div>
-                    <div class="v-footer"><div class="v-price">LKR 140<span>/km</span></div><button class="btn-book">Book Now</button></div></div>
-            </div>
-            <div class="v-card" onclick="openVModal('Medical Transport Van','Patient Transport','https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=700&q=80','Fully equipped for hospital transfers and medical trips. Stretcher-compatible with medical-grade sanitization.',4,1,'LKR 160',['AC','Stretcher','Medical Grade','Trained Staff'])">
-                <div class="v-img"><img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&q=80" alt="Medical"><span class="v-avail avail-y">● Available</span></div>
-                <div class="v-body"><h3>Medical Transport Van</h3><div class="v-sub">Patient Transport</div>
-                    <div class="v-specs"><div class="v-spec"><i class="fas fa-users"></i>4 Seats</div><div class="v-spec"><i class="fas fa-bed"></i>Stretcher</div><div class="v-spec"><i class="fas fa-snowflake"></i>AC</div><div class="v-spec"><i class="fas fa-hospital"></i>Medical</div></div>
-                    <div class="v-feats"><span class="v-feat">Stretcher</span><span class="v-feat">Medical</span><span class="v-feat">Priority</span></div>
-                    <div class="v-footer"><div class="v-price">LKR 160<span>/km</span></div><button class="btn-book">Book Now</button></div></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CABS/TAXIS -->
-    <div class="cat-section" id="cat-cabs">
-        <div class="cat-header"><h2>🟡 Cabs & Taxis</h2><p>Quick metered taxis and fixed-rate cabs for city rides and short trips.</p></div>
-        <div class="v-grid">
-            <div class="v-card featured" onclick="openVModal('Standard Taxi','Economy Cab','https://images.unsplash.com/photo-1596993100471-c3905dafa78e?w=700&q=80','Our most affordable option for quick city rides. Metered fare with no hidden charges.',4,2,'LKR 45',['AC','Metered','GPS'])">
-                <div class="v-img"><img src="https://images.unsplash.com/photo-1596993100471-c3905dafa78e?w=600&q=80" alt="Taxi"><span class="v-avail avail-y">● Available</span></div>
-                <div class="v-body"><h3>Standard Taxi</h3><div class="v-sub">Economy Cab</div>
-                    <div class="v-specs"><div class="v-spec"><i class="fas fa-users"></i>4 Seats</div><div class="v-spec"><i class="fas fa-suitcase"></i>2 Bags</div><div class="v-spec"><i class="fas fa-snowflake"></i>AC</div><div class="v-spec"><i class="fas fa-tachometer-alt"></i>Metered</div></div>
-                    <div class="v-feats"><span class="v-feat">Metered</span><span class="v-feat">GPS</span><span class="v-feat">Fast</span></div>
-                    <div class="v-footer"><div class="v-price">LKR 45<span>/km</span></div><button class="btn-book">Book Now</button></div></div>
-            </div>
-            <div class="v-card" onclick="openVModal('Premium Cab','Business Cab','https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=700&q=80','Fixed rate business cab with professional uniformed driver. Great for corporate clients and airport transfers.',4,3,'LKR 75',['AC','Fixed Rate','Uniformed Driver','Receipt'])">
-                <div class="v-img"><img src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=600&q=80" alt="Premium Cab"><span class="v-avail avail-y">● Available</span></div>
-                <div class="v-body"><h3>Premium Cab</h3><div class="v-sub">Business Cab</div>
-                    <div class="v-specs"><div class="v-spec"><i class="fas fa-users"></i>4 Seats</div><div class="v-spec"><i class="fas fa-suitcase"></i>3 Bags</div><div class="v-spec"><i class="fas fa-snowflake"></i>AC</div><div class="v-spec"><i class="fas fa-receipt"></i>Receipt</div></div>
-                    <div class="v-feats"><span class="v-feat">Fixed Rate</span><span class="v-feat">Uniformed</span><span class="v-feat">Receipt</span></div>
-                    <div class="v-footer"><div class="v-price">LKR 75<span>/km</span></div><button class="btn-book">Book Now</button></div></div>
-            </div>
-            <div class="v-card" onclick="openVModal('VIP Cab','Executive Cab','https://images.unsplash.com/photo-1555215695-3004980ad54e?w=700&q=80','Top-tier executive cab service with luxury vehicle, professional chauffeur and complimentary water & WiFi.',4,3,'LKR 130',['AC','Chauffeur','WiFi','Water','Newspaper'])">
-                <div class="v-img"><img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80" alt="VIP Cab"><span class="v-avail avail-y">● Available</span></div>
-                <div class="v-body"><h3>VIP Cab</h3><div class="v-sub">Executive Cab</div>
-                    <div class="v-specs"><div class="v-spec"><i class="fas fa-users"></i>4 Seats</div><div class="v-spec"><i class="fas fa-suitcase"></i>3 Bags</div><div class="v-spec"><i class="fas fa-wifi"></i>WiFi</div><div class="v-spec"><i class="fas fa-crown"></i>VIP</div></div>
-                    <div class="v-feats"><span class="v-feat">Chauffeur</span><span class="v-feat">WiFi</span><span class="v-feat">Water</span><span class="v-feat">VIP</span></div>
-                    <div class="v-footer"><div class="v-price">LKR 130<span>/km</span></div><button class="btn-book">Book Now</button></div></div>
-            </div>
-        </div>
+    <div class="filter-pills">
+        <span class="pill-label">Type</span>
+        <button class="pill active" data-type="all">🚘 All</button>
+        <button class="pill" data-type="CAB">🚕 Cab</button>
+        <button class="pill" data-type="VAN">🚐 Van</button>
+        <button class="pill" data-type="BUS">🚌 Bus</button>
+        <button class="pill" data-type="WHEEL">🛺 Tuk-Tuk</button>
+        <div class="divider-v"></div>
+        <span class="pill-label">Category</span>
+        <button class="pill active" data-cat="all">✨ All</button>
+        <button class="pill" data-cat="wedding">💍 Wedding</button>
+        <button class="pill" data-cat="trip">🏖️ Trip</button>
+        <button class="pill" data-cat="daily">📅 Daily</button>
+        <button class="pill" data-cat="special">⭐ Special</button>
+        <div class="divider-v"></div>
+        <span class="pill-label">Status</span>
+        <button class="pill active" data-status="all">✨ All</button>
+        <button class="pill" data-status="AVAILABLE">✅ Available</button>
+        <button class="pill" data-status="BOOKED">🔴 Booked</button>
+        <button class="pill" data-status="MAINTENANCE">🔧 Maintenance</button>
     </div>
 </div>
 
-<!-- FEATURES STRIP -->
-<div class="feats-strip reveal">
-    <div class="feat-item"><div class="fi">🛡️</div><h4>Verified Drivers</h4><p>All drivers background-checked, trained and certified before joining the Rentify fleet.</p></div>
-    <div class="feat-item"><div class="fi">💰</div><h4>No Hidden Fees</h4><p>What you see is what you pay. Fixed rates quoted upfront with full transparency.</p></div>
-    <div class="feat-item"><div class="fi">⚡</div><h4>Instant Booking</h4><p>Book in 60 seconds online or via WhatsApp. Confirmation sent immediately.</p></div>
-    <div class="feat-item"><div class="fi">🌙</div><h4>24/7 Available</h4><p>Cabs available round the clock — early flights, late arrivals, midnight emergencies.</p></div>
+<!-- MAIN -->
+<div class="main-wrap">
+    <aside class="sidebar">
+        <div class="sb-title">Filters</div>
+        <div class="sb-section">
+            <h4>Max Price / Day</h4>
+            <input type="range" class="price-slider" id="priceRange" min="500" max="25000" value="25000">
+            <div class="price-vals"><span>Rs 500</span><span id="priceVal">Rs 25,000</span></div>
+        </div>
+        <div class="sb-section">
+            <h4>Passengers</h4>
+            <div class="check-group">
+                <label class="check-label"><input type="checkbox" class="pax-check" value="1-4"><div class="check-box"></div>1–4 seats</label>
+                <label class="check-label"><input type="checkbox" class="pax-check" value="5-10"><div class="check-box"></div>5–10 seats</label>
+                <label class="check-label"><input type="checkbox" class="pax-check" value="11+"><div class="check-box"></div>11+ seats</label>
+            </div>
+        </div>
+        <div class="sb-section">
+            <h4>Show Status</h4>
+            <div class="check-group">
+                <label class="check-label"><input type="checkbox" class="status-check" value="AVAILABLE" checked><div class="check-box"></div>Available</label>
+                <label class="check-label"><input type="checkbox" class="status-check" value="BOOKED"><div class="check-box"></div>Booked</label>
+                <label class="check-label"><input type="checkbox" class="status-check" value="MAINTENANCE"><div class="check-box"></div>Maintenance</label>
+            </div>
+        </div>
+    </aside>
+    <main class="content-zone">
+        <div class="content-header">
+            <div class="result-meta">Showing <strong id="countNum">0</strong> vehicles</div>
+            <div style="font-size:11px;color:var(--muted)" id="lastUpdated"></div>
+        </div>
+        <div class="loading-grid" id="loadingGrid">
+            <div class="skeleton"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
+            <div class="skeleton"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
+            <div class="skeleton"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
+            <div class="skeleton"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
+        </div>
+        <div class="v-grid hidden" id="vehicleGrid"></div>
+        <div class="no-results hidden" id="noResults"><div class="icon">🔍</div><h3>No vehicles found</h3><p>Try adjusting your filters.</p></div>
+    </main>
 </div>
 
-<!-- AD SECTION -->
-<div class="ad-sect reveal">
-    <div class="ad-text">
-        <h2>Book a Ride for Any Occasion</h2>
-        <p>Whether it's an airport pickup, a beach road trip or a wedding convoy — Rentify has the perfect vehicle for every journey.</p>
-        <a href="contact.html" class="btn-blk"><i class="fas fa-phone"></i> Talk to Our Team</a>
-    </div>
-    <div class="ad-img"><img src="https://images.unsplash.com/photo-1464219789935-c2d9d9aba644?w=800&q=80" alt="Book Cab"></div>
+<div class="feats-strip">
+    <div class="feat-item"><div class="feat-icon">⚡</div><h4>Instant Booking</h4><p>Confirm your ride in seconds.</p></div>
+    <div class="feat-item"><div class="feat-icon">🛡️</div><h4>Verified Drivers</h4><p>All drivers background-checked.</p></div>
+    <div class="feat-item"><div class="feat-icon">💰</div><h4>Best Prices</h4><p>No hidden fees or surge charges.</p></div>
+    <div class="feat-item"><div class="feat-icon">📞</div><h4>24/7 Support</h4><p>Round-the-clock assistance.</p></div>
 </div>
-
-<!-- FOOTER -->
 <footer>
     <div class="ft-grid">
-        <div><div class="ft-logo">Rent<span>ify</span></div><p class="ft-desc">Sri Lanka's most trusted cab & travel service.</p><div class="ft-soc"><a class="soc-b" href="#"><i class="fab fa-facebook-f"></i></a><a class="soc-b" href="#"><i class="fab fa-instagram"></i></a><a class="soc-b" href="#"><i class="fab fa-whatsapp"></i></a></div></div>
-        <div class="ft-col"><h4>Quick Links</h4><a href="index.html">Home</a><a href="about.html">About</a><a href="destinations.html">Destinations</a><a href="cabs.html">Cabs</a><a href="gallery.html">Gallery</a><a href="contact.html">Contact</a></div>
-        <div class="ft-col"><h4>Vehicles</h4><a href="#">Cars</a><a href="#">Vans</a><a href="#">Buses</a><a href="#">Wheelchair</a><a href="#">Cabs/Taxis</a></div>
-        <div class="ft-col"><h4>Contact</h4>
-            <div class="ct-item"><div class="ct-ic"><i class="fas fa-phone"></i></div><div class="ct-txt"><strong>Phone</strong>+94 77 123 4567</div></div>
-            <div class="ct-item"><div class="ct-ic"><i class="fas fa-envelope"></i></div><div class="ct-txt"><strong>Email</strong>hello@rentify.lk</div></div>
-        </div>
+        <div><div class="ft-logo">Rent<span>ify</span></div><p class="ft-desc">Sri Lanka's premier vehicle rental service.</p></div>
+        <div class="ft-col"><h5>Company</h5><a href="#">About Us</a><a href="#">Careers</a><a href="#">Blog</a></div>
+        <div class="ft-col"><h5>Services</h5><a href="#">Cab Hire</a><a href="#">Van Rental</a><a href="#">Bus Charter</a></div>
+        <div class="ft-col"><h5>Support</h5><a href="#">Help Center</a><a href="#">Contact Us</a><a href="#">Privacy Policy</a></div>
     </div>
-    <div class="ft-bottom"><span>© 2026 Rentify. All Rights Reserved.</span><span>Made with ❤️ in Sri Lanka 🇱🇰</span></div>
+    <div class="ft-bottom"><span>© 2026 <span class="hi">Rentify</span>. All rights reserved.</span><span>Made in 🇱🇰</span></div>
 </footer>
+<a href="https://wa.me/94700000000" class="wa" target="_blank">💬</a>
 
 <!-- BOOKING MODAL -->
-<div class="modal" id="vModal" onclick="closeVModal(event)">
-    <button class="mc" onclick="document.getElementById('vModal').classList.remove('show')">✕</button>
-    <div class="modal-inner">
-        <div class="m-img"><img id="vm-img" src="" alt=""></div>
-        <div class="m-body">
-            <h2 id="vm-name"></h2><p id="vm-desc"></p>
-            <div class="m-specs-grid">
-                <div class="m-spec"><div class="ms-ic">👥</div><strong id="vm-seats"></strong><span>Passengers</span></div>
-                <div class="m-spec"><div class="ms-ic">🧳</div><strong id="vm-bags"></strong><span>Luggage</span></div>
-                <div class="m-spec"><div class="ms-ic">💰</div><strong id="vm-price"></strong><span>Per KM</span></div>
+<div class="modal-overlay" id="bookingModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Book Vehicle</h2>
+            <div class="modal-header-right">
+                <span class="step-badge" id="stepLabel">Step 1 of 3</span>
+                <button class="modal-close" id="modalCloseBtn">✕</button>
             </div>
-            <div class="m-form">
-                <h4>Complete Your Booking</h4>
-                <div class="mf-row">
-                    <div class="mf-group"><label>Your Name</label><input type="text" placeholder="Full name"></div>
-                    <div class="mf-group"><label>Phone</label><input type="tel" placeholder="+94 77 XXX XXXX"></div>
+        </div>
+        <div class="progress-track">
+            <div class="prog-seg active" id="p1"></div>
+            <div class="prog-seg" id="p2"></div>
+            <div class="prog-seg" id="p3"></div>
+        </div>
+        <div id="step1">
+            <div class="modal-body">
+                <div class="vehicle-summary" id="vehicleSummary"></div>
+                <div class="form-group"><label>Full Name</label><input type="text" class="form-input" id="f_name" placeholder="e.g. Saumyaa Silva"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Phone</label><input type="tel" class="form-input" id="f_phone" placeholder="07X XXX XXXX"></div>
+                    <div class="form-group"><label>Email</label><input type="email" class="form-input" id="f_email" placeholder="you@email.com"></div>
                 </div>
-                <div class="mf-row">
-                    <div class="mf-group"><label>Pick-up</label><input type="text" placeholder="Pick-up location"></div>
-                    <div class="mf-group"><label>Drop-off</label><input type="text" placeholder="Drop-off location"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Start Date</label><input type="date" class="form-input" id="f_start_date"></div>
+                    <div class="form-group"><label>End Date</label><input type="date" class="form-input" id="f_end_date"></div>
                 </div>
-                <div class="mf-row">
-                    <div class="mf-group"><label>Date & Time</label><input type="datetime-local"></div>
-                    <div class="mf-group"><label>Special Requests</label><input type="text" placeholder="Any special notes..."></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Pickup Location</label><input type="text" class="form-input" id="f_pickup" placeholder="e.g. Colombo Fort"></div>
+                    <div class="form-group"><label>Drop Location</label><input type="text" class="form-input" id="f_drop" placeholder="e.g. Kandy City Centre"></div>
                 </div>
-                <button class="btn-book" style="width:100%;justify-content:center;padding:14px;font-size:15px;" onclick="confirmBooking()"><i class="fas fa-check"></i> Confirm Booking</button>
+                <div class="form-group">
+                    <label>Booking Category</label>
+                    <div class="cat-btn-row">
+                        <button type="button" class="cat-btn active" data-cat="wedding">💍 Wedding</button>
+                        <button type="button" class="cat-btn" data-cat="trip">🏖️ Trip</button>
+                        <button type="button" class="cat-btn" data-cat="daily">📅 Daily Use</button>
+                        <button type="button" class="cat-btn" data-cat="special">⭐ Special</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn-next" id="toStep2Btn">Continue → Payment</button></div>
+        </div>
+        <div id="step2" class="hidden">
+            <div class="modal-body">
+                <div class="vehicle-summary" id="vehicleSummary2"></div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <div class="payment-grid">
+                        <div class="pay-opt selected" data-pay="CARD"><div class="pi">💳</div><div class="pn">Card</div></div>
+                        <div class="pay-opt" data-pay="CASH"><div class="pi">💵</div><div class="pn">Cash</div></div>
+                        <div class="pay-opt" data-pay="ONLINE"><div class="pi">📱</div><div class="pn">Online</div></div>
+                    </div>
+                </div>
+                <div id="cardForm">
+                    <div class="card-visual">
+                        <div style="font-size:10px;opacity:.5;letter-spacing:2px;color:#fff">CREDIT / DEBIT CARD</div>
+                        <div class="card-num-disp" id="cardNumDisplay">**** **** **** ****</div>
+                        <div class="card-dets"><span id="cardNameDisplay">CARD HOLDER</span><span id="cardExpDisplay">MM/YY</span></div>
+                    </div>
+                    <div class="form-group"><label>Card Number</label><input type="text" class="form-input" id="cardNum" maxlength="19" placeholder="1234 5678 9012 3456"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Card Holder</label><input type="text" class="form-input" id="cardName" placeholder="Name on card"></div>
+                        <div class="form-group"><label>Expiry (MM/YY)</label><input type="text" class="form-input" id="cardExp" maxlength="5" placeholder="MM/YY"></div>
+                    </div>
+                    <div class="form-group"><label>CVV</label><input type="password" class="form-input" id="cardCvv" maxlength="3" placeholder="•••"></div>
+                </div>
+                <div id="cashMsg" class="msg-box hidden"><div class="bi">💵</div><p>Pay in cash when the driver arrives.</p></div>
+                <div id="onlineMsg" class="msg-box hidden"><div class="bi">📱</div><p>You'll receive a payment link after booking.</p></div>
+                <div class="order-summary" id="orderSummary"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-back" id="toStep1Btn">← Back</button>
+                <button class="btn-next confirm" id="confirmBtn">✓ Confirm &amp; Pay</button>
+            </div>
+        </div>
+        <div id="step3" class="hidden">
+            <div class="modal-body">
+                <div class="success-screen">
+                    <div class="success-icon" id="successEmoji">🎉</div>
+                    <h2 id="successTitle">Booking Confirmed!</h2>
+                    <p id="successMsg">Your vehicle is reserved. A confirmation email has been sent to your inbox. The driver will contact you before pickup.</p>
+                    <div class="booking-id" id="bookingIdDisplay">—</div>
+                    <p style="font-size:11px;color:var(--muted);margin-bottom:20px">Save this Booking ID to track your reservation</p>
+
+                    <!-- Payment Status Badge -->
+                    <div id="paymentStatusBadge" style="display:none;margin-bottom:18px;padding:10px 20px;border-radius:12px;font-size:13px;font-weight:700;text-align:center;"></div>
+
+                    <div class="booking-details-grid" id="bookingDetailsGrid"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-next" id="doneBtn">Done ✓</button>
             </div>
         </div>
     </div>
 </div>
 
-<a class="wa" href="https://wa.me/94771234567" target="_blank"><span class="wa-ring"></span><i class="fab fa-whatsapp"></i></a>
-
 <script>
-    function showCat(cat,el){
-        document.querySelectorAll('.cat-section').forEach(s=>s.classList.remove('active'));
-        document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
-        document.getElementById('cat-'+cat).classList.add('active');
-        el.classList.add('active');
-        window.scrollTo({top:document.querySelector('.cat-tabs').offsetTop-80,behavior:'smooth'});
+    const API = 'http://localhost:8081/api/v1';
+    let allVehicles = [], activeType = 'all', activeStatus = 'all', activeCategory = 'all';
+    let selectedVehicle = null, selectedCategory = 'wedding', selectedPayment = 'CARD';
+    let bookingTotal = 0;
+    const ICON = {CAB:'🚕', VAN:'🚐', BUS:'🚌', WHEEL:'🛺'};
+
+    /* ══════════════════════════════════════════════════════════
+       AUTH — reads from sign-in.html's localStorage keys:
+         rentify_token    → JWT token
+         rentify_username → username
+         rentify_fullName → full name
+         rentify_email    → email
+         rentify_role     → ADMIN | USER
+    ══════════════════════════════════════════════════════════ */
+    function getToken()    { return localStorage.getItem('rentify_token')    || ''; }
+    function getUsername() { return localStorage.getItem('rentify_username') || ''; }
+    function getFullName() { return localStorage.getItem('rentify_fullName') || getUsername(); }
+    function getEmail()    { return localStorage.getItem('rentify_email')    || ''; }
+    function getUserId()   {
+        const id = localStorage.getItem('rentify_userId');
+        return id ? parseInt(id) : null;   // must be number, not string
     }
-    function openVModal(name,sub,img,desc,seats,bags,price,feats){
-        document.getElementById('vm-img').src=img;
-        document.getElementById('vm-name').textContent=name+' — '+sub;
-        document.getElementById('vm-desc').textContent=desc;
-        document.getElementById('vm-seats').textContent=seats;
-        document.getElementById('vm-bags').textContent=bags;
-        document.getElementById('vm-price').textContent=price;
-        document.getElementById('vModal').classList.add('show');
+    function isLoggedIn()  { return !!getToken(); }
+
+    function authH() { return isLoggedIn() ? { Authorization: 'Bearer ' + getToken() } : {}; }
+
+    const esc  = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const fmtP = p => 'Rs\u00a0' + Number(p).toLocaleString('en-LK');
+    const fmtD = d => d ? new Date(d+'T00:00:00').toLocaleDateString('en-LK',{year:'numeric',month:'short',day:'numeric'}) : '—';
+    const initials = n => (n||'?').trim().split(/\s+/).map(x=>x[0].toUpperCase()).join('').slice(0,2)||'?';
+
+    function toast(msg, type) {
+        const el = $(`<div class="toast ${type||''}">${esc(msg)}</div>`).appendTo('#toastContainer');
+        setTimeout(()=>{ el.css('animation','toastOut .3s ease forwards'); setTimeout(()=>el.remove(),300); }, 3200);
     }
-    function closeVModal(e){if(e.target.id==='vModal')document.getElementById('vModal').classList.remove('show');}
-    function confirmBooking(){
-        document.getElementById('vModal').classList.remove('show');
-        const t=document.createElement('div');
-        t.style.cssText='position:fixed;top:24px;right:24px;z-index:99999;background:#16a34a;color:#fff;padding:18px 28px;border-radius:14px;font-weight:700;font-size:15px;box-shadow:0 8px 32px rgba(22,163,74,.4);animation:fadeUp .4s ease;';
-        t.innerHTML='✅ Booking Confirmed! We\'ll call you shortly.';
-        document.body.appendChild(t);
-        setTimeout(()=>t.remove(),4000);
+
+    /* ── NAV ─────────────────────────────────────────────────── */
+    function updateNav() {
+        if (isLoggedIn()) {
+            $('#profileInitials').text(initials(getFullName()));
+            $('#navUserLabel').text('👤  ' + (getFullName() || getUsername()));
+            $('#signOutBtn').show();
+        } else {
+            $('#profileInitials').text('?');
+            $('#navUserLabel').text('Not signed in');
+            $('#signOutBtn').hide();
+        }
     }
-    const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vis');}),{threshold:.1});
-    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+    /* ── API STATUS ─────────────────────────────────────────── */
+    function checkApi() {
+        $.ajax({ url: API+'/vehicles', method:'GET', timeout:5000,
+            success: ()=>{ $('#apiDot').addClass('online').removeClass('offline'); $('#apiStatusText').text('API Online'); },
+            error:   ()=>{ $('#apiDot').addClass('offline').removeClass('online'); $('#apiStatusText').text('API Offline'); }
+        });
+    }
+
+    /* ── FETCH VEHICLES (public) ────────────────────────────── */
+    function fetchVehicles() {
+        $('#loadingGrid').removeClass('hidden');
+        $('#vehicleGrid').addClass('hidden').empty();
+        $('#noResults').addClass('hidden');
+        $.ajax({
+            url: API+'/vehicles', method:'GET',
+            success: function(res) {
+                allVehicles = Array.isArray(res) ? res : (res.data || res.content || []);
+                $('#statTotal').text(allVehicles.length);
+                $('#statAvailable').text(allVehicles.filter(v=>v.status==='AVAILABLE').length);
+                $('#lastUpdated').text('Updated ' + new Date().toLocaleTimeString('en-LK'));
+                applyFilters();
+            },
+            error: function(xhr) {
+                $('#loadingGrid').addClass('hidden');
+                const msg = xhr.responseJSON?.message || 'Backend offline — check port 8081.';
+                $('#vehicleGrid').removeClass('hidden').html(
+                    `<div class="no-results" style="grid-column:1/-1"><div class="icon">⚠️</div><h3>Could not load vehicles</h3><p>${esc(msg)}</p>
+                     <button id="retryBtn" style="margin-top:14px;padding:9px 22px;background:var(--y);color:#fff;border:none;border-radius:9px;cursor:pointer;font-weight:700">↺ Retry</button></div>`
+                );
+                $(document).one('click','#retryBtn',fetchVehicles);
+                toast('Failed to load vehicles.','error');
+            }
+        });
+    }
+
+    /* ── FILTERS ─────────────────────────────────────────────── */
+    function applyFilters() {
+        const q    = $('#searchInput').val().toLowerCase().trim();
+        const maxP = parseInt($('#priceRange').val());
+        const sort = $('#sortBy').val();
+        const pax  = $('.pax-check:checked').map(function(){return $(this).val();}).get();
+        const sbSt = $('.status-check:checked').map(function(){return $(this).val();}).get();
+
+        // Category → vehicle type mapping
+        const CAT_TYPE_MAP = {
+            wedding: ['CAB','VAN'],
+            trip:    ['CAB','VAN','BUS'],
+            daily:   ['CAB','WHEEL'],
+            special: ['CAB','VAN','BUS','WHEEL']
+        };
+
+        let list = allVehicles.filter(v => {
+            if (activeType !== 'all' && v.type !== activeType) return false;
+            if (activeCategory !== 'all') {
+                const allowed = CAT_TYPE_MAP[activeCategory] || [];
+                if (!allowed.includes(v.type)) return false;
+            }
+            if (activeStatus !== 'all') { if (v.status !== activeStatus) return false; }
+            else { if (sbSt.length && !sbSt.includes(v.status)) return false; }
+            if (v.pricePerDay > maxP) return false;
+            if (q && !v.model.toLowerCase().includes(q) && !v.type.toLowerCase().includes(q)
+                && !(v.description||'').toLowerCase().includes(q)
+                && !(v.plateNumber||'').toLowerCase().includes(q)) return false;
+            if (pax.length && !pax.some(r =>
+                (r==='1-4' && v.capacity>=1 && v.capacity<=4) ||
+                (r==='5-10' && v.capacity>=5 && v.capacity<=10) ||
+                (r==='11+' && v.capacity>=11))) return false;
+            return true;
+        });
+
+        if (sort==='price_asc')  list.sort((a,b)=>a.pricePerDay-b.pricePerDay);
+        else if (sort==='price_desc') list.sort((a,b)=>b.pricePerDay-a.pricePerDay);
+        else if (sort==='name')  list.sort((a,b)=>a.model.localeCompare(b.model));
+        else if (sort==='seats') list.sort((a,b)=>b.capacity-a.capacity);
+        renderGrid(list);
+    }
+
+    function renderGrid(list) {
+        $('#loadingGrid').addClass('hidden');
+        $('#countNum').text(list.length);
+        if (!list.length) { $('#vehicleGrid').addClass('hidden').empty(); $('#noResults').removeClass('hidden'); return; }
+        $('#noResults').addClass('hidden');
+        const html = list.map(v => {
+            const icon = ICON[v.type]||'🚗';
+            const img  = v.image
+                ? `<div class="card-img-wrap"><img src="${esc(v.image)}" alt="${esc(v.model)}" loading="lazy" onerror="this.parentElement.outerHTML='<div class=\\'card-img-fallback\\'>${icon}</div>'"></div>`
+                : `<div class="card-img-fallback">${icon}</div>`;
+            const avail   = v.status === 'AVAILABLE';
+            const insWarn = v.insuranceExpiryDate && new Date(v.insuranceExpiryDate) < new Date(Date.now()+30*86400000);
+            return `<div class="v-card" data-id="${v.id}">
+                <div class="v-card-img">${img}
+                    <div class="status-badge status-${esc(v.status||'AVAILABLE')}">${esc(v.status||'AVAILABLE')}</div>
+                    ${insWarn?'<div class="ins-warn">⚠ Insurance Soon</div>':''}
+                </div>
+                <div class="v-card-body">
+                    <div class="card-type">${esc(v.type)}</div>
+                    <div class="card-name">${esc(v.model)}</div>
+                    <div class="card-desc">${esc(v.description||'Comfortable and reliable vehicle.')}</div>
+                    <div class="card-specs">
+                        <span class="spec-tag">👤 ${v.capacity} seats</span>
+                        ${v.year?`<span class="spec-tag">📅 ${v.year}</span>`:''}
+                        ${v.plateNumber?`<span class="spec-tag">🪪 ${esc(v.plateNumber)}</span>`:''}
+                        ${v.insuranceActive?'<span class="spec-tag">🛡️ Insured</span>':'<span class="spec-tag" style="color:var(--red)">⚠ Uninsured</span>'}
+                    </div>
+                    <div class="card-footer">
+                        <div class="card-price">
+                            <div class="amount"><span>Rs</span> ${Number(v.pricePerDay).toLocaleString('en-LK')}</div>
+                            <div class="per">per day · driver included</div>
+                        </div>
+                        <button class="book-btn" data-id="${v.id}" ${!avail?'disabled':''}>${avail?'Book Now':esc(v.status)}</button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+        $('#vehicleGrid').removeClass('hidden').html(html);
+    }
+
+    /* ── BOOKING MODAL ──────────────────────────────────────── */
+    function openBooking(id) {
+        if (!isLoggedIn()) {
+            toast('Please sign in to book a vehicle.', 'warning');
+            // Redirect to sign-in page
+            setTimeout(()=>{ window.location.href = '../sign-in.html?redirect=1'; }, 1000);
+            return;
+        }
+        const v = allVehicles.find(x=>x.id===id);
+        if (!v || v.status!=='AVAILABLE') { toast('This vehicle is not available.','error'); return; }
+
+        selectedVehicle  = v; selectedCategory = 'wedding'; selectedPayment = 'CARD'; bookingTotal = 0;
+        goStep(1); buildSummary();
+
+        // Pre-fill from localStorage (set by sign-in.html)
+        $('#f_name').val(getFullName());
+        $('#f_email').val(getEmail());
+        $('#f_phone').val('');
+
+        const today    = new Date().toISOString().split('T')[0];
+        const tomorrow = new Date(Date.now()+86400000).toISOString().split('T')[0];
+        $('#f_start_date').attr('min',today).val(today);
+        $('#f_end_date').attr('min',today).val(tomorrow);
+        $('#f_pickup,#f_drop').val('');
+
+        $('.cat-btn').removeClass('active'); $('.cat-btn[data-cat="wedding"]').addClass('active');
+        $('.pay-opt').removeClass('selected'); $('.pay-opt[data-pay="CARD"]').addClass('selected');
+        $('#cardForm').removeClass('hidden'); $('#cashMsg,#onlineMsg').addClass('hidden');
+        $('#cardNum,#cardName,#cardExp,#cardCvv').val('');
+        $('#cardNumDisplay').text('**** **** **** ****');
+        $('#cardNameDisplay').text('CARD HOLDER');
+        $('#cardExpDisplay').text('MM/YY');
+
+        recompute();
+        $('#bookingModal').addClass('open');
+    }
+
+    function closeModal() { $('#bookingModal').removeClass('open'); }
+
+    function buildSummary() {
+        if (!selectedVehicle) return;
+        const v = selectedVehicle, icon = ICON[v.type]||'🚗';
+        const img = v.image
+            ? `<img class="vs-img" src="${esc(v.image)}" alt="${esc(v.model)}" loading="lazy" onerror="this.outerHTML='<span style=\\'font-size:34px\\'>${icon}</span>'">`
+            : `<span class="vs-icon-big">${icon}</span>`;
+        const html = `${img}<div class="vs-info"><h3>${esc(v.model)}</h3><p>${esc(v.type)} · ${v.capacity} seats · ${esc(v.plateNumber||'N/A')}</p></div><div class="vs-price"><div class="amount">${fmtP(v.pricePerDay)}</div><div class="per">/day</div></div>`;
+        $('#vehicleSummary,#vehicleSummary2').html(html);
+    }
+
+    function recompute() {
+        if (!selectedVehicle) return;
+        const s=$('#f_start_date').val(), e=$('#f_end_date').val();
+        const days = (s&&e) ? Math.max(1,Math.round((new Date(e)-new Date(s))/86400000)) : 1;
+        const base = selectedVehicle.pricePerDay * days;
+        const catFee = selectedCategory==='wedding'?2500:selectedCategory==='special'?1500:0;
+        bookingTotal = base + catFee + 500;
+        let html = `<div class="order-line"><span>Base Price (${days} day${days>1?'s':''})</span><span>${fmtP(base)}</span></div>`;
+        if (catFee) html += `<div class="order-line"><span>Category Fee (${esc(selectedCategory)})</span><span>${fmtP(catFee)}</span></div>`;
+        html += `<div class="order-line"><span>Driver &amp; Fuel</span><span>${fmtP(500)}</span></div>`;
+        html += `<div class="order-line total"><span>Total</span><span class="total-num">${fmtP(bookingTotal)}</span></div>`;
+        $('#orderSummary').html(html);
+    }
+
+    function goStep(n) {
+        [1,2,3].forEach(i=>{ $('#step'+i).toggleClass('hidden',i!==n); $('#p'+i).attr('class','prog-seg'+(i<n?' done':i===n?' active':'')); });
+        $('#stepLabel').text(n<3?`Step ${n} of 3`:'Complete ✓');
+    }
+
+    function confirmBooking() {
+        const start=$('#f_start_date').val(), end=$('#f_end_date').val();
+        const pickup=$.trim($('#f_pickup').val()), drop=$.trim($('#f_drop').val());
+        if (!start||!end)              { toast('Please select booking dates.','error'); return; }
+        if (!pickup||!drop)            { toast('Please enter pickup and drop locations.','error'); return; }
+        if (new Date(end)<=new Date(start)) { toast('End date must be after start date.','error'); return; }
+        if (selectedPayment==='CARD'&&(!$.trim($('#cardName').val())||!$.trim($('#cardNum').val())||!$.trim($('#cardExp').val())||!$.trim($('#cardCvv').val()))) {
+            toast('Please fill in all card details.','error'); return;
+        }
+
+        // ── userId check — must be set from sign-in ──────────────
+        const uid = getUserId();
+        if (!uid) {
+            toast('Session error — please sign out and sign in again.', 'error');
+            return;
+        }
+
+        $('#confirmBtn').prop('disabled',true).text('Processing…');
+
+        // ── Step A: Create Booking ────────────────────────────────
+        $.ajax({
+            url: API+'/bookings', method:'POST',
+            contentType:'application/json', headers: authH(),
+            data: JSON.stringify({
+                userId:         uid,            // number (not string)
+                vehicleId:      selectedVehicle.id,
+                startDate:      start,
+                endDate:        end,
+                pickupLocation: pickup,
+                dropLocation:   drop
+            }),
+            success: function(res) {
+                const booking = (res&&res.data) ? res.data : res;
+
+                // ── Step B: Process Payment ───────────────────────
+                const pay = {
+                    bookingId:     booking.id,
+                    paymentMethod: selectedPayment,
+                    amount:        bookingTotal,
+                    currency:      'LKR'
+                };
+                if (selectedPayment==='CARD') {
+                    pay.cardName   = $.trim($('#cardName').val());
+                    pay.cardNumber = $('#cardNum').val().replace(/\s/g,'');
+                    pay.expiryDate = $('#cardExp').val();
+                    pay.cvv        = $('#cardCvv').val();
+                }
+
+                $.ajax({
+                    url: API+'/payments/process', method:'POST',
+                    contentType:'application/json', headers: authH(),
+                    data: JSON.stringify(pay),
+                    success: function(pr) {
+                        showSuccess(booking, pr.data||pr, start, end, pickup, drop, null);
+                    },
+                    error: function(xhr) {
+                        // Payment failed but booking was created — show booking ID with note
+                        const errMsg = xhr.responseJSON?.message || 'Payment processing failed — contact support.';
+                        showSuccess(booking, null, start, end, pickup, drop, errMsg);
+                    },
+                    complete: function() {
+                        $('#confirmBtn').prop('disabled',false).text('✓ Confirm & Pay');
+                    }
+                });
+            },
+            error: function(xhr) {
+                let msg = xhr.responseJSON?.message || 'Failed to create booking.';
+                if (xhr.status===401) msg = 'Session expired — please sign in again.';
+                if (xhr.status===403) msg = 'Access denied — please sign in as a regular user (not admin).';
+                if (xhr.status===409) msg = xhr.responseJSON?.message || 'Vehicle already booked for these dates.';
+                if (xhr.status===0)   msg = 'Cannot reach server — check your connection.';
+                toast(msg,'error');
+                $('#confirmBtn').prop('disabled',false).text('✓ Confirm & Pay');
+            }
+        });
+    }
+
+    function showSuccess(booking, payment, start, end, pickup, drop, errNote) {
+        $('#bookingIdDisplay').text('BK-' + booking.id);
+
+        // ── Payment status badge ──────────────────────────────────
+        const $badge = $('#paymentStatusBadge');
+        if (payment && payment.status === 'COMPLETED') {
+            $badge.css({background:'rgba(30,158,94,.12)', color:'var(--green)', border:'1px solid rgba(30,158,94,.3)'})
+                .html('✅ Payment Successful — Confirmation email sent to <strong>' + esc(getEmail()) + '</strong>')
+                .show();
+            $('#successEmoji').text('🎉');
+            $('#successTitle').text('Booking Confirmed!');
+            $('#successMsg').text('Your vehicle is reserved and payment is received. A confirmation email has been sent to your inbox. The driver will contact you before pickup.');
+        } else if (payment && payment.status === 'PENDING') {
+            $badge.css({background:'rgba(245,158,11,.1)', color:'#d97706', border:'1px solid rgba(245,158,11,.3)'})
+                .html('⏳ Payment Pending — Pay upon arrival or online link will be sent')
+                .show();
+            $('#successEmoji').text('📋');
+            $('#successTitle').text('Booking Created!');
+            $('#successMsg').text('Your booking is confirmed. Payment will be collected ' + (selectedPayment === 'CASH' ? 'when the driver arrives.' : 'via a secure link.'));
+        } else if (errNote) {
+            $badge.css({background:'rgba(232,80,80,.1)', color:'var(--red)', border:'1px solid rgba(232,80,80,.25)'})
+                .html('⚠️ Booking created but payment failed — ' + esc(errNote))
+                .show();
+            $('#successEmoji').text('📋');
+            $('#successTitle').text('Booking Created');
+            $('#successMsg').text('Your booking was created but payment could not be processed. Please contact support with your Booking ID.');
+        } else {
+            $badge.hide();
+        }
+
+        // ── Booking details grid ──────────────────────────────────
+        let det = `
+            <div class="bd-item"><div class="label">Vehicle</div><div class="value">${esc(selectedVehicle.model)}</div></div>
+            <div class="bd-item"><div class="label">Type</div><div class="value">${esc(selectedVehicle.type)} · ${selectedVehicle.capacity} seats</div></div>
+            <div class="bd-item"><div class="label">Dates</div><div class="value">${fmtD(start)} → ${fmtD(end)}</div></div>
+            <div class="bd-item"><div class="label">Category</div><div class="value">${esc(selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1))}</div></div>
+            <div class="bd-item"><div class="label">Pickup</div><div class="value">${esc(pickup)}</div></div>
+            <div class="bd-item"><div class="label">Drop Off</div><div class="value">${esc(drop)}</div></div>`;
+
+        if (payment) {
+            det += `
+            <div class="bd-item"><div class="label">Amount Paid</div><div class="value" style="color:var(--green);font-weight:700">${fmtP(bookingTotal)}</div></div>
+            <div class="bd-item"><div class="label">Payment Method</div><div class="value">${esc(payment.paymentMethod || selectedPayment)}</div></div>`;
+            if (payment.transactionId) {
+                det += `<div class="bd-item" style="grid-column:1/-1"><div class="label">Transaction ID</div><div class="value" style="font-family:monospace;font-size:11px;color:var(--y)">${esc(payment.transactionId)}</div></div>`;
+            }
+        }
+
+        $('#bookingDetailsGrid').html(det);
+        goStep(3);
+        toast('Booking confirmed! 🎉', 'success');
+        fetchVehicles(); // refresh vehicle status
+    }
+
+    /* ── INIT ───────────────────────────────────────────────── */
+    $(function() {
+        updateNav(); checkApi(); fetchVehicles();
+
+        $('#navBookBtn').on('click', ()=>document.getElementById('vehicleGrid')?.scrollIntoView({behavior:'smooth'}));
+        $('#profileBtn').on('click', function(e){ e.preventDefault(); if(!isLoggedIn()) window.location.href='../sign-in.html?redirect=1'; });
+        $('#signOutBtn').on('click', function(e){
+            e.preventDefault();
+            ['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_phone','rentify_userId']
+                .forEach(k=>localStorage.removeItem(k));
+            updateNav(); toast('Signed out.','');
+        });
+
+        let sT;
+        $('#searchInput').on('input', function(){ clearTimeout(sT); sT=setTimeout(applyFilters,280); });
+        $('#sortBy').on('change', applyFilters);
+
+        $('#priceRange').on('input', function(){
+            const v=parseInt($(this).val()), pct=((v-500)/(25000-500))*100;
+            $('#priceVal').text('Rs '+v.toLocaleString('en-LK'));
+            $(this).css('background',`linear-gradient(to right,var(--y) ${pct}%,var(--border) ${pct}%)`);
+            applyFilters();
+        });
+
+        $(document).on('click','[data-type]',   function(){ $('[data-type]').removeClass('active');   $(this).addClass('active'); activeType=  $(this).data('type');   applyFilters(); });
+        $(document).on('click','.filter-zone [data-cat]', function(){ $('.filter-zone [data-cat]').removeClass('active'); $(this).addClass('active'); activeCategory=$(this).data('cat'); applyFilters(); });
+        $(document).on('click','[data-status]', function(){ $('[data-status]').removeClass('active'); $(this).addClass('active'); activeStatus=$(this).data('status'); applyFilters(); });
+        $(document).on('change','.pax-check,.status-check', applyFilters);
+
+        $(document).on('click','.v-card',                function(e){ if(!$(e.target).hasClass('book-btn')) openBooking(parseInt($(this).data('id'))); });
+        $(document).on('click','.book-btn:not(:disabled)',function(e){ e.stopPropagation(); openBooking(parseInt($(this).data('id'))); });
+
+        $('#modalCloseBtn').on('click', closeModal);
+        $('#bookingModal').on('click', function(e){ if(e.target===this) closeModal(); });
+        $('#doneBtn').on('click', closeModal);
+
+        $('#toStep2Btn').on('click', function(){
+            const s=$('#f_start_date').val(),e=$('#f_end_date').val();
+            const p=$.trim($('#f_pickup').val()),d=$.trim($('#f_drop').val());
+            if(!s||!e)                     { toast('Please select booking dates.','error'); return; }
+            if(!p||!d)                     { toast('Please enter locations.','error'); return; }
+            if(new Date(e)<=new Date(s))   { toast('End date must be after start date.','error'); return; }
+            buildSummary(); recompute(); goStep(2);
+        });
+        $('#toStep1Btn').on('click', ()=>goStep(1));
+        $('#confirmBtn').on('click', confirmBooking);
+
+        $(document).on('click','.cat-btn', function(){ $('.cat-btn').removeClass('active'); $(this).addClass('active'); selectedCategory=$(this).data('cat'); recompute(); });
+        $(document).on('click','.pay-opt', function(){
+            $('.pay-opt').removeClass('selected'); $(this).addClass('selected'); selectedPayment=$(this).data('pay');
+            $('#cardForm').toggleClass('hidden',selectedPayment!=='CARD');
+            $('#cashMsg').toggleClass('hidden',selectedPayment!=='CASH');
+            $('#onlineMsg').toggleClass('hidden',selectedPayment!=='ONLINE');
+        });
+        $(document).on('change','#f_start_date,#f_end_date', recompute);
+
+        $(document).on('input','#cardNum',  function(){ let v=$(this).val().replace(/\D/g,'').substring(0,16); $(this).val(v.replace(/(.{4})/g,'$1 ').trim()); $('#cardNumDisplay').text($(this).val()||'**** **** **** ****'); });
+        $(document).on('input','#cardName', function(){ $('#cardNameDisplay').text($(this).val().toUpperCase()||'CARD HOLDER'); });
+        $(document).on('input','#cardExp',  function(){ let v=$(this).val().replace(/\D/g,'').substring(0,4); if(v.length>=3)v=v.slice(0,2)+'/'+v.slice(2); $(this).val(v); $('#cardExpDisplay').text(v||'MM/YY'); });
+    });
 </script>
 </body>
 </html>

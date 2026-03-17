@@ -84,7 +84,7 @@ public class EmailService {
                         + "Explore Sri Lanka's #1 vehicle rental platform with verified drivers, transparent pricing "
                         + "and instant booking.</p>"
                         + "<div style='margin:28px 0;text-align:center'>"
-                        + "<a href='http://localhost/pages/sign-in.html' style='background:#f5c518;color:#0d0d0d;"
+                        + "<a href='http://localhost:63342/Rentify/FrontEnd/index.html?_ijt=5baoqhk9eln895s17lea8q368v&_ij_reload=RELOAD_ON_SAVE' style='background:#f5c518;color:#0d0d0d;"
                         + "padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;"
                         + "font-size:13px;font-family:monospace'>Get Started →</a></div>"
                         + "<p style='color:#555;font-size:11px'>If you didn't create this account, ignore this email.</p>"

@@ -376,6 +376,9 @@
             localStorage.setItem('rentify_fullName', data.fullName  || '');
             localStorage.setItem('rentify_email',    data.email     || '');
             localStorage.setItem('rentify_phone',    data.phone     || '');
+
+            localStorage.setItem('rentify_userId',   data.userId || data.id || data.user?.userId || '');
+
         }
 
         /* ══════════════════════════════════════════════════════════════
