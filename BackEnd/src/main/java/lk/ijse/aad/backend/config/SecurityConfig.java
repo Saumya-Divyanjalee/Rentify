@@ -59,6 +59,8 @@ public class SecurityConfig {
                         // ── User profile self-service ─────────────────────────
                         .requestMatchers("/api/v1/user/profile").authenticated()
 
+                        .requestMatchers("/api/v1/insurances/**").hasRole("ADMIN")
+
                         // ── Everything else requires auth ─────────────────────
                         .anyRequest().authenticated()
                 )

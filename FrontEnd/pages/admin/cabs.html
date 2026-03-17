@@ -1,680 +1,413 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rentify Admin – Vehicle Management</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Rentify Admin — Vehicles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <style>
-        :root{
-            --bg:#0f0f0f; --surface:#161616; --card:#1c1c1c; --card2:#222;
-            --border:#2a2a2a; --border2:#333;
-            --y:#e8a020; --yd:#c98010; --y-dim:rgba(232,160,32,0.1); --y-glow:rgba(232,160,32,0.25);
-            --text:#f0ede8; --text2:#9a9690; --muted:#5a5850; --muted2:#7a7870;
-            --green:#22c55e; --red:#ef4444; --blue:#3b82f6; --orange:#f59e0b;
-            --r:10px; --r2:16px; --mono:'DM Sans',sans-serif; --sans:'Syne',sans-serif;
-        }
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-        html{scroll-behavior:smooth;}
-        body{font-family:var(--mono);background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;min-height:100vh;}
-        .sidebar-nav{position:fixed;top:0;left:0;bottom:0;width:220px;background:var(--surface);border-right:1px solid var(--border);z-index:100;padding:24px 16px;display:flex;flex-direction:column;}
-        .sn-logo{font-family:var(--sans);font-size:20px;font-weight:800;color:var(--text);letter-spacing:-1px;margin-bottom:32px;padding:0 8px;}
-        .sn-logo span{color:var(--y);}
-        .sn-badge{font-size:9px;background:var(--y);color:#fff;padding:2px 7px;border-radius:20px;font-weight:700;letter-spacing:.5px;margin-left:6px;vertical-align:middle;}
-        .sn-section{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:20px 0 8px;padding:0 8px;}
-        .sn-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;text-decoration:none;color:var(--text2);font-size:13px;font-weight:500;transition:all .2s;margin-bottom:2px;}
-        .sn-link:hover{background:var(--card);color:var(--text);}
-        .sn-link.active{background:var(--y-dim);color:var(--y);font-weight:600;border:1px solid rgba(232,160,32,.2);}
-        .sn-link .ico{font-size:16px;width:20px;text-align:center;}
-        .sn-bottom{margin-top:auto;padding-top:16px;border-top:1px solid var(--border);}
-        .sn-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;background:var(--card);}
-        .sn-avatar{width:32px;height:32px;border-radius:50%;background:var(--y);display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
-        .sn-user-info .name{font-size:13px;font-weight:600;color:var(--text);}
-        .sn-user-info .role{font-size:10px;color:var(--muted2);letter-spacing:.5px;text-transform:uppercase;}
-        .main{margin-left:220px;padding:32px;}
-        .page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;}
-        .page-title{font-family:var(--sans);font-size:26px;font-weight:800;color:var(--text);letter-spacing:-1px;margin-bottom:5px;}
-        .page-sub{font-size:13px;color:var(--text2);}
-        .btn-primary{background:var(--y);color:#fff;padding:10px 22px;border-radius:var(--r);font-size:13px;font-weight:700;font-family:var(--sans);border:none;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px;box-shadow:0 2px 14px var(--y-glow);}
-        .btn-primary:hover{background:var(--yd);transform:translateY(-1px);}
-        .btn-secondary{background:var(--card2);color:var(--text2);padding:9px 18px;border-radius:var(--r);font-size:13px;font-weight:600;font-family:var(--mono);border:1px solid var(--border2);cursor:pointer;transition:all .2s;}
-        .btn-secondary:hover{border-color:var(--y);color:var(--text);}
-        .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
-        .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:18px 20px;position:relative;overflow:hidden;transition:border-color .2s;}
-        .stat-card:hover{border-color:var(--border2);}
-        .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--y));}
-        .stat-card.green::before{--accent:var(--green);}
-        .stat-card.red::before{--accent:var(--red);}
-        .stat-card.blue::before{--accent:var(--blue);}
-        .stat-label{font-size:11px;color:var(--text2);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;}
-        .stat-val{font-family:var(--sans);font-size:28px;font-weight:800;color:var(--text);letter-spacing:-1px;}
-        .stat-icon{position:absolute;top:16px;right:16px;font-size:22px;opacity:.4;}
-        .controls{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
-        .search-wrap{flex:1;min-width:220px;position:relative;}
-        .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none;}
-        .search-input{width:100%;padding:9px 14px 9px 38px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:13px;font-family:var(--mono);outline:none;transition:all .2s;}
-        .search-input::placeholder{color:var(--muted);}
-        .search-input:focus{border-color:var(--y);box-shadow:0 0 0 3px var(--y-dim);}
-        .filter-sel{padding:9px 13px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);color:var(--text2);font-size:13px;font-family:var(--mono);outline:none;cursor:pointer;}
-        .filter-sel:focus{border-color:var(--y);}
-        .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;}
-        .table-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-        .table-title{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--text);}
-        .table-count{font-size:12px;color:var(--text2);background:var(--card2);padding:3px 10px;border-radius:20px;border:1px solid var(--border);}
+        :root{
+            --g:#16a34a;--gd:#14532d;--gm:#22c55e;--gl:#bbf7d0;--gs:#f0fdf4;--gg:rgba(22,163,74,.14);
+            --y:#d97706;--ym:#f59e0b;--yp:#fef3c7;
+            --r:#dc2626;--rs:#fef2f2;--b:#2563eb;--bs:#eff6ff;--p:#7c3aed;--o:#ea580c;
+            --t1:#0f172a;--t2:#334155;--t3:#64748b;--t4:#94a3b8;
+            --bg:#f8fafc;--bg2:#f1f5f9;--card:#fff;--bdr:#e2e8f0;--bdr2:#cbd5e1;
+            --sb:#0f172a;
+            --ff:'Syne',sans-serif;--fm:'DM Sans',sans-serif;--fc:'Roboto Mono',monospace;
+            --s1:0 1px 3px rgba(15,23,42,.06);--s2:0 4px 16px rgba(15,23,42,.08);--s3:0 12px 40px rgba(15,23,42,.1);--s4:0 24px 64px rgba(15,23,42,.14);
+        }
+        body{font-family:var(--fm);background:var(--bg);color:var(--t1);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;font-size:14px;}
+
+        /* SIDEBAR */
+        .sidebar{width:252px;min-height:100vh;background:var(--sb);display:flex;flex-direction:column;padding:20px 14px;position:fixed;top:0;left:0;bottom:0;z-index:200;overflow-y:auto;scrollbar-width:none;}
+        .sidebar::-webkit-scrollbar{display:none;}
+        .sn-logo{display:flex;align-items:center;padding:4px 8px 20px;margin-bottom:6px;border-bottom:1px solid rgba(255,255,255,.06);}
+        .sn-logo-text{font-family:var(--fc);font-size:19px;font-weight:600;color:#fff;}
+        .sn-logo-text b{color:var(--ym);}
+        .sn-badge{font-size:8px;background:var(--ym);color:#000;padding:2px 8px;border-radius:20px;font-weight:800;letter-spacing:.6px;font-family:var(--ff);margin-left:9px;}
+        .sn-sec{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.22);margin:16px 0 6px;padding:0 8px;font-family:var(--ff);}
+        .sn-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;text-decoration:none;color:rgba(255,255,255,.48);font-size:13px;font-weight:500;transition:.16s;margin-bottom:2px;}
+        .sn-link:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.88);}
+        .sn-link.active{background:rgba(245,158,11,.14);color:var(--ym);font-weight:600;border:1px solid rgba(245,158,11,.22);}
+        .sn-ico{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
+        .sn-bottom{margin-top:auto;padding-top:14px;border-top:1px solid rgba(255,255,255,.07);}
+        .sn-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.06);}
+        .sn-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ym),#b45309);display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
+        .sn-uname{font-size:13px;font-weight:600;color:#fff;}
+        .sn-urole{font-size:9px;color:rgba(255,255,255,.3);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+
+        /* MAIN */
+        .main{margin-left:252px;flex:1;padding:26px 32px;background:var(--bg);}
+
+        /* API BAR */
+        .api-bar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t3);background:var(--card);border:1px solid var(--bdr);border-radius:9px;padding:7px 14px;margin-bottom:22px;box-shadow:var(--s1);}
+        .api-dot{width:7px;height:7px;border-radius:50%;background:var(--bdr2);transition:.4s;flex-shrink:0;}
+        .api-dot.online{background:var(--gm);box-shadow:0 0 6px rgba(34,197,94,.5);}
+        .api-dot.offline{background:var(--r);}
+
+        /* PAGE HEADER */
+        .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+        .ph-title{font-family:var(--ff);font-size:21px;font-weight:800;color:var(--t1);letter-spacing:-.5px;}
+        .ph-sub{font-size:13px;color:var(--t3);margin-top:3px;}
+
+        /* STATS */
+        .sc-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px;}
+        .sc{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:18px;position:relative;overflow:hidden;box-shadow:var(--s1);transition:all .2s;}
+        .sc:hover{box-shadow:var(--s2);transform:translateY(-2px);}
+        .sc-stripe{position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
+        .sc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+        .sc-iw{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;}
+        .sc-lbl{font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);margin-bottom:4px;font-family:var(--ff);}
+        .sc-val{font-family:var(--ff);font-size:26px;font-weight:800;color:var(--t1);letter-spacing:-1px;line-height:1;}
+
+        /* CONTROLS */
+        .controls{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;}
+        .sw{display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--bdr);border-radius:9px;padding:8px 13px;flex:1;min-width:200px;transition:.16s;box-shadow:var(--s1);}
+        .sw:focus-within{border-color:var(--g);box-shadow:0 0 0 3px var(--gg);}
+        .sw input{border:none;outline:none;font-family:var(--fm);font-size:13px;color:var(--t1);background:transparent;width:100%;}
+        .sw input::placeholder{color:var(--t4);}
+        .fsel{padding:9px 12px;background:var(--card);border:1.5px solid var(--bdr);border-radius:9px;color:var(--t2);font-size:13px;font-family:var(--fm);outline:none;cursor:pointer;box-shadow:var(--s1);appearance:none;padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%2394a3b8' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
+        .fsel:focus{border-color:var(--g);}
+
+        /* CARD TABLE */
+        .card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;overflow:hidden;box-shadow:var(--s1);}
+        .card-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--bdr);}
+        .card-title{font-family:var(--ff);font-size:13px;font-weight:700;color:var(--t1);}
+        .tc{font-size:11px;color:var(--t3);background:var(--bg2);padding:3px 10px;border-radius:20px;border:1px solid var(--bdr);}
+        .tw{overflow-x:auto;}
         table{width:100%;border-collapse:collapse;}
-        thead th{padding:10px 16px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);background:var(--surface);}
-        tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
+        thead th{padding:9px 14px;text-align:left;font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);border-bottom:1.5px solid var(--bdr);background:var(--bg);font-family:var(--ff);white-space:nowrap;}
+        tbody tr{border-bottom:1px solid var(--bdr);transition:.14s;}
         tbody tr:last-child{border-bottom:none;}
-        tbody tr:hover{background:rgba(255,255,255,.02);}
-        tbody td{padding:12px 16px;font-size:13px;color:var(--text2);vertical-align:middle;}
-        .td-model{font-weight:600;color:var(--text);}
-        .td-img{width:52px;height:38px;border-radius:6px;object-fit:cover;}
-        .td-img-fallback{width:52px;height:38px;border-radius:6px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:20px;}
-        .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
-        .badge-AVAILABLE{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3);}
-        .badge-BOOKED{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.25);}
-        .badge-MAINTENANCE{background:rgba(120,120,120,.12);color:var(--muted2);border:1px solid var(--border);}
-        .badge-CAB{background:rgba(232,160,32,.1);color:var(--y);border:1px solid rgba(232,160,32,.3);}
-        .badge-VAN{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.3);}
-        .badge-BUS{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3);}
-        .badge-WHEEL{background:rgba(245,158,11,.1);color:var(--orange);border:1px solid rgba(245,158,11,.3);}
-        .action-btns{display:flex;gap:6px;align-items:center;}
-        .btn-edit{padding:5px 12px;background:transparent;border:1px solid var(--border2);border-radius:7px;color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:var(--mono);}
-        .btn-edit:hover{border-color:var(--y);color:var(--y);}
-        .btn-del{padding:5px 12px;background:transparent;border:1px solid rgba(239,68,68,.3);border-radius:7px;color:var(--red);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:var(--mono);}
-        .btn-del:hover{background:rgba(239,68,68,.1);}
-        .empty-row td{text-align:center;padding:48px;color:var(--muted);}
-        .empty-row .eico{font-size:36px;margin-bottom:10px;display:block;opacity:.4;}
-        .loading-row td{text-align:center;padding:40px;color:var(--muted2);}
-        .spin{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--y);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle;}
+        tbody tr:hover{background:var(--gs);}
+        tbody td{padding:11px 14px;font-size:13px;color:var(--t2);vertical-align:middle;}
+        .tdm{font-family:var(--fc);font-size:12px;}
+        .tdi{width:48px;height:36px;border-radius:7px;object-fit:cover;}
+        .tdi-fb{width:48px;height:36px;border-radius:7px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:18px;}
+
+        /* BADGES */
+        .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:9.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;font-family:var(--ff);}
+        .badge-AVAILABLE  {background:rgba(22,163,74,.1);color:var(--g);border:1px solid rgba(22,163,74,.22);}
+        .badge-BOOKED     {background:rgba(220,38,38,.1);color:var(--r);border:1px solid rgba(220,38,38,.2);}
+        .badge-MAINTENANCE{background:rgba(100,116,139,.1);color:var(--t3);border:1px solid rgba(100,116,139,.2);}
+        .badge-CAB  {background:rgba(217,119,6,.1);color:var(--y);border:1px solid rgba(217,119,6,.22);}
+        .badge-VAN  {background:rgba(37,99,235,.1);color:var(--b);border:1px solid rgba(37,99,235,.2);}
+        .badge-BUS  {background:rgba(22,163,74,.1);color:var(--g);border:1px solid rgba(22,163,74,.22);}
+        .badge-WHEEL{background:rgba(234,88,12,.1);color:var(--o);border:1px solid rgba(234,88,12,.2);}
+
+        /* BUTTONS */
+        .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;font-size:13px;font-weight:600;font-family:var(--fm);border:none;cursor:pointer;transition:all .17s;white-space:nowrap;}
+        .btn-primary{background:var(--g);color:#fff;box-shadow:0 2px 10px rgba(22,163,74,.25);}
+        .btn-primary:hover{background:var(--gd);transform:translateY(-1px);}
+        .btn-outline{background:var(--card);color:var(--t2);border:1.5px solid var(--bdr);}
+        .btn-outline:hover{border-color:var(--g);color:var(--g);background:var(--gs);}
+        .btn-sm{padding:5px 11px;font-size:11px;border-radius:7px;}
+        .btn-del{background:transparent;color:var(--r);border:1.5px solid rgba(220,38,38,.25);padding:5px 11px;font-size:11px;border-radius:7px;cursor:pointer;font-family:var(--fm);transition:.16s;}
+        .btn-del:hover{background:var(--rs);border-color:var(--r);}
+        .btn-danger{background:var(--r);color:#fff;padding:9px 18px;border-radius:9px;font-size:13px;font-weight:700;font-family:var(--ff);border:none;cursor:pointer;transition:.17s;box-shadow:0 2px 10px rgba(220,38,38,.28);}
+        .btn-danger:hover{background:#b91c1c;transform:translateY(-1px);}
+        .btn-danger:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+
+        /* EMPTY/LOAD */
+        .erow td{text-align:center;padding:48px;color:var(--t4);}
+        .lrow td{text-align:center;padding:40px;color:var(--t3);}
+        .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--bdr);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite;margin-right:7px;vertical-align:middle;}
         @keyframes spin{to{transform:rotate(360deg)}}
-        .api-bar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text2);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 12px;margin-bottom:24px;}
-        .api-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);transition:background .4s;flex-shrink:0;}
-        .api-dot.online{background:var(--green);box-shadow:0 0 6px rgba(34,197,94,.5);}
-        .api-dot.offline{background:var(--red);}
-        .toast-container{position:fixed;bottom:24px;right:24px;z-index:99999;display:flex;flex-direction:column-reverse;gap:10px;pointer-events:none;}
-        .toast{background:var(--card2);color:var(--text);padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 8px 28px rgba(0,0,0,.5);animation:toastIn .3s ease;min-width:220px;pointer-events:all;border:1px solid var(--border2);}
-        .toast.success{background:#16301e;border-color:rgba(34,197,94,.3);color:var(--green);}
-        .toast.error{background:#2d1515;border-color:rgba(239,68,68,.3);color:var(--red);}
-        .toast.warning{background:#2a1e08;border-color:rgba(232,160,32,.3);color:var(--y);}
-        @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
-        @keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateX(20px)}}
-        .no-token-banner{display:none;align-items:center;gap:10px;background:#2a1e08;border:1px solid rgba(232,160,32,.3);border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:12px;color:var(--y);}
-        .no-token-banner.show{display:flex;}
-        .modal-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);}
-        .modal-overlay.open{display:flex;animation:fadeInBg .2s ease;}
-        @keyframes fadeInBg{from{opacity:0}to{opacity:1}}
-        .modal{background:var(--card);border:1px solid var(--border2);border-radius:20px;max-width:620px;width:100%;max-height:92vh;overflow-y:auto;animation:scaleUp .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 40px 100px rgba(0,0,0,.6);}
-        @keyframes scaleUp{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
-        .modal-hd{display:flex;justify-content:space-between;align-items:center;padding:22px 26px;border-bottom:1px solid var(--border);}
-        .modal-hd h2{font-family:var(--sans);font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.5px;}
-        .modal-close-btn{width:30px;height:30px;background:var(--card2);border:1px solid var(--border2);border-radius:7px;color:var(--text2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
-        .modal-close-btn:hover{background:var(--border);color:var(--text);}
-        .modal-bd{padding:22px 26px;}
-        .modal-ft{display:flex;justify-content:flex-end;gap:9px;padding:16px 26px;border-top:1px solid var(--border);}
-        .form-group{margin-bottom:14px;}
-        .form-group label{display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text2);margin-bottom:5px;}
-        .form-input{width:100%;padding:10px 13px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:13px;font-family:var(--mono);outline:none;transition:all .2s;}
-        .form-input::placeholder{color:var(--muted);}
-        .form-input:focus{border-color:var(--y);background:rgba(232,160,32,.04);box-shadow:0 0 0 3px var(--y-dim);}
+
+        /* BANNER */
+        .banner{display:none;align-items:center;gap:10px;background:var(--yp);border:1px solid rgba(217,119,6,.3);border-radius:9px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--y);}
+        .banner.show{display:flex;}
+
+        /* TOAST */
+        #toast{position:fixed;bottom:24px;right:24px;z-index:99999;background:var(--sb);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;box-shadow:var(--s3);display:none;max-width:300px;}
+        #toast.success{background:var(--g);}
+        #toast.error{background:var(--r);}
+
+        /* MODALS */
+        .ov{position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.5);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;}
+        .ov.open{display:flex;animation:fade .18s ease;}
+        @keyframes fade{from{opacity:0}to{opacity:1}}
+        .modal{background:var(--card);border-radius:20px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;animation:mIn .25s cubic-bezier(.16,1,.3,1);box-shadow:var(--s4);border:1px solid var(--bdr);}
+        .modal-sm{max-width:400px;}
+        @keyframes mIn{from{transform:scale(.93) translateY(10px);opacity:0}to{transform:none;opacity:1}}
+        .mhd{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--card);z-index:10;}
+        .mhd-title{font-family:var(--ff);font-size:16px;font-weight:700;color:var(--t1);}
+        .mclose{width:28px;height:28px;background:var(--bg2);border:1px solid var(--bdr);border-radius:7px;cursor:pointer;font-size:12px;color:var(--t3);transition:.15s;display:flex;align-items:center;justify-content:center;}
+        .mclose:hover{background:var(--bdr);color:var(--t1);}
+        .mbd{padding:20px 22px;}
+        .mft{display:flex;justify-content:flex-end;gap:8px;padding:14px 22px;border-top:1px solid var(--bdr);background:var(--bg);}
+
+        /* FORM */
         .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-        .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-        select.form-input option{background:var(--card);}
-        .form-err{color:var(--red);font-size:11px;margin-top:4px;}
-        .section-divider{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:10px 0 8px;border-bottom:1px solid var(--border);margin-bottom:14px;}
-        .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;}
-        .toggle-label{font-size:13px;color:var(--text2);font-weight:500;}
-        .toggle{position:relative;width:40px;height:22px;}
-        .toggle input{opacity:0;width:0;height:0;}
-        .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--border2);border-radius:22px;transition:.3s;}
-        .slider:before{position:absolute;content:'';height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;}
-        .toggle input:checked+.slider{background:var(--green);}
-        .toggle input:checked+.slider:before{transform:translateX(18px);}
-        .img-preview{width:100%;height:140px;border-radius:var(--r);object-fit:cover;border:1px solid var(--border);margin-bottom:8px;display:none;}
-        .img-preview.show{display:block;}
-        .confirm-modal{max-width:400px;}
-        .confirm-modal .modal-bd{text-align:center;padding:28px;}
-        .confirm-icon{font-size:44px;margin-bottom:14px;}
-        .confirm-modal h3{font-family:var(--sans);font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px;}
-        .confirm-modal p{font-size:13px;color:var(--text2);line-height:1.6;}
-        .btn-danger{background:var(--red);color:#fff;padding:10px 22px;border-radius:var(--r);font-size:13px;font-weight:700;font-family:var(--sans);border:none;cursor:pointer;transition:all .2s;}
-        .btn-danger:hover{background:#dc2626;}
-        .btn-danger:disabled{opacity:.6;cursor:not-allowed;}
-        .hidden{display:none!important;}
-        @media(max-width:1024px){.sidebar-nav{display:none;}.main{margin-left:0;padding:20px;}.stats-row{grid-template-columns:1fr 1fr;}}
-        @media(max-width:640px){.stats-row{grid-template-columns:1fr;}.form-row,.form-row-3{grid-template-columns:1fr;}.controls{flex-direction:column;align-items:stretch;}}
+        .form-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+        .fg{margin-bottom:13px;}
+        .fg label{display:block;font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t2);margin-bottom:5px;font-family:var(--ff);}
+        .fi{width:100%;padding:9px 12px;background:var(--bg);border:1.5px solid var(--bdr);border-radius:9px;color:var(--t1);font-size:13px;font-family:var(--fm);outline:none;transition:.16s;}
+        .fi::placeholder{color:var(--t4);}
+        .fi:focus{border-color:var(--g);background:var(--card);box-shadow:0 0 0 3px var(--gg);}
+        select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%2394a3b8' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px;}
+        select.fi option{background:#fff;}
+        .ferr{color:var(--r);font-size:11px;margin-top:3px;display:none;}
+        .ferr.show{display:block;}
+        .sdiv{font-family:var(--ff);font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);padding:8px 0 7px;border-bottom:1px solid var(--bdr);margin-bottom:12px;}
+        .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:var(--bg);border:1px solid var(--bdr);border-radius:9px;margin-bottom:12px;}
+        .tgl-lbl{font-size:13px;color:var(--t2);font-weight:500;}
+        .tgl{position:relative;width:40px;height:22px;}
+        .tgl input{opacity:0;width:0;height:0;}
+        .sl{position:absolute;cursor:pointer;inset:0;background:var(--bdr2);border-radius:22px;transition:.22s;}
+        .sl:before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.22s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+        .tgl input:checked+.sl{background:var(--g);}
+        .tgl input:checked+.sl:before{transform:translateX(18px);}
+        .img-prev{width:100%;height:130px;border-radius:9px;object-fit:cover;border:1px solid var(--bdr);margin-bottom:8px;display:none;}
+        .img-prev.show{display:block;}
+
+        /* CONFIRM MODAL */
+        .conf-body{text-align:center;padding:28px;}
+        .conf-ico{font-size:40px;margin-bottom:14px;}
+        .conf-h{font-family:var(--ff);font-size:16px;font-weight:700;color:var(--t1);margin-bottom:8px;}
+        .conf-p{font-size:13px;color:var(--t3);line-height:1.6;}
+
+        @media(max-width:1024px){.sidebar{display:none;}.main{margin-left:0;padding:16px;}.sc-row{grid-template-columns:1fr 1fr;}}
+        @media(max-width:640px){.sc-row{grid-template-columns:1fr 1fr;}.form-row,.form-row3{grid-template-columns:1fr;}.controls{flex-direction:column;align-items:stretch;}}
     </style>
 </head>
 <body>
 
-<div class="toast-container" id="toastContainer"></div>
-
-<!-- SIDEBAR -->
-<nav class="sidebar-nav">
-    <div class="sn-logo">Rent<span>ify</span> <span class="sn-badge">ADMIN</span></div>
-    <div class="sn-section">Fleet</div>
-    <a href="admin-dashboard.html" class="sn-link active"><span class="ico">🚗</span> Vehicles</a>
-    <a href="booking.html" class="sn-link"><span class="ico">📋</span> Bookings</a>
-    <a href="payment.html" class="sn-link"><span class="ico">💳</span> Payments</a>
-    <div class="sn-section">Manage</div>
-    <a href="users.html" class="sn-link"><span class="ico">👥</span> Users</a>
-    <a href="drivers.html" class="sn-link"><span class="ico">🧑‍✈️</span> Drivers</a>
-    <div class="sn-section">System</div>
-    <a href="#" class="sn-link"><span class="ico">📊</span> Reports</a>
-    <a href="#" class="sn-link"><span class="ico">⚙️</span> Settings</a>
+<aside class="sidebar">
+    <div class="sn-logo"><div class="sn-logo-text">Rent<b>ify</b></div><div class="sn-badge">ADMIN</div></div>
+    <div class="sn-sec">Fleet</div>
+    <a href="admin-vehicles.html" class="sn-link active"><span class="sn-ico">🚗</span> Vehicles</a>
+    <a href="booking.html"        class="sn-link"><span class="sn-ico">📋</span> Bookings</a>
+    <a href="payment.html"        class="sn-link"><span class="sn-ico">💳</span> Payments</a>
+    <div class="sn-sec">Manage</div>
+    <a href="users.html"          class="sn-link"><span class="sn-ico">👥</span> Users</a>
+    <a href="drivers.html"        class="sn-link"><span class="sn-ico">🧑‍✈️</span> Drivers</a>
+    <div class="sn-sec">System</div>
+    <a href="admin-dashboard.html" class="sn-link"><span class="sn-ico">🏠</span> Dashboard</a>
+    <a href="#"                    class="sn-link"><span class="sn-ico">⚙️</span> Settings</a>
     <div class="sn-bottom">
-        <div class="sn-user">
-            <div class="sn-avatar" id="adminAvatar">AD</div>
-            <div class="sn-user-info">
-                <div class="name" id="adminName">Admin</div>
-                <div class="role">Administrator</div>
-            </div>
+        <div class="sn-user"><div class="sn-av" id="snAv">AD</div><div><div class="sn-uname" id="snName">Admin</div><div class="sn-urole">Administrator</div></div></div>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="api-bar"><div class="api-dot" id="apiDot"></div><span id="apiTxt">Checking…</span><span style="margin-left:auto;font-size:10px;color:var(--t4)" id="lastFetch"></span></div>
+    <div class="banner" id="banner">⚠️ Not logged in as ADMIN. Please <a href="../../pages/sign-in.html" style="color:var(--y);font-weight:700;margin-left:4px">sign in</a> first.</div>
+
+    <div class="ph">
+        <div><div class="ph-title">🚗 Vehicle Management</div><div class="ph-sub">Add, edit and manage the vehicle fleet.</div></div>
+        <div style="display:flex;gap:9px">
+            <button class="btn btn-outline" id="refreshBtn">↺ Refresh</button>
+            <button class="btn btn-primary" id="addBtn">＋ Add Vehicle</button>
         </div>
     </div>
-</nav>
 
-<!-- MAIN -->
-<div class="main">
-    <div class="api-bar">
-        <div class="api-dot" id="apiDot"></div>
-        <span id="apiStatusText">Checking connection to localhost:8081…</span>
-        <span style="margin-left:auto;font-size:10px;color:var(--muted)" id="lastFetch"></span>
-    </div>
-
-    <div class="no-token-banner" id="noTokenBanner">
-        ⚠️ Not logged in as ADMIN. Please <a href="../../pages/sign-in.html" style="color:var(--y);font-weight:700;margin-left:4px">sign in</a> first.
-    </div>
-
-    <div class="page-header">
-        <div>
-            <div class="page-title">Vehicle Management</div>
-            <div class="page-sub">Add, edit, update and delete vehicles from the fleet.</div>
-        </div>
-        <button class="btn-primary" id="addVehicleBtn">＋ Add Vehicle</button>
-    </div>
-
-    <div class="stats-row">
-        <div class="stat-card"><div class="stat-label">Total Vehicles</div><div class="stat-val" id="st-total">—</div><div class="stat-icon">🚗</div></div>
-        <div class="stat-card green"><div class="stat-label">Available</div><div class="stat-val" id="st-avail">—</div><div class="stat-icon">✅</div></div>
-        <div class="stat-card red"><div class="stat-label">Booked</div><div class="stat-val" id="st-booked">—</div><div class="stat-icon">🔴</div></div>
-        <div class="stat-card blue"><div class="stat-label">Maintenance</div><div class="stat-val" id="st-maint">—</div><div class="stat-icon">🔧</div></div>
+    <div class="sc-row">
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,#16a34a,#22c55e)"></div><div class="sc-top"><div><div class="sc-lbl">Total Vehicles</div><div class="sc-val" id="st-total">—</div></div><div class="sc-iw" style="background:#f0fdf4">🚗</div></div></div>
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,#22c55e,#86efac)"></div><div class="sc-top"><div><div class="sc-lbl">Available</div><div class="sc-val" id="st-avail">—</div></div><div class="sc-iw" style="background:#f0fdf4">✅</div></div></div>
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,#dc2626,#f87171)"></div><div class="sc-top"><div><div class="sc-lbl">Booked</div><div class="sc-val" id="st-booked">—</div></div><div class="sc-iw" style="background:#fef2f2">🔴</div></div></div>
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,#64748b,#94a3b8)"></div><div class="sc-top"><div><div class="sc-lbl">Maintenance</div><div class="sc-val" id="st-maint">—</div></div><div class="sc-iw" style="background:#f1f5f9">🔧</div></div></div>
     </div>
 
     <div class="controls">
-        <div class="search-wrap">
-            <span class="search-icon">🔍</span>
-            <input type="text" class="search-input" id="tSearch" placeholder="Search model, plate, description…">
-        </div>
-        <select class="filter-sel" id="tType">
-            <option value="">All Types</option>
-            <option value="CAB">CAB</option>
-            <option value="VAN">VAN</option>
-            <option value="BUS">BUS</option>
-            <option value="WHEEL">WHEEL</option>
-        </select>
-        <select class="filter-sel" id="tStatus">
-            <option value="">All Status</option>
-            <option value="AVAILABLE">AVAILABLE</option>
-            <option value="BOOKED">BOOKED</option>
-            <option value="MAINTENANCE">MAINTENANCE</option>
-        </select>
-        <button class="btn-secondary" id="refreshBtn">↺ Refresh</button>
+        <div class="sw"><span style="color:var(--t4)">🔍</span><input type="text" id="tSearch" placeholder="Search model, plate, description…"></div>
+        <select class="fsel" id="tType"><option value="">All Types</option><option value="CAB">CAB</option><option value="VAN">VAN</option><option value="BUS">BUS</option><option value="WHEEL">WHEEL</option></select>
+        <select class="fsel" id="tStatus"><option value="">All Status</option><option value="AVAILABLE">AVAILABLE</option><option value="BOOKED">BOOKED</option><option value="MAINTENANCE">MAINTENANCE</option></select>
     </div>
 
-    <div class="table-wrap">
-        <div class="table-header">
-            <div class="table-title">Fleet List</div>
-            <div class="table-count"><span id="tCount">0</span> vehicles</div>
+    <div class="card">
+        <div class="card-hd"><span class="card-title">Fleet List</span><span class="tc"><span id="tCount">0</span> vehicles</span></div>
+        <div class="tw">
+            <table>
+                <thead><tr><th style="width:56px">Image</th><th>Model</th><th>Plate</th><th>Type</th><th>Seats</th><th>Year</th><th>Price/Day</th><th>Status</th><th>Insurance</th><th>Actions</th></tr></thead>
+                <tbody id="vTable"><tr class="lrow"><td colspan="10"><span class="spin"></span>Loading vehicles…</td></tr></tbody>
+            </table>
         </div>
-        <table>
-            <thead>
-            <tr>
-                <th style="width:60px">Image</th>
-                <th>Model</th><th>Plate</th><th>Type</th><th>Capacity</th>
-                <th>Year</th><th>Price/Day</th><th>Status</th><th>Insurance</th>
-                <th style="width:130px">Actions</th>
-            </tr>
-            </thead>
-            <tbody id="vehicleTableBody">
-            <tr class="loading-row"><td colspan="10"><span class="spin"></span>Loading vehicles…</td></tr>
-            </tbody>
-        </table>
     </div>
-</div>
+</main>
 
-<!-- ADD / EDIT MODAL -->
-<div class="modal-overlay" id="vehicleModal">
+<!-- ADD/EDIT MODAL -->
+<div class="ov" id="vModal">
     <div class="modal">
-        <div class="modal-hd">
-            <h2 id="modalTitle">Add New Vehicle</h2>
-            <button class="modal-close-btn" id="vehicleModalClose">✕</button>
-        </div>
-        <div class="modal-bd">
-            <div class="section-divider">Basic Information</div>
+        <div class="mhd"><div class="mhd-title" id="mTitle">Add New Vehicle</div><button class="mclose" id="vmClose">✕</button></div>
+        <div class="mbd">
+            <div class="sdiv">Basic Information</div>
             <div class="form-row">
-                <div class="form-group">
-                    <label>Model Name *</label>
-                    <input type="text" class="form-input" id="v_model" placeholder="e.g. Toyota Prius">
-                    <div class="form-err hidden" id="err_model">Model is required (2–100 chars)</div>
-                </div>
-                <div class="form-group">
-                    <label>Plate Number *</label>
-                    <input type="text" class="form-input" id="v_plate" placeholder="e.g. CAB-1234" style="text-transform:uppercase">
-                    <div class="form-err hidden" id="err_plate">Format: AB-1234 or ABC-1234</div>
-                </div>
+                <div class="fg"><label>Model Name *</label><input class="fi" id="v_model" placeholder="e.g. Toyota Prius"><div class="ferr" id="e_model">Min 2 characters required</div></div>
+                <div class="fg"><label>Plate Number *</label><input class="fi" id="v_plate" placeholder="e.g. CAB-1234" style="text-transform:uppercase"><div class="ferr" id="e_plate">Format: AB-1234</div></div>
             </div>
-            <div class="form-row-3">
-                <div class="form-group">
-                    <label>Type *</label>
-                    <select class="form-input" id="v_type">
-                        <option value="">Select type</option>
-                        <option value="CAB">CAB</option>
-                        <option value="VAN">VAN</option>
-                        <option value="BUS">BUS</option>
-                        <option value="WHEEL">WHEEL (Tuk-Tuk)</option>
-                    </select>
-                    <div class="form-err hidden" id="err_type">Type is required</div>
-                </div>
-                <div class="form-group">
-                    <label>Capacity (seats) *</label>
-                    <input type="number" class="form-input" id="v_capacity" placeholder="4" min="1" max="60">
-                    <div class="form-err hidden" id="err_capacity">1–60 seats</div>
-                </div>
-                <div class="form-group">
-                    <label>Year *</label>
-                    <input type="number" class="form-input" id="v_year" placeholder="2022" min="1990" max="2030">
-                    <div class="form-err hidden" id="err_year">1990–2030</div>
-                </div>
+            <div class="form-row3">
+                <div class="fg"><label>Type *</label><select class="fi" id="v_type"><option value="">Select type</option><option value="CAB">CAB</option><option value="VAN">VAN</option><option value="BUS">BUS</option><option value="WHEEL">WHEEL (Tuk-Tuk)</option></select><div class="ferr" id="e_type">Required</div></div>
+                <div class="fg"><label>Capacity *</label><input type="number" class="fi" id="v_cap" placeholder="4" min="1" max="60"><div class="ferr" id="e_cap">1–60 seats</div></div>
+                <div class="fg"><label>Year *</label><input type="number" class="fi" id="v_year" placeholder="2022" min="1990" max="2030"><div class="ferr" id="e_year">1990–2030</div></div>
             </div>
             <div class="form-row">
-                <div class="form-group">
-                    <label>Price Per Day (LKR) *</label>
-                    <input type="number" class="form-input" id="v_price" placeholder="5000" min="0" step="0.01">
-                    <div class="form-err hidden" id="err_price">Price must be greater than 0</div>
-                </div>
-                <div class="form-group">
-                    <label>Status</label>
-                    <select class="form-input" id="v_status">
-                        <option value="AVAILABLE">AVAILABLE</option>
-                        <option value="BOOKED">BOOKED</option>
-                        <option value="MAINTENANCE">MAINTENANCE</option>
-                    </select>
-                </div>
+                <div class="fg"><label>Price Per Day (LKR) *</label><input type="number" class="fi" id="v_price" placeholder="5000" min="0"><div class="ferr" id="e_price">Must be > 0</div></div>
+                <div class="fg"><label>Status</label><select class="fi" id="v_status"><option value="AVAILABLE">AVAILABLE</option><option value="BOOKED">BOOKED</option><option value="MAINTENANCE">MAINTENANCE</option></select></div>
             </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea class="form-input" id="v_desc" rows="2" placeholder="Optional description…" maxlength="500" style="resize:vertical"></textarea>
-            </div>
-            <div class="section-divider">Insurance</div>
-            <div class="toggle-row">
-                <span class="toggle-label">Insurance Active</span>
-                <label class="toggle"><input type="checkbox" id="v_insActive" checked><span class="slider"></span></label>
-            </div>
-            <div class="form-group">
-                <label>Insurance Expiry Date</label>
-                <input type="date" class="form-input" id="v_insExpiry">
-            </div>
-            <div class="section-divider">Image</div>
-            <img class="img-preview" id="imgPreview" src="" alt="preview">
-            <div class="form-group">
-                <label>Image URL or Base64</label>
-                <input type="text" class="form-input" id="v_image" placeholder="https://… or base64 data">
-            </div>
+            <div class="fg"><label>Description</label><textarea class="fi" id="v_desc" rows="2" placeholder="Optional…" maxlength="500" style="resize:vertical"></textarea></div>
+            <div class="sdiv">Insurance</div>
+            <div class="toggle-row"><span class="tgl-lbl">Insurance Active</span><label class="tgl"><input type="checkbox" id="v_ins" checked><span class="sl"></span></label></div>
+            <div class="fg"><label>Insurance Expiry Date</label><input type="date" class="fi" id="v_exp"></div>
+            <div class="sdiv">Image</div>
+            <img class="img-prev" id="imgPrev" src="" alt="preview">
+            <div class="fg"><label>Image URL</label><input type="text" class="fi" id="v_img" placeholder="https://…"></div>
         </div>
-        <div class="modal-ft">
-            <button class="btn-secondary" id="vehicleModalCancel">Cancel</button>
-            <button class="btn-primary" id="vehicleSaveBtn">Save Vehicle</button>
-        </div>
+        <div class="mft"><button class="btn btn-outline" id="vmCancel">Cancel</button><button class="btn btn-primary" id="vSave">Save Vehicle</button></div>
     </div>
 </div>
 
-<!-- DELETE CONFIRM MODAL -->
-<div class="modal-overlay" id="deleteModal">
-    <div class="modal confirm-modal">
-        <div class="modal-hd">
-            <h2>Confirm Delete</h2>
-            <button class="modal-close-btn" id="deleteModalClose">✕</button>
-        </div>
-        <div class="modal-bd">
-            <div class="confirm-icon">🗑️</div>
-            <h3>Delete this vehicle?</h3>
-            <p>You are about to permanently remove <strong id="delVehicleName">—</strong> from the fleet. This cannot be undone.</p>
-        </div>
-        <div class="modal-ft">
-            <button class="btn-secondary" id="deleteCancelBtn">Cancel</button>
-            <button class="btn-danger" id="deleteConfirmBtn">Delete Permanently</button>
-        </div>
+<!-- DELETE CONFIRM -->
+<div class="ov" id="delModal">
+    <div class="modal modal-sm">
+        <div class="mhd"><div class="mhd-title">Confirm Delete</div><button class="mclose" id="delClose">✕</button></div>
+        <div class="conf-body"><div class="conf-ico">🗑️</div><div class="conf-h">Delete this vehicle?</div><div class="conf-p">You are about to permanently remove <strong id="delName">—</strong>. This cannot be undone.</div></div>
+        <div class="mft"><button class="btn btn-outline" id="delCancel">Cancel</button><button class="btn-danger" id="delConfirm">Delete Permanently</button></div>
     </div>
 </div>
+
+<div id="toast"></div>
 
 <script>
-    const API = 'http://localhost:8081/api/v1';
-    let allVehicles = [], editingId = null, deleteId = null;
-    const ICON = {CAB:'🚕', VAN:'🚐', BUS:'🚌', WHEEL:'🛺'};
+    const API='http://localhost:8081/api/v1';
+    let allV=[],editId=null,delId=null;
+    const ICON={CAB:'🚕',VAN:'🚐',BUS:'🚌',WHEEL:'🛺'};
 
-    /* ══════════════════════════════════════════════════════════
-       AUTH — reads from sign-in.html's localStorage keys:
-         rentify_token    → JWT token
-         rentify_username → username
-         rentify_fullName → full name
-         rentify_role     → ADMIN | USER
-    ══════════════════════════════════════════════════════════ */
-    function getToken() {
-        return localStorage.getItem('rentify_token') || '';
+    function getToken(){return localStorage.getItem('rentify_token')||'';}
+    function authH(){const t=getToken();return t?{'Authorization':'Bearer '+t}:{};}
+
+    function initUser(){
+        const role=localStorage.getItem('rentify_role')||'',fn=localStorage.getItem('rentify_fullName')||localStorage.getItem('rentify_username')||'Admin';
+        const ini=fn.trim().split(/\s+/).map(x=>x[0].toUpperCase()).join('').slice(0,2)||'AD';
+        $('#snAv').text(ini);$('#snName').text(fn);
+        if(!getToken()){$('#banner').addClass('show');}
+        else if(role!=='ADMIN'){$('#banner').html('⚠️ Logged in as <strong>USER</strong>. Write operations require ADMIN.').addClass('show');}
     }
 
-    function authH() {
-        const t = getToken();
-        return t ? { 'Authorization': 'Bearer ' + t } : {};
-    }
+    const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const fmtP=p=>'Rs '+Number(p||0).toLocaleString('en-LK');
 
-    function loadAdmin() {
-        const token    = getToken();
-        const role     = localStorage.getItem('rentify_role') || '';
-        const username = localStorage.getItem('rentify_username') || '';
-        const fullName = localStorage.getItem('rentify_fullName') || username || 'Admin';
+    function showToast(m,t){$('#toast').text(m).attr('class',t||'').show();clearTimeout(window._tt);window._tt=setTimeout(()=>$('#toast').hide(),3400);}
+    function parseErr(x,fb){if(!x?.responseJSON)return fb||'Network error';const j=x.responseJSON;if(j.errors)return Object.values(j.errors).join(', ');return j.message||j.error||fb||'Error';}
 
-        if (token && role === 'ADMIN') {
-            // Logged in as admin — hide warning
-            const initials = fullName.trim().split(/\s+/).map(x => x[0].toUpperCase()).join('').slice(0, 2) || 'AD';
-            $('#adminAvatar').text(initials);
-            $('#adminName').text(fullName);
-            $('#noTokenBanner').removeClass('show');
-        } else if (token && role !== 'ADMIN') {
-            // Logged in but NOT admin
-            $('#noTokenBanner')
-                .html('⚠️ You are logged in as <strong>USER</strong>, not ADMIN. Write operations will fail with 403.')
-                .addClass('show');
-            $('#adminName').text(fullName || username);
-        } else {
-            // Not logged in at all
-            $('#noTokenBanner').addClass('show');
-        }
-    }
+    function checkApi(){$.ajax({url:API+'/vehicles',method:'GET',timeout:5000,success:()=>{$('#apiDot').addClass('online').removeClass('offline');$('#apiTxt').text('API Online');},error:()=>{$('#apiDot').addClass('offline').removeClass('online');$('#apiTxt').text('API Offline');}});}
 
-    /* ── UTILS ─────────────────────────────────────────────── */
-    const esc  = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    const fmtP = p => 'Rs ' + Number(p).toLocaleString('en-LK');
-
-    function toast(msg, type) {
-        const el = $(`<div class="toast ${type||''}">${esc(msg)}</div>`).appendTo('#toastContainer');
-        setTimeout(() => { el.css('animation','toastOut .3s ease forwards'); setTimeout(()=>el.remove(),300); }, 3500);
-    }
-
-    function parseError(xhr, fallback) {
-        if (!xhr || !xhr.responseJSON) return fallback || 'Network error — is the backend running on port 8081?';
-        const j = xhr.responseJSON;
-        if (j.errors && typeof j.errors === 'object') return Object.values(j.errors).join(', ');
-        return j.message || j.error || fallback || 'Unknown server error';
-    }
-
-    /* ── API STATUS ─────────────────────────────────────────── */
-    function checkApi() {
-        $.ajax({ url: API+'/vehicles', method:'GET', timeout:5000,
-            success: () => { $('#apiDot').addClass('online').removeClass('offline'); $('#apiStatusText').text('Connected — API Online'); },
-            error:   () => { $('#apiDot').addClass('offline').removeClass('online'); $('#apiStatusText').text('Cannot reach localhost:8081 — API Offline'); }
+    function fetchV(){
+        $('#vTable').html('<tr class="lrow"><td colspan="10"><span class="spin"></span>Loading…</td></tr>');
+        $.ajax({url:API+'/vehicles',method:'GET',headers:authH(),
+            success:function(r){allV=Array.isArray(r)?r:(r.data||r.content||[]);updStats();renderTable(getFiltered());$('#lastFetch').text('Updated: '+new Date().toLocaleTimeString('en-LK'));},
+            error:function(x){const m=parseErr(x,'Failed');$('#vTable').html(`<tr class="erow"><td colspan="10">⚠️ ${esc(m)}</td></tr>`);showToast(m,'error');}
         });
     }
 
-    /* ── FETCH VEHICLES ────────────────────────────────────── */
-    function fetchVehicles() {
-        $('#vehicleTableBody').html('<tr class="loading-row"><td colspan="10"><span class="spin"></span>Loading…</td></tr>');
-        $.ajax({
-            url: API+'/vehicles', method:'GET', headers: authH(),
-            success: function(res) {
-                allVehicles = Array.isArray(res) ? res : (res.data || res.content || []);
-                updateStats();
-                renderTable(getFiltered());
-                $('#lastFetch').text('Last fetch: ' + new Date().toLocaleTimeString('en-LK'));
-            },
-            error: function(xhr) {
-                const msg = parseError(xhr, 'Failed to load vehicles');
-                $('#vehicleTableBody').html(`<tr class="empty-row"><td colspan="10"><span class="eico">⚠️</span>${esc(msg)}</td></tr>`);
-                toast(msg, 'error');
-            }
-        });
+    function updStats(){
+        $('#st-total').text(allV.length);
+        $('#st-avail').text(allV.filter(v=>v.status==='AVAILABLE').length);
+        $('#st-booked').text(allV.filter(v=>v.status==='BOOKED').length);
+        $('#st-maint').text(allV.filter(v=>v.status==='MAINTENANCE').length);
     }
 
-    function updateStats() {
-        $('#st-total').text(allVehicles.length);
-        $('#st-avail').text(allVehicles.filter(v=>v.status==='AVAILABLE').length);
-        $('#st-booked').text(allVehicles.filter(v=>v.status==='BOOKED').length);
-        $('#st-maint').text(allVehicles.filter(v=>v.status==='MAINTENANCE').length);
-    }
-
-    function getFiltered() {
-        const q = $('#tSearch').val().toLowerCase().trim();
-        const type = $('#tType').val(), status = $('#tStatus').val();
-        return allVehicles.filter(v => {
-            if (type   && v.type   !== type)   return false;
-            if (status && v.status !== status) return false;
-            if (q && !v.model.toLowerCase().includes(q)
-                && !(v.plateNumber||'').toLowerCase().includes(q)
-                && !(v.description||'').toLowerCase().includes(q)) return false;
+    function getFiltered(){
+        const q=$('#tSearch').val().toLowerCase().trim(),ty=$('#tType').val(),st=$('#tStatus').val();
+        return allV.filter(v=>{
+            if(ty&&v.type!==ty)return false;
+            if(st&&v.status!==st)return false;
+            if(q&&!v.model.toLowerCase().includes(q)&&!(v.plateNumber||'').toLowerCase().includes(q)&&!(v.description||'').toLowerCase().includes(q))return false;
             return true;
         });
     }
 
-    function renderTable(list) {
+    function renderTable(list){
         $('#tCount').text(list.length);
-        if (!list.length) {
-            $('#vehicleTableBody').html('<tr class="empty-row"><td colspan="10"><span class="eico">🔍</span>No vehicles match your filters.</td></tr>');
-            return;
-        }
-        const rows = list.map(v => {
-            const icon    = ICON[v.type] || '🚗';
-            const imgCell = v.image
-                ? `<img class="td-img" src="${esc(v.image)}" alt="${esc(v.model)}" loading="lazy" onerror="this.outerHTML='<div class=\\'td-img-fallback\\'>${icon}</div>'">`
-                : `<div class="td-img-fallback">${icon}</div>`;
-            const insExp = v.insuranceExpiryDate
-                ? `<span style="font-size:10px;color:${new Date(v.insuranceExpiryDate)<new Date(Date.now()+30*86400000)?'var(--red)':'var(--text2)'}">${v.insuranceExpiryDate}</span>`
-                : '';
-            return `<tr>
-                <td>${imgCell}</td>
-                <td class="td-model">${esc(v.model)}</td>
-                <td><span style="font-family:monospace;font-size:12px">${esc(v.plateNumber||'—')}</span></td>
-                <td><span class="badge badge-${esc(v.type)}">${esc(v.type)}</span></td>
-                <td>${v.capacity}</td>
-                <td>${v.year||'—'}</td>
-                <td style="color:var(--y);font-weight:600;font-family:var(--sans)">${fmtP(v.pricePerDay)}</td>
-                <td><span class="badge badge-${esc(v.status||'AVAILABLE')}">${esc(v.status||'AVAILABLE')}</span></td>
-                <td>${v.insuranceActive
-                ? `<span style="color:var(--green);font-size:12px">✓ Active</span>${insExp?'<br>'+insExp:''}`
-                : `<span style="color:var(--red);font-size:12px">✗ Inactive</span>${insExp?'<br>'+insExp:''}`}
-                </td>
-                <td><div class="action-btns">
-                    <button class="btn-edit" data-id="${v.id}">✏️ Edit</button>
-                    <button class="btn-del" data-id="${v.id}" data-name="${esc(v.model)}">🗑️ Del</button>
-                </div></td>
-            </tr>`;
-        }).join('');
-        $('#vehicleTableBody').html(rows);
+        if(!list.length){$('#vTable').html('<tr class="erow"><td colspan="10">🔍 No vehicles match your filters.</td></tr>');return;}
+        $('#vTable').html(list.map(v=>{
+            const ico=ICON[v.type]||'🚗';
+            const img=v.image?`<img class="tdi" src="${esc(v.image)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=\\'tdi-fb\\'>${ico}</div>'">`:`<div class="tdi-fb">${ico}</div>`;
+            const insExp=v.insuranceExpiryDate?`<div style="font-size:10px;color:${new Date(v.insuranceExpiryDate)<new Date(Date.now()+30*86400000)?'var(--r)':'var(--t4)'};margin-top:2px;font-family:var(--fc)">${v.insuranceExpiryDate}</div>`:'';
+            return`<tr>
+      <td>${img}</td>
+      <td style="font-weight:600;color:var(--t1)">${esc(v.model)}</td>
+      <td><span class="tdm">${esc(v.plateNumber||'—')}</span></td>
+      <td><span class="badge badge-${esc(v.type)}">${esc(v.type)}</span></td>
+      <td>${v.capacity}</td>
+      <td>${v.year||'—'}</td>
+      <td style="font-weight:700;color:var(--g);font-family:'Syne',sans-serif">${fmtP(v.pricePerDay)}</td>
+      <td><span class="badge badge-${esc(v.status||'AVAILABLE')}">${esc(v.status||'AVAILABLE')}</span></td>
+      <td>${v.insuranceActive?`<span style="color:var(--g);font-size:12px;font-weight:600">✓ Active</span>${insExp}`:`<span style="color:var(--r);font-size:12px;font-weight:600">✗ Inactive</span>${insExp}`}</td>
+      <td><div style="display:flex;gap:5px">
+        <button class="btn btn-outline btn-sm btn-edit" data-id="${v.id}">✏️ Edit</button>
+        <button class="btn-del btn-del-v" data-id="${v.id}" data-name="${esc(v.model)}">🗑️ Del</button>
+      </div></td>
+    </tr>`;
+        }).join(''));
     }
 
-    /* ── MODALS ─────────────────────────────────────────────── */
-    function openAddModal() {
-        editingId = null;
-        $('#modalTitle').text('Add New Vehicle');
-        $('#vehicleSaveBtn').text('Add Vehicle').prop('disabled', false);
-        clearForm();
-        $('#vehicleModal').addClass('open');
+    function openAdd(){editId=null;$('#mTitle').text('Add New Vehicle');$('#vSave').text('Add Vehicle').prop('disabled',false);clearForm();$('#vModal').addClass('open');}
+    function openEdit(id){
+        editId=id;$('#mTitle').text('Edit Vehicle');$('#vSave').prop('disabled',true).text('Loading…');clearForm();$('#vModal').addClass('open');
+        $.ajax({url:API+'/vehicles/'+id,method:'GET',headers:authH(),success:function(r){
+                const v=(r&&r.data)?r.data:r;
+                $('#v_model').val(v.model||'');$('#v_plate').val(v.plateNumber||'');$('#v_type').val(v.type||'');$('#v_cap').val(v.capacity||'');$('#v_year').val(v.year||'');$('#v_price').val(v.pricePerDay||'');$('#v_status').val(v.status||'AVAILABLE');$('#v_desc').val(v.description||'');$('#v_ins').prop('checked',v.insuranceActive!==false);$('#v_exp').val(v.insuranceExpiryDate||'');$('#v_img').val(v.image||'');
+                if(v.image)$('#imgPrev').attr('src',v.image).addClass('show');
+                $('#vSave').prop('disabled',false).text('Save Changes');
+            },error:function(x){showToast(parseErr(x,'Failed'),'error');$('#vModal').removeClass('open');}});
     }
 
-    function openEditModal(id) {
-        editingId = id;
-        $('#modalTitle').text('Edit Vehicle');
-        $('#vehicleSaveBtn').prop('disabled', true).text('Loading…');
-        clearForm();
-        $('#vehicleModal').addClass('open');
-        $.ajax({
-            url: API+'/vehicles/'+id, method:'GET', headers: authH(),
-            success: function(res) {
-                const v = (res && res.data) ? res.data : res;
-                $('#v_model').val(v.model || '');
-                $('#v_plate').val(v.plateNumber || '');
-                $('#v_type').val(v.type || '');
-                $('#v_capacity').val(v.capacity || '');
-                $('#v_year').val(v.year || '');
-                $('#v_price').val(v.pricePerDay || '');
-                $('#v_status').val(v.status || 'AVAILABLE');
-                $('#v_desc').val(v.description || '');
-                $('#v_insActive').prop('checked', v.insuranceActive !== false);
-                $('#v_insExpiry').val(v.insuranceExpiryDate || '');
-                $('#v_image').val(v.image || '');
-                if (v.image) { $('#imgPreview').attr('src', v.image).addClass('show'); }
-                $('#vehicleSaveBtn').prop('disabled', false).text('Save Changes');
-            },
-            error: function(xhr) { toast(parseError(xhr, 'Failed to load vehicle.'), 'error'); closeVehicleModal(); }
-        });
-    }
+    function clearForm(){$('#v_model,#v_plate,#v_type,#v_cap,#v_year,#v_price,#v_desc,#v_exp,#v_img').val('');$('#v_status').val('AVAILABLE');$('#v_ins').prop('checked',true);$('#imgPrev').removeClass('show').attr('src','');$('.ferr').removeClass('show');}
 
-    function clearForm() {
-        $('#v_model,#v_plate,#v_type,#v_capacity,#v_year,#v_price,#v_desc,#v_insExpiry,#v_image').val('');
-        $('#v_status').val('AVAILABLE');
-        $('#v_insActive').prop('checked', true);
-        $('#imgPreview').removeClass('show').attr('src','');
-        $('.form-err').addClass('hidden');
-    }
-
-    function validateForm() {
-        let ok = true;
-        const model = $('#v_model').val().trim();
-        const plate = $('#v_plate').val().trim().toUpperCase();
-        const type  = $('#v_type').val();
-        const cap   = parseInt($('#v_capacity').val());
-        const year  = parseInt($('#v_year').val());
-        const price = parseFloat($('#v_price').val());
-        if (!model||model.length<2||model.length>100) { $('#err_model').removeClass('hidden'); ok=false; } else { $('#err_model').addClass('hidden'); }
-        if (!plate||!/^[A-Z]{2,3}-\d{4}$/.test(plate)) { $('#err_plate').removeClass('hidden'); ok=false; } else { $('#err_plate').addClass('hidden'); $('#v_plate').val(plate); }
-        if (!type)  { $('#err_type').removeClass('hidden');     ok=false; } else { $('#err_type').addClass('hidden'); }
-        if (!cap||cap<1||cap>60)       { $('#err_capacity').removeClass('hidden'); ok=false; } else { $('#err_capacity').addClass('hidden'); }
-        if (!year||year<1990||year>2030) { $('#err_year').removeClass('hidden');   ok=false; } else { $('#err_year').addClass('hidden'); }
-        if (isNaN(price)||price<=0)    { $('#err_price').removeClass('hidden');    ok=false; } else { $('#err_price').addClass('hidden'); }
+    function validate(){
+        let ok=true;
+        const model=$('#v_model').val().trim(),plate=$('#v_plate').val().trim().toUpperCase(),type=$('#v_type').val(),cap=parseInt($('#v_cap').val()),year=parseInt($('#v_year').val()),price=parseFloat($('#v_price').val());
+        const chk=(c,id)=>{if(!c){$('#'+id).addClass('show');ok=false;}else{$('#'+id).removeClass('show');}};
+        chk(model&&model.length>=2&&model.length<=100,'e_model');
+        chk(plate&&/^[A-Z]{2,3}-\d{4}$/.test(plate),'e_plate');if(plate)$('#v_plate').val(plate);
+        chk(!!type,'e_type');chk(cap&&cap>=1&&cap<=60,'e_cap');chk(year&&year>=1990&&year<=2030,'e_year');chk(!isNaN(price)&&price>0,'e_price');
         return ok;
     }
 
-    function buildDTO() {
-        return {
-            model:               $('#v_model').val().trim(),
-            plateNumber:         $('#v_plate').val().trim().toUpperCase(),
-            type:                $('#v_type').val(),
-            capacity:            parseInt($('#v_capacity').val()),
-            year:                parseInt($('#v_year').val()),
-            pricePerDay:         parseFloat($('#v_price').val()),
-            status:              $('#v_status').val(),
-            description:         $('#v_desc').val().trim() || null,
-            insuranceActive:     $('#v_insActive').prop('checked'),
-            insuranceExpiryDate: $('#v_insExpiry').val() || null,
-            image:               $('#v_image').val().trim() || null
-        };
-    }
+    function buildDTO(){return{model:$('#v_model').val().trim(),plateNumber:$('#v_plate').val().trim().toUpperCase(),type:$('#v_type').val(),capacity:parseInt($('#v_cap').val()),year:parseInt($('#v_year').val()),pricePerDay:parseFloat($('#v_price').val()),status:$('#v_status').val(),description:$('#v_desc').val().trim()||null,insuranceActive:$('#v_ins').prop('checked'),insuranceExpiryDate:$('#v_exp').val()||null,image:$('#v_img').val().trim()||null};}
 
-    function saveVehicle() {
-        if (!validateForm()) return;
-        if (!getToken()) { toast('Not logged in — please sign in as ADMIN.', 'error'); return; }
-
-        const dto = buildDTO(), isEdit = editingId !== null;
-        const url = isEdit ? `${API}/vehicles/${editingId}` : `${API}/vehicles`;
-        const method = isEdit ? 'PUT' : 'POST';
-
-        $('#vehicleSaveBtn').prop('disabled', true).text(isEdit ? 'Saving…' : 'Adding…');
-        $.ajax({
-            url, method,
-            contentType: 'application/json',
-            headers: authH(),
-            data: JSON.stringify(dto),
-            success: function(res) {
-                const saved = (res && res.data) ? res.data : res;
-                if (isEdit) {
-                    const idx = allVehicles.findIndex(v => v.id === editingId);
-                    if (idx >= 0) allVehicles[idx] = saved; else allVehicles.push(saved);
-                } else {
-                    allVehicles.push(saved);
-                }
-                updateStats();
-                renderTable(getFiltered());
-                closeVehicleModal();
-                toast(isEdit ? `"${saved.model}" updated ✅` : `"${saved.model}" added to fleet ✅`, 'success');
-            },
-            error: function(xhr) {
-                let msg = parseError(xhr, isEdit ? 'Update failed.' : 'Add failed.');
-                if (xhr.status === 401) msg = '401 — Token expired. Please sign in again.';
-                if (xhr.status === 403) msg = '403 — Your account does not have ADMIN role.';
-                if (xhr.status === 0)   msg = 'Cannot reach backend — is the server running?';
-                toast(msg, 'error');
-            },
-            complete: function() {
-                $('#vehicleSaveBtn').prop('disabled', false).text(editingId !== null ? 'Save Changes' : 'Add Vehicle');
-            }
+    function saveV(){
+        if(!validate())return;if(!getToken()){showToast('Not logged in','error');return;}
+        const dto=buildDTO(),isEdit=editId!==null,url=isEdit?`${API}/vehicles/${editId}`:`${API}/vehicles`,method=isEdit?'PUT':'POST';
+        $('#vSave').prop('disabled',true).text(isEdit?'Saving…':'Adding…');
+        $.ajax({url,method,contentType:'application/json',headers:authH(),data:JSON.stringify(dto),
+            success:function(r){const sv=(r&&r.data)?r.data:r;if(isEdit){const i=allV.findIndex(v=>v.id===editId);if(i>=0)allV[i]=sv;else allV.push(sv);}else allV.push(sv);updStats();renderTable(getFiltered());$('#vModal').removeClass('open');showToast((isEdit?'"'+sv.model+'" updated':'New vehicle added')+' ✅','success');},
+            error:function(x){let m=parseErr(x,isEdit?'Update failed':'Add failed');if(x.status===401)m='401 — Token expired';if(x.status===403)m='403 — ADMIN required';if(x.status===0)m='Cannot reach server';showToast(m,'error');},
+            complete:function(){$('#vSave').prop('disabled',false).text(editId!==null?'Save Changes':'Add Vehicle');}
         });
     }
 
-    function openDeleteModal(id, name) { deleteId=id; $('#delVehicleName').text(name); $('#deleteModal').addClass('open'); }
-
-    function deleteVehicle() {
-        if (!deleteId) return;
-        if (!getToken()) { toast('Not logged in — please sign in as ADMIN.', 'error'); return; }
-        $('#deleteConfirmBtn').prop('disabled', true).text('Deleting…');
-        $.ajax({
-            url: `${API}/vehicles/${deleteId}`, method:'DELETE', headers: authH(),
-            success: function() {
-                allVehicles = allVehicles.filter(v => v.id !== deleteId);
-                updateStats(); renderTable(getFiltered()); closeDeleteModal();
-                toast('Vehicle deleted ✅', 'success');
-            },
-            error: function(xhr) {
-                let msg = parseError(xhr, 'Delete failed.');
-                if (xhr.status === 401) msg = '401 — Token expired. Please sign in again.';
-                if (xhr.status === 403) msg = '403 — ADMIN role required.';
-                if (xhr.status === 404) msg = '404 — Vehicle already deleted.';
-                toast(msg, 'error');
-            },
-            complete: function() { $('#deleteConfirmBtn').prop('disabled', false).text('Delete Permanently'); }
+    function openDel(id,name){delId=id;$('#delName').text(name);$('#delModal').addClass('open');}
+    function doDelete(){
+        if(!delId)return;if(!getToken()){showToast('Not logged in','error');return;}
+        $('#delConfirm').prop('disabled',true).text('Deleting…');
+        $.ajax({url:`${API}/vehicles/${delId}`,method:'DELETE',headers:authH(),
+            success:function(){allV=allV.filter(v=>v.id!==delId);updStats();renderTable(getFiltered());$('#delModal').removeClass('open');showToast('Vehicle deleted ✅','success');},
+            error:function(x){let m=parseErr(x,'Delete failed');if(x.status===401)m='401 — Token expired';if(x.status===403)m='403 — ADMIN required';if(x.status===404)m='Already deleted';showToast(m,'error');},
+            complete:function(){$('#delConfirm').prop('disabled',false).text('Delete Permanently');}
         });
     }
 
-    function closeVehicleModal() { $('#vehicleModal').removeClass('open'); editingId = null; }
-    function closeDeleteModal()  { $('#deleteModal').removeClass('open');  deleteId  = null; }
-
-    /* ── INIT ───────────────────────────────────────────────── */
-    $(function() {
-        loadAdmin();
-        checkApi();
-        fetchVehicles();
-
-        $('#addVehicleBtn').on('click', openAddModal);
-        $('#refreshBtn').on('click', fetchVehicles);
-
+    $(function(){
+        initUser();checkApi();fetchV();
+        $('#addBtn').on('click',openAdd);
+        $('#refreshBtn').on('click',fetchV);
         let sT;
-        $('#tSearch').on('input', function() { clearTimeout(sT); sT = setTimeout(()=>renderTable(getFiltered()), 280); });
-        $('#tType,#tStatus').on('change', ()=>renderTable(getFiltered()));
-
-        $(document).on('click', '.btn-edit', function(e) { e.stopPropagation(); openEditModal(parseInt($(this).data('id'))); });
-        $(document).on('click', '.btn-del',  function(e) { e.stopPropagation(); openDeleteModal(parseInt($(this).data('id')), $(this).data('name')); });
-
-        $('#vehicleModalClose,#vehicleModalCancel').on('click', closeVehicleModal);
-        $('#vehicleModal').on('click', function(e) { if(e.target===this) closeVehicleModal(); });
-        $('#vehicleSaveBtn').on('click', saveVehicle);
-
-        $('#deleteModalClose,#deleteCancelBtn').on('click', closeDeleteModal);
-        $('#deleteModal').on('click', function(e) { if(e.target===this) closeDeleteModal(); });
-        $('#deleteConfirmBtn').on('click', deleteVehicle);
-
+        $('#tSearch').on('input',function(){clearTimeout(sT);sT=setTimeout(()=>renderTable(getFiltered()),280);});
+        $('#tType,#tStatus').on('change',()=>renderTable(getFiltered()));
+        $(document).on('click','.btn-edit',function(e){e.stopPropagation();openEdit(parseInt($(this).data('id')));});
+        $(document).on('click','.btn-del-v',function(e){e.stopPropagation();openDel(parseInt($(this).data('id')),$(this).data('name'));});
+        $('#vmClose,#vmCancel').on('click',()=>{$('#vModal').removeClass('open');editId=null;});
+        $('#vModal').on('click',function(e){if(e.target===this){$(this).removeClass('open');editId=null;}});
+        $('#vSave').on('click',saveV);
+        $('#delClose,#delCancel').on('click',()=>$('#delModal').removeClass('open'));
+        $('#delModal').on('click',function(e){if(e.target===this)$(this).removeClass('open');});
+        $('#delConfirm').on('click',doDelete);
         let imgT;
-        $('#v_image').on('input', function() {
-            clearTimeout(imgT);
-            const url = $(this).val().trim();
-            imgT = setTimeout(() => {
-                if (url) { $('#imgPreview').attr('src',url).addClass('show').off('error').on('error',function(){$(this).removeClass('show');}); }
-                else     { $('#imgPreview').removeClass('show').attr('src',''); }
-            }, 600);
-        });
-
-        $('#v_plate').on('input', function() { $(this).val($(this).val().toUpperCase()); });
-        $('#vehicleModal').on('keypress', function(e) {
-            if (e.which===13 && $(e.target).is('input:not([type="date"]):not([type="number"])')) saveVehicle();
-        });
+        $('#v_img').on('input',function(){clearTimeout(imgT);const u=$(this).val().trim();imgT=setTimeout(()=>{if(u)$('#imgPrev').attr('src',u).addClass('show').off('error').on('error',function(){$(this).removeClass('show');});else $('#imgPrev').removeClass('show').attr('src','');},600);});
+        $('#v_plate').on('input',function(){$(this).val($(this).val().toUpperCase());});
     });
 </script>
 </body>

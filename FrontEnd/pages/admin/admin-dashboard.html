@@ -1,224 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name ="keywords" content="Rentify,HTML,CSS,JavaScript,Spring,SpringBoot,ORM,Mysql">
-    <meta name ="description" content="Rentify-Smart Cab Renting Platform">
-    <meta name ="author" content="Saumya Divyanjalee">
-
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Rentify Admin — Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../admin-css/p-admin.css">
-     <link rel="icon" type="image/x-icon" href="../../assets/icons/favicon.ico">
-
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+        :root{
+            --g:#16a34a;--gd:#14532d;--gm:#22c55e;--gl:#bbf7d0;--gs:#f0fdf4;--gg:rgba(22,163,74,.14);
+            --y:#d97706;--ym:#f59e0b;--yp:#fef3c7;
+            --r:#dc2626;--rs:#fef2f2;--b:#2563eb;--bs:#eff6ff;--p:#7c3aed;--o:#ea580c;
+            --t1:#0f172a;--t2:#334155;--t3:#64748b;--t4:#94a3b8;
+            --bg:#f8fafc;--bg2:#f1f5f9;--card:#fff;--bdr:#e2e8f0;--bdr2:#cbd5e1;
+            --sb:#0f172a;--sb2:#1e293b;
+            --ff:'Syne',sans-serif;--fm:'DM Sans',sans-serif;--fc:'Roboto Mono',monospace;
+            --s1:0 1px 3px rgba(15,23,42,.06),0 1px 2px rgba(15,23,42,.04);
+            --s2:0 4px 16px rgba(15,23,42,.08),0 2px 6px rgba(15,23,42,.04);
+            --s3:0 12px 40px rgba(15,23,42,.1),0 4px 12px rgba(15,23,42,.06);
+            --s4:0 24px 64px rgba(15,23,42,.14);
+        }
+        html{scroll-behavior:smooth;}
+        body{font-family:var(--fm);background:var(--bg);color:var(--t1);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;font-size:14px;}
+        .sidebar{width:252px;min-height:100vh;background:var(--sb);display:flex;flex-direction:column;padding:0;position:fixed;top:0;left:0;bottom:0;z-index:200;overflow-y:auto;scrollbar-width:none;}
+        .sidebar::-webkit-scrollbar{display:none;}
+        .sb-inner{display:flex;flex-direction:column;flex:1;padding:20px 14px;}
+        .sn-logo{display:flex;align-items:center;gap:0;padding:4px 8px 22px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,.06);}
+        .sn-logo-text{font-family:var(--fc);font-size:19px;font-weight:600;color:#fff;letter-spacing:-.3px;}
+        .sn-logo-text b{color:var(--ym);font-weight:600;}
+        .sn-badge{font-size:8px;background:var(--ym);color:#000;padding:2px 8px;border-radius:20px;font-weight:800;letter-spacing:.6px;font-family:var(--ff);margin-left:9px;}
+        .sn-sec{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.22);margin:18px 0 7px;padding:0 8px;font-family:var(--ff);}
+        .sn-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;text-decoration:none;color:rgba(255,255,255,.48);font-size:13px;font-weight:500;transition:all .16s;margin-bottom:2px;letter-spacing:-.1px;}
+        .sn-link:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.88);}
+        .sn-link.active{background:rgba(245,158,11,.14);color:var(--ym);font-weight:600;border:1px solid rgba(245,158,11,.22);}
+        .sn-ico{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
+        .sn-bottom{margin-top:auto;padding-top:14px;border-top:1px solid rgba(255,255,255,.07);}
+        .sn-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.06);cursor:pointer;transition:.16s;}
+        .sn-user:hover{background:rgba(255,255,255,.1);}
+        .sn-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ym),#b45309);display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-size:13px;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 0 0 2px rgba(245,158,11,.35);}
+        .sn-uname{font-size:13px;font-weight:600;color:#fff;line-height:1.3;}
+        .sn-urole{font-size:9px;color:rgba(255,255,255,.3);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+        .main{margin-left:252px;flex:1;padding:26px 32px;background:var(--bg);}
+        .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
+        .tb-greeting{font-family:var(--ff);font-size:21px;font-weight:800;color:var(--t1);letter-spacing:-.5px;}
+        .tb-greeting em{font-style:normal;color:var(--g);}
+        .tb-sub{font-size:13px;color:var(--t3);margin-top:3px;}
+        .tb-right{display:flex;align-items:center;gap:10px;}
+        .tb-date{font-family:var(--fc);font-size:11px;background:var(--gs);color:var(--g);border:1px solid var(--gl);padding:6px 13px;border-radius:20px;}
+        .av-wrap{position:relative;}
+        .av-btn{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--g),var(--gd));color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-size:14px;font-weight:700;cursor:pointer;border:none;box-shadow:0 0 0 3px var(--gl);transition:all .18s;}
+        .av-btn:hover{transform:scale(1.07);}
+        .av-drop{display:none;position:absolute;top:calc(100% + 9px);right:0;background:var(--card);border:1px solid var(--bdr);border-radius:14px;min-width:204px;box-shadow:var(--s3);z-index:999;overflow:hidden;}
+        .av-drop.open{display:block;animation:dropIn .17s ease;}
+        @keyframes dropIn{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:none}}
+        .adf-info{padding:13px 15px 10px;border-bottom:1px solid var(--bdr);}
+        .adf-name{font-family:var(--ff);font-size:13px;font-weight:700;color:var(--t1);}
+        .adf-role{font-size:11px;color:var(--t3);margin-top:1px;}
+        .adf-item{display:flex;align-items:center;gap:8px;padding:9px 15px;font-size:13px;color:var(--t2);text-decoration:none;background:none;border:none;width:100%;cursor:pointer;font-family:var(--fm);transition:.14s;text-align:left;}
+        .adf-item:hover{background:var(--bg);}
+        .adf-item.out{color:var(--r);}
+        .adf-item.out:hover{background:var(--rs);}
+        .sc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px;}
+        .sc{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:20px 18px;position:relative;overflow:hidden;box-shadow:var(--s1);transition:all .2s;}
+        .sc:hover{box-shadow:var(--s2);transform:translateY(-2px);}
+        .sc-stripe{position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
+        .sc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+        .sc-iw{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+        .sc-lbl{font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);margin-bottom:5px;font-family:var(--ff);}
+        .sc-val{font-family:var(--ff);font-size:27px;font-weight:800;color:var(--t1);letter-spacing:-1.5px;line-height:1;}
+        .sc-sub{font-size:11px;color:var(--t4);margin-top:5px;}
+        .sc-sub.up{color:var(--g);}
+        .sc-sub.dn{color:var(--r);}
+        .qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;}
+        .qa{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--card);border:1.5px solid var(--bdr);border-radius:12px;text-decoration:none;color:var(--t2);transition:all .2s;box-shadow:var(--s1);}
+        .qa:hover{border-color:var(--g);background:var(--gs);color:var(--g);transform:translateY(-2px);box-shadow:0 4px 16px var(--gg);}
+        .qa-ico{font-size:22px;}
+        .qa-lbl{font-family:var(--ff);font-size:13px;font-weight:600;}
+        .qa-sub{font-size:10px;color:var(--t4);margin-top:1px;}
+        .two-col{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-bottom:18px;}
+        .card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;overflow:hidden;box-shadow:var(--s1);}
+        .card-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--bdr);}
+        .card-title{font-family:var(--ff);font-size:13px;font-weight:700;color:var(--t1);}
+        .card-bd{padding:16px 20px;}
+        .bchart{display:flex;align-items:flex-end;gap:6px;height:90px;padding-top:8px;}
+        .bar{flex:1;border-radius:5px 5px 0 0;position:relative;transition:.2s;cursor:default;min-height:4px;}
+        .bar-tip{position:absolute;top:-26px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--t3);white-space:nowrap;font-family:var(--fc);background:var(--card);border:1px solid var(--bdr);padding:2px 6px;border-radius:5px;box-shadow:var(--s1);opacity:0;pointer-events:none;transition:.14s;}
+        .bar:hover .bar-tip{opacity:1;}
+        .bar-lbls{display:flex;gap:6px;margin-top:7px;}
+        .bar-lbls span{flex:1;text-align:center;font-size:9px;color:var(--t4);font-family:var(--fc);}
+        .act-list{list-style:none;display:flex;flex-direction:column;}
+        .act-item{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--bdr);}
+        .act-item:last-child{border-bottom:none;}
+        .act-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+        .act-txt{font-size:12px;color:var(--t2);flex:1;line-height:1.4;}
+        .act-tm{font-size:10px;color:var(--t4);white-space:nowrap;font-family:var(--fc);}
+        .table-wrap{overflow-x:auto;}
+        table{width:100%;border-collapse:collapse;}
+        thead th{padding:9px 16px;text-align:left;font-size:9px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--t3);border-bottom:1.5px solid var(--bdr);background:var(--bg);font-family:var(--ff);}
+        tbody tr{border-bottom:1px solid var(--bdr);transition:.14s;}
+        tbody tr:last-child{border-bottom:none;}
+        tbody tr:hover{background:var(--gs);}
+        tbody td{padding:11px 16px;font-size:13px;color:var(--t2);vertical-align:middle;}
+        .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:9.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;font-family:var(--ff);}
+        .bg-g{background:rgba(22,163,74,.1);color:var(--g);border:1px solid rgba(22,163,74,.22);}
+        .bg-y{background:rgba(217,119,6,.1);color:var(--y);border:1px solid rgba(217,119,6,.22);}
+        .bg-r{background:rgba(220,38,38,.1);color:var(--r);border:1px solid rgba(220,38,38,.2);}
+        .bg-b{background:rgba(37,99,235,.1);color:var(--b);border:1px solid rgba(37,99,235,.2);}
+        .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;font-size:13px;font-weight:600;font-family:var(--fm);border:none;cursor:pointer;transition:all .17s;text-decoration:none;white-space:nowrap;}
+        .btn-sm{padding:5px 12px;font-size:11px;border-radius:7px;}
+        .btn-outline{background:var(--card);color:var(--t2);border:1.5px solid var(--bdr);}
+        .btn-outline:hover{border-color:var(--g);color:var(--g);background:var(--gs);}
+        .lbg{position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.5);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;}
+        .lbg.show{display:flex;animation:fade .18s ease;}
+        @keyframes fade{from{opacity:0}to{opacity:1}}
+        .lmodal{background:var(--card);border-radius:20px;padding:36px 32px;max-width:370px;width:100%;text-align:center;box-shadow:var(--s4);border:1px solid var(--bdr);animation:mIn .25s cubic-bezier(.16,1,.3,1);}
+        @keyframes mIn{from{transform:scale(.93) translateY(12px);opacity:0}to{transform:none;opacity:1}}
+        .lm-ico{font-size:44px;margin-bottom:14px;}
+        .lm-h{font-family:var(--ff);font-size:20px;font-weight:800;color:var(--t1);margin-bottom:8px;}
+        .lm-p{font-size:13px;color:var(--t3);line-height:1.6;margin-bottom:22px;}
+        .lm-row{display:flex;gap:10px;}
+        .lm-cancel{flex:1;padding:10px;border-radius:9px;font-size:13px;font-weight:600;background:var(--bg2);border:1.5px solid var(--bdr);color:var(--t2);cursor:pointer;font-family:var(--fm);transition:.17s;}
+        .lm-cancel:hover{border-color:var(--bdr2);}
+        .lm-logout{flex:1;padding:10px;border-radius:9px;font-size:13px;font-weight:700;background:var(--r);border:none;color:#fff;cursor:pointer;font-family:var(--ff);box-shadow:0 2px 10px rgba(220,38,38,.28);transition:.17s;}
+        .lm-logout:hover{background:#b91c1c;transform:translateY(-1px);}
+        #toast{position:fixed;bottom:24px;right:24px;z-index:99999;background:var(--sb);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;box-shadow:var(--s3);display:none;max-width:300px;}
+        #toast.success{background:var(--g);}
+        #toast.error{background:var(--r);}
+        @media(max-width:1200px){.two-col{grid-template-columns:1fr;}}
+        @media(max-width:1024px){.sidebar{display:none;}.main{margin-left:0;padding:16px;}}
+        @media(max-width:768px){.sc-grid,.qa-grid{grid-template-columns:1fr 1fr;}}
+        @media(max-width:480px){.sc-grid{grid-template-columns:1fr;}.qa-grid{grid-template-columns:1fr 1fr;}}
+    </style>
 </head>
 <body>
-<div id="sidebar-root"></div>
-<main class="main-content">
-
-    <!-- WELCOME BAR with admin avatar + logout -->
-    <div class="welcome-bar">
-        <div>
-            <div class="welcome-title">Good morning, <span id="adminGreetName">Admin</span> 👋</div>
-            <div class="welcome-sub">Here's what's happening with Rentify today.</div>
+<aside class="sidebar">
+    <div class="sb-inner">
+        <div class="sn-logo">
+            <div class="sn-logo-text">Rent<b>ify</b></div>
+            <div class="sn-badge">ADMIN</div>
         </div>
-        <div class="welcome-right">
-            <div class="welcome-badge">🟡 Rent<span style="color:var(--green-dark)">ify</span></div>
-            <!-- Admin avatar dropdown -->
-            <div class="admin-menu">
-                <div class="admin-avatar" id="adminAvatarBtn" title="Admin menu">A</div>
-                <div class="admin-dropdown" id="adminDropdown">
-                    <div class="ad-info">
-                        <div class="ad-name" id="ddAdminName">Admin</div>
-                        <div class="ad-role">👑 Administrator</div>
-                    </div>
-                    <a class="ad-item" href="admin-dashboard.html"><span>🏠</span> Dashboard</a>
-                    <a class="ad-item" href="../admin/users.html"><span>👥</span> Manage Users</a>
-                    <hr style="margin:6px 0;border-color:#f1f1f1;">
-                    <button class="ad-item logout" id="logoutBtn"><span>🚪</span> Sign Out</button>
+        <div class="sn-sec">Fleet</div>
+        <a href="admin-vehicles.html" class="sn-link"><span class="sn-ico">🚗</span> Vehicles</a>
+        <a href="booking.html"        class="sn-link"><span class="sn-ico">📋</span> Bookings</a>
+        <a href="payment.html"        class="sn-link"><span class="sn-ico">💳</span> Payments</a>
+        <a href="insurance.html"      class="sn-link"><span class="sn-ico">🛡️</span> Insurance</a>
+        <div class="sn-sec">Manage</div>
+        <a href="users.html"          class="sn-link"><span class="sn-ico">👥</span> Users</a>
+        <a href="drivers.html"        class="sn-link"><span class="sn-ico">🧑‍✈️</span> Drivers</a>
+        <div class="sn-sec">System</div>
+        <a href="admin-dashboard.html" class="sn-link active"><span class="sn-ico">🏠</span> Dashboard</a>
+        <a href="#"                    class="sn-link"><span class="sn-ico">⚙️</span> Settings</a>
+        <div class="sn-bottom">
+            <div class="sn-user">
+                <div class="sn-av" id="snAv">AD</div>
+                <div><div class="sn-uname" id="snName">Admin</div><div class="sn-urole">Administrator</div></div>
+            </div>
+        </div>
+    </div>
+</aside>
+<main class="main">
+    <div class="topbar">
+        <div>
+            <div class="tb-greeting">Good morning, <em id="greetName">Admin</em> 👋</div>
+            <div class="tb-sub">Here's what's happening with Rentify today.</div>
+        </div>
+        <div class="tb-right">
+            <div class="tb-date" id="todayDate"></div>
+            <div class="av-wrap">
+                <button class="av-btn" id="avBtn">AD</button>
+                <div class="av-drop" id="avDrop">
+                    <div class="adf-info"><div class="adf-name" id="ddName">Admin</div><div class="adf-role">👑 Administrator</div></div>
+                    <a class="adf-item" href="admin-dashboard.html">🏠 Dashboard</a>
+                    <a class="adf-item" href="users.html">👥 Manage Users</a>
+                    <hr style="margin:4px 0;border-color:var(--bdr)">
+                    <button class="adf-item out" id="logoutBtn">🚪 Sign Out</button>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon">💰</div>
-            <div class="stat-label">Monthly Revenue</div>
-            <div class="stat-value" id="s-revenue">$0</div>
-            <div class="stat-sub">↑ 12% vs last month</div>
+    <div class="sc-grid">
+        <div class="sc">
+            <div class="sc-stripe" style="background:linear-gradient(90deg,#d97706,#f59e0b)"></div>
+            <div class="sc-top"><div><div class="sc-lbl">Monthly Revenue</div><div class="sc-val" id="s-revenue">—</div><div class="sc-sub up" id="rev-sub">Fetching…</div></div><div class="sc-iw" style="background:#fef3c7">💰</div></div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon">📅</div>
-            <div class="stat-label">Total Bookings</div>
-            <div class="stat-value" id="s-bookings">0</div>
-            <div class="stat-sub">↑ 8% this week</div>
+        <div class="sc">
+            <div class="sc-stripe" style="background:linear-gradient(90deg,#2563eb,#60a5fa)"></div>
+            <div class="sc-top"><div><div class="sc-lbl">Total Bookings</div><div class="sc-val" id="s-bookings">—</div><div class="sc-sub up">↑ 8% this week</div></div><div class="sc-iw" style="background:#eff6ff">📅</div></div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon">👥</div>
-            <div class="stat-label">Registered Users</div>
-            <div class="stat-value" id="s-users">0</div>
-            <div class="stat-sub">↑ 5 new today</div>
+        <div class="sc">
+            <div class="sc-stripe" style="background:linear-gradient(90deg,#16a34a,#22c55e)"></div>
+            <div class="sc-top"><div><div class="sc-lbl">Registered Users</div><div class="sc-val" id="s-users">—</div><div class="sc-sub">↑ 5 new today</div></div><div class="sc-iw" style="background:#f0fdf4">👥</div></div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon">🚗</div>
-            <div class="stat-label">Active Cabs</div>
-            <div class="stat-value" id="s-cabs">0</div>
-            <div class="stat-sub">↓ 2 in service</div>
+        <div class="sc">
+            <div class="sc-stripe" style="background:linear-gradient(90deg,#7c3aed,#a78bfa)"></div>
+            <div class="sc-top"><div><div class="sc-lbl">Active Vehicles</div><div class="sc-val" id="s-cabs">—</div><div class="sc-sub dn">↓ 2 in service</div></div><div class="sc-iw" style="background:#f5f3ff">🚗</div></div>
         </div>
     </div>
-
-    <div class="quick-actions">
-        <a href="../admin/booking.html" class="quick-action"><div class="qa-icon">📅</div><div class="qa-label">Bookings</div></a>
-        <a href="../admin/users.html" class="quick-action"><div class="qa-icon">👥</div><div class="qa-label">Users</div></a>
-        <a href="../admin/drivers.html" class="quick-action"><div class="qa-icon">🧑‍✈️</div><div class="qa-label">Drivers</div></a>
-        <a href="../admin/payment.html" class="quick-action"><div class="qa-icon">💳</div><div class="qa-label">Payments</div></a>
+    <div class="qa-grid">
+        <a href="booking.html"  class="qa"><div class="qa-ico">📋</div><div><div class="qa-lbl">Bookings</div><div class="qa-sub">View all orders</div></div></a>
+        <a href="users.html"    class="qa"><div class="qa-ico">👥</div><div><div class="qa-lbl">Users</div><div class="qa-sub">Manage accounts</div></div></a>
+        <a href="insurance.html" class="qa"><div class="qa-ico">🛡️</div><div><div class="qa-lbl">Insurance</div><div class="qa-sub">Policy management</div></div></a>
+        <a href="payment.html"  class="qa"><div class="qa-ico">💳</div><div><div class="qa-lbl">Payments</div><div class="qa-sub">Transactions</div></div></a>
     </div>
-
-    <div class="chart-grid">
+    <div class="two-col">
         <div class="card">
-            <div class="card-header"><span class="card-title">Revenue Overview (7 days)</span></div>
-            <div class="card-body">
-                <div class="mini-chart" id="barChart"></div>
-                <div style="display:flex;gap:6px;margin-top:6px;" id="barLabels"></div>
+            <div class="card-hd">
+                <span class="card-title">📈 Revenue — Last 7 Days</span>
+                <span style="font-size:11px;color:var(--t4);font-family:var(--fc)" id="revTotal"></span>
+            </div>
+            <div class="card-bd">
+                <div class="bchart" id="bchart"></div>
+                <div class="bar-lbls" id="blbls"></div>
             </div>
         </div>
         <div class="card">
-            <div class="card-header"><span class="card-title">Recent Activity</span></div>
-            <div class="card-body" style="padding:12px 20px;">
-                <ul class="recent-list" id="activityList"></ul>
-            </div>
+            <div class="card-hd"><span class="card-title">🕐 Recent Activity</span></div>
+            <div class="card-bd" style="padding:10px 20px"><ul class="act-list" id="actList"></ul></div>
         </div>
     </div>
-
-    <div class="card" style="margin-top:20px;">
-        <div class="card-header">
-            <span class="card-title">Recent Bookings</span>
-            <a href="../admin/booking.html" class="btn btn-outline btn-sm">View All</a>
+    <div class="card">
+        <div class="card-hd">
+            <span class="card-title">📋 Recent Bookings</span>
+            <a href="booking.html" class="btn btn-outline btn-sm">View All →</a>
         </div>
         <div class="table-wrap">
             <table>
-                <thead><tr><th>Customer</th><th>Cab</th><th>Pickup</th><th>Status</th><th>Amount</th></tr></thead>
-                <tbody id="dashBookings"></tbody>
+                <thead><tr><th>Customer</th><th>Vehicle</th><th>Pickup</th><th>Status</th><th>Amount</th></tr></thead>
+                <tbody id="dashTbl"></tbody>
             </table>
         </div>
     </div>
 </main>
-
-<!-- LOGOUT CONFIRM MODAL -->
-<div class="logout-modal-bg" id="logoutModalBg">
-    <div class="logout-modal">
-        <div class="lm-icon">👋</div>
-        <div class="lm-title">Sign Out?</div>
-        <div class="lm-sub">You'll be logged out of the Rentify Admin panel and redirected to the sign in page.</div>
-        <div class="lm-btns">
-            <button class="lm-btn-cancel" id="cancelLogout">Cancel</button>
-            <button class="lm-btn-logout" id="confirmLogout">Yes, Sign Out</button>
+<div class="lbg" id="lbg">
+    <div class="lmodal">
+        <div class="lm-ico">👋</div>
+        <div class="lm-h">Sign Out?</div>
+        <div class="lm-p">You'll be logged out and redirected to the sign-in page.</div>
+        <div class="lm-row">
+            <button class="lm-cancel" id="lCancel">Cancel</button>
+            <button class="lm-logout" id="lConfirm">Yes, Sign Out</button>
         </div>
     </div>
 </div>
-
 <div id="toast"></div>
-<script src="../../js/jquery-3.7.1.min.js"></script>
-<script src="admin-js/p-admin-js.js"></script>
 <script>
-    document.getElementById('sidebar-root').innerHTML = getSidebar('dashboard');
-
-    // ── Greet with stored username ──────────────────────────────────────────
-    const storedUsername = localStorage.getItem('rentify_username') || 'Admin';
-    document.getElementById('adminGreetName').textContent = storedUsername;
-    document.getElementById('ddAdminName').textContent    = storedUsername;
-    // Set avatar initial
-    document.getElementById('adminAvatarBtn').textContent = storedUsername.charAt(0).toUpperCase();
-
-    // ── Avatar dropdown toggle ──────────────────────────────────────────────
-    document.getElementById('adminAvatarBtn').addEventListener('click', function(e) {
-        e.stopPropagation();
-        document.getElementById('adminDropdown').classList.toggle('open');
+    const API='http://localhost:8081/api/v1';
+    function getToken(){return localStorage.getItem('rentify_token')||'';}
+    function authH(){const t=getToken();return t?{Authorization:'Bearer '+t}:{};}
+    const fname=localStorage.getItem('rentify_fullName')||localStorage.getItem('rentify_username')||'Admin';
+    const init=fname.trim().split(/\s+/).map(x=>x[0].toUpperCase()).join('').slice(0,2)||'AD';
+    ['#greetName','#snName','#ddName'].forEach(s=>$(s).text(fname));
+    ['#snAv','#avBtn'].forEach(s=>$(s).text(init));
+    $('#todayDate').text(new Date().toLocaleDateString('en-LK',{weekday:'short',year:'numeric',month:'short',day:'numeric'}));
+    $('#avBtn').on('click',e=>{e.stopPropagation();$('#avDrop').toggleClass('open');});
+    $(document).on('click',()=>$('#avDrop').removeClass('open'));
+    $('#logoutBtn').on('click',()=>{$('#avDrop').removeClass('open');$('#lbg').addClass('show');});
+    $('#lCancel').on('click',()=>$('#lbg').removeClass('show'));
+    $('#lbg').on('click',function(e){if(e.target===this)$(this).removeClass('show');});
+    $('#lConfirm').on('click',()=>{
+        ['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(k=>localStorage.removeItem(k));
+        window.location.href='../../pages/sign-in.html';
     });
-    document.addEventListener('click', () => {
-        document.getElementById('adminDropdown').classList.remove('open');
-    });
-
-    // ── Logout button → show confirm modal ────────────────────────────────
-    document.getElementById('logoutBtn').addEventListener('click', function() {
-        document.getElementById('adminDropdown').classList.remove('open');
-        document.getElementById('logoutModalBg').classList.add('show');
-    });
-
-    // Cancel
-    document.getElementById('cancelLogout').addEventListener('click', function() {
-        document.getElementById('logoutModalBg').classList.remove('show');
-    });
-    // Click backdrop to cancel
-    document.getElementById('logoutModalBg').addEventListener('click', function(e) {
-        if (e.target === this) this.classList.remove('show');
-    });
-
-    // Confirm logout → clear session → redirect to sign-in
-    document.getElementById('confirmLogout').addEventListener('click', function() {
-        localStorage.removeItem('rentify_token');
-        localStorage.removeItem('rentify_role');
-        localStorage.removeItem('rentify_auth');
-        localStorage.removeItem('rentify_username');
-        window.location.href = '../../sign-in.html?logout=1';
-    });
-
-    // ── Charts ─────────────────────────────────────────────────────────────
-    const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    const revenues = [420,680,530,790,610,920,740];
-    const bc = document.getElementById('barChart');
-    const bl = document.getElementById('barLabels');
-    const maxR = Math.max(...revenues);
-    revenues.forEach((v,i)=>{
-        const b = document.createElement('div');
-        b.className='bar'; b.style.height=(v/maxR*100)+'%';
-        b.innerHTML=`<span>$${v}</span>`;
-        bc.appendChild(b);
-        const l=document.createElement('div');
-        l.style.cssText='flex:1;text-align:center;font-size:10px;color:var(--text-muted)';
-        l.textContent=days[i]; bl.appendChild(l);
-    });
-
-    // ── Stats from localStorage ─────────────────────────────────────────────
-    const bookings = JSON.parse(localStorage.getItem('r_bookings')||'[]');
-    const users    = JSON.parse(localStorage.getItem('r_users')||'[]');
-    const cabs     = JSON.parse(localStorage.getItem('r_cabs')||'[]');
-    const payments = JSON.parse(localStorage.getItem('r_payments')||'[]');
-    document.getElementById('s-bookings').textContent = bookings.length || 4;
-    document.getElementById('s-users').textContent    = users.length    || 12;
-    document.getElementById('s-cabs').textContent     = cabs.length     || 8;
-    const rev = payments.reduce((a,p)=>a+(parseFloat(p.amount)||0),0);
-    document.getElementById('s-revenue').textContent  = '$'+(rev||12450).toLocaleString();
-
-    // ── Recent activity ─────────────────────────────────────────────────────
-    const acts = [
-        {dot:'#22c55e',text:'New booking by Amal P.',time:'2 min ago'},
-        {dot:'#facc15',text:'Payment received $320',time:'15 min ago'},
-        {dot:'#6366f1',text:'Driver Karim verified',time:'1 hr ago'},
-        {dot:'#f87171',text:'Booking #B042 cancelled',time:'3 hr ago'},
-        {dot:'#22c55e',text:'New user registered',time:'5 hr ago'},
-    ];
-    document.getElementById('activityList').innerHTML = acts.map(a=>`
-        <li><span><span class="activity-dot" style="background:${a.dot}"></span>${a.text}</span>
-        <span style="font-size:11px;color:var(--text-muted)">${a.time}</span></li>`).join('');
-
-    // ── Dash bookings ───────────────────────────────────────────────────────
-    const demoB = bookings.length ? bookings.slice(0,5) : [
-        {customer:'Amal Perera',   cab:'Toyota Axio', pickup:'Colombo', status:'Confirmed', amount:'$45'},
-        {customer:'Nimal Silva',   cab:'Honda Fit',   pickup:'Kandy',   status:'Pending',   amount:'$60'},
-        {customer:'Dilani Fernando',cab:'KIA Picanto',pickup:'Galle',   status:'Completed', amount:'$30'},
-    ];
-    const statusColor = s => s==='Confirmed'||s==='Completed' ? 'badge-green' : s==='Pending' ? 'badge-yellow' : 'badge-red';
-    document.getElementById('dashBookings').innerHTML = demoB.map(b=>`
-        <tr>
-            <td><strong>${b.customer||b.customerName||''}</strong></td>
-            <td>${b.cab||b.cabModel||''}</td>
-            <td>${b.pickup||b.pickupLocation||''}</td>
-            <td><span class="badge ${statusColor(b.status)}">${b.status}</span></td>
-            <td style="font-weight:700;color:var(--green)">${b.amount||'$'+Math.floor(Math.random()*80+20)}</td>
-        </tr>`).join('');
+    const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const revs=[4200,6800,5300,7900,6100,9200,7400];
+    const maxR=Math.max(...revs);
+    const colors=['rgba(22,163,74,.7)','rgba(22,163,74,.75)','rgba(22,163,74,.8)','rgba(22,163,74,.9)','rgba(22,163,74,.85)','rgba(22,163,74,1)','rgba(22,163,74,.88)'];
+    $('#revTotal').text('Total: Rs '+revs.reduce((a,b)=>a+b,0).toLocaleString('en-LK'));
+    revs.forEach((v,i)=>{$('#bchart').append(`<div class="bar" style="height:${v/maxR*100}%;background:${colors[i]};"><div class="bar-tip">Rs ${v.toLocaleString()}</div></div>`);$('#blbls').append(`<span>${days[i]}</span>`);});
+    [{c:'#22c55e',t:'New booking #BK-089',m:'2 min ago'},{c:'#f59e0b',t:'Payment Rs 3,200 received',m:'14 min ago'},{c:'#6366f1',t:'Driver Karim verified',m:'1 hr ago'},{c:'#f87171',t:'Booking #BK-042 cancelled',m:'3 hr ago'},{c:'#22c55e',t:'New user registered',m:'5 hr ago'}]
+        .forEach(a=>{$('#actList').append(`<li class="act-item"><div class="act-dot" style="background:${a.c}"></div><div class="act-txt">${a.t}</div><div class="act-tm">${a.m}</div></li>`);});
+    function sc(s){return s==='COMPLETED'?'bg-g':s==='CONFIRMED'?'bg-b':s==='PENDING'?'bg-y':'bg-r';}
+    $.ajax({url:API+'/vehicles',method:'GET',headers:authH(),success:function(r){const v=Array.isArray(r)?r:(r.data||[]);$('#s-cabs').text(v.filter(x=>x.status==='AVAILABLE').length+' avail');}});
+    $.ajax({url:API+'/bookings',method:'GET',headers:authH(),success:function(r){
+            const b=Array.isArray(r)?r:(r.data||[]);$('#s-bookings').text(b.length);
+            const rev=b.filter(x=>x.status!=='CANCELLED').reduce((s,x)=>s+(x.totalPrice||0),0);
+            $('#s-revenue').text('Rs '+Number(rev).toLocaleString('en-LK'));$('#rev-sub').addClass('up').text('↑ 12% vs last month');
+            const recent=b.slice(-5).reverse();
+            $('#dashTbl').html(recent.length?recent.map(x=>`<tr><td><strong style="color:var(--t1)">User #${x.userId}</strong></td><td>${x.vehicleModel||'—'}</td><td style="color:var(--t3)">${x.pickupLocation||'—'}</td><td><span class="badge ${sc(x.status)}">${x.status}</span></td><td style="font-weight:700;color:var(--g);font-family:'Syne',sans-serif">Rs ${Number(x.totalPrice||0).toLocaleString('en-LK')}</td></tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:28px;color:var(--t4)">No bookings yet</td></tr>');
+        }});
+    $('#s-users').text('—');
+    function showToast(m,t){$('#toast').text(m).attr('class',t||'').show();setTimeout(()=>$('#toast').hide(),3200);}
 </script>
 </body>
 </html>
