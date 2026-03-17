@@ -1,276 +1,332 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Rentify Admin — Drivers</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700&family=DM+Sans:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../admin-css/p-admin.css">
-
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
-        .driver-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--green-light);}
-        .driver-avatar-placeholder{width:40px;height:40px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;border:2px solid var(--green-light);}
-        .pic-upload-area{border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:0.2s;background:#f8fafc;}
-        .pic-upload-area:hover{border-color:var(--green);background:var(--green-soft);}
-        .pic-preview{width:80px;height:80px;border-radius:50%;object-fit:cover;margin:0 auto 10px;display:block;border:3px solid var(--green-light);}
-        .exp-warning{color:#dc2626;font-size:11px;font-weight:600;}
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+        :root{
+            --g:#16a34a;--gd:#14532d;--gm:#22c55e;--gl:#bbf7d0;--gs:#f0fdf4;--gg:rgba(22,163,74,.14);
+            --y:#d97706;--ym:#f59e0b;--yp:#fef3c7;
+            --r:#dc2626;--rs:#fef2f2;--b:#2563eb;--bs:#eff6ff;--p:#7c3aed;--o:#ea580c;
+            --t1:#0f172a;--t2:#334155;--t3:#64748b;--t4:#94a3b8;
+            --bg:#f8fafc;--bg2:#f1f5f9;--card:#fff;--bdr:#e2e8f0;--bdr2:#cbd5e1;
+            --sb:#0f172a;
+            --ff:'Syne',sans-serif;--fm:'DM Sans',sans-serif;--fc:'Roboto Mono',monospace;
+            --s1:0 1px 3px rgba(15,23,42,.06);--s2:0 4px 16px rgba(15,23,42,.08);--s3:0 12px 40px rgba(15,23,42,.1);--s4:0 24px 64px rgba(15,23,42,.14);
+        }
+        body{font-family:var(--fm);background:var(--bg);color:var(--t1);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;font-size:14px;}
+
+        /* SIDEBAR */
+        .sidebar{width:252px;min-height:100vh;background:var(--sb);display:flex;flex-direction:column;padding:20px 14px;position:fixed;top:0;left:0;bottom:0;z-index:200;overflow-y:auto;scrollbar-width:none;}
+        .sidebar::-webkit-scrollbar{display:none;}
+        .sn-logo{display:flex;align-items:center;padding:4px 8px 20px;margin-bottom:6px;border-bottom:1px solid rgba(255,255,255,.06);}
+        .sn-logo-text{font-family:var(--fc);font-size:19px;font-weight:600;color:#fff;}
+        .sn-logo-text b{color:var(--ym);}
+        .sn-badge{font-size:8px;background:var(--ym);color:#000;padding:2px 8px;border-radius:20px;font-weight:800;letter-spacing:.6px;font-family:var(--ff);margin-left:9px;}
+        .sn-sec{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.22);margin:16px 0 6px;padding:0 8px;font-family:var(--ff);}
+        .sn-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;text-decoration:none;color:rgba(255,255,255,.48);font-size:13px;font-weight:500;transition:.16s;margin-bottom:2px;}
+        .sn-link:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.88);}
+        .sn-link.active{background:rgba(245,158,11,.14);color:var(--ym);font-weight:600;border:1px solid rgba(245,158,11,.22);}
+        .sn-ico{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
+        .sn-bottom{margin-top:auto;padding-top:14px;border-top:1px solid rgba(255,255,255,.07);}
+        .sn-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.06);}
+        .sn-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ym),#b45309);display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
+        .sn-uname{font-size:13px;font-weight:600;color:#fff;}
+        .sn-urole{font-size:9px;color:rgba(255,255,255,.3);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+
+        /* MAIN */
+        .main{margin-left:252px;flex:1;padding:26px 32px;background:var(--bg);}
+
+        /* PAGE HEADER */
+        .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+        .ph-title{font-family:var(--ff);font-size:21px;font-weight:800;color:var(--t1);letter-spacing:-.5px;}
+        .ph-sub{font-size:13px;color:var(--t3);margin-top:3px;}
+        .ph-btns{display:flex;gap:9px;flex-wrap:wrap;}
+
+        /* FILTER */
+        .filter-row{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;}
+        .sb{display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--bdr);border-radius:9px;padding:8px 13px;flex:1;min-width:200px;transition:.16s;box-shadow:var(--s1);}
+        .sb:focus-within{border-color:var(--g);box-shadow:0 0 0 3px var(--gg);}
+        .sb input{border:none;outline:none;font-family:var(--fm);font-size:13px;color:var(--t1);background:transparent;width:100%;}
+        .sb input::placeholder{color:var(--t4);}
+        .fsel{padding:9px 12px;background:var(--card);border:1.5px solid var(--bdr);border-radius:9px;color:var(--t2);font-size:13px;font-family:var(--fm);outline:none;cursor:pointer;box-shadow:var(--s1);}
+        .fsel:focus{border-color:var(--g);}
+
+        /* CARD */
+        .card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;overflow:hidden;box-shadow:var(--s1);}
+        .card-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--bdr);}
+        .card-title{font-family:var(--ff);font-size:13px;font-weight:700;color:var(--t1);}
+
+        /* TABLE */
+        .tw{overflow-x:auto;}
+        table{width:100%;border-collapse:collapse;}
+        thead th{padding:9px 14px;text-align:left;font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);border-bottom:1.5px solid var(--bdr);background:var(--bg);font-family:var(--ff);white-space:nowrap;}
+        tbody tr{border-bottom:1px solid var(--bdr);transition:.14s;}
+        tbody tr:last-child{border-bottom:none;}
+        tbody tr:hover{background:var(--gs);}
+        tbody td{padding:11px 14px;font-size:13px;color:var(--t2);vertical-align:middle;}
+
+        /* DRIVER AVATAR */
+        .dav{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid var(--gl);box-shadow:var(--s1);}
+        .dav-ph{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--g),var(--gd));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;font-family:var(--ff);border:2px solid var(--gl);}
+
+        /* BADGES */
+        .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:9.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;font-family:var(--ff);}
+        .bg-g{background:rgba(22,163,74,.1);color:var(--g);border:1px solid rgba(22,163,74,.22);}
+        .bg-y{background:rgba(217,119,6,.1);color:var(--y);border:1px solid rgba(217,119,6,.22);}
+        .bg-r{background:rgba(220,38,38,.1);color:var(--r);border:1px solid rgba(220,38,38,.2);}
+        .bg-b{background:rgba(37,99,235,.1);color:var(--b);border:1px solid rgba(37,99,235,.2);}
+        .bg-gray{background:rgba(100,116,139,.1);color:var(--t3);border:1px solid rgba(100,116,139,.2);}
+        .exp-warn{color:var(--r);font-size:10px;font-weight:700;margin-top:2px;}
+        .exp-soon{color:var(--y);font-size:10px;font-weight:600;margin-top:2px;}
+
+        /* BUTTONS */
+        .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;font-size:13px;font-weight:600;font-family:var(--fm);border:none;cursor:pointer;transition:all .17s;white-space:nowrap;}
+        .btn-primary{background:var(--g);color:#fff;box-shadow:0 2px 10px rgba(22,163,74,.25);}
+        .btn-primary:hover{background:var(--gd);transform:translateY(-1px);}
+        .btn-outline{background:var(--card);color:var(--t2);border:1.5px solid var(--bdr);}
+        .btn-outline:hover{border-color:var(--g);color:var(--g);background:var(--gs);}
+        .btn-sm{padding:5px 11px;font-size:11px;border-radius:7px;}
+        .btn-del{background:transparent;color:var(--r);border:1.5px solid rgba(220,38,38,.25);padding:5px 11px;font-size:11px;border-radius:7px;cursor:pointer;font-family:var(--fm);transition:.16s;}
+        .btn-del:hover{background:var(--rs);border-color:var(--r);}
+
+        /* EMPTY/LOAD */
+        .erow td{text-align:center;padding:48px;color:var(--t4);}
+        .lrow td{text-align:center;padding:40px;color:var(--t3);}
+        .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--bdr);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite;margin-right:7px;vertical-align:middle;}
+        @keyframes spin{to{transform:rotate(360deg)}}
+
+        /* TOAST */
+        #toast{position:fixed;bottom:24px;right:24px;z-index:99999;background:var(--sb);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;box-shadow:var(--s3);display:none;max-width:300px;}
+        #toast.success{background:var(--g);}
+        #toast.error{background:var(--r);}
+
+        /* MODAL */
+        .ov{position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.5);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;}
+        .ov.open{display:flex;animation:fade .18s ease;}
+        @keyframes fade{from{opacity:0}to{opacity:1}}
+        .modal{background:var(--card);border-radius:20px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;animation:mIn .25s cubic-bezier(.16,1,.3,1);box-shadow:var(--s4);border:1px solid var(--bdr);}
+        @keyframes mIn{from{transform:scale(.93) translateY(10px);opacity:0}to{transform:none;opacity:1}}
+        .mhd{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--card);z-index:10;}
+        .mhd-title{font-family:var(--ff);font-size:16px;font-weight:700;color:var(--t1);}
+        .mclose{width:28px;height:28px;background:var(--bg2);border:1px solid var(--bdr);border-radius:7px;cursor:pointer;font-size:12px;color:var(--t3);transition:.15s;display:flex;align-items:center;justify-content:center;}
+        .mclose:hover{background:var(--bdr);color:var(--t1);}
+        .mbd{padding:20px 22px;}
+        .mft{display:flex;justify-content:flex-end;gap:8px;padding:14px 22px;border-top:1px solid var(--bdr);background:var(--bg);}
+
+        /* FORM */
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+        .fg{display:flex;flex-direction:column;gap:5px;}
+        .fl{font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t2);font-family:var(--ff);}
+        .fi{padding:9px 12px;background:var(--bg);border:1.5px solid var(--bdr);border-radius:9px;color:var(--t1);font-size:13px;font-family:var(--fm);outline:none;transition:.16s;width:100%;}
+        .fi::placeholder{color:var(--t4);}
+        .fi:focus{border-color:var(--g);background:var(--card);box-shadow:0 0 0 3px var(--gg);}
+        select.fi{appearance:none;}
+
+        /* PIC UPLOAD */
+        .pic-area{border:2px dashed var(--bdr2);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:.18s;background:var(--bg);margin-bottom:16px;}
+        .pic-area:hover{border-color:var(--g);background:var(--gs);}
+        .pic-prev{width:72px;height:72px;border-radius:50%;object-fit:cover;margin:0 auto 10px;display:block;border:3px solid var(--gl);box-shadow:var(--s1);}
+        .pic-ph{font-size:32px;margin-bottom:6px;}
+        .pic-txt{font-size:12px;color:var(--t3);}
+
+        @media(max-width:1024px){.sidebar{display:none;}.main{margin-left:0;padding:16px;}}
+        @media(max-width:640px){.form-grid{grid-template-columns:1fr;}.filter-row{flex-direction:column;align-items:stretch;}}
     </style>
 </head>
 <body>
-<div id="sidebar-root"></div>
-<main class="main-content">
-    <div class="page-header">
-        <div><div class="page-title">🧑‍✈️ Drivers</div><div class="page-subtitle">Manage your driver fleet</div></div>
-        <button class="btn btn-primary" onclick="openModal()">+ Add Driver</button>
+
+<aside class="sidebar">
+    <div class="sn-logo"><div class="sn-logo-text">Rent<b>ify</b></div><div class="sn-badge">ADMIN</div></div>
+    <div class="sn-sec">Fleet</div>
+    <a href="admin-vehicles.html" class="sn-link"><span class="sn-ico">🚗</span> Vehicles</a>
+    <a href="booking.html"        class="sn-link"><span class="sn-ico">📋</span> Bookings</a>
+    <a href="payment.html"        class="sn-link"><span class="sn-ico">💳</span> Payments</a>
+    <div class="sn-sec">Manage</div>
+    <a href="users.html"          class="sn-link"><span class="sn-ico">👥</span> Users</a>
+    <a href="drivers.html"        class="sn-link active"><span class="sn-ico">🧑‍✈️</span> Drivers</a>
+    <div class="sn-sec">System</div>
+    <a href="admin-dashboard.html" class="sn-link"><span class="sn-ico">🏠</span> Dashboard</a>
+    <a href="#"                    class="sn-link"><span class="sn-ico">⚙️</span> Settings</a>
+    <div class="sn-bottom">
+        <div class="sn-user"><div class="sn-av" id="snAv">AD</div><div><div class="sn-uname" id="snName">Admin</div><div class="sn-urole">Administrator</div></div></div>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="ph">
+        <div><div class="ph-title">🧑‍✈️ Driver Management</div><div class="ph-sub">Manage your driver fleet and licences.</div></div>
+        <div class="ph-btns">
+            <button class="btn btn-outline" onclick="exportCSV()">⬇ CSV</button>
+            <button class="btn btn-outline" onclick="exportPDF()">📄 PDF</button>
+            <button class="btn btn-primary" onclick="openModal()">＋ Add Driver</button>
+        </div>
     </div>
 
-    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
-        <div class="search-bar"><span>🔍</span><input id="searchInput" placeholder="Search driver, licence..."></div>
-        <select class="form-select" style="max-width:160px" id="filterType">
+    <div class="filter-row">
+        <div class="sb"><span style="color:var(--t4)">🔍</span><input id="searchInput" placeholder="Search driver, licence…"></div>
+        <select class="fsel" id="filterType">
             <option value="">All Vehicle Types</option>
             <option>Sedan</option><option>SUV</option><option>Mini</option><option>Van</option><option>Luxury</option>
         </select>
-        <button class="btn btn-outline" onclick="exportCSV()">⬇ Export CSV</button>
-        <button class="btn btn-outline" onclick="exportPDF()">⬇ Export PDF</button>
     </div>
 
     <div class="card">
-        <div class="card-header">
+        <div class="card-hd">
             <span class="card-title">All Drivers</span>
-            <span id="countBadge" class="badge badge-green">0 drivers</span>
+            <span id="countBadge" class="badge bg-g">0 drivers</span>
         </div>
-        <div class="table-wrap">
+        <div class="tw">
             <table>
-                <thead><tr><th>#ID</th><th>Profile</th><th>Name</th><th>Phone</th><th>Licence No</th><th>Licence Expiry</th><th>Vehicle Type</th><th>Actions</th></tr></thead>
-                <tbody id="driverTable"></tbody>
+                <thead><tr><th>#</th><th>Photo</th><th>Name &amp; Status</th><th>Phone</th><th>Licence No</th><th>Licence Expiry</th><th>Vehicle Type</th><th>Actions</th></tr></thead>
+                <tbody id="driverTable"><tr class="lrow"><td colspan="8"><span class="spin"></span>Loading drivers…</td></tr></tbody>
             </table>
         </div>
     </div>
 </main>
 
-<div class="modal-overlay" id="modalOverlay">
+<!-- ADD/EDIT MODAL -->
+<div class="ov" id="modalOv">
     <div class="modal">
-        <div class="modal-header">
-            <div class="modal-title" id="modalTitle">Add Driver</div>
-            <button class="modal-close" onclick="closeModal()">✕</button>
-        </div>
-        <div class="pic-upload-area" onclick="document.getElementById('picInput').click()">
-            <img id="picPreview" class="pic-preview" style="display:none">
-            <div id="uploadPlaceholder">
-                <div style="font-size:32px">📷</div>
-                <div style="font-size:13px;color:var(--text-muted);margin-top:6px">Click to upload profile photo</div>
+        <div class="mhd"><div class="mhd-title" id="mTitle">Add Driver</div><button class="mclose" onclick="closeModal()">✕</button></div>
+        <div class="mbd">
+            <div class="pic-area" onclick="document.getElementById('picInput').click()">
+                <img id="picPrev" class="pic-prev" style="display:none">
+                <div id="picPh"><div class="pic-ph">📷</div><div class="pic-txt">Click to upload profile photo</div></div>
+            </div>
+            <input type="file" id="picInput" accept="image/*" style="display:none" onchange="handlePic(event)">
+            <div class="form-grid">
+                <div class="fg"><label class="fl">Full Name</label><input class="fi" id="f-name" placeholder="Driver's full name"></div>
+                <div class="fg"><label class="fl">Phone No</label><input class="fi" id="f-phone" placeholder="+94 7X XXX XXXX"></div>
+                <div class="fg"><label class="fl">Licence No</label><input class="fi" id="f-lic" placeholder="B1234567"></div>
+                <div class="fg"><label class="fl">Licence Expiry</label><input class="fi" type="date" id="f-exp"></div>
+                <div class="fg"><label class="fl">Vehicle Type</label><select class="fi" id="f-vtype"><option>Sedan</option><option>SUV</option><option>Mini</option><option>Van</option><option>Luxury</option></select></div>
+                <div class="fg"><label class="fl">Status</label><select class="fi" id="f-status"><option>Active</option><option>Inactive</option><option>On Trip</option></select></div>
             </div>
         </div>
-        <input type="file" id="picInput" accept="image/*" style="display:none" onchange="handlePic(event)">
-
-        <div class="form-grid" style="margin-top:16px">
-            <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="f-name"></div>
-            <div class="form-group"><label class="form-label">Phone No</label><input class="form-input" id="f-phone"></div>
-            <div class="form-group"><label class="form-label">Licence No</label><input class="form-input" id="f-licence"></div>
-            <div class="form-group"><label class="form-label">Licence Expiry Date</label><input class="form-input" type="date" id="f-expiry"></div>
-            <div class="form-group"><label class="form-label">Vehicle Type</label>
-                <select class="form-select" id="f-vtype"><option>Sedan</option><option>SUV</option><option>Mini</option><option>Van</option><option>Luxury</option></select>
-            </div>
-            <div class="form-group"><label class="form-label">Status</label>
-                <select class="form-select" id="f-status"><option>Active</option><option>Inactive</option><option>On Trip</option></select>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
-            <button class="btn btn-primary" onclick="saveDriver()">Save Driver</button>
-        </div>
+        <div class="mft"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveDriver()">Save Driver</button></div>
     </div>
 </div>
 
 <div id="toast"></div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="admin-js/p-admin-js.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-
 <script>
-    const BASE_URL = 'http://localhost:8081/api/v1/drivers';
-    let editId = null;
-    let currentPic = '';
+    const BASE='http://localhost:8081/api/v1/drivers';
+    let editId=null,curPic='';
 
-    $(document).ready(function() {
-        if(typeof getSidebar === 'function') {
-            document.getElementById('sidebar-root').innerHTML = getSidebar('drivers');
-        }
-        renderTable();
-    });
+    // Sidebar user
+    const fn=localStorage.getItem('rentify_fullName')||localStorage.getItem('rentify_username')||'Admin';
+    const ini=fn.trim().split(/\s+/).map(x=>x[0].toUpperCase()).join('').slice(0,2)||'AD';
+    $('#snAv').text(ini);$('#snName').text(fn);
 
-    // Helper functions for UI
-    const sc = s => s === 'Active' ? 'badge-green' : s === 'On Trip' ? 'badge-yellow' : 'badge-gray';
-    function isExpired(d) { return d && new Date(d) < new Date(); }
-    function isExpiringSoon(d) {
-        if (!d) return false;
-        const diff = (new Date(d) - new Date()) / (1000 * 60 * 60 * 24);
-        return diff < 90 && diff > 0;
-    }
+    function showToast(m,t){$('#toast').text(m).attr('class',t||'').show();clearTimeout(window._tt);window._tt=setTimeout(()=>$('#toast').hide(),3400);}
+    function sc(s){return s==='Active'?'bg-g':s==='On Trip'?'bg-y':s==='Inactive'?'bg-gray':'bg-r';}
+    function isExpired(d){return d&&new Date(d)<new Date();}
+    function expiringSoon(d){if(!d)return false;const diff=(new Date(d)-new Date())/(1000*60*60*24);return diff<90&&diff>0;}
+    function getToken(){return localStorage.getItem('rentify_token')||'';}
+    function authH(){const t=getToken();return t?{Authorization:'Bearer '+t}:{};}
 
-    // --- CRUD OPERATIONS ---
-
-    function renderTable() {
-        const query = $('#searchInput').val();
-        const vehicleType = $('#filterType').val();
-
-        $.ajax({
-            url: BASE_URL,
-            method: 'GET',
-            data: { query, vehicleType },
-            success: function(res) {
-                const drivers = res.data;
-                $('#countBadge').text(drivers.length + ' drivers');
-
-                let html = '';
-                drivers.forEach(d => {
-                    html += `
-                    <tr>
-                      <td><span style="font-family:'Roboto Mono'">D${String(d.id).padStart(3,'0')}</span></td>
-                      <td>${d.profilePic ? `<img src="${d.profilePic}" class="driver-avatar">` : `<div class="driver-avatar-placeholder">${d.name[0]}</div>`}</td>
-                      <td><strong>${d.name}</strong><br><span class="badge ${sc(d.status)}" style="margin-top:4px">${d.status}</span></td>
-                      <td>${d.phone}</td>
-                      <td>${d.licenceNo}</td>
-                      <td>${d.licenceExpiry || 'N/A'} ${isExpired(d.licenceExpiry) ? '<br><span class="exp-warning">⚠️ EXPIRED</span>' : isExpiringSoon(d.licenceExpiry) ? '<br><span style="color:#f59e0b;font-size:11px;font-weight:600">⚠️ Soon</span>' : ''}</td>
-                      <td><span class="badge badge-blue">${d.vehicleType}</span></td>
-                      <td style="display:flex;gap:6px">
-                        <button class="btn btn-outline btn-sm" onclick="editDriver(${d.id})">✏️</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteDriver(${d.id})">🗑️</button>
-                      </td>
-                    </tr>`;
-                });
-                $('#driverTable').html(html);
-            }
-        });
-    }
-
-    function saveDriver() {
-        const dto = {
-            name: $('#f-name').val(),
-            phone: $('#f-phone').val(),
-            licenceNo: $('#f-licence').val(),
-            licenceExpiry: $('#f-expiry').val(),
-            vehicleType: $('#f-vtype').val(),
-            status: $('#f-status').val(),
-            profilePic: currentPic
-        };
-
-        const isEdit = editId !== null;
-        $.ajax({
-            url: isEdit ? `${BASE_URL}/${editId}` : BASE_URL,
-            method: isEdit ? 'PUT' : 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(dto),
-            success: function() {
-                showToast(isEdit ? 'Updated' : 'Added');
-                closeModal();
-                renderTable();
+    function renderTable(){
+        const q=$('#searchInput').val().toLowerCase(),vt=$('#filterType').val();
+        $.ajax({url:BASE,method:'GET',data:{query:q,vehicleType:vt},
+            headers:authH(),
+            success:function(res){
+                const drivers=res.data||res||[];
+                $('#countBadge').text(drivers.length+' drivers');
+                if(!drivers.length){$('#driverTable').html('<tr class="erow"><td colspan="8">🔍 No drivers found.</td></tr>');return;}
+                $('#driverTable').html(drivers.map(d=>`<tr>
+        <td style="font-family:var(--fc);font-size:11px;color:var(--t4)">D${String(d.id).padStart(3,'0')}</td>
+        <td>${d.profilePic?`<img src="${d.profilePic}" class="dav">`:`<div class="dav-ph">${d.name[0]}</div>`}</td>
+        <td>
+          <div style="font-weight:600;color:var(--t1)">${d.name}</div>
+          <div style="margin-top:3px"><span class="badge ${sc(d.status)}">${d.status}</span></div>
+        </td>
+        <td>${d.phone}</td>
+        <td style="font-family:var(--fc);font-size:12px">${d.licenceNo}</td>
+        <td>
+          <div>${d.licenceExpiry||'N/A'}</div>
+          ${isExpired(d.licenceExpiry)?'<div class="exp-warn">⚠️ EXPIRED</div>':expiringSoon(d.licenceExpiry)?'<div class="exp-soon">⚠️ Expiring soon</div>':''}
+        </td>
+        <td><span class="badge bg-b">${d.vehicleType}</span></td>
+        <td style="display:flex;gap:6px;align-items:center">
+          <button class="btn btn-outline btn-sm" onclick="editDriver(${d.id})">✏️ Edit</button>
+          <button class="btn-del" onclick="deleteDriver(${d.id})">🗑️</button>
+        </td>
+      </tr>`).join(''));
             },
-            error: function(xhr) { showToast(xhr.responseJSON?.message || 'Error', 'error'); }
+            error:function(){$('#driverTable').html('<tr class="erow"><td colspan="8">⚠️ Could not load drivers — check backend connection.</td></tr>');}
         });
     }
 
-    function editDriver(id) {
-        $.get(`${BASE_URL}/${id}`, function(res) {
-            const d = res.data;
-            editId = d.id;
-            currentPic = d.profilePic || '';
-            $('#f-name').val(d.name); $('#f-phone').val(d.phone);
-            $('#f-licence').val(d.licenceNo); $('#f-expiry').val(d.licenceExpiry);
-            $('#f-vtype').val(d.vehicleType); $('#f-status').val(d.status);
-
-            if (currentPic) {
-                $('#picPreview').attr('src', currentPic).show();
-                $('#uploadPlaceholder').hide();
-            }
-            $('#modalTitle').text('Edit Driver');
-            openModal(false);
+    function saveDriver(){
+        const dto={name:$('#f-name').val(),phone:$('#f-phone').val(),licenceNo:$('#f-lic').val(),licenceExpiry:$('#f-exp').val(),vehicleType:$('#f-vtype').val(),status:$('#f-status').val(),profilePic:curPic};
+        if(!dto.name||!dto.licenceNo){showToast('Fill required fields','error');return;}
+        const isEdit=editId!==null;
+        $.ajax({url:isEdit?`${BASE}/${editId}`:BASE,method:isEdit?'PUT':'POST',contentType:'application/json',headers:authH(),data:JSON.stringify(dto),
+            success:function(){showToast(isEdit?'Driver updated ✅':'Driver added ✅','success');closeModal();renderTable();},
+            error:function(x){showToast(x.responseJSON?.message||'Error','error');}
         });
     }
 
-    function deleteDriver(id) {
-        if (confirm('Delete this driver?')) {
-            $.ajax({
-                url: `${BASE_URL}/${id}`,
-                method: 'DELETE',
-                success: function() { renderTable(); showToast('Deleted', 'error'); }
+    function editDriver(id){
+        $.get(`${BASE}/${id}`,function(res){
+            const d=res.data||res;editId=d.id;curPic=d.profilePic||'';
+            $('#f-name').val(d.name);$('#f-phone').val(d.phone);$('#f-lic').val(d.licenceNo);$('#f-exp').val(d.licenceExpiry);$('#f-vtype').val(d.vehicleType);$('#f-status').val(d.status);
+            if(curPic){$('#picPrev').attr('src',curPic).show();$('#picPh').hide();}
+            $('#mTitle').text('Edit Driver');
+            $('#modalOv').addClass('open');
+        });
+    }
+
+    function deleteDriver(id){
+        if(confirm('Delete this driver?')){
+            $.ajax({url:`${BASE}/${id}`,method:'DELETE',headers:authH(),
+                success:function(){renderTable();showToast('Driver deleted','success');},
+                error:function(x){showToast(x.responseJSON?.message||'Delete failed','error');}
             });
         }
     }
 
-    // --- EXPORT LOGIC ---
-
-    function exportPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-
-        doc.setFontSize(18);
-        doc.text("Rentify - Driver Fleet Report", 14, 20);
-
-        const rows = [];
-        $("#driverTable tr").each(function() {
-            const row = $(this).find("td");
-            if (row.length > 0) {
-                rows.push([
-                    row.eq(0).text().trim(),
-                    row.eq(2).find('strong').text().trim(),
-                    row.eq(3).text().trim(),
-                    row.eq(4).text().trim(),
-                    row.eq(5).text().split('⚠️')[0].trim(),
-                    row.eq(6).text().trim(),
-                    row.eq(2).find('.badge').text().trim()
-                ]);
-            }
-        });
-
-        doc.autoTable({
-            startY: 30,
-            head: [['ID', 'Name', 'Phone', 'Licence', 'Expiry', 'Vehicle', 'Status']],
-            body: rows,
-            headStyles: { fillColor: [34, 197, 94] }
-        });
-
-        doc.save("Drivers_Report.pdf");
+    function handlePic(e){
+        const file=e.target.files[0];if(!file)return;
+        const r=new FileReader();r.onload=ev=>{curPic=ev.target.result;$('#picPrev').attr('src',curPic).show();$('#picPh').hide();};r.readAsDataURL(file);
     }
 
-    function exportCSV() {
-        let csv = "ID,Name,Phone,Licence,Expiry,Vehicle,Status\n";
-        $("#driverTable tr").each(function() {
-            const r = $(this).find("td");
-            if(r.length > 0) {
-                csv += `${r.eq(0).text()},${r.eq(2).find('strong').text()},${r.eq(3).text()},${r.eq(4).text()},${r.eq(5).text().split('⚠️')[0].trim()},${r.eq(6).text()},${r.eq(2).find('.badge').text()}\n`;
-            }
-        });
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'drivers.csv'; a.click();
+    function openModal(){
+        editId=null;curPic='';
+        $('.fi').val('');$('#picPrev').hide();$('#picPh').show();$('#mTitle').text('Add Driver');
+        $('#modalOv').addClass('open');
+    }
+    function closeModal(){$('#modalOv').removeClass('open');}
+
+    function exportCSV(){
+        let csv='ID,Name,Phone,Licence,Expiry,Vehicle,Status\n';
+        $('#driverTable tr').each(function(){const r=$(this).find('td');if(r.length>0)csv+=`${r.eq(0).text()},${r.eq(2).find('div:first').text()},${r.eq(3).text()},${r.eq(4).text()},${r.eq(5).find('div:first').text()},${r.eq(6).text()},${r.eq(2).find('.badge').text()}\n`;});
+        const a=document.createElement('a');a.href='data:text/csv,'+encodeURIComponent(csv);a.download='drivers.csv';a.click();
     }
 
-    // --- UI HELPERS ---
-    function handlePic(e) {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.onload = ev => {
-            currentPic = ev.target.result;
-            $('#picPreview').attr('src', currentPic).show();
-            $('#uploadPlaceholder').hide();
-        };
-        reader.readAsDataURL(file);
+    function exportPDF(){
+        const {jsPDF}=window.jspdf;
+        const doc=new jsPDF('p','mm','a4');
+        doc.setFillColor(15,23,42);doc.rect(0,0,210,18,'F');
+        doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(245,158,11);doc.text('Rentify',14,12);
+        doc.setTextColor(255,255,255);doc.text('Driver Fleet Report',105,12,{align:'center'});
+        const rows=[];
+        $('#driverTable tr').each(function(){const r=$(this).find('td');if(r.length>0)rows.push([r.eq(0).text().trim(),r.eq(2).find('div:first').text().trim(),r.eq(3).text().trim(),r.eq(4).text().trim(),r.eq(5).find('div:first').text().trim(),r.eq(6).text().trim(),r.eq(2).find('.badge').text().trim()]);});
+        doc.autoTable({startY:24,head:[['ID','Name','Phone','Licence','Expiry','Vehicle','Status']],body:rows,headStyles:{fillColor:[22,163,74],textColor:[255,255,255],fontStyle:'bold',fontSize:8},bodyStyles:{textColor:[51,65,85],fontSize:8},alternateRowStyles:{fillColor:[248,250,252]},margin:{left:14,right:14}});
+        doc.setFontSize(8);doc.setTextColor(148,163,184);doc.text('© '+new Date().getFullYear()+' Rentify · Sri Lanka',105,doc.internal.pageSize.getHeight()-8,{align:'center'});
+        doc.save('Rentify_Drivers_'+new Date().toISOString().slice(0,10)+'.pdf');
+        showToast('PDF downloaded ✅','success');
     }
-    function openModal(clear = true) {
-        if(clear) {
-            editId = null; currentPic = '';
-            $('.form-input').val(''); $('#picPreview').hide(); $('#uploadPlaceholder').show();
-        }
-        $('#modalOverlay').addClass('open');
-    }
-    function closeModal() { $('#modalOverlay').removeClass('open'); }
 
-    $('#searchInput, #filterType').on('input change', renderTable);
+    $('#modalOv').on('click',function(e){if(e.target===this)closeModal();});
+    $('#searchInput,#filterType').on('input change',renderTable);
+    $(function(){renderTable();});
 </script>
 </body>
 </html>
