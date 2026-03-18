@@ -1341,3 +1341,68 @@
 2026-03-19 03:44:27 [http-nio-8081-exec-6] DEBUG org.hibernate.SQL - select v1_0.id,v1_0.capacity,v1_0.description,v1_0.image,v1_0.insurance_active,v1_0.insurance_expiry_date,v1_0.model,v1_0.plate_number,v1_0.price_per_day,v1_0.status,v1_0.type,v1_0.year from vehicles v1_0
 2026-03-19 03:44:27 [http-nio-8081-exec-6] DEBUG org.hibernate.SQL - select v1_0.id,v1_0.capacity,v1_0.description,v1_0.image,v1_0.insurance_active,v1_0.insurance_expiry_date,v1_0.model,v1_0.plate_number,v1_0.price_per_day,v1_0.status,v1_0.type,v1_0.year from vehicles v1_0
 2026-03-19 03:44:27 [http-nio-8081-exec-6] INFO  l.i.a.b.s.impl.VehicleServiceImpl - getAllVehicles → 16 results
+2026-03-19 03:53:09 [http-nio-8081-exec-10] DEBUG org.hibernate.SQL - select v1_0.id,v1_0.capacity,v1_0.description,v1_0.image,v1_0.insurance_active,v1_0.insurance_expiry_date,v1_0.model,v1_0.plate_number,v1_0.price_per_day,v1_0.status,v1_0.type,v1_0.year from vehicles v1_0
+2026-03-19 03:53:09 [http-nio-8081-exec-10] DEBUG org.hibernate.SQL - select v1_0.id,v1_0.capacity,v1_0.description,v1_0.image,v1_0.insurance_active,v1_0.insurance_expiry_date,v1_0.model,v1_0.plate_number,v1_0.price_per_day,v1_0.status,v1_0.type,v1_0.year from vehicles v1_0
+2026-03-19 03:53:09 [http-nio-8081-exec-1] DEBUG org.hibernate.SQL - select a1_0.admin_id,a1_0.email,a1_0.full_name,a1_0.image_type,a1_0.password,a1_0.phone,a1_0.profile_image,a1_0.role,a1_0.username from admin a1_0 where a1_0.username=?
+2026-03-19 03:53:09 [http-nio-8081-exec-1] DEBUG org.hibernate.SQL - select a1_0.admin_id,a1_0.email,a1_0.full_name,a1_0.image_type,a1_0.password,a1_0.phone,a1_0.profile_image,a1_0.role,a1_0.username from admin a1_0 where a1_0.username=?
+2026-03-19 03:53:09 [http-nio-8081-exec-10] INFO  l.i.a.b.s.impl.VehicleServiceImpl - getAllVehicles → 16 results
+2026-03-19 03:53:09 [http-nio-8081-exec-1] DEBUG org.hibernate.SQL - select u1_0.user_id,u1_0.created_at,u1_0.email,u1_0.full_name,u1_0.image_type,u1_0.password,u1_0.phone,u1_0.profile_image,u1_0.role,u1_0.username from users u1_0 where u1_0.username=?
+2026-03-19 03:53:09 [http-nio-8081-exec-1] DEBUG org.hibernate.SQL - select u1_0.user_id,u1_0.created_at,u1_0.email,u1_0.full_name,u1_0.image_type,u1_0.password,u1_0.phone,u1_0.profile_image,u1_0.role,u1_0.username from users u1_0 where u1_0.username=?
+2026-03-19 03:54:48 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 03:54:48 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-19 03:54:48 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-19 04:00:02 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2026-03-19 04:00:02 [main] INFO  l.i.aad.backend.BackEndApplication - Starting BackEndApplication using Java 21.0.7 with PID 20608 (C:\Users\saumy\IdeaProjects\SpringBoot-FinalProject\Rentify\BackEnd\target\classes started by saumy in C:\Users\saumy\IdeaProjects\SpringBoot-FinalProject\Rentify)
+2026-03-19 04:00:02 [main] INFO  l.i.aad.backend.BackEndApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-19 04:00:03 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-19 04:00:03 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 50 ms. Found 7 JPA repository interfaces.
+2026-03-19 04:00:03 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8081 (http)
+2026-03-19 04:00:03 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8081"]
+2026-03-19 04:00:03 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-19 04:00:03 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.24]
+2026-03-19 04:00:03 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-19 04:00:03 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1110 ms
+2026-03-19 04:00:03 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-19 04:00:03 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.2.Final
+2026-03-19 04:00:03 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-03-19 04:00:04 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-19 04:00:04 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-19 04:00:04 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1ba7db2a
+2026-03-19 04:00:04 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-19 04:00:04 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-19 04:00:05 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-19 04:00:05 [main] DEBUG org.hibernate.SQL - alter table drivers modify column profile_pic LONGTEXT
+2026-03-19 04:00:05 [main] DEBUG org.hibernate.SQL - alter table drivers modify column profile_pic LONGTEXT
+2026-03-19 04:00:05 [main] DEBUG org.hibernate.SQL - alter table users modify column profile_image LONGBLOB
+2026-03-19 04:00:05 [main] DEBUG org.hibernate.SQL - alter table users modify column profile_image LONGBLOB
+2026-03-19 04:00:05 [main] DEBUG org.hibernate.SQL - alter table vehicles modify column image LONGTEXT
+2026-03-19 04:00:05 [main] DEBUG org.hibernate.SQL - alter table vehicles modify column image LONGTEXT
+2026-03-19 04:00:05 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 04:00:05 [main] INFO  o.s.s.c.a.a.c.InitializeAuthenticationProviderBeanManagerConfigurer$InitializeAuthenticationProviderManagerConfigurer - Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2026-03-19 04:00:05 [main] WARN  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider.
+2026-03-19 04:00:05 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-19 04:00:06 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-19 04:00:06 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@7dc175c6, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@1ddf5237, org.springframework.security.web.context.SecurityContextHolderFilter@520acc7a, org.springframework.security.web.header.HeaderWriterFilter@3fcd5561, org.springframework.web.filter.CorsFilter@5e4b92b3, org.springframework.security.web.authentication.logout.LogoutFilter@1c7f52c8, lk.ijse.aad.backend.utill.JWTAuthFilter@2d18d9ed, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@2566428f, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@34468b30, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@c14943c, org.springframework.security.web.session.SessionManagementFilter@3519f35, org.springframework.security.web.access.ExceptionTranslationFilter@38c9a48, org.springframework.security.web.access.intercept.AuthorizationFilter@318a2e9f]
+2026-03-19 04:00:06 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8081"]
+2026-03-19 04:00:06 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8081 (http) with context path '/'
+2026-03-19 04:00:06 [main] INFO  l.i.aad.backend.BackEndApplication - Started BackEndApplication in 4.619 seconds (process running for 5.285)
+2026-03-19 04:00:27 [http-nio-8081-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-19 04:00:27 [http-nio-8081-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-19 04:00:27 [http-nio-8081-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-03-19 04:00:27 [http-nio-8081-exec-3] DEBUG org.hibernate.SQL - select a1_0.admin_id,a1_0.email,a1_0.full_name,a1_0.image_type,a1_0.password,a1_0.phone,a1_0.profile_image,a1_0.role,a1_0.username from admin a1_0 where a1_0.username=?
+2026-03-19 04:00:27 [http-nio-8081-exec-3] DEBUG org.hibernate.SQL - select a1_0.admin_id,a1_0.email,a1_0.full_name,a1_0.image_type,a1_0.password,a1_0.phone,a1_0.profile_image,a1_0.role,a1_0.username from admin a1_0 where a1_0.username=?
+2026-03-19 04:00:27 [http-nio-8081-exec-3] DEBUG org.hibernate.SQL - select u1_0.user_id,u1_0.created_at,u1_0.email,u1_0.full_name,u1_0.image_type,u1_0.password,u1_0.phone,u1_0.profile_image,u1_0.role,u1_0.username from users u1_0 where u1_0.username=?
+2026-03-19 04:00:27 [http-nio-8081-exec-3] DEBUG org.hibernate.SQL - select u1_0.user_id,u1_0.created_at,u1_0.email,u1_0.full_name,u1_0.image_type,u1_0.password,u1_0.phone,u1_0.profile_image,u1_0.role,u1_0.username from users u1_0 where u1_0.username=?
+2026-03-19 04:00:28 [http-nio-8081-exec-3] DEBUG org.hibernate.SQL - select a1_0.admin_id,a1_0.email,a1_0.full_name,a1_0.image_type,a1_0.password,a1_0.phone,a1_0.profile_image,a1_0.role,a1_0.username from admin a1_0 where a1_0.username=?
+2026-03-19 04:00:28 [http-nio-8081-exec-3] DEBUG org.hibernate.SQL - select a1_0.admin_id,a1_0.email,a1_0.full_name,a1_0.image_type,a1_0.password,a1_0.phone,a1_0.profile_image,a1_0.role,a1_0.username from admin a1_0 where a1_0.username=?
+2026-03-19 04:00:28 [http-nio-8081-exec-3] DEBUG org.hibernate.SQL - select u1_0.user_id,u1_0.created_at,u1_0.email,u1_0.full_name,u1_0.image_type,u1_0.password,u1_0.phone,u1_0.profile_image,u1_0.role,u1_0.username from users u1_0 where u1_0.username=?
+2026-03-19 04:00:28 [http-nio-8081-exec-3] DEBUG org.hibernate.SQL - select u1_0.user_id,u1_0.created_at,u1_0.email,u1_0.full_name,u1_0.image_type,u1_0.password,u1_0.phone,u1_0.profile_image,u1_0.role,u1_0.username from users u1_0 where u1_0.username=?
+2026-03-19 04:00:33 [http-nio-8081-exec-2] DEBUG org.hibernate.SQL - select v1_0.id,v1_0.capacity,v1_0.description,v1_0.image,v1_0.insurance_active,v1_0.insurance_expiry_date,v1_0.model,v1_0.plate_number,v1_0.price_per_day,v1_0.status,v1_0.type,v1_0.year from vehicles v1_0
+2026-03-19 04:00:33 [http-nio-8081-exec-2] DEBUG org.hibernate.SQL - select v1_0.id,v1_0.capacity,v1_0.description,v1_0.image,v1_0.insurance_active,v1_0.insurance_expiry_date,v1_0.model,v1_0.plate_number,v1_0.price_per_day,v1_0.status,v1_0.type,v1_0.year from vehicles v1_0
+2026-03-19 04:00:33 [http-nio-8081-exec-2] INFO  l.i.a.b.s.impl.VehicleServiceImpl - getAllVehicles → 16 results
+2026-03-19 04:00:33 [http-nio-8081-exec-6] DEBUG org.hibernate.SQL - select v1_0.id,v1_0.capacity,v1_0.description,v1_0.image,v1_0.insurance_active,v1_0.insurance_expiry_date,v1_0.model,v1_0.plate_number,v1_0.price_per_day,v1_0.status,v1_0.type,v1_0.year from vehicles v1_0
+2026-03-19 04:00:33 [http-nio-8081-exec-6] DEBUG org.hibernate.SQL - select v1_0.id,v1_0.capacity,v1_0.description,v1_0.image,v1_0.insurance_active,v1_0.insurance_expiry_date,v1_0.model,v1_0.plate_number,v1_0.price_per_day,v1_0.status,v1_0.type,v1_0.year from vehicles v1_0
+2026-03-19 04:00:33 [http-nio-8081-exec-6] INFO  l.i.a.b.s.impl.VehicleServiceImpl - getAllVehicles → 16 results
+2026-03-19 04:09:09 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 04:09:09 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-19 04:09:09 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
