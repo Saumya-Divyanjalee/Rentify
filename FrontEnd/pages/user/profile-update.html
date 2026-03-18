@@ -25,10 +25,8 @@
     }
     html, body { font-family: 'DM Sans', sans-serif; min-height: 100vh; background: var(--surface); color: var(--text-dark); }
 
-    /* PAGE LAYOUT */
     .page-wrap { min-height: 100vh; display: grid; grid-template-columns: 360px 1fr; }
 
-    /* SIDEBAR */
     .sidebar { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 48px 36px; }
     .sidebar-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
     .sidebar-overlay { position: absolute; inset: 0; background: linear-gradient(160deg, rgba(5,46,22,0.9) 0%, rgba(5,46,22,0.72) 50%, rgba(5,46,22,0.94) 100%); z-index: 1; }
@@ -52,7 +50,6 @@
     .step-desc { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 2px; }
     .sidebar-footer { font-size: 11px; color: rgba(255,255,255,0.3); }
 
-    /* MAIN */
     .content { padding: 56px 60px; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; }
     .page-header { margin-bottom: 32px; }
     .page-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--green-soft); color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--green-light); margin-bottom: 14px; }
@@ -61,7 +58,6 @@
     .page-title { font-family: 'Roboto Mono', monospace; font-size: 34px; font-weight: 700; color: var(--green-dark); margin-bottom: 8px; }
     .page-sub { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
 
-    /* AVATAR */
     .avatar-section { display: flex; align-items: center; gap: 20px; padding: 18px 20px; background: var(--green-soft); border-radius: 14px; border: 1.5px solid var(--green-light); margin-bottom: 20px; }
     .avatar-ring { width: 72px; height: 72px; border-radius: 50%; background: var(--green); color: var(--white); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; border: 3px solid var(--green-light); flex-shrink: 0; }
     .avatar-info h4 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: var(--text-dark); }
@@ -69,13 +65,11 @@
     .role-chip { display: inline-block; margin-top: 5px; background: var(--green); color: var(--white); font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; }
     .role-chip.admin { background: #7c3aed; }
 
-    /* NOTICE */
     .notice { display: flex; align-items: flex-start; gap: 10px; padding: 13px 16px; border-radius: 12px; font-size: 13px; line-height: 1.6; margin-bottom: 20px; }
     .notice.info { background: #eff6ff; border: 1.5px solid #bfdbfe; color: #1e40af; }
     .notice.warn { background: #fefce8; border: 1.5px solid #fde68a; color: #92400e; }
     .notice-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 
-    /* FORM CARD */
     .form-card { background: var(--white); border-radius: 16px; border: 1.5px solid var(--border); padding: 28px; margin-bottom: 18px; transition: box-shadow 0.3s; }
     .form-card:hover { box-shadow: 0 4px 20px rgba(22,163,74,0.07); }
     .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1.5px solid var(--green-soft); }
@@ -83,7 +77,6 @@
     .card-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-dark); }
     .card-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
-    /* FORM GRID */
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; }
     .span-full { grid-column: 1 / -1; }
     .field { display: flex; flex-direction: column; gap: 6px; }
@@ -103,7 +96,6 @@
     .toggle-pw { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); opacity: 0.4; transition: opacity 0.2s; display: flex; align-items: center; }
     .toggle-pw:hover { opacity: 0.8; }
 
-    /* PASSWORD STRENGTH */
     .pw-strength { margin-top: 7px; display: none; }
     .pw-bars { display: flex; gap: 4px; margin-bottom: 4px; }
     .pw-bar { height: 3px; flex: 1; border-radius: 3px; background: #e5e7eb; transition: background 0.3s; }
@@ -115,7 +107,6 @@
     .pw-label.medium { color: var(--yellow); }
     .pw-label.strong { color: var(--green); }
 
-    /* BUTTONS */
     .action-row { display: flex; gap: 12px; margin-top: 22px; flex-wrap: wrap; }
     .btn { padding: 13px 26px; border-radius: 11px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.22s; display: flex; align-items: center; gap: 8px; }
     .btn-primary { background: var(--green); color: var(--white); box-shadow: 0 4px 16px rgba(22,163,74,0.25); }
@@ -126,7 +117,6 @@
     .spinner-sm { display: none; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* SUCCESS */
     .success-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 56px 0; animation: fadeUp 0.5s ease both; }
     .success-overlay.show { display: flex; }
     @keyframes fadeUp { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
@@ -134,7 +124,6 @@
     .success-overlay h3 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--text-dark); margin-bottom: 10px; }
     .success-overlay p  { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-bottom: 24px; }
 
-    /* TOAST */
     .toast-box { position: fixed; bottom: 24px; right: 24px; z-index: 9999; background: var(--white); border-radius: 13px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.13); display: none; border-left: 4px solid var(--green); max-width: 340px; font-size: 14px; color: var(--text-mid); }
     .toast-box.show  { display: flex; align-items: center; gap: 10px; animation: toastIn 0.3s ease; }
     .toast-box.error { border-left-color: var(--red); }
@@ -147,14 +136,11 @@
 <body>
 
 <div class="page-wrap">
-
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <video class="sidebar-bg" autoplay muted loop playsinline>
       <source src="../../assets/video/night-road.mp4" type="video/mp4">
     </video>
     <div class="sidebar-overlay"></div>
-
     <div>
       <div class="brand">
         <div class="brand-mark">R</div>
@@ -177,23 +163,17 @@
         </div>
       </div>
     </div>
-
     <div class="sidebar-footer">© 2026 Rentify Inc. · Privacy Policy</div>
   </aside>
 
-  <!-- CONTENT -->
   <main class="content">
-
-    <!-- FORM VIEW -->
     <div id="formView">
-
       <div class="page-header">
         <div class="page-badge"><span class="dot"></span> Profile Management</div>
         <h1 class="page-title">Update Your Details</h1>
-        <p class="page-sub">Change your name, email, username or set a new password.<br>Fields marked <span style="color:var(--red)">*</span> are required.</p>
+        <p class="page-sub">Change your name, email or set a new password.<br>Fields marked <span style="color:var(--red)">*</span> are required.</p>
       </div>
 
-      <!-- Current user card -->
       <div class="avatar-section">
         <div class="avatar-ring" id="avatarInitials">?</div>
         <div class="avatar-info">
@@ -205,12 +185,10 @@
 
       <div class="notice info">
         <span class="notice-icon">ℹ️</span>
-        <span>Updating your <strong>email or username</strong> will change your sign-in credentials. Remember your new details for next login.</span>
+        <span>Updating your <strong>email</strong> will change your sign-in credentials. Remember your new details for next login.</span>
       </div>
 
       <form id="updateForm" novalidate>
-
-        <!-- Personal info -->
         <div class="form-card">
           <div class="card-header">
             <div class="card-icon">👤</div>
@@ -219,7 +197,6 @@
               <div class="card-subtitle">Update name, contact &amp; login details</div>
             </div>
           </div>
-
           <div class="form-grid">
             <div class="field">
               <label>First Name <span class="req">*</span></label>
@@ -229,7 +206,6 @@
               </div>
               <span class="field-hint err-msg" id="err-firstName">First name is required.</span>
             </div>
-
             <div class="field">
               <label>Last Name <span class="req">*</span></label>
               <div class="input-wrap">
@@ -238,7 +214,6 @@
               </div>
               <span class="field-hint err-msg" id="err-lastName">Last name is required.</span>
             </div>
-
             <div class="field span-full">
               <label>Email Address <span class="req">*</span></label>
               <div class="input-wrap">
@@ -247,7 +222,6 @@
               </div>
               <span class="field-hint err-msg" id="err-email">Please enter a valid email address.</span>
             </div>
-
             <div class="field span-full">
               <label>Phone Number</label>
               <div class="input-wrap">
@@ -255,20 +229,9 @@
                 <input type="tel" id="phone" placeholder="+94 77 123 4567" autocomplete="tel">
               </div>
             </div>
-
-            <div class="field span-full">
-              <label>Username <span class="req">*</span></label>
-              <div class="input-wrap">
-                <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
-                <input type="text" id="username" placeholder="john_doe" autocomplete="username">
-              </div>
-              <span class="field-hint">This is what you use to sign in.</span>
-              <span class="field-hint err-msg" id="err-username">Username is required.</span>
-            </div>
           </div>
         </div>
 
-        <!-- Password -->
         <div class="form-card">
           <div class="card-header">
             <div class="card-icon">🔐</div>
@@ -277,13 +240,23 @@
               <div class="card-subtitle">Leave blank to keep your current password</div>
             </div>
           </div>
-
           <div class="notice warn">
             <span class="notice-icon">⚠️</span>
             <span>If you set a new password here, you must use it the next time you sign in.</span>
           </div>
-
           <div class="form-grid">
+            <div class="field span-full">
+              <label>Current Password <span class="req">*</span></label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                <input type="password" id="currentPassword" placeholder="Enter your current password" autocomplete="current-password">
+                <button type="button" class="toggle-pw" data-target="currentPassword">
+                  <svg width="17" height="17" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+              <span class="field-hint">Required only if you want to change the password.</span>
+              <span class="field-hint err-msg" id="err-currentPassword">Current password is required to change password.</span>
+            </div>
             <div class="field">
               <label>New Password</label>
               <div class="input-wrap">
@@ -299,7 +272,6 @@
               </div>
               <span class="field-hint err-msg" id="err-pw1">Password must be at least 6 characters.</span>
             </div>
-
             <div class="field">
               <label>Confirm New Password</label>
               <div class="input-wrap">
@@ -314,38 +286,115 @@
           </div>
         </div>
 
-        <!-- Actions -->
         <div class="action-row">
           <button type="submit" class="btn btn-primary" id="saveBtn">
             <div class="spinner-sm" id="saveSpinner"></div>
             <svg id="saveIcon" width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
             <span id="saveText">Save Changes</span>
           </button>
-          <button type="button" class="btn btn-ghost" onclick="goBack()">
-            ← Back to Sign In
-          </button>
+          <button type="button" class="btn btn-ghost" onclick="goBack()">← Back to Sign In</button>
         </div>
-
       </form>
     </div>
 
-    <!-- SUCCESS VIEW -->
     <div class="success-overlay" id="successView">
       <div class="success-icon">🎉</div>
       <h3>Profile Updated!</h3>
       <p id="successMsg">Your details have been saved.<br>Redirecting to sign in…</p>
       <button class="btn btn-primary" onclick="goToSignIn()">→ Go to Sign In</button>
     </div>
-
   </main>
 </div>
 
 <div class="toast-box" id="toastBox"></div>
+<script>
+  const API_BASE = 'http://localhost:8081/api/v1';
+
+  // Global AJAX setup to include Token automatically
+  $.ajaxSetup({
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('rentify_token')
+    }
+  });
+
+  $(document).ready(function() {
+    // Fetch fresh profile data
+    $.get(`${API_BASE}/user/profile`, function(res) {
+      const u = res.data;
+      const names = u.fullName.split(' ');
+      $('#firstName').val(names[0]);
+      $('#lastName').val(names.slice(1).join(' '));
+      $('#email').val(u.email);
+      $('#phone').val(u.phone);
+      $('#displayName').text(u.fullName);
+      $('#avatarInitials').text(u.fullName.charAt(0));
+    });
+  });
+
+  $('#updateForm').on('submit', function(e) {
+    e.preventDefault();
+
+    const profileData = {
+      fullName: $('#firstName').val() + ' ' + $('#lastName').val(),
+      email: $('#email').val(),
+      phone: $('#phone').val()
+    };
+
+    // 1. Update Profile
+    $.ajax({
+      url: `${API_BASE}/user/profile`,
+      method: 'PUT',
+      contentType: 'application/json',
+      data: JSON.stringify(profileData),
+      success: function() {
+        // 2. If password fields are filled, call change-password
+        const newPw = $('#pw1').val();
+        if(newPw) {
+          changePassword();
+        } else {
+          showToast('Profile Updated');
+        }
+      }
+    });
+  });
+
+  function changePassword() {
+    const pwDto = {
+      currentPassword: $('#currentPassword').val(),
+      newPassword: $('#pw1').val()
+    };
+
+    $.ajax({
+      url: `${API_BASE}/user/change-password`,
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(pwDto),
+      success: function() {
+        showToast('Password Changed! Please Login again.');
+        setTimeout(() => { window.location.href = '../sign-in.html'; }, 2000);
+      },
+      error: function(xhr) {
+        showToast(xhr.responseJSON.message, true);
+      }
+    });
+  }
+</script>
 
 <script>
+  // ── profile-update.html is in /pages/user/ ───────────────────────────────
+  // sign-in.html is in /pages/ → path from here: ../sign-in.html
+
   const API_BASE = 'http://localhost:8080/api/v1';
 
-  /* ── Load current user from localStorage ─────────────────────────────── */
+  function getToken()    { return localStorage.getItem('rentify_token'); }
+  function authHeaders() {
+    return {
+      'Content-Type':  'application/json',
+      'Authorization': 'Bearer ' + getToken()
+    };
+  }
+
+  /* ── Load user info from localStorage ──────────────────────────────────── */
   function loadCurrentUser() {
     const fullName = localStorage.getItem('rentify_fullName') || '';
     const username = localStorage.getItem('rentify_username') || '';
@@ -357,7 +406,6 @@
     document.getElementById('firstName').value = parts[0] || '';
     document.getElementById('lastName').value  = parts.slice(1).join(' ') || '';
     document.getElementById('email').value     = email;
-    document.getElementById('username').value  = username;
     document.getElementById('phone').value     = phone;
 
     const initials = ((parts[0]||'')[0] || (username[0]||'?')).toUpperCase()
@@ -371,6 +419,32 @@
     if (role === 'ADMIN') roleEl.classList.add('admin');
   }
 
+  /* ── If user has a token, also fetch fresh data from server ─────────────── */
+  async function fetchProfileFromServer() {
+    if (!getToken()) return;
+    try {
+      const res = await fetch(`${API_BASE}/user/profile`, { headers: authHeaders() });
+      if (!res.ok) return;
+      const result = await res.json();
+      if (result.code === 200) {
+        const u = result.data;
+        const parts = (u.fullName || '').trim().split(' ');
+        document.getElementById('firstName').value = parts[0] || '';
+        document.getElementById('lastName').value  = parts.slice(1).join(' ') || '';
+        document.getElementById('email').value     = u.email || '';
+        document.getElementById('phone').value     = u.phone || '';
+        document.getElementById('displayName').textContent  = u.fullName  || '';
+        document.getElementById('displayEmail').textContent = u.email     || '';
+        const initials = ((parts[0]||'')[0]||'?').toUpperCase() + ((parts[1]||'')[0]||'').toUpperCase();
+        document.getElementById('avatarInitials').textContent = initials;
+        // Update localStorage too
+        localStorage.setItem('rentify_fullName', u.fullName || '');
+        localStorage.setItem('rentify_email',    u.email    || '');
+        localStorage.setItem('rentify_phone',    u.phone    || '');
+      }
+    } catch (e) { /* silent — localStorage values already shown */ }
+  }
+
   /* ── Sidebar step highlighter ─────────────────────────────────────────── */
   function setStep(active) {
     document.querySelectorAll('#stepsList .step').forEach(s => {
@@ -381,7 +455,7 @@
     });
   }
 
-  /* ── Toast ────────────────────────────────────────────────────────────── */
+  /* ── Toast ─────────────────────────────────────────────────────────────── */
   function showToast(msg, type = 'success') {
     const t = document.getElementById('toastBox');
     t.innerHTML = (type === 'error' ? '❌ ' : '✅ ') + msg;
@@ -390,7 +464,7 @@
     t._t = setTimeout(() => { t.className = 'toast-box'; }, 4500);
   }
 
-  /* ── Password strength ────────────────────────────────────────────────── */
+  /* ── Password strength ─────────────────────────────────────────────────── */
   document.getElementById('pw1').addEventListener('input', function () {
     const pw  = this.value;
     const box = document.getElementById('pwStrength');
@@ -406,7 +480,6 @@
     else                 { bars.forEach(b => b.classList.add('strong')); lbl.className = 'pw-label strong'; lbl.textContent = 'Strong password!'; }
   });
 
-  /* ── Toggle password visibility ──────────────────────────────────────── */
   document.querySelectorAll('.toggle-pw').forEach(btn => {
     btn.addEventListener('click', function () {
       const inp = document.getElementById(this.dataset.target);
@@ -414,21 +487,20 @@
     });
   });
 
-  /* ── Inline error helpers ─────────────────────────────────────────────── */
+  /* ── Inline error helpers ──────────────────────────────────────────────── */
   function setErr(id, msg) {
     const inp = document.getElementById(id);
     const err = document.getElementById('err-' + id);
-    inp.classList.add('error');
+    if (inp) inp.classList.add('error');
     if (err) { err.textContent = msg; err.classList.add('show'); }
   }
   function clearErr(id) {
     const inp = document.getElementById(id);
     const err = document.getElementById('err-' + id);
-    inp.classList.remove('error');
+    if (inp) inp.classList.remove('error');
     if (err) err.classList.remove('show');
   }
 
-  /* Clear errors on typing */
   document.querySelectorAll('input').forEach(inp => {
     inp.addEventListener('input', () => {
       inp.classList.remove('error');
@@ -437,35 +509,40 @@
     });
   });
 
-  /* Sidebar step follows focus */
-  ['firstName','lastName','email','phone','username'].forEach(id => {
+  ['firstName','lastName','email','phone'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('focus', () => setStep(1));
   });
-  ['pw1','pw2'].forEach(id => {
+  ['currentPassword','pw1','pw2'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('focus', () => setStep(2));
   });
 
-  /* ── FORM SUBMIT ──────────────────────────────────────────────────────── */
+  /* ── FORM SUBMIT ───────────────────────────────────────────────────────── */
   document.getElementById('updateForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    const firstName = document.getElementById('firstName').value.trim();
-    const lastName  = document.getElementById('lastName').value.trim();
-    const email     = document.getElementById('email').value.trim();
-    const phone     = document.getElementById('phone').value.trim();
-    const username  = document.getElementById('username').value.trim();
-    const pw1       = document.getElementById('pw1').value;
-    const pw2       = document.getElementById('pw2').value;
+    const firstName       = document.getElementById('firstName').value.trim();
+    const lastName        = document.getElementById('lastName').value.trim();
+    const email           = document.getElementById('email').value.trim();
+    const phone           = document.getElementById('phone').value.trim();
+    const currentPassword = document.getElementById('currentPassword').value;
+    const pw1             = document.getElementById('pw1').value;
+    const pw2             = document.getElementById('pw2').value;
 
     let valid = true;
-    if (!firstName)  { setErr('firstName', 'First name is required.'); valid = false; } else clearErr('firstName');
-    if (!lastName)   { setErr('lastName',  'Last name is required.');  valid = false; } else clearErr('lastName');
+    if (!firstName) { setErr('firstName', 'First name is required.'); valid = false; } else clearErr('firstName');
+    if (!lastName)  { setErr('lastName',  'Last name is required.');  valid = false; } else clearErr('lastName');
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setErr('email', 'Valid email is required.'); valid = false; } else clearErr('email');
-    if (!username)   { setErr('username', 'Username is required.'); valid = false; } else clearErr('username');
-    if (pw1 && pw1.length < 6) { setErr('pw1', 'Password must be at least 6 characters.'); valid = false; } else clearErr('pw1');
-    if (pw1 && pw2 !== pw1)    { setErr('pw2', 'Passwords do not match.'); valid = false; } else clearErr('pw2');
+
+    // Password change validation — only if pw1 is filled
+    if (pw1) {
+      if (!currentPassword) { setErr('currentPassword', 'Current password is required to change password.'); valid = false; } else clearErr('currentPassword');
+      if (pw1.length < 6)   { setErr('pw1', 'Password must be at least 6 characters.'); valid = false; } else clearErr('pw1');
+      if (pw2 !== pw1)      { setErr('pw2', 'Passwords do not match.'); valid = false; } else clearErr('pw2');
+    } else {
+      clearErr('currentPassword'); clearErr('pw1'); clearErr('pw2');
+    }
 
     if (!valid) {
       showToast('Please fix the errors highlighted above.', 'error');
@@ -480,34 +557,58 @@
     const text = document.getElementById('saveText');
     btn.disabled = true; spin.style.display = 'block'; icon.style.display = 'none'; text.textContent = 'Saving…';
 
-    const payload = { fullName: (firstName + ' ' + lastName).trim(), email, phone, username };
-    if (pw1) payload.password = pw1;
-
-    const token = localStorage.getItem('rentify_token');
+    const token   = getToken();
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = 'Bearer ' + token;
 
     try {
-      const res    = await fetch(`${API_BASE}/user/profile`, { method: 'PUT', headers, body: JSON.stringify(payload) });
-      const result = await res.json();
+      let profileUpdated  = false;
+      let passwordChanged = false;
 
-      if (!res.ok || (result.code && result.code !== 200)) {
-        throw new Error(result.message || 'Update failed. Please try again.');
+      // ── Step A: Update profile (name, email, phone) ──────────────────────
+      const profilePayload = {
+        fullName: (firstName + ' ' + lastName).trim(),
+        email,
+        phone
+      };
+
+      const profileRes = await fetch(`${API_BASE}/user/profile`, {
+        method: 'PUT', headers, body: JSON.stringify(profilePayload)
+      });
+      const profileResult = await profileRes.json();
+
+      if (!profileRes.ok || (profileResult.code && profileResult.code !== 200)) {
+        throw new Error(profileResult.message || 'Profile update failed.');
+      }
+      profileUpdated = true;
+
+      // ── Step B: Change password (only if pw1 filled) ─────────────────────
+      if (pw1 && currentPassword) {
+        const pwRes = await fetch(`${API_BASE}/user/change-password`, {
+          method: 'POST', headers,
+          body: JSON.stringify({ currentPassword, newPassword: pw1 })
+        });
+        const pwResult = await pwRes.json();
+
+        if (!pwRes.ok || (pwResult.code && pwResult.code !== 200)) {
+          throw new Error(pwResult.message || 'Password change failed.');
+        }
+        passwordChanged = true;
       }
 
-      /* Update localStorage */
-      localStorage.setItem('rentify_fullName', payload.fullName);
-      localStorage.setItem('rentify_username', username);
+      // ── Update localStorage ───────────────────────────────────────────────
+      localStorage.setItem('rentify_fullName', profilePayload.fullName);
       localStorage.setItem('rentify_email',    email);
       if (phone) localStorage.setItem('rentify_phone', phone);
 
-      /* Password changed → force fresh login */
-      if (pw1) {
+      if (passwordChanged) {
+        // Force fresh login after password change
         localStorage.removeItem('rentify_token');
         localStorage.removeItem('rentify_auth');
       }
 
-      document.getElementById('successMsg').innerHTML = pw1
+      // ── Success ───────────────────────────────────────────────────────────
+      document.getElementById('successMsg').innerHTML = passwordChanged
               ? 'Your details &amp; new password have been saved.<br>Please sign in again with your new password.'
               : 'Your details have been saved successfully.<br>Redirecting to sign in…';
 
@@ -523,11 +624,13 @@
     }
   });
 
-  function goBack()    { window.location.href = '../sign-in.html'; }
-  function goToSignIn(){ window.location.href = '../sign-in.html'; }
+  // profile-update.html is in /pages/user/ → sign-in.html is ../sign-in.html
+  function goBack()     { window.location.href = '../sign-in.html'; }
+  function goToSignIn() { window.location.href = '../sign-in.html'; }
 
-  /* Init */
-  loadCurrentUser();
+  // ── Init ─────────────────────────────────────────────────────────────────
+  loadCurrentUser();  // show from localStorage immediately
+  fetchProfileFromServer(); // then refresh from API if token exists
   setStep(1);
 </script>
 </body>

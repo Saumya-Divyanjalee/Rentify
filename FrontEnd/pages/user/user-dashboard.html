@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Rentify — Sri Lanka's #1 Cab & Travel Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+        :root{
+            --white:#fff;--bg:#f8f9fc;--ink:#0a0d1a;--ink2:#1e2340;--ink3:#4a5278;--ink4:#8890b0;
+            --border:#e8eaf2;--accent:#1a3fff;--accent-l:#eef1ff;--green:#00b86b;--red:#ff3b5c;
+            --yellow:#f5c518;--orange:#ff7a00;
+            --shadow:0 4px 24px rgba(10,13,26,.08);--shadow-lg:0 16px 56px rgba(10,13,26,.14);
+            --r:12px;--r-lg:20px;
+        }
+        html{scroll-behavior:smooth;font-size:14px;}
+        body{font-family:'Roboto Mono',monospace;background:var(--white);color:var(--ink);overflow-x:hidden;}
+        .bungee-regular{font-family:"Bungee",sans-serif;font-weight:400;font-style:normal;}
+
+        /* ── NAV ── */
+        nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;padding:0 48px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.96);backdrop-filter:blur(20px);border-bottom:1.5px solid var(--border);box-shadow:0 2px 16px rgba(10,13,26,.05);}
+        .logo{font-family:"Bungee",sans-serif;font-size:22px;text-decoration:none;color:var(--ink);letter-spacing:.5px;}
+        .logo span{color:var(--accent);}
+        .nav-links{display:flex;gap:4px;}
+        .nav-links a{text-decoration:none;color:var(--ink3);font-size:12px;font-weight:500;padding:8px 14px;border-radius:8px;transition:all .18s;letter-spacing:.3px;}
+        .nav-links a:hover{color:var(--ink);background:var(--bg);}
+        .nav-links a.active{color:var(--accent);background:var(--accent-l);font-weight:700;}
+        .nav-right{display:flex;align-items:center;gap:10px;}
+        .nav-btn{background:var(--accent);color:#fff;padding:9px 20px;border-radius:9px;font-size:12px;font-weight:600;font-family:'Roboto Mono',monospace;border:none;cursor:pointer;transition:all .18s;text-decoration:none;display:inline-flex;align-items:center;gap:7px;box-shadow:0 2px 12px rgba(26,63,255,.25);}
+        .nav-btn:hover{background:#0028cc;transform:translateY(-1px);}
+        .user-menu{position:relative;}
+        .user-avatar{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#6e8fff);display:flex;align-items:center;justify-content:center;font-family:"Bungee",sans-serif;font-size:13px;color:#fff;cursor:pointer;border:2px solid rgba(26,63,255,.2);transition:.18s;}
+        .user-avatar:hover{transform:scale(1.05);}
+        .user-dropdown{position:absolute;top:calc(100%+10px);right:0;background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);min-width:200px;padding:8px;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transform:translateY(-8px);transition:.2s;z-index:99;}
+        .user-menu:hover .user-dropdown{opacity:1;pointer-events:all;transform:translateY(0);}
+        .ud-name{font-family:"Bungee",sans-serif;font-size:11px;color:var(--ink);padding:8px 12px 4px;letter-spacing:.3px;}
+        .ud-role{font-size:9px;color:var(--accent);background:var(--accent-l);padding:2px 7px;border-radius:4px;margin:0 12px 8px;display:inline-block;font-family:"Bungee",sans-serif;letter-spacing:1px;}
+        .ud-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;text-decoration:none;color:var(--ink3);font-size:11px;cursor:pointer;transition:.15s;background:none;border:none;width:100%;text-align:left;font-family:'Roboto Mono',monospace;}
+        .ud-item:hover{background:var(--bg);color:var(--ink);}
+        .ud-item.logout:hover{background:#fff0f3;color:var(--red);}
+        .ud-divider{height:1px;background:var(--border);margin:5px 0;}
+        .signin-btn{padding:8px 16px;border:1.5px solid var(--border);border-radius:9px;font-size:12px;color:var(--ink3);background:#fff;cursor:pointer;font-family:'Roboto Mono',monospace;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:.18s;}
+        .signin-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+        /* ── HERO VIDEO ── */
+        .hero{position:relative;height:100vh;min-height:600px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+        .hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+        .hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,13,26,.75) 0%,rgba(10,13,26,.45) 60%,rgba(26,63,255,.15) 100%);z-index:1;}
+        .hero-content{position:relative;z-index:2;text-align:center;padding:0 24px;max-width:860px;}
+        .hero-chip{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:11px;font-family:"Bungee",sans-serif;letter-spacing:2px;padding:8px 18px;border-radius:20px;margin-bottom:24px;}
+        .chip-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite;}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+        .hero-title{font-family:"Bungee",sans-serif;font-size:clamp(44px,7vw,88px);color:#fff;letter-spacing:-2px;line-height:1;margin-bottom:20px;}
+        .hero-title em{color:var(--yellow);font-style:normal;}
+        .hero-desc{font-size:15px;color:rgba(255,255,255,.8);max-width:520px;margin:0 auto 36px;line-height:1.7;letter-spacing:.3px;}
+        .hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:48px;}
+        .btn-yellow{background:var(--yellow);color:var(--ink);padding:14px 28px;border-radius:10px;font-family:"Bungee",sans-serif;font-size:12px;letter-spacing:1px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all .18s;box-shadow:0 4px 20px rgba(245,197,24,.35);}
+        .btn-yellow:hover{background:#e0b200;transform:translateY(-2px);}
+        .btn-outline{background:rgba(255,255,255,.1);backdrop-filter:blur(10px);color:#fff;padding:14px 28px;border-radius:10px;font-family:"Bungee",sans-serif;font-size:12px;letter-spacing:1px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;border:1.5px solid rgba(255,255,255,.3);transition:all .18s;}
+        .btn-outline:hover{background:rgba(255,255,255,.2);}
+        .hero-stats{display:inline-flex;background:rgba(255,255,255,.1);backdrop-filter:blur(16px);border:1.5px solid rgba(255,255,255,.15);border-radius:16px;overflow:hidden;}
+        .h-stat{padding:16px 28px;text-align:center;border-right:1px solid rgba(255,255,255,.12);}
+        .h-stat:last-child{border-right:none;}
+        .h-stat .num{font-family:"Bungee",sans-serif;font-size:26px;color:#fff;letter-spacing:-1px;}
+        .h-stat .lbl{font-size:9px;color:rgba(255,255,255,.6);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;}
+        .hero-scroll{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:2;text-align:center;color:rgba(255,255,255,.5);font-size:10px;letter-spacing:2px;text-transform:uppercase;animation:bounce 2s infinite;}
+        @keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
+
+        /* ── SEARCH ── */
+        .search-wrap{background:#fff;padding:28px 48px;border-bottom:1.5px solid var(--border);box-shadow:0 4px 24px rgba(10,13,26,.06);}
+        .search-box{display:flex;gap:0;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;max-width:960px;margin:0 auto;box-shadow:var(--shadow);}
+        .s-field{flex:1;padding:16px 20px;border-right:1px solid var(--border);}
+        .s-field label{display:block;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--ink4);text-transform:uppercase;margin-bottom:5px;}
+        .s-field input,.s-field select{border:none;outline:none;font-family:'Roboto Mono',monospace;font-size:13px;color:var(--ink);background:transparent;width:100%;}
+        .s-btn{background:var(--accent);color:#fff;padding:0 32px;font-family:"Bungee",sans-serif;font-size:12px;letter-spacing:1px;border:none;cursor:pointer;transition:.18s;display:flex;align-items:center;gap:8px;white-space:nowrap;}
+        .s-btn:hover{background:#0028cc;}
+
+        /* ── SECTIONS ── */
+        section{padding:80px 48px;}
+        .sec-tag{font-family:"Bungee",sans-serif;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);background:var(--accent-l);padding:5px 12px;border-radius:20px;display:inline-block;margin-bottom:14px;}
+        .sec-title{font-family:"Bungee",sans-serif;font-size:clamp(28px,4vw,44px);color:var(--ink);letter-spacing:-1px;line-height:1.1;margin-bottom:10px;}
+        .sec-sub{font-size:13px;color:var(--ink3);line-height:1.7;max-width:540px;margin-bottom:40px;letter-spacing:.2px;}
+        .reveal{opacity:0;transform:translateY(28px);transition:opacity .6s ease,transform .6s ease;}
+        .reveal.vis{opacity:1;transform:none;}
+
+        /* ── SERVICES GRID ── */
+        .srv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+        .srv-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;transition:all .25s;box-shadow:var(--shadow);}
+        .srv-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg);border-color:var(--accent);}
+        .srv-img{height:200px;overflow:hidden;}
+        .srv-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease;}
+        .srv-card:hover .srv-img img{transform:scale(1.06);}
+        .srv-body{padding:22px;}
+        .srv-icon{font-size:26px;margin-bottom:10px;}
+        .srv-body h3{font-family:"Bungee",sans-serif;font-size:16px;color:var(--ink);letter-spacing:.3px;margin-bottom:8px;}
+        .srv-body p{font-size:11px;color:var(--ink3);line-height:1.6;margin-bottom:16px;}
+        .srv-link{font-family:"Bungee",sans-serif;font-size:10px;letter-spacing:1px;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:5px;}
+        .srv-link:hover{color:#0028cc;}
+
+        /* ── WHY ── */
+        .why{background:var(--bg);padding:80px 48px;}
+        .why-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;max-width:1200px;margin:0 auto;}
+        .why-img-wrap{position:relative;border-radius:var(--r-lg);overflow:hidden;height:480px;}
+        .why-img-wrap img{width:100%;height:100%;object-fit:cover;}
+        .why-badge{position:absolute;bottom:24px;left:24px;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-radius:12px;padding:14px 18px;font-family:"Bungee",sans-serif;font-size:11px;color:var(--ink);box-shadow:var(--shadow);}
+        .why-list{display:flex;flex-direction:column;gap:18px;}
+        .why-item{display:flex;gap:16px;padding:18px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r);transition:.18s;}
+        .why-item:hover{border-color:var(--accent);box-shadow:var(--shadow);}
+        .why-ic{width:44px;height:44px;border-radius:10px;background:var(--accent-l);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+        .why-item h5{font-family:"Bungee",sans-serif;font-size:12px;color:var(--ink);letter-spacing:.3px;margin-bottom:4px;}
+        .why-item p{font-size:11px;color:var(--ink3);line-height:1.5;}
+
+        /* ── AD BANNER ── */
+        .ad-box{background:var(--ink);border-radius:var(--r-lg);overflow:hidden;display:grid;grid-template-columns:1fr 1fr;max-width:1100px;margin:0 auto;}
+        .ad-left{padding:52px;display:flex;flex-direction:column;gap:16px;}
+        .ad-chip{font-family:"Bungee",sans-serif;font-size:9px;letter-spacing:2px;color:var(--yellow);background:rgba(245,197,24,.1);padding:5px 12px;border-radius:20px;display:inline-block;}
+        .ad-left h2{font-family:"Bungee",sans-serif;font-size:28px;color:#fff;letter-spacing:-1px;line-height:1.1;}
+        .ad-left p{font-size:12px;color:rgba(255,255,255,.6);line-height:1.7;}
+        .ad-feats{display:flex;flex-direction:column;gap:8px;}
+        .ad-feat{display:flex;align-items:center;gap:10px;font-size:12px;color:rgba(255,255,255,.8);}
+        .ad-feat::before{content:"✓";color:var(--green);font-weight:700;font-size:12px;}
+        .ad-right{position:relative;overflow:hidden;}
+        .ad-right img{width:100%;height:100%;object-fit:cover;opacity:.6;}
+        .btn-dark-solid{background:var(--yellow);color:var(--ink);padding:13px 26px;border-radius:10px;font-family:"Bungee",sans-serif;font-size:12px;letter-spacing:1px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:.18s;margin-top:4px;}
+        .btn-dark-solid:hover{background:#e0b200;transform:translateY(-1px);}
+
+        /* ── DESTINATIONS ── */
+        .dest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+        .dest-card{border-radius:var(--r-lg);overflow:hidden;cursor:pointer;position:relative;box-shadow:var(--shadow);transition:all .25s;background:#fff;border:1.5px solid var(--border);}
+        .dest-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg);}
+        .dest-card-img{height:220px;overflow:hidden;position:relative;}
+        .dest-card-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+        .dest-card:hover .dest-card-img img{transform:scale(1.06);}
+        .dest-tag-b{position:absolute;top:14px;left:14px;background:rgba(10,13,26,.7);backdrop-filter:blur(8px);color:#fff;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;padding:4px 10px;border-radius:20px;}
+        .dest-body{padding:20px;}
+        .dest-body h3{font-family:"Bungee",sans-serif;font-size:16px;color:var(--ink);margin-bottom:6px;letter-spacing:.3px;}
+        .dest-body p{font-size:11px;color:var(--ink3);line-height:1.5;margin-bottom:14px;}
+        .dest-footer{display:flex;justify-content:space-between;align-items:center;}
+        .dest-price{font-family:"Bungee",sans-serif;font-size:13px;color:var(--green);}
+        .dest-arr{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;}
+        .dest-center{text-align:center;margin-top:40px;}
+
+        /* ── TESTIMONIALS ── */
+        .testi{background:var(--bg);padding:80px 48px;}
+        .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+        .t-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);padding:28px;transition:.18s;box-shadow:var(--shadow);}
+        .t-card:hover{border-color:var(--accent);box-shadow:var(--shadow-lg);}
+        .t-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+        .t-row img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--border);}
+        .t-row h5{font-family:"Bungee",sans-serif;font-size:11px;color:var(--ink);letter-spacing:.3px;margin-bottom:2px;}
+        .t-row span{font-size:10px;color:var(--ink4);}
+        .t-stars{color:var(--yellow);font-size:14px;margin-bottom:12px;}
+        .t-text{font-size:12px;color:var(--ink3);line-height:1.7;}
+
+        /* ── FOOTER ── */
+        footer{background:var(--ink);padding:60px 48px 0;}
+        .ft-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;}
+        .ft-logo{font-family:"Bungee",sans-serif;font-size:22px;color:#fff;margin-bottom:12px;letter-spacing:.5px;}
+        .ft-logo span{color:var(--accent);}
+        .ft-desc{font-size:11px;color:rgba(255,255,255,.4);line-height:1.8;max-width:240px;}
+        .ft-soc{display:flex;gap:10px;margin-top:18px;}
+        .soc-b{width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:13px;text-decoration:none;transition:.18s;}
+        .soc-b:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+        .ft-col h4{font-family:"Bungee",sans-serif;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:16px;}
+        .ft-col a{display:block;text-decoration:none;color:rgba(255,255,255,.45);font-size:11px;margin-bottom:9px;transition:.18s;letter-spacing:.2px;}
+        .ft-col a:hover{color:#fff;}
+        .ct-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+        .ct-ic{width:28px;height:28px;background:rgba(255,255,255,.06);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);flex-shrink:0;}
+        .ct-txt{font-size:10px;color:rgba(255,255,255,.4);line-height:1.5;}
+        .ct-txt strong{display:block;color:rgba(255,255,255,.6);font-family:"Bungee",sans-serif;font-size:9px;letter-spacing:.5px;margin-bottom:2px;}
+        .ft-bottom{border-top:1px solid rgba(255,255,255,.06);padding:18px 0;display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.3px;}
+
+        /* ── WHATSAPP ── */
+        .wa{position:fixed;bottom:28px;right:28px;z-index:999;width:56px;height:56px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:26px;color:#fff;box-shadow:0 8px 28px rgba(37,211,102,.4);transition:all .2s;}
+        .wa:hover{transform:scale(1.12);box-shadow:0 12px 36px rgba(37,211,102,.5);}
+        .wa-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(37,211,102,.4);animation:ring 2s infinite;}
+        @keyframes ring{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.5);opacity:0}}
+        .wa-tip{position:absolute;right:66px;background:var(--ink);color:#fff;font-size:10px;padding:6px 12px;border-radius:8px;white-space:nowrap;opacity:0;transition:.2s;font-family:'Roboto Mono',monospace;letter-spacing:.3px;}
+        .wa:hover .wa-tip{opacity:1;}
+
+        @media(max-width:1024px){.why-grid,.ad-box{grid-template-columns:1fr;}.ft-grid{grid-template-columns:1fr 1fr;}}
+        @media(max-width:768px){nav{padding:0 20px;}.nav-links{display:none;}section{padding:56px 24px;}.srv-grid,.testi-grid,.dest-grid{grid-template-columns:1fr;}.search-wrap{padding:20px 24px;}.search-box{flex-direction:column;border-radius:var(--r);}.s-field{border-right:none;border-bottom:1px solid var(--border);}.s-btn{padding:16px;justify-content:center;}.ft-grid{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <a href="user-dashboard.html" class="logo">Rent<span>ify</span></a>
+    <div class="nav-links">
+        <a href="user-dashboard.html" class="active">Home</a>
+        <a href="user-about.html">About</a>
+        <a href="user-destinations.html">Destinations</a>
+        <a href="user-vehicle.html">Cabs</a>
+        <a href="user-gallery.html">Gallery</a>
+        <a href="user-contact.html">Contact</a>
+    </div>
+    <div class="nav-right" id="navRight"></div>
+</nav>
+
+<!-- HERO VIDEO -->
+<div class="hero">
+    <video class="hero-video" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=1920&q=80">
+        <source src="../../assets/video/home-video1.mp4" type="video/mp4">
+<!--        <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=1920&q=80" style="width:100%;height:100%;object-fit:cover;">-->
+    </video>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-chip"><span class="chip-dot"></span> Sri Lanka's #1 Travel Platform</div>
+        <h1 class="hero-title bungee-regular">Discover<br>the Island<br>with <em>Rentify</em></h1>
+        <p class="hero-desc">Premium cab rentals, curated destinations & seamless travel experiences — all in one place.</p>
+        <div class="hero-btns">
+            <a href="user-destinations.html" class="btn-yellow"><i class="fas fa-compass"></i> Explore Destinations</a>
+            <a href="user-vehicle.html" class="btn-outline"><i class="fas fa-car"></i> Book a Cab</a>
+        </div>
+        <div class="hero-stats">
+            <div class="h-stat"><div class="num" data-c="12000">0</div><div class="lbl">Rides Done</div></div>
+            <div class="h-stat"><div class="num" data-c="48">0</div><div class="lbl">Cities</div></div>
+            <div class="h-stat"><div class="num" data-c="98">0</div><div class="lbl">% Satisfied</div></div>
+            <div class="h-stat"><div class="num" data-c="6">0</div><div class="lbl">Yrs Service</div></div>
+        </div>
+    </div>
+    <div class="hero-scroll"><i class="fas fa-chevron-down"></i><div style="margin-top:4px">Scroll</div></div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-wrap">
+    <div class="search-box">
+        <div class="s-field"><label>From</label><input type="text" placeholder="Colombo, CMB"></div>
+        <div class="s-field"><label>To</label><input type="text" placeholder="Destination"></div>
+        <div class="s-field"><label>Date</label><input type="date"></div>
+        <div class="s-field"><label>Vehicle</label><select><option>Any Vehicle</option><option>Car</option><option>Van</option><option>Bus</option><option>Wheelchair</option></select></div>
+        <button class="s-btn" onclick="window.location.href='user-vehicle.html'"><i class="fas fa-search"></i> Search Cabs</button>
+    </div>
+</div>
+
+<!-- SERVICES -->
+<section>
+    <div class="reveal" style="text-align:center;margin-bottom:48px;">
+        <div class="sec-tag">Our Services</div>
+        <h2 class="sec-title">Everything You Need<br>for Perfect Travel</h2>
+    </div>
+    <div class="srv-grid reveal">
+        <div class="srv-card"><div class="srv-img"><img src="https://images.unsplash.com/photo-1464219789935-c2d9d9aba644?w=600&q=80" alt="Cab"></div><div class="srv-body"><div class="srv-icon">🚕</div><h3>City Cab Booking</h3><p>Fast, reliable cabs for city commutes, corporate travel & airport transfers across all major Sri Lankan cities.</p><a class="srv-link" href="user-vehicle.html">Book a Ride <i class="fas fa-arrow-right" style="font-size:9px"></i></a></div></div>
+        <div class="srv-card"><div class="srv-img"><img src="https://images.unsplash.com/photo-1505832018823-50331d70d237?w=600&q=80" alt="Tours"></div><div class="srv-body"><div class="srv-icon">🗺️</div><h3>Island Travel Tours</h3><p>Curated packages to Sigiriya, Kandy, Ella, Galle & more — with experienced local guide drivers.</p><a class="srv-link" href="user-destinations.html">Explore Tours <i class="fas fa-arrow-right" style="font-size:9px"></i></a></div></div>
+        <div class="srv-card"><div class="srv-img"><img src="https://images.unsplash.com/photo-1556388158-158ea5ccacbd?w=600&q=80" alt="Airport"></div><div class="srv-body"><div class="srv-icon">✈️</div><h3>Airport Transfers</h3><p>Stress-free pickups & drop-offs from BIA with flight tracking, fixed rates & meet-and-greet service.</p><a class="srv-link" href="user-vehicle.html">Book Transfer <i class="fas fa-arrow-right" style="font-size:9px"></i></a></div></div>
+        <div class="srv-card"><div class="srv-img"><img src="https://images.unsplash.com/photo-1519046904884-53103b34b206?w=600&q=80" alt="Wedding"></div><div class="srv-body"><div class="srv-icon">💍</div><h3>Wedding & Events</h3><p>Decorated premium vehicles for your special day. Weddings, corporate events & VIP occasions.</p><a class="srv-link" href="user-contact.html">Get Quote <i class="fas fa-arrow-right" style="font-size:9px"></i></a></div></div>
+        <div class="srv-card"><div class="srv-img"><img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=600&q=80" alt="Luxury"></div><div class="srv-body"><div class="srv-icon">👑</div><h3>Luxury Fleet</h3><p>Premium sedans, SUVs & luxury vans — air conditioned, spotless, and equipped with Wi-Fi on select rides.</p><a class="srv-link" href="user-vehicle.html">View Fleet <i class="fas fa-arrow-right" style="font-size:9px"></i></a></div></div>
+        <div class="srv-card"><div class="srv-img"><img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&q=80" alt="Support"></div><div class="srv-body"><div class="srv-icon">🎧</div><h3>24/7 Support</h3><p>Round-the-clock assistance via phone, WhatsApp & email — always ready when you need us most.</p><a class="srv-link" href="user-contact.html">Contact Us <i class="fas fa-arrow-right" style="font-size:9px"></i></a></div></div>
+    </div>
+</section>
+
+<!-- WHY -->
+<div class="why">
+    <div class="why-grid">
+        <div class="why-img-wrap reveal">
+            <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=900&q=80" alt="Why Rentify">
+            <div class="why-badge">🏆 Trusted Since 2018</div>
+        </div>
+        <div class="reveal">
+            <div class="sec-tag">Why Choose Us</div>
+            <h2 class="sec-title">Built Around Your Journey</h2>
+            <p class="sec-sub">From Colombo's busy streets to Ella's misty mountains — Rentify makes every mile memorable.</p>
+            <div class="why-list">
+                <div class="why-item"><div class="why-ic">🛡️</div><div><h5>Fully Verified Drivers</h5><p>Every driver passes background checks, defensive driving training & language assessments.</p></div></div>
+                <div class="why-item"><div class="why-ic">💰</div><div><h5>Transparent Pricing</h5><p>No hidden fees. Fixed rates quoted upfront — what you see is exactly what you pay.</p></div></div>
+                <div class="why-item"><div class="why-ic">⚡</div><div><h5>Instant Booking Confirmation</h5><p>Book in under 60 seconds online or via WhatsApp. Confirmation arrives immediately.</p></div></div>
+                <div class="why-item"><div class="why-ic">🌏</div><div><h5>Island-Wide Coverage</h5><p>We cover 48+ cities across Sri Lanka — from Jaffna in the north to Galle in the south.</p></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AD BANNER -->
+<section style="background:var(--bg);">
+    <div class="ad-box reveal">
+        <div class="ad-left">
+            <div class="ad-chip">🔥 Book Today</div>
+            <h2>Need a Comfortable Ride?</h2>
+            <p>Book your Rentify cab now and experience safe, affordable travel anywhere across beautiful Sri Lanka.</p>
+            <div class="ad-feats">
+                <div class="ad-feat">Instant booking confirmation</div>
+                <div class="ad-feat">No hidden charges — transparent pricing</div>
+                <div class="ad-feat">Professional, verified drivers only</div>
+                <div class="ad-feat">Free cancellation up to 1 hour before</div>
+            </div>
+            <a href="user-vehicle.html" class="btn-dark-solid"><i class="fas fa-car"></i> Book Your Cab Now →</a>
+        </div>
+        <div class="ad-right"><img src="https://images.unsplash.com/photo-1547744152-14d985cb937f?w=900&q=80" alt="Cab"></div>
+    </div>
+</section>
+
+<!-- DESTINATIONS -->
+<section>
+    <div class="reveal" style="text-align:center;margin-bottom:48px;">
+        <div class="sec-tag">Top Destinations</div>
+        <h2 class="sec-title">Places Worth Exploring</h2>
+        <p class="sec-sub" style="margin:0 auto;">Handpicked destinations with curated travel guides & cab routes.</p>
+    </div>
+    <div class="dest-grid reveal">
+        <div class="dest-card" onclick="location.href='user-destinations.html'"><div class="dest-card-img"><img src="https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=500&q=80" alt="Sigiriya"><span class="dest-tag-b">Heritage</span></div><div class="dest-body"><h3>Sigiriya</h3><p>The Lion Rock fortress rising 200m above lush jungle — Sri Lanka's most iconic UNESCO World Heritage Site.</p><div class="dest-footer"><span class="dest-price">From LKR 8,500</span><div class="dest-arr"><i class="fas fa-arrow-right" style="font-size:12px"></i></div></div></div></div>
+        <div class="dest-card" onclick="location.href='user-destinations.html'"><div class="dest-card-img"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&q=80" alt="Mirissa"><span class="dest-tag-b">Beach</span></div><div class="dest-body"><h3>Mirissa Beach</h3><p>Crystal waters, fresh seafood, whale watching & golden sunsets on Sri Lanka's most beloved south coast beach.</p><div class="dest-footer"><span class="dest-price">From LKR 12,000</span><div class="dest-arr"><i class="fas fa-arrow-right" style="font-size:12px"></i></div></div></div></div>
+        <div class="dest-card" onclick="location.href='user-destinations.html'"><div class="dest-card-img"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80" alt="Nuwara Eliya"><span class="dest-tag-b">Highlands</span></div><div class="dest-body"><h3>Nuwara Eliya</h3><p>Emerald tea estates, colonial bungalows & cool misty highlands — Sri Lanka's charming "Little England".</p><div class="dest-footer"><span class="dest-price">From LKR 15,000</span><div class="dest-arr"><i class="fas fa-arrow-right" style="font-size:12px"></i></div></div></div></div>
+    </div>
+    <div class="dest-center reveal"><a href="user-destinations.html" class="btn-yellow" style="display:inline-flex;"><i class="fas fa-map-marked-alt"></i> View All Destinations</a></div>
+</section>
+
+<!-- TESTIMONIALS -->
+<div class="testi">
+    <div class="reveal" style="text-align:center;margin-bottom:48px;">
+        <div class="sec-tag">Customer Reviews</div>
+        <h2 class="sec-title">What Our Riders Say</h2>
+    </div>
+    <div class="testi-grid reveal">
+        <div class="t-card"><div class="t-row"><img src="https://randomuser.me/api/portraits/women/12.jpg"><div><h5>Priya Wickramasinghe</h5><span>Kandy Tour</span></div></div><div class="t-stars">★★★★★</div><p class="t-text">Amazing experience! Our driver was knowledgeable about every destination. Car was spotless and we arrived right on time. Will book again!</p></div>
+        <div class="t-card"><div class="t-row"><img src="https://randomuser.me/api/portraits/men/22.jpg"><div><h5>James Thompson</h5><span>UK Tourist</span></div></div><div class="t-stars">★★★★★</div><p class="t-text">As a foreign tourist, Rentify made my Sri Lanka trip so easy. The English-speaking driver was punctual and gave great local tips.</p></div>
+        <div class="t-card"><div class="t-row"><img src="https://randomuser.me/api/portraits/women/31.jpg"><div><h5>Sanduni Ranasinghe</h5><span>Airport Transfer</span></div></div><div class="t-stars">★★★★★</div><p class="t-text">Very smooth airport transfer. Driver was waiting at arrivals with a name board. Price was exactly as quoted. Highly recommend!</p></div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="ft-grid">
+        <div>
+            <div class="ft-logo">Rent<span>ify</span></div>
+            <p class="ft-desc">Sri Lanka's most trusted cab & travel service — connecting people to places with safety, comfort, and a smile.</p>
+            <div class="ft-soc"><a class="soc-b" href="#"><i class="fab fa-facebook-f"></i></a><a class="soc-b" href="#"><i class="fab fa-instagram"></i></a><a class="soc-b" href="#"><i class="fab fa-whatsapp"></i></a><a class="soc-b" href="#"><i class="fab fa-youtube"></i></a></div>
+        </div>
+        <div class="ft-col"><h4>Quick Links</h4><a href="user-dashboard.html">Home</a><a href="user-about.html">About</a><a href="user-destinations.html">Destinations</a><a href="user-vehicle.html">Cabs</a><a href="user-gallery.html">Gallery</a><a href="user-contact.html">Contact</a></div>
+        <div class="ft-col"><h4>Services</h4><a href="user-vehicle.html">City Cabs</a><a href="user-destinations.html">Island Tours</a><a href="user-vehicle.html">Airport Transfers</a><a href="user-contact.html">Weddings</a><a href="user-contact.html">Corporate</a></div>
+        <div class="ft-col"><h4>Contact</h4>
+            <div class="ct-item"><div class="ct-ic"><i class="fas fa-phone"></i></div><div class="ct-txt"><strong>Phone</strong>+94 77 123 4567</div></div>
+            <div class="ct-item"><div class="ct-ic"><i class="fas fa-envelope"></i></div><div class="ct-txt"><strong>Email</strong>hello@rentify.lk</div></div>
+            <div class="ct-item"><div class="ct-ic"><i class="fas fa-map-marker-alt"></i></div><div class="ct-txt"><strong>Office</strong>14 Galle Road, Colombo 03</div></div>
+        </div>
+    </div>
+    <div class="ft-bottom"><span>© 2026 Rentify. All Rights Reserved.</span><span>Made with ❤️ in Sri Lanka 🇱🇰</span></div>
+</footer>
+
+<a class="wa" href="https://wa.me/94771234567" target="_blank"><span class="wa-ring"></span><i class="fab fa-whatsapp"></i><span class="wa-tip">Chat with us!</span></a>
+
+<script>
+    // Nav injection
+    (function(){
+        const token=localStorage.getItem('rentify_token'),role=localStorage.getItem('rentify_role'),
+            username=localStorage.getItem('rentify_username')||'User',
+            fullName=localStorage.getItem('rentify_fullName')||username;
+        const el=document.getElementById('navRight');
+        const ini=fullName.trim().split(/\s+/).map(x=>x[0]?.toUpperCase()).join('').slice(0,2)||'U';
+        if(token&&role){
+            el.innerHTML=`
+      <a href="user-vehicle.html" class="nav-btn"><i class="fas fa-car"></i> Book Now</a>
+      <div class="user-menu">
+        <div class="user-avatar" id="avBtn" title="${fullName}">${ini}</div>
+        <div class="user-dropdown">
+          <div class="ud-name">${fullName}</div>
+          <div class="ud-role">${role==='ADMIN'?'👑 Administrator':'🧑 User'}</div>
+          ${role==='ADMIN'?'<a class="ud-item" href="../admin/admin-dashboard.html"><span>🏠</span> Admin Dashboard</a>':'<a class="ud-item" href="profile-update.html"><span>👤</span> My Profile</a>'}
+          <a class="ud-item" href="#"><span>📋</span> My Bookings</a>
+          <div class="ud-divider"></div>
+          <button class="ud-item logout" id="logoutBtn"><span>🚪</span> Sign Out</button>
+        </div>
+      </div>`;
+            document.getElementById('logoutBtn').onclick=()=>{
+                ['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(k=>localStorage.removeItem(k));
+                location.href='../sign-in.html';
+            };
+        } else {
+            el.innerHTML=`<a href="../sign-in.html" class="signin-btn"><i class="fas fa-sign-in-alt"></i> Sign In</a><a href="user-vehicle.html" class="nav-btn"><i class="fas fa-car"></i> Book Now</a>`;
+        }
+    })();
+
+    // Counters
+    document.querySelectorAll('[data-c]').forEach(el=>{
+        const t=parseInt(el.dataset.c);let c=0;
+        const step=Math.max(1,Math.floor(t/80));
+        const go=setInterval(()=>{c=Math.min(c+step,t);el.textContent=t>=98?c+'%':c.toLocaleString();if(c>=t)clearInterval(go);},20);
+    });
+
+    // Reveal
+    const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vis');}),{threshold:.1});
+    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

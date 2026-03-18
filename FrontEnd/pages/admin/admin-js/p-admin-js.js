@@ -3,11 +3,11 @@ function getSidebar(activePage) {
     const pages = [
         { id: 'dashboard', icon: '📊', label: 'Dashboard', href: 'admin-dashboard.html' },
         { id: 'bookings',  icon: '📅', label: 'Bookings',  href: 'bookings.html' },
-        { id: 'users',     icon: '👥', label: 'Users',     href: 'users.html' },
-        { id: 'cabs',      icon: '🚗', label: 'Cabs',      href: 'cabs.html' },
-        { id: 'drivers',   icon: '🧑‍✈️', label: 'Drivers',   href: 'drivers.html' },
+        { id: 'users',     icon: '👥', label: 'Users',     href: 'users-info.html' },
+        { id: 'cabs',      icon: '🚗', label: 'Cabs',      href: 'admin-vehicle.html' },
+        { id: 'drivers',   icon: '🧑‍✈️', label: 'Drivers',   href: 'admin-driver.html' },
         { id: 'payment',   icon: '💳', label: 'Payments',  href: 'payment.html' },
-        { id: 'settings',  icon: '⚙️', label: 'Settings',  href: 'settings.html' },
+        { id: 'settings',  icon: '⚙️', label: 'Settings',  href: 'admin-settings.html' },
     ];
 
     const navItems = pages.map(p => `
