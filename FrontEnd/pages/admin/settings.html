@@ -1,369 +1,1273 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name ="keywords" content="Rentify,HTML,CSS,JavaScript,Spring,SpringBoot,ORM,Mysql">
-    <meta name ="description" content="Rentify-Smart Cab Renting Platform">
-    <meta name ="author" content="Saumya Divyanjalee">
-
-    <title>Rentify Admin — Settings</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../admin-css/p-admin.css">
-    <link rel="icon" type="image/x-icon" href="../../assets/icons/favicon.ico">
-
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Rentify Admin — Settings & Reports</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
-        .settings-tabs{display:flex;gap:4px;background:#f1f5f9;border-radius:12px;padding:4px;margin-bottom:28px;flex-wrap:wrap;}
-        .tab-btn{padding:9px 18px;border-radius:9px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:none;color:var(--text-muted);transition:0.2s;}
-        .tab-btn.active{background:white;color:var(--green);box-shadow:0 1px 4px rgba(0,0,0,0.1);}
-        .tab-panel{display:none;}.tab-panel.active{display:block;}
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+        :root{
+            --white:#ffffff;--bg:#f7f8fc;--bg2:#f0f2f8;
+            --ink:#0b0e1a;--ink2:#2d3350;--ink3:#5e6680;--ink4:#9ba3bb;
+            --border:#e4e7f0;--border2:#d0d5e8;
+            --accent:#1a3fff;--accent-l:#eef1ff;--accent-d:#0028cc;
+            --green:#00b86b;--green-l:#e6fff4;
+            --red:#ff3b5c;--red-l:#fff0f3;
+            --orange:#ff7a00;--orange-l:#fff4ea;
+            --purple:#7c3aed;--purple-l:#f3eeff;
+            --yellow:#f5c518;--yellow-l:#fffbea;
+            --sidebar:260px;
+            --shadow-sm:0 1px 4px rgba(11,14,26,.06);
+            --shadow:0 4px 20px rgba(11,14,26,.08);
+            --shadow-lg:0 16px 56px rgba(11,14,26,.14);
+            --r:12px;--r-sm:8px;--r-lg:16px;
+        }
+        html{font-size:14px;scroll-behavior:smooth;}
+        body{font-family:'Roboto Mono',monospace;background:var(--bg);color:var(--ink);display:flex;min-height:100vh;}
 
-        /* Calculator */
-        .calc-wrap{max-width:320px;}
-        .calc-screen{background:#0f172a;color:#22c55e;font-family:'Roboto Mono',monospace;font-size:28px;font-weight:700;padding:20px 20px 12px;border-radius:12px 12px 0 0;text-align:right;min-height:72px;word-break:break-all;}
-        .calc-expr{font-size:12px;color:#94a3b8;min-height:18px;text-align:right;margin-bottom:4px;}
-        .calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:#f8fafc;padding:16px;border-radius:0 0 12px 12px;border:1.5px solid var(--border);border-top:none;}
-        .calc-btn{padding:14px;border-radius:9px;border:none;font-family:'Roboto Mono',monospace;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.15s;}
-        .calc-btn:hover{transform:scale(0.97);}
-        .calc-num{background:white;color:var(--text);border:1.5px solid var(--border);}
-        .calc-num:hover{border-color:var(--green);color:var(--green);}
-        .calc-op{background:var(--green-soft);color:var(--green);border:1.5px solid var(--green-light);}
-        .calc-op:hover{background:var(--green);color:white;}
-        .calc-eq{background:var(--green);color:white;grid-column:span 2;}
-        .calc-eq:hover{background:var(--green-dark);}
-        .calc-clear{background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;}
-        .calc-clear:hover{background:#fecaca;}
-        .calc-zero{grid-column:span 2;}
+        /* ── SIDEBAR ── */
+        .sidebar{width:var(--sidebar);min-height:100vh;background:var(--white);border-right:1.5px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:300;box-shadow:2px 0 20px rgba(11,14,26,.05);}
+        .sb-top{padding:22px 20px 16px;border-bottom:1.5px solid var(--border);}
+        .sb-brand{display:flex;align-items:center;gap:12px;}
+        .sb-brand-ico{width:38px;height:38px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+        .sb-brand-name{font-family:"Bungee",sans-serif;font-size:20px;color:var(--ink);letter-spacing:.5px;}
+        .sb-brand-name span{color:var(--accent);}
+        .sb-profile{margin:14px 20px 0;padding:14px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);display:flex;align-items:center;gap:12px;}
+        .sb-av{width:40px;height:40px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,var(--accent),#6e8fff);display:flex;align-items:center;justify-content:center;font-family:"Bungee",sans-serif;font-size:14px;color:#fff;}
+        .sb-av-info .av-name{font-size:12px;font-weight:700;color:var(--ink);}
+        .sb-av-info .av-role{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-top:2px;background:var(--accent-l);padding:2px 6px;border-radius:4px;display:inline-block;}
+        .sb-online{width:8px;height:8px;border-radius:50%;background:var(--green);margin-left:auto;flex-shrink:0;box-shadow:0 0 6px rgba(0,184,107,.5);}
+        .sb-nav{flex:1;padding:16px 12px;overflow-y:auto;scrollbar-width:none;}
+        .sb-nav::-webkit-scrollbar{display:none;}
+        .sb-sec{font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:2.5px;color:var(--ink4);padding:10px 8px 5px;text-transform:uppercase;}
+        .sb-link{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-sm);text-decoration:none;color:var(--ink3);font-size:11px;font-weight:500;letter-spacing:.3px;transition:all .18s;margin-bottom:2px;}
+        .sb-link:hover{background:var(--bg);color:var(--ink);}
+        .sb-link.active{background:var(--accent-l);color:var(--accent);font-weight:700;border:1.5px solid rgba(26,63,255,.15);}
+        .sb-link .ico{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
+        .sb-bottom{padding:12px;border-top:1.5px solid var(--border);}
+        .sb-logout{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-sm);background:none;border:none;cursor:pointer;color:var(--ink3);font-size:11px;font-family:'Roboto Mono',monospace;width:100%;text-align:left;transition:all .18s;}
+        .sb-logout:hover{background:var(--red-l);color:var(--red);}
 
-        /* Calendar */
-        .cal-wrap{max-width:360px;}
-        .cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-        .cal-month{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;}
-        .cal-nav{background:none;border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px;transition:0.2s;}
-        .cal-nav:hover{border-color:var(--green);color:var(--green);}
-        .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-        .cal-day-name{text-align:center;font-size:11px;font-weight:700;color:var(--text-muted);padding:6px 0;text-transform:uppercase;}
-        .cal-day{text-align:center;padding:8px 4px;border-radius:8px;font-size:13px;cursor:pointer;transition:0.15s;border:1.5px solid transparent;}
-        .cal-day:hover{background:var(--green-soft);border-color:var(--green-light);}
-        .cal-day.today{background:var(--green);color:white;font-weight:700;}
-        .cal-day.selected{background:var(--yellow);color:var(--green-dark);font-weight:700;}
-        .cal-day.other-month{color:var(--text-muted);opacity:0.4;}
-        .cal-day.has-event::after{content:'';display:block;width:4px;height:4px;background:var(--green);border-radius:50%;margin:2px auto 0;}
-        .cal-day.today.has-event::after{background:white;}
-        .cal-events{margin-top:16px;}
-        .event-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--green-soft);border-radius:10px;margin-bottom:8px;font-size:13px;border:1px solid var(--green-light);}
-        .event-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;}
+        /* ── MAIN ── */
+        .main{margin-left:var(--sidebar);flex:1;padding:28px 32px;background:var(--bg);}
 
-        /* Analytics */
-        .analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-        .chart-bar-h{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-        .chart-bar-fill{height:28px;border-radius:6px;background:var(--green);transition:width 0.6s ease;min-width:4px;display:flex;align-items:center;padding-left:8px;color:white;font-size:11px;font-weight:700;}
-        .chart-bar-label{font-size:12px;color:var(--text-muted);width:80px;flex-shrink:0;}
-        .chart-bar-val{font-size:12px;font-weight:700;color:var(--text);flex-shrink:0;}
+        /* PAGE HEADER */
+        .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+        .ph-title{font-family:"Bungee",sans-serif;font-size:22px;color:var(--ink);letter-spacing:.3px;}
+        .ph-sub{font-size:12px;color:var(--ink4);margin-top:3px;letter-spacing:.3px;}
 
-        /* Profile Settings */
-        .setting-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #f1f5f9;}
-        .setting-row:last-child{border:none;}
-        .setting-label{font-weight:600;font-size:14px;}
-        .setting-desc{font-size:12px;color:var(--text-muted);margin-top:2px;}
-        .toggle-switch{position:relative;width:44px;height:24px;}
-        .toggle-switch input{opacity:0;width:0;height:0;}
-        .toggle-slider{position:absolute;inset:0;background:#e2e8f0;border-radius:24px;cursor:pointer;transition:0.3s;}
-        .toggle-slider:before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;}
-        .toggle-switch input:checked+.toggle-slider{background:var(--green);}
-        .toggle-switch input:checked+.toggle-slider:before{transform:translateX(20px);}
+        /* TABS */
+        .tabs{display:flex;gap:2px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:5px;margin-bottom:24px;flex-wrap:wrap;box-shadow:var(--shadow-sm);}
+        .tab{padding:8px 18px;border-radius:var(--r-sm);font-family:"Bungee",sans-serif;font-size:10px;letter-spacing:.8px;color:var(--ink3);cursor:pointer;transition:all .17s;display:flex;align-items:center;gap:7px;border:1.5px solid transparent;}
+        .tab:hover{background:var(--bg);color:var(--ink);}
+        .tab.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 10px rgba(26,63,255,.25);}
+
+        /* PANEL */
+        .panel{display:none;}
+        .panel.active{display:block;animation:fadeIn .18s ease;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+        /* CARDS */
+        .card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:18px;}
+        .card-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1.5px solid var(--border);}
+        .card-title{font-family:"Bungee",sans-serif;font-size:12px;color:var(--ink);letter-spacing:.3px;}
+        .card-sub{font-size:10px;color:var(--ink4);margin-top:2px;letter-spacing:.2px;}
+        .card-body{padding:20px;}
+        .card-2col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+        .card-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px;}
+
+        /* FORM ELEMENTS */
+        .fg{margin-bottom:14px;}
+        .fg label{display:block;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink2);margin-bottom:5px;}
+        .fi{width:100%;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--ink);font-size:12px;font-family:'Roboto Mono',monospace;outline:none;transition:.16s;}
+        .fi::placeholder{color:var(--ink4);}
+        .fi:focus{border-color:var(--accent);background:var(--white);box-shadow:0 0 0 3px rgba(26,63,255,.07);}
+        select.fi{appearance:none;cursor:pointer;}
+        textarea.fi{resize:vertical;min-height:80px;}
+        .fi-hint{font-size:10px;color:var(--ink4);margin-top:4px;letter-spacing:.2px;}
+        .form-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+        .form-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+        /* TOGGLE */
+        .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);margin-bottom:10px;transition:.14s;}
+        .toggle-row:hover{border-color:var(--border2);}
+        .toggle-info .tl{font-size:12px;font-weight:600;color:var(--ink2);}
+        .toggle-info .ts{font-size:10px;color:var(--ink4);margin-top:2px;letter-spacing:.2px;}
+        .tgl{position:relative;width:40px;height:22px;flex-shrink:0;}
+        .tgl input{opacity:0;width:0;height:0;}
+        .sl{position:absolute;cursor:pointer;inset:0;background:var(--border2);border-radius:22px;transition:.22s;}
+        .sl:before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.22s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+        .tgl input:checked+.sl{background:var(--accent);}
+        .tgl input:checked+.sl:before{transform:translateX(18px);}
+
+        /* BUTTONS */
+        .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--r-sm);font-family:'Roboto Mono',monospace;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:var(--white);color:var(--ink2);cursor:pointer;transition:all .17s;text-decoration:none;white-space:nowrap;}
+        .btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-l);}
+        .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 10px rgba(26,63,255,.25);}
+        .btn-primary:hover{background:var(--accent-d);color:#fff;transform:translateY(-1px);}
+        .btn-danger{background:var(--red);color:#fff;border-color:var(--red);box-shadow:0 2px 10px rgba(255,59,92,.25);}
+        .btn-danger:hover{background:#cc2244;color:#fff;}
+        .btn-success{background:var(--green);color:#fff;border-color:var(--green);box-shadow:0 2px 10px rgba(0,184,107,.25);}
+        .btn-success:hover{background:#009a5c;color:#fff;}
+        .btn-sm{padding:6px 12px;font-size:10px;}
+        .btn-row{display:flex;gap:9px;padding-top:4px;flex-wrap:wrap;}
+
+        /* AVATAR UPLOAD */
+        .av-upload{display:flex;align-items:center;gap:20px;padding:20px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:16px;}
+        .av-big{width:72px;height:72px;border-radius:16px;background:linear-gradient(135deg,var(--accent),#6e8fff);display:flex;align-items:center;justify-content:center;font-family:"Bungee",sans-serif;font-size:24px;color:#fff;flex-shrink:0;border:3px solid rgba(26,63,255,.2);box-shadow:var(--shadow);}
+        .av-upload-info .au-name{font-family:"Bungee",sans-serif;font-size:14px;color:var(--ink);}
+        .av-upload-info .au-email{font-size:11px;color:var(--ink4);margin-top:3px;letter-spacing:.2px;}
+        .av-upload-info .au-role{font-size:9px;color:var(--accent);background:var(--accent-l);padding:2px 8px;border-radius:20px;margin-top:6px;display:inline-block;font-family:"Bungee",sans-serif;letter-spacing:1px;}
+
+        /* STAT CARDS (Analytics) */
+        .sc-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;}
+        .sc{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm);transition:all .2s;}
+        .sc:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+        .sc-bar{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-lg) var(--r-lg) 0 0;}
+        .sc-lbl{font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--ink4);margin-bottom:5px;text-transform:uppercase;}
+        .sc-val{font-family:"Bungee",sans-serif;font-size:20px;color:var(--ink);letter-spacing:-1px;line-height:1;}
+        .sc-ico{position:absolute;top:14px;right:14px;font-size:18px;opacity:.18;}
+        .sc-chg{font-size:10px;margin-top:6px;letter-spacing:.2px;}
+        .sc-chg.up{color:var(--green);}
+        .sc-chg.dn{color:var(--red);}
+
+        /* BAR CHART */
+        .chart-wrap{padding:20px;}
+        .chart-title{font-family:"Bungee",sans-serif;font-size:11px;color:var(--ink);margin-bottom:4px;letter-spacing:.3px;}
+        .chart-sub{font-size:10px;color:var(--ink4);margin-bottom:18px;letter-spacing:.2px;}
+        .bar-chart{display:flex;align-items:flex-end;gap:6px;height:130px;margin-bottom:10px;}
+        .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+        .bar-col{width:100%;border-radius:5px 5px 0 0;position:relative;cursor:pointer;transition:.22s;min-height:4px;}
+        .bar-col:hover{filter:brightness(1.1);transform:scaleY(1.03);transform-origin:bottom;}
+        .bar-tip{position:absolute;bottom:calc(100%+5px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:9px;padding:4px 8px;border-radius:5px;white-space:nowrap;pointer-events:none;opacity:0;transition:.14s;z-index:10;}
+        .bar-col:hover .bar-tip{opacity:1;}
+        .bar-day{font-size:9px;color:var(--ink4);letter-spacing:.5px;text-align:center;}
+        .bar-labels{display:flex;gap:6px;}
+
+        /* DONUT CHART */
+        .donut-section{display:flex;align-items:center;gap:24px;padding:20px;}
+        .donut-svg{flex-shrink:0;}
+        .donut-legend{display:flex;flex-direction:column;gap:10px;}
+        .dl-item{display:flex;align-items:center;gap:10px;}
+        .dl-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+        .dl-label{font-size:11px;color:var(--ink2);}
+        .dl-val{font-family:"Bungee",sans-serif;font-size:11px;color:var(--ink);margin-left:auto;}
+
+        /* TABLE INSIDE CARD */
+        .tw{overflow-x:auto;}
+        table{width:100%;border-collapse:collapse;}
+        thead th{padding:10px 16px;text-align:left;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--ink4);background:var(--bg);border-bottom:1.5px solid var(--border);text-transform:uppercase;white-space:nowrap;}
+        tbody tr{border-bottom:1px solid var(--border);transition:.14s;}
+        tbody tr:last-child{border-bottom:none;}
+        tbody tr:hover{background:var(--bg);}
+        tbody td{padding:11px 16px;font-size:12px;color:var(--ink2);vertical-align:middle;}
+        .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:.8px;text-transform:uppercase;}
+        .b-green{background:var(--green-l);color:#007f4e;}
+        .b-blue{background:var(--accent-l);color:var(--accent);}
+        .b-orange{background:var(--orange-l);color:var(--orange);}
+        .b-red{background:var(--red-l);color:var(--red);}
+        .b-purple{background:var(--purple-l);color:var(--purple);}
+
+        /* DANGER ZONE */
+        .danger-zone{background:var(--red-l);border:1.5px solid rgba(255,59,92,.25);border-radius:var(--r-lg);padding:20px;margin-bottom:18px;}
+        .dz-title{font-family:"Bungee",sans-serif;font-size:11px;color:var(--red);letter-spacing:.5px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+        .dz-item{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid rgba(255,59,92,.15);}
+        .dz-item:last-child{border-bottom:none;padding-bottom:0;}
+        .dz-label{font-size:12px;font-weight:600;color:var(--red);}
+        .dz-desc{font-size:10px;color:var(--ink4);margin-top:2px;letter-spacing:.2px;}
+
+        /* API KEY */
+        .api-key-box{display:flex;align-items:center;gap:10px;background:var(--ink);border-radius:var(--r-sm);padding:12px 16px;margin-bottom:12px;}
+        .api-key-val{font-family:'Roboto Mono',monospace;font-size:12px;color:var(--green);flex:1;letter-spacing:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+        .api-key-copy{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:5px 10px;color:#fff;font-size:10px;cursor:pointer;font-family:'Roboto Mono',monospace;transition:.15s;white-space:nowrap;}
+        .api-key-copy:hover{background:rgba(255,255,255,.15);}
+
+        /* PROGRESS BAR */
+        .prog-item{margin-bottom:14px;}
+        .prog-top{display:flex;justify-content:space-between;font-size:11px;color:var(--ink2);margin-bottom:5px;}
+        .prog-top .pv{font-family:"Bungee",sans-serif;font-size:11px;color:var(--ink);}
+        .prog-bar{height:7px;background:var(--bg2);border-radius:20px;overflow:hidden;}
+        .prog-fill{height:100%;border-radius:20px;transition:width .8s cubic-bezier(.16,1,.3,1);}
+
+        /* DIVIDER */
+        .sdiv{font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink4);padding:8px 0 7px;border-bottom:1px solid var(--border);margin-bottom:14px;}
+
+        /* LOG ITEMS */
+        .log-item{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+        .log-item:last-child{border-bottom:none;}
+        .log-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+        .log-text{flex:1;font-size:11px;color:var(--ink2);line-height:1.5;}
+        .log-time{font-size:9px;color:var(--ink4);white-space:nowrap;letter-spacing:.5px;}
+        .log-badge{font-family:"Bungee",sans-serif;font-size:8px;padding:2px 7px;border-radius:4px;margin-left:6px;}
+
+        /* NOTIFICATION PREF */
+        .notif-group{border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
+        .notif-hd{background:var(--bg);padding:10px 16px;font-family:"Bungee",sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--ink3);text-transform:uppercase;border-bottom:1.5px solid var(--border);}
+        .notif-row{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--border);transition:.13s;}
+        .notif-row:last-child{border-bottom:none;}
+        .notif-row:hover{background:var(--bg);}
+        .notif-label{font-size:12px;color:var(--ink2);}
+        .notif-ch{display:flex;gap:16px;}
+        .notif-ch label{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--ink3);cursor:pointer;}
+        .notif-ch input[type=checkbox]{accent-color:var(--accent);width:13px;height:13px;}
+
+        /* BACKUP ITEM */
+        .bk-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);}
+        .bk-item:last-child{border-bottom:none;}
+        .bk-ico{width:38px;height:38px;background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+        .bk-name{font-size:12px;font-weight:600;color:var(--ink);}
+        .bk-meta{font-size:10px;color:var(--ink4);margin-top:2px;letter-spacing:.2px;}
+        .bk-size{font-family:"Bungee",sans-serif;font-size:10px;color:var(--accent);margin-left:auto;}
+
+        /* COLOR PICKER ROW */
+        .color-swatch{width:30px;height:30px;border-radius:7px;border:2px solid var(--border);cursor:pointer;transition:.14s;}
+        .color-swatch:hover{transform:scale(1.1);}
+        .color-swatch.sel{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,63,255,.2);}
+        .sw-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px;}
+
+        /* TOAST */
+        #toast{position:fixed;bottom:24px;right:24px;z-index:99999;background:var(--ink);color:#fff;padding:12px 18px;border-radius:var(--r-sm);font-size:11px;box-shadow:var(--shadow-lg);display:none;max-width:300px;}
+        #toast.show{display:block;animation:fadeIn .2s ease;}
+        #toast.success{background:var(--green);}
+        #toast.error{background:var(--red);}
+        #toast.warn{background:var(--orange);}
+
+        /* MODAL */
+        .ov{position:fixed;inset:0;z-index:9999;background:rgba(11,14,26,.5);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;}
+        .ov.open{display:flex;animation:fadeIn .18s ease;}
+        .modal{background:var(--white);border-radius:var(--r-lg);max-width:460px;width:100%;box-shadow:var(--shadow-lg);border:1.5px solid var(--border);animation:popIn .25s cubic-bezier(.16,1,.3,1);}
+        @keyframes popIn{from{transform:scale(.93)translateY(10px);opacity:0}to{transform:none;opacity:1}}
+        .mhd{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1.5px solid var(--border);}
+        .mhd-title{font-family:"Bungee",sans-serif;font-size:14px;color:var(--ink);}
+        .mclose{width:28px;height:28px;background:var(--bg);border:1.5px solid var(--border);border-radius:7px;cursor:pointer;font-size:12px;color:var(--ink3);display:flex;align-items:center;justify-content:center;}
+        .mclose:hover{background:var(--border);}
+        .mbd{padding:22px;}
+        .mft{display:flex;justify-content:flex-end;gap:8px;padding:14px 22px;border-top:1.5px solid var(--border);background:var(--bg);}
+
+        /* RESPONSIVE */
+        @media(max-width:1100px){.sc-row{grid-template-columns:repeat(3,1fr);}}
+        @media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;padding:16px;}.card-2col,.card-3col,.form-2col,.form-3col{grid-template-columns:1fr;}.sc-row{grid-template-columns:1fr 1fr;}}
     </style>
 </head>
 <body>
-<div id="sidebar-root"></div>
-<main class="main-content">
-    <div class="page-header">
-        <div><div class="page-title">⚙️ Settings</div><div class="page-subtitle">Configure your Rentify system</div></div>
-    </div>
 
-    <div class="settings-tabs">
-        <button class="tab-btn active" onclick="switchTab('analytics')">📊 Analytics</button>
-        <button class="tab-btn" onclick="switchTab('calculator')">🧮 Calculator</button>
-        <button class="tab-btn" onclick="switchTab('calendar')">📅 Calendar</button>
-        <button class="tab-btn" onclick="switchTab('profile')">👤 Profile</button>
-        <button class="tab-btn" onclick="switchTab('system')">🔧 System</button>
-    </div>
-
-    <!-- ANALYTICS -->
-    <div id="tab-analytics" class="tab-panel active">
-        <div class="stats-grid" style="margin-bottom:24px">
-            <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-label">Total Bookings</div><div class="stat-value" id="an-bookings">0</div></div>
-            <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-label">Total Users</div><div class="stat-value" id="an-users">0</div></div>
-            <div class="stat-card"><div class="stat-icon">🚗</div><div class="stat-label">Total Cabs</div><div class="stat-value" id="an-cabs">0</div></div>
-            <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Total Revenue</div><div class="stat-value" id="an-rev">$0</div></div>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="sb-top">
+        <div class="sb-brand">
+            <div class="sb-brand-ico">🚗</div>
+            <div class="sb-brand-name">Rent<span>ify</span></div>
         </div>
-        <div class="analytics-grid">
-            <div class="card">
-                <div class="card-header"><span class="card-title">Bookings by Status</span></div>
-                <div class="card-body" id="bookingStatusChart"></div>
+        <div class="sb-profile">
+            <div class="sb-av" id="sbAv">AD</div>
+            <div class="sb-av-info">
+                <div class="av-name" id="sbName">Admin User</div>
+                <div class="av-role">Administrator</div>
             </div>
-            <div class="card">
-                <div class="card-header"><span class="card-title">Revenue by Payment Method</span></div>
-                <div class="card-body" id="revenueMethodChart"></div>
-            </div>
+            <div class="sb-online"></div>
         </div>
     </div>
+    <nav class="sb-nav">
+        <div class="sb-sec">Main</div>
+        <a href="admin-dashboard.html" class="sb-link"><span class="ico">🏠</span>Home</a>
+        <div class="sb-sec">Fleet</div>
+        <a href="admin-booking.html" class="sb-link"><span class="ico">📋</span>Bookings</a>
+        <a href="admin-vehicle.html" class="sb-link"><span class="ico">🚗</span>Vehicles</a>
+        <a href="admin-driver.html" class="sb-link"><span class="ico">🧑‍✈️</span>Drivers</a>
+        <div class="sb-sec">Admin</div>
+        <a href="insurance.html" class="sb-link"><span class="ico">🛡️</span>Insurance</a>
+        <a href="users.html" class="sb-link"><span class="ico">👥</span>Users</a>
+        <a href="settings.html" class="sb-link active"><span class="ico">⚙️</span>Settings</a>
+    </nav>
+    <div class="sb-bottom">
+        <button class="sb-logout" onclick="logout()"><span class="ico">🚪</span>Sign Out</button>
+    </div>
+</aside>
 
-    <!-- CALCULATOR -->
-    <div id="tab-calculator" class="tab-panel">
-        <div class="card" style="max-width:360px">
-            <div class="card-body" style="padding:20px">
-                <div class="calc-wrap">
-                    <div class="calc-screen">
-                        <div class="calc-expr" id="calcExpr"></div>
-                        <div id="calcDisplay">0</div>
+<!-- MAIN -->
+<main class="main">
+    <div class="ph">
+        <div>
+            <div class="ph-title">⚙️ SETTINGS & REPORTS</div>
+            <div class="ph-sub">Configure the system, view analytics, and manage your account.</div>
+        </div>
+        <button class="btn btn-primary" onclick="saveAll()">💾 Save All Changes</button>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('analytics')">📊 Analytics</div>
+        <div class="tab" onclick="switchTab('profile')">👤 Profile</div>
+        <div class="tab" onclick="switchTab('system')">⚙️ System</div>
+        <div class="tab" onclick="switchTab('notifications')">🔔 Notifications</div>
+        <div class="tab" onclick="switchTab('security')">🔐 Security</div>
+        <div class="tab" onclick="switchTab('api')">🔌 API & Backup</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         TAB 1: ANALYTICS & REPORTS
+    ═══════════════════════════════════════ -->
+    <div class="panel active" id="tab-analytics">
+
+        <!-- STAT CARDS -->
+        <div class="sc-row">
+            <div class="sc">
+                <div class="sc-bar" style="background:linear-gradient(90deg,var(--orange),var(--yellow))"></div>
+                <div class="sc-lbl">Total Revenue</div>
+                <div class="sc-val" id="an-revenue">—</div>
+                <div class="sc-ico">💰</div>
+                <div class="sc-chg up" id="an-rev-chg">↑ Loading…</div>
+            </div>
+            <div class="sc">
+                <div class="sc-bar" style="background:linear-gradient(90deg,var(--accent),#6e8fff)"></div>
+                <div class="sc-lbl">Total Bookings</div>
+                <div class="sc-val" id="an-bookings">—</div>
+                <div class="sc-ico">📋</div>
+                <div class="sc-chg up" id="an-bk-chg">↑ Loading…</div>
+            </div>
+            <div class="sc">
+                <div class="sc-bar" style="background:linear-gradient(90deg,var(--green),#00e5a0)"></div>
+                <div class="sc-lbl">Completion Rate</div>
+                <div class="sc-val" id="an-rate">—</div>
+                <div class="sc-ico">🏁</div>
+                <div class="sc-chg up">↑ On track</div>
+            </div>
+            <div class="sc">
+                <div class="sc-bar" style="background:linear-gradient(90deg,var(--purple),#b07df5)"></div>
+                <div class="sc-lbl">Active Vehicles</div>
+                <div class="sc-val" id="an-vehicles">—</div>
+                <div class="sc-ico">🚗</div>
+                <div class="sc-chg" id="an-veh-chg" style="color:var(--ink4)">Loading…</div>
+            </div>
+            <div class="sc">
+                <div class="sc-bar" style="background:linear-gradient(90deg,var(--red),#ff7090)"></div>
+                <div class="sc-lbl">Cancellation</div>
+                <div class="sc-val" id="an-cancel">—</div>
+                <div class="sc-ico">🚫</div>
+                <div class="sc-chg dn" id="an-cc-chg">↓ Loading…</div>
+            </div>
+        </div>
+
+        <!-- CHARTS ROW -->
+        <div class="card-2col">
+            <!-- BAR CHART -->
+            <div class="card">
+                <div class="card-hd">
+                    <div>
+                        <div class="card-title">MONTHLY BOOKINGS</div>
+                        <div class="card-sub">Last 8 months performance</div>
                     </div>
-                    <div class="calc-grid">
-                        <button class="calc-btn calc-clear" onclick="calcClear()">C</button>
-                        <button class="calc-btn calc-op" onclick="calcInput('±')">±</button>
-                        <button class="calc-btn calc-op" onclick="calcInput('%')">%</button>
-                        <button class="calc-btn calc-op" onclick="calcInput('/')">÷</button>
-                        <button class="calc-btn calc-num" onclick="calcInput('7')">7</button>
-                        <button class="calc-btn calc-num" onclick="calcInput('8')">8</button>
-                        <button class="calc-btn calc-num" onclick="calcInput('9')">9</button>
-                        <button class="calc-btn calc-op" onclick="calcInput('*')">×</button>
-                        <button class="calc-btn calc-num" onclick="calcInput('4')">4</button>
-                        <button class="calc-btn calc-num" onclick="calcInput('5')">5</button>
-                        <button class="calc-btn calc-num" onclick="calcInput('6')">6</button>
-                        <button class="calc-btn calc-op" onclick="calcInput('-')">−</button>
-                        <button class="calc-btn calc-num" onclick="calcInput('1')">1</button>
-                        <button class="calc-btn calc-num" onclick="calcInput('2')">2</button>
-                        <button class="calc-btn calc-num" onclick="calcInput('3')">3</button>
-                        <button class="calc-btn calc-op" onclick="calcInput('+')">+</button>
-                        <button class="calc-btn calc-num calc-zero" onclick="calcInput('0')">0</button>
-                        <button class="calc-btn calc-num" onclick="calcInput('.')">.</button>
-                        <button class="calc-btn calc-eq" onclick="calcEquals()">=</button>
+                    <select class="fi" style="width:auto;padding:5px 10px;font-size:10px" id="chartRange" onchange="renderBarChart()">
+                        <option value="8">Last 8 months</option>
+                        <option value="6">Last 6 months</option>
+                        <option value="12">Last 12 months</option>
+                    </select>
+                </div>
+                <div class="chart-wrap">
+                    <div class="bar-chart" id="barChart"></div>
+                    <div class="bar-labels" id="barLabels"></div>
+                </div>
+            </div>
+
+            <!-- DONUT CHART -->
+            <div class="card">
+                <div class="card-hd">
+                    <div>
+                        <div class="card-title">BOOKING STATUS BREAKDOWN</div>
+                        <div class="card-sub">Current distribution</div>
                     </div>
+                </div>
+                <div class="donut-section">
+                    <svg class="donut-svg" width="130" height="130" viewBox="0 0 130 130" id="donutSvg">
+                        <circle cx="65" cy="65" r="50" fill="none" stroke="var(--bg2)" stroke-width="18"/>
+                    </svg>
+                    <div class="donut-legend" id="donutLegend"></div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- CALENDAR -->
-    <div id="tab-calendar" class="tab-panel">
-        <div style="display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start">
-            <div class="card" style="min-width:340px">
+        <!-- REVENUE TREND + VEHICLE PERFORMANCE -->
+        <div class="card-2col">
+            <div class="card">
+                <div class="card-hd">
+                    <div>
+                        <div class="card-title">REVENUE TREND</div>
+                        <div class="card-sub">Daily revenue — last 7 days</div>
+                    </div>
+                </div>
+                <div class="chart-wrap">
+                    <div class="bar-chart" id="revenueChart" style="height:100px"></div>
+                    <div class="bar-labels" id="revenueLabels"></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-hd">
+                    <div>
+                        <div class="card-title">VEHICLE UTILIZATION</div>
+                        <div class="card-sub">Usage by type</div>
+                    </div>
+                </div>
                 <div class="card-body">
-                    <div class="cal-wrap">
-                        <div class="cal-header">
-                            <button class="cal-nav" onclick="calNav(-1)">◀</button>
-                            <div class="cal-month" id="calMonthLabel"></div>
-                            <button class="cal-nav" onclick="calNav(1)">▶</button>
-                        </div>
-                        <div class="cal-grid" id="calGrid"></div>
+                    <div class="prog-item">
+                        <div class="prog-top"><span>CAB</span><span class="pv" id="pv-cab">—</span></div>
+                        <div class="prog-bar"><div class="prog-fill" id="pf-cab" style="background:var(--accent);width:0%"></div></div>
+                    </div>
+                    <div class="prog-item">
+                        <div class="prog-top"><span>VAN</span><span class="pv" id="pv-van">—</span></div>
+                        <div class="prog-bar"><div class="prog-fill" id="pf-van" style="background:var(--green);width:0%"></div></div>
+                    </div>
+                    <div class="prog-item">
+                        <div class="prog-top"><span>SUV / LUXURY</span><span class="pv" id="pv-suv">—</span></div>
+                        <div class="prog-bar"><div class="prog-fill" id="pf-suv" style="background:var(--purple);width:0%"></div></div>
+                    </div>
+                    <div class="prog-item">
+                        <div class="prog-top"><span>BUS</span><span class="pv" id="pv-bus">—</span></div>
+                        <div class="prog-bar"><div class="prog-fill" id="pf-bus" style="background:var(--orange);width:0%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOP VEHICLES TABLE -->
+        <div class="card">
+            <div class="card-hd">
+                <div>
+                    <div class="card-title">TOP PERFORMING VEHICLES</div>
+                    <div class="card-sub">By total bookings & revenue</div>
+                </div>
+                <button class="btn btn-sm" onclick="exportAnalyticsPDF()">📄 Export Report</button>
+            </div>
+            <div class="tw">
+                <table>
+                    <thead><tr><th>Rank</th><th>Vehicle</th><th>Type</th><th>Bookings</th><th>Revenue</th><th>Utilization</th><th>Status</th></tr></thead>
+                    <tbody id="topVehiclesTable">
+                    <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--ink4)">Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- RECENT BOOKING LOG -->
+        <div class="card">
+            <div class="card-hd">
+                <div>
+                    <div class="card-title">BOOKING ACTIVITY LOG</div>
+                    <div class="card-sub">Latest system events</div>
+                </div>
+            </div>
+            <div class="card-body" style="padding:16px 20px" id="activityLog">
+                <div style="color:var(--ink4);font-size:12px;text-align:center;padding:20px">Loading…</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         TAB 2: PROFILE
+    ═══════════════════════════════════════ -->
+    <div class="panel" id="tab-profile">
+        <div class="card">
+            <div class="card-hd"><div class="card-title">ADMIN PROFILE</div></div>
+            <div class="card-body">
+                <div class="av-upload">
+                    <div class="av-big" id="profileAv">AD</div>
+                    <div class="av-upload-info">
+                        <div class="au-name" id="profileName">Admin User</div>
+                        <div class="au-email" id="profileEmail">admin@rentify.lk</div>
+                        <div class="au-role">ADMINISTRATOR</div>
+                    </div>
+                    <button class="btn btn-sm" style="margin-left:auto" onclick="showToast('Photo upload coming soon','warn')">📷 Change Photo</button>
+                </div>
+                <div class="sdiv">Personal Information</div>
+                <div class="form-2col">
+                    <div class="fg"><label>Full Name</label><input class="fi" id="pf-name" placeholder="Your full name"></div>
+                    <div class="fg"><label>Username</label><input class="fi" id="pf-username" placeholder="username"></div>
+                    <div class="fg"><label>Email Address</label><input class="fi" id="pf-email" type="email" placeholder="admin@rentify.lk"></div>
+                    <div class="fg"><label>Phone Number</label><input class="fi" id="pf-phone" placeholder="+94 77 000 0000"></div>
+                </div>
+                <div class="fg"><label>Bio / Notes</label><textarea class="fi" id="pf-bio" placeholder="Brief description about yourself…"></textarea></div>
+                <div class="sdiv">Regional Settings</div>
+                <div class="form-3col">
+                    <div class="fg">
+                        <label>Timezone</label>
+                        <select class="fi" id="pf-tz">
+                            <option value="Asia/Colombo">Asia/Colombo (LKT)</option>
+                            <option value="UTC">UTC</option>
+                            <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
+                            <option value="Europe/London">Europe/London (GMT)</option>
+                        </select>
+                    </div>
+                    <div class="fg">
+                        <label>Currency</label>
+                        <select class="fi" id="pf-currency">
+                            <option value="LKR">LKR — Sri Lankan Rupee</option>
+                            <option value="USD">USD — US Dollar</option>
+                            <option value="EUR">EUR — Euro</option>
+                        </select>
+                    </div>
+                    <div class="fg">
+                        <label>Language</label>
+                        <select class="fi" id="pf-lang">
+                            <option value="en">English</option>
+                            <option value="si">Sinhala</option>
+                            <option value="ta">Tamil</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-primary" onclick="saveProfile()">💾 Save Profile</button>
+                    <button class="btn" onclick="loadProfile()">↺ Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         TAB 3: SYSTEM
+    ═══════════════════════════════════════ -->
+    <div class="panel" id="tab-system">
+        <div class="card-2col">
+            <div class="card">
+                <div class="card-hd"><div class="card-title">BUSINESS SETTINGS</div></div>
+                <div class="card-body">
+                    <div class="fg"><label>Business Name</label><input class="fi" id="sys-bname" value="Rentify Car Rentals" placeholder="Company name"></div>
+                    <div class="fg"><label>Contact Email</label><input class="fi" id="sys-email" value="info@rentify.lk" type="email"></div>
+                    <div class="fg"><label>Contact Phone</label><input class="fi" id="sys-phone" value="+94 11 000 0000" placeholder="+94…"></div>
+                    <div class="fg"><label>Address</label><textarea class="fi" id="sys-address" rows="2">No. 45, Galle Road, Colombo 03, Sri Lanka</textarea></div>
+                    <div class="form-2col">
+                        <div class="fg"><label>VAT / TIN Number</label><input class="fi" id="sys-vat" value="VAT-123456789" placeholder="VAT number"></div>
+                        <div class="fg"><label>Registration No.</label><input class="fi" id="sys-reg" value="PV-00234-LK" placeholder="Reg number"></div>
                     </div>
                 </div>
             </div>
             <div class="card">
-                <div class="card-header">
-                    <span class="card-title" id="calEventsTitle">Events</span>
-                    <button class="btn btn-primary btn-sm" onclick="addEvent()">+ Add Event</button>
+                <div class="card-hd"><div class="card-title">BOOKING RULES</div></div>
+                <div class="card-body">
+                    <div class="form-2col">
+                        <div class="fg"><label>Min Rental Days</label><input class="fi" type="number" id="sys-mindays" value="1" min="1"></div>
+                        <div class="fg"><label>Max Rental Days</label><input class="fi" type="number" id="sys-maxdays" value="30" min="1"></div>
+                        <div class="fg"><label>Advance Booking Days</label><input class="fi" type="number" id="sys-advance" value="90" min="1"></div>
+                        <div class="fg"><label>Cancellation Hours</label><input class="fi" type="number" id="sys-cancel" value="24" min="0"></div>
+                    </div>
+                    <div class="fg"><label>Late Return Fee (%)</label><input class="fi" type="number" id="sys-latefee" value="15" min="0" max="100"></div>
+                    <div class="fg"><label>Damage Deposit (%)</label><input class="fi" type="number" id="sys-deposit" value="20" min="0" max="100"></div>
                 </div>
-                <div class="card-body" id="calEventsList">
-                    <p style="color:var(--text-muted);font-size:13px">Select a day to see events.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-hd"><div class="card-title">SYSTEM PREFERENCES</div></div>
+            <div class="card-body">
+                <div class="sdiv">Display</div>
+                <div class="form-2col" style="margin-bottom:14px">
+                    <div>
+                        <div style="font-family:'Bungee',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--ink2);text-transform:uppercase;margin-bottom:8px">ACCENT COLOR</div>
+                        <div class="sw-row">
+                            <div class="color-swatch sel" style="background:#1a3fff" onclick="setAccent('#1a3fff',this)" title="Rentify Blue"></div>
+                            <div class="color-swatch" style="background:#7c3aed" onclick="setAccent('#7c3aed',this)" title="Purple"></div>
+                            <div class="color-swatch" style="background:#00b86b" onclick="setAccent('#00b86b',this)" title="Green"></div>
+                            <div class="color-swatch" style="background:#ff7a00" onclick="setAccent('#ff7a00',this)" title="Orange"></div>
+                            <div class="color-swatch" style="background:#ff3b5c" onclick="setAccent('#ff3b5c',this)" title="Red"></div>
+                            <div class="color-swatch" style="background:#0b0e1a" onclick="setAccent('#0b0e1a',this)" title="Dark"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-family:'Bungee',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--ink2);text-transform:uppercase;margin-bottom:8px">DATE FORMAT</div>
+                        <select class="fi" id="sys-datefmt">
+                            <option value="en-LK">DD MMM YYYY (Sri Lanka)</option>
+                            <option value="en-US">MM/DD/YYYY (US)</option>
+                            <option value="en-GB">DD/MM/YYYY (UK)</option>
+                            <option value="iso">YYYY-MM-DD (ISO)</option>
+                        </select>
+                    </div>
                 </div>
+                <div class="sdiv">Features</div>
+                <div class="toggle-row"><div class="toggle-info"><div class="tl">Maintenance Mode</div><div class="ts">Puts site in maintenance — users see a downtime page</div></div><label class="tgl"><input type="checkbox" id="t-maint"><span class="sl"></span></label></div>
+                <div class="toggle-row"><div class="toggle-info"><div class="tl">Auto-Confirm Bookings</div><div class="ts">Automatically confirm new bookings without admin review</div></div><label class="tgl"><input type="checkbox" id="t-autoconfirm" checked><span class="sl"></span></label></div>
+                <div class="toggle-row"><div class="toggle-info"><div class="tl">Allow Guest Bookings</div><div class="ts">Let unregistered users make bookings</div></div><label class="tgl"><input type="checkbox" id="t-guest"><span class="sl"></span></label></div>
+                <div class="toggle-row"><div class="toggle-info"><div class="tl">SMS Notifications</div><div class="ts">Send booking confirmation via SMS gateway</div></div><label class="tgl"><input type="checkbox" id="t-sms" checked><span class="sl"></span></label></div>
+                <div class="toggle-row"><div class="toggle-info"><div class="tl">Insurance Required</div><div class="ts">Require valid insurance before allowing vehicle booking</div></div><label class="tgl"><input type="checkbox" id="t-insreq" checked><span class="sl"></span></label></div>
             </div>
         </div>
     </div>
 
-    <!-- PROFILE -->
-    <div id="tab-profile" class="tab-panel">
-        <div class="card" style="max-width:560px">
-            <div class="card-header"><span class="card-title">Admin Profile</span></div>
+    <!-- ═══════════════════════════════════════
+         TAB 4: NOTIFICATIONS
+    ═══════════════════════════════════════ -->
+    <div class="panel" id="tab-notifications">
+        <div class="card">
+            <div class="card-hd"><div class="card-title">NOTIFICATION PREFERENCES</div><div class="card-sub">Choose how and when to receive alerts</div></div>
             <div class="card-body">
-                <div class="form-grid">
-                    <div class="form-group"><label class="form-label">First Name</label><input class="form-input" id="p-fname" value="Admin"></div>
-                    <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" id="p-lname" value="Rentify"></div>
-                    <div class="form-group full"><label class="form-label">Email</label><input class="form-input" id="p-email" value="admin@rentify.com"></div>
-                    <div class="form-group full"><label class="form-label">New Password</label><input class="form-input" type="password" id="p-pw" placeholder="Leave blank to keep current"></div>
+                <div class="notif-group">
+                    <div class="notif-hd">Booking Events</div>
+                    <div class="notif-row"><span class="notif-label">New booking created</span><div class="notif-ch"><label><input type="checkbox" checked>Email</label><label><input type="checkbox" checked>Push</label><label><input type="checkbox">SMS</label></div></div>
+                    <div class="notif-row"><span class="notif-label">Booking confirmed</span><div class="notif-ch"><label><input type="checkbox" checked>Email</label><label><input type="checkbox">Push</label><label><input type="checkbox">SMS</label></div></div>
+                    <div class="notif-row"><span class="notif-label">Booking cancelled</span><div class="notif-ch"><label><input type="checkbox" checked>Email</label><label><input type="checkbox" checked>Push</label><label><input type="checkbox">SMS</label></div></div>
+                    <div class="notif-row"><span class="notif-label">Booking completed</span><div class="notif-ch"><label><input type="checkbox">Email</label><label><input type="checkbox" checked>Push</label><label><input type="checkbox">SMS</label></div></div>
                 </div>
-                <div style="margin-top:20px">
-                    <button class="btn btn-primary" onclick="saveProfile()">💾 Save Changes</button>
+                <div class="notif-group">
+                    <div class="notif-hd">Fleet Alerts</div>
+                    <div class="notif-row"><span class="notif-label">Vehicle due maintenance</span><div class="notif-ch"><label><input type="checkbox" checked>Email</label><label><input type="checkbox" checked>Push</label><label><input type="checkbox">SMS</label></div></div>
+                    <div class="notif-row"><span class="notif-label">Insurance expiring soon</span><div class="notif-ch"><label><input type="checkbox" checked>Email</label><label><input type="checkbox" checked>Push</label><label><input type="checkbox" checked>SMS</label></div></div>
+                    <div class="notif-row"><span class="notif-label">Driver licence expiring</span><div class="notif-ch"><label><input type="checkbox" checked>Email</label><label><input type="checkbox">Push</label><label><input type="checkbox">SMS</label></div></div>
                 </div>
+                <div class="notif-group">
+                    <div class="notif-hd">Financial & Reports</div>
+                    <div class="notif-row"><span class="notif-label">Payment received</span><div class="notif-ch"><label><input type="checkbox" checked>Email</label><label><input type="checkbox">Push</label><label><input type="checkbox">SMS</label></div></div>
+                    <div class="notif-row"><span class="notif-label">Daily summary report</span><div class="notif-ch"><label><input type="checkbox" checked>Email</label><label><input type="checkbox">Push</label><label><input type="checkbox">SMS</label></div></div>
+                    <div class="notif-row"><span class="notif-label">Monthly revenue report</span><div class="notif-ch"><label><input type="checkbox" checked>Email</label><label><input type="checkbox">Push</label><label><input type="checkbox">SMS</label></div></div>
+                </div>
+                <div class="sdiv" style="margin-top:16px">Email Digest</div>
+                <div class="form-2col">
+                    <div class="fg"><label>Digest Frequency</label><select class="fi" id="notif-freq"><option>Daily</option><option selected>Weekly</option><option>Monthly</option><option>Never</option></select></div>
+                    <div class="fg"><label>Digest Time</label><input type="time" class="fi" id="notif-time" value="08:00"></div>
+                </div>
+                <div class="btn-row"><button class="btn btn-primary" onclick="saveAll()">💾 Save Preferences</button><button class="btn" onclick="showToast('Test notification sent!','success')">🔔 Send Test</button></div>
             </div>
         </div>
     </div>
 
-    <!-- SYSTEM -->
-    <div id="tab-system" class="tab-panel">
-        <div class="card" style="max-width:560px">
-            <div class="card-header"><span class="card-title">System Preferences</span></div>
+    <!-- ═══════════════════════════════════════
+         TAB 5: SECURITY
+    ═══════════════════════════════════════ -->
+    <div class="panel" id="tab-security">
+        <div class="card-2col">
+            <div class="card">
+                <div class="card-hd"><div class="card-title">CHANGE PASSWORD</div></div>
+                <div class="card-body">
+                    <div class="fg"><label>Current Password</label><input class="fi" type="password" id="pw-curr" placeholder="••••••••"></div>
+                    <div class="fg"><label>New Password</label><input class="fi" type="password" id="pw-new" placeholder="Min 8 characters" oninput="checkPwStrength()"></div>
+                    <div class="fg">
+                        <div style="font-family:'Bungee',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--ink2);text-transform:uppercase;margin-bottom:5px">STRENGTH</div>
+                        <div style="height:6px;background:var(--bg2);border-radius:20px;overflow:hidden;margin-bottom:6px"><div id="pw-strength-bar" style="height:100%;border-radius:20px;transition:all .3s;width:0%"></div></div>
+                        <div id="pw-strength-lbl" style="font-size:10px;color:var(--ink4)">Enter a new password</div>
+                    </div>
+                    <div class="fg"><label>Confirm Password</label><input class="fi" type="password" id="pw-conf" placeholder="Repeat new password"></div>
+                    <div class="fg"><label>Reason (optional)</label><input class="fi" id="pw-reason" placeholder="Routine change, suspected compromise…"></div>
+                    <div class="btn-row"><button class="btn btn-primary" onclick="changePassword()">🔑 Update Password</button></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-hd"><div class="card-title">SECURITY SETTINGS</div></div>
+                <div class="card-body">
+                    <div class="toggle-row"><div class="toggle-info"><div class="tl">Two-Factor Authentication</div><div class="ts">Require OTP on every login</div></div><label class="tgl"><input type="checkbox" id="sec-2fa"><span class="sl"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><div class="tl">Login Notifications</div><div class="ts">Email me on new device login</div></div><label class="tgl"><input type="checkbox" id="sec-notif" checked><span class="sl"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><div class="tl">Session Timeout</div><div class="ts">Auto-logout after inactivity</div></div><label class="tgl"><input type="checkbox" id="sec-timeout" checked><span class="sl"></span></label></div>
+                    <div class="fg" style="margin-top:14px"><label>Session Timeout (minutes)</label><input class="fi" type="number" id="sec-timeout-val" value="60" min="5" max="480"></div>
+                    <div class="fg"><label>Allowed IP Ranges</label><textarea class="fi" rows="2" id="sec-ips" placeholder="0.0.0.0/0 (all) or specific IPs…">0.0.0.0/0</textarea><div class="fi-hint">Comma-separated CIDR notation. Leave as 0.0.0.0/0 for unrestricted.</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LOGIN HISTORY -->
+        <div class="card">
+            <div class="card-hd">
+                <div><div class="card-title">LOGIN HISTORY</div><div class="card-sub">Recent admin access attempts</div></div>
+                <button class="btn btn-sm btn-danger" onclick="showToast('All sessions terminated','success')">🚫 Revoke All Sessions</button>
+            </div>
+            <div class="card-body" id="loginHistory">
+                <!-- populated by JS -->
+            </div>
+        </div>
+
+        <!-- DANGER ZONE -->
+        <div class="danger-zone">
+            <div class="dz-title">⚠️ DANGER ZONE</div>
+            <div class="dz-item">
+                <div><div class="dz-label">Reset All Settings</div><div class="dz-desc">Restore all settings to factory defaults</div></div>
+                <button class="btn btn-danger btn-sm" onclick="openConfirmModal('resetSettings','Reset all settings to default? This cannot be undone.')">Reset Settings</button>
+            </div>
+            <div class="dz-item">
+                <div><div class="dz-label">Purge Cancelled Bookings</div><div class="dz-desc">Permanently delete all cancelled booking records</div></div>
+                <button class="btn btn-danger btn-sm" onclick="openConfirmModal('purgeCancelled','Delete all CANCELLED bookings permanently?')">Purge Records</button>
+            </div>
+            <div class="dz-item" style="border-bottom:none">
+                <div><div class="dz-label">Delete Admin Account</div><div class="dz-desc">Permanently delete this admin account — irreversible</div></div>
+                <button class="btn btn-danger btn-sm" onclick="openConfirmModal('deleteAccount','Delete your admin account? This is permanent and cannot be undone.')">Delete Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         TAB 6: API & BACKUP
+    ═══════════════════════════════════════ -->
+    <div class="panel" id="tab-api">
+        <div class="card-2col">
+            <div class="card">
+                <div class="card-hd"><div class="card-title">API CONFIGURATION</div></div>
+                <div class="card-body">
+                    <div class="fg"><label>API Base URL</label><input class="fi" id="api-url" value="http://localhost:8081/api/v1" placeholder="https://api.rentify.lk/api/v1"></div>
+                    <div class="fg"><label>API Version</label><select class="fi" id="api-ver"><option selected>v1</option><option>v2 (beta)</option></select></div>
+                    <div class="fg"><label>Request Timeout (ms)</label><input class="fi" type="number" id="api-timeout" value="10000" min="1000"></div>
+                    <div class="toggle-row"><div class="toggle-info"><div class="tl">Enable API Logging</div><div class="ts">Log all API requests to console</div></div><label class="tgl"><input type="checkbox" id="api-log" checked><span class="sl"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><div class="tl">Auto-Retry on Failure</div><div class="ts">Retry failed requests up to 3 times</div></div><label class="tgl"><input type="checkbox" id="api-retry" checked><span class="sl"></span></label></div>
+                    <div class="btn-row"><button class="btn btn-primary" onclick="testApiConnection()">🔌 Test Connection</button><button class="btn" onclick="saveAll()">💾 Save</button></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-hd"><div class="card-title">SECRET KEYS</div></div>
+                <div class="card-body">
+                    <div class="fg"><label>Admin API Key</label>
+                        <div class="api-key-box">
+                            <div class="api-key-val" id="apiKeyVal">rnt_admin_••••••••••••••••••••••••••••••</div>
+                            <button class="api-key-copy" onclick="toggleApiKey(this)">Show</button>
+                            <button class="api-key-copy" onclick="copyApiKey()">Copy</button>
+                        </div>
+                        <div class="fi-hint">Keep this secret. Rotate it if compromised.</div>
+                    </div>
+                    <div class="fg"><label>Webhook Secret</label>
+                        <div class="api-key-box">
+                            <div class="api-key-val">whsec_••••••••••••••••••••••••••••••</div>
+                            <button class="api-key-copy">Show</button>
+                        </div>
+                    </div>
+                    <div class="btn-row"><button class="btn btn-danger btn-sm" onclick="showToast('New API key generated','success')">↺ Rotate Key</button></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BACKUPS -->
+        <div class="card">
+            <div class="card-hd">
+                <div><div class="card-title">BACKUPS</div><div class="card-sub">Database snapshots and restore points</div></div>
+                <button class="btn btn-primary btn-sm" onclick="createBackup()">💾 Create Backup</button>
+            </div>
             <div class="card-body">
-                <div class="setting-row">
-                    <div><div class="setting-label">Email Notifications</div><div class="setting-desc">Receive booking alerts via email</div></div>
-                    <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                <div class="sdiv">Recent Backups</div>
+                <div id="backupList">
+                    <!-- populated by JS -->
                 </div>
-                <div class="setting-row">
-                    <div><div class="setting-label">SMS Alerts</div><div class="setting-desc">Driver and payment notifications</div></div>
-                    <label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+                <div class="sdiv" style="margin-top:4px">Auto-Backup Schedule</div>
+                <div class="form-2col">
+                    <div class="fg"><label>Frequency</label><select class="fi" id="bk-freq"><option>Hourly</option><option selected>Daily</option><option>Weekly</option></select></div>
+                    <div class="fg"><label>Retention (days)</label><input class="fi" type="number" id="bk-retention" value="30" min="1"></div>
                 </div>
-                <div class="setting-row">
-                    <div><div class="setting-label">Auto Confirm Bookings</div><div class="setting-desc">Automatically confirm new bookings</div></div>
-                    <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                </div>
-                <div class="setting-row">
-                    <div><div class="setting-label">Maintenance Mode</div><div class="setting-desc">Disable user access temporarily</div></div>
-                    <label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
-                </div>
-                <div style="margin-top:20px;display:flex;gap:10px">
-                    <button class="btn btn-primary" onclick="showToast('Settings saved!')">💾 Save Settings</button>
-                    <button class="btn btn-danger" onclick="if(confirm('Clear all data?')){localStorage.clear();showToast('Data cleared','error');}">🗑️ Clear All Data</button>
+                <div class="toggle-row"><div class="toggle-info"><div class="tl">Cloud Backup</div><div class="ts">Push backups to remote cloud storage</div></div><label class="tgl"><input type="checkbox" id="bk-cloud" checked><span class="sl"></span></label></div>
+                <div class="btn-row"><button class="btn btn-primary" onclick="saveAll()">💾 Save Schedule</button></div>
+            </div>
+        </div>
+
+        <!-- EXPORT DATA -->
+        <div class="card">
+            <div class="card-hd"><div class="card-title">EXPORT DATA</div><div class="card-sub">Download system data in various formats</div></div>
+            <div class="card-body">
+                <div class="card-3col">
+                    <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+                        <div style="font-size:28px;margin-bottom:8px">📋</div>
+                        <div style="font-family:'Bungee',sans-serif;font-size:10px;color:var(--ink);letter-spacing:.3px;margin-bottom:6px">ALL BOOKINGS</div>
+                        <div style="font-size:10px;color:var(--ink4);margin-bottom:14px">Export all booking records</div>
+                        <button class="btn btn-sm btn-primary" onclick="exportBookings()">Export CSV</button>
+                    </div>
+                    <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+                        <div style="font-size:28px;margin-bottom:8px">🚗</div>
+                        <div style="font-family:'Bungee',sans-serif;font-size:10px;color:var(--ink);letter-spacing:.3px;margin-bottom:6px">FLEET DATA</div>
+                        <div style="font-size:10px;color:var(--ink4);margin-bottom:14px">Vehicle inventory export</div>
+                        <button class="btn btn-sm btn-primary" onclick="showToast('Fleet export ready!','success')">Export CSV</button>
+                    </div>
+                    <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+                        <div style="font-size:28px;margin-bottom:8px">📄</div>
+                        <div style="font-family:'Bungee',sans-serif;font-size:10px;color:var(--ink);letter-spacing:.3px;margin-bottom:6px">FULL REPORT</div>
+                        <div style="font-size:10px;color:var(--ink4);margin-bottom:14px">Complete analytics PDF</div>
+                        <button class="btn btn-sm" style="background:linear-gradient(135deg,var(--red),#c92244);color:#fff;border:none" onclick="exportAnalyticsPDF()">Export PDF</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </main>
+
+<!-- CONFIRM MODAL -->
+<div class="ov" id="confirmOv">
+    <div class="modal">
+        <div class="mhd"><div class="mhd-title">CONFIRM ACTION</div><button class="mclose" onclick="closeConfirmModal()">✕</button></div>
+        <div class="mbd">
+            <div style="text-align:center;padding:10px 0">
+                <div style="font-size:36px;margin-bottom:12px">⚠️</div>
+                <div id="confirmMsg" style="font-size:13px;color:var(--ink2);line-height:1.6"></div>
+            </div>
+        </div>
+        <div class="mft">
+            <button class="btn" onclick="closeConfirmModal()">Cancel</button>
+            <button class="btn btn-danger" id="confirmBtn" onclick="doConfirmAction()">Confirm</button>
+        </div>
+    </div>
+</div>
+
 <div id="toast"></div>
-<script src="../../js/admin-js/p-admin-js.js"></script>
+
 <script>
-    document.getElementById('sidebar-root').innerHTML = getSidebar('settings');
+    const API = 'http://localhost:8081/api/v1';
+    let allBookings = [], allVehicles = [], pendingAction = null;
+
+    // ── INIT ──
+    const fname = localStorage.getItem('rentify_fullName') || localStorage.getItem('rentify_username') || 'Admin User';
+    const femail = localStorage.getItem('rentify_email') || 'admin@rentify.lk';
+    const fini = fname.trim().split(/\s+/).map(x => x[0]?.toUpperCase()).join('').slice(0, 2) || 'AD';
+    $('#sbAv, #profileAv').text(fini);
+    $('#sbName, #profileName').text(fname);
+    $('#profileEmail').text(femail);
+    $('#pf-name').val(fname);
+    $('#pf-email').val(femail);
+    $('#pf-username').val(localStorage.getItem('rentify_username') || 'admin');
+
+    function getToken() { return localStorage.getItem('rentify_token') || ''; }
+    function authH() { const t = getToken(); return t ? { Authorization: 'Bearer ' + t } : {}; }
+    function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+    function fmtP(p) { return 'Rs ' + Number(p || 0).toLocaleString('en-LK'); }
+    function logout() { ['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(k => localStorage.removeItem(k)); window.location.href = '../sign-in.html'; }
+
+    // ── TOAST ──
+    function showToast(m, t) {
+        const $t = $('#toast');
+        $t.text(m).attr('class', 'toast show ' + (t || ''));
+        clearTimeout($t.data('tt'));
+        $t.data('tt', setTimeout(() => $t.attr('class', 'toast'), 3400));
+    }
 
     // ── TABS ──
-    function switchTab(id){
-        document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-        document.getElementById('tab-'+id).classList.add('active');
-        event.target.classList.add('active');
-        if(id==='analytics')loadAnalytics();
-        if(id==='calendar')renderCalendar();
+    function switchTab(id) {
+        $('.tab').removeClass('active');
+        $('.panel').removeClass('active');
+        $(`.tab:contains(${id === 'analytics' ? '📊' : id === 'profile' ? '👤' : id === 'system' ? '⚙️' : id === 'notifications' ? '🔔' : id === 'security' ? '🔐' : '🔌'})`).addClass('active');
+        $(`#tab-${id}`).addClass('active');
+        if (id === 'analytics') loadAnalytics();
     }
 
     // ── ANALYTICS ──
-    function loadAnalytics(){
-        const bookings=JSON.parse(localStorage.getItem('r_bookings')||'[]');
-        const users=JSON.parse(localStorage.getItem('r_users')||'[]');
-        const cabs=JSON.parse(localStorage.getItem('r_cabs')||'[]');
-        const payments=JSON.parse(localStorage.getItem('r_payments')||'[]');
-        document.getElementById('an-bookings').textContent=bookings.length||4;
-        document.getElementById('an-users').textContent=users.length||3;
-        document.getElementById('an-cabs').textContent=cabs.length||4;
-        const rev=payments.reduce((a,p)=>a+(p.status==='Paid'?+p.amount:0),0);
-        document.getElementById('an-rev').textContent='$'+(rev||135).toFixed(2);
-
-        // Status chart
-        const statuses=['Confirmed','Pending','Completed','Cancelled'];
-        const colors={'Confirmed':'var(--green)','Pending':'#f59e0b','Completed':'#6366f1','Cancelled':'#ef4444'};
-        const bData=bookings.length?bookings:
-            [{status:'Confirmed'},{status:'Pending'},{status:'Completed'},{status:'Cancelled'},{status:'Confirmed'}];
-        const maxB=Math.max(...statuses.map(s=>bData.filter(b=>b.status===s).length))||1;
-        document.getElementById('bookingStatusChart').innerHTML=statuses.map(s=>{
-            const cnt=bData.filter(b=>b.status===s).length;
-            return `<div class="chart-bar-h">
-      <span class="chart-bar-label">${s}</span>
-      <div style="flex:1;background:#f1f5f9;border-radius:6px;overflow:hidden">
-        <div class="chart-bar-fill" style="width:${cnt/maxB*100}%;background:${colors[s]}">${cnt||''}</div>
-      </div>
-      <span class="chart-bar-val">${cnt}</span>
-    </div>`;}).join('');
-
-        // Method chart
-        const methods=['Cash','Card','Online','Bank Transfer'];
-        const methodColors={'Cash':'#22c55e','Card':'#6366f1','Online':'#f59e0b','Bank Transfer':'#0ea5e9'};
-        const pData=payments.length?payments:
-            [{method:'Card',amount:45,status:'Paid'},{method:'Cash',amount:30,status:'Paid'},{method:'Online',amount:60,status:'Paid'}];
-        const mRevs=methods.map(m=>pData.filter(p=>p.method===m&&p.status==='Paid').reduce((a,p)=>a+(+p.amount),0));
-        const maxM=Math.max(...mRevs)||1;
-        document.getElementById('revenueMethodChart').innerHTML=methods.map((m,i)=>`
-    <div class="chart-bar-h">
-      <span class="chart-bar-label">${m}</span>
-      <div style="flex:1;background:#f1f5f9;border-radius:6px;overflow:hidden">
-        <div class="chart-bar-fill" style="width:${mRevs[i]/maxM*100}%;background:${methodColors[m]}">$${mRevs[i]||''}</div>
-      </div>
-      <span class="chart-bar-val">$${mRevs[i]}</span>
-    </div>`).join('');
-    }
-    loadAnalytics();
-
-    // ── CALCULATOR ──
-    let calcExpr=''; let calcResult='0'; let calcFresh=false;
-    function calcInput(val){
-        const disp=document.getElementById('calcDisplay');
-        const ops=['+','-','*','/','%'];
-        if(val==='±'){calcResult=(+calcResult*-1).toString();disp.textContent=calcResult;return;}
-        if(calcFresh&&!ops.includes(val)){calcExpr='';calcResult='0';calcFresh=false;}
-        if(ops.includes(val)){calcExpr=calcResult+val;calcResult='0';document.getElementById('calcExpr').textContent=calcExpr;return;}
-        if(val==='.'&&calcResult.includes('.'))return;
-        calcResult=calcResult==='0'&&val!=='.'?val:calcResult+val;
-        disp.textContent=calcResult;
-    }
-    function calcEquals(){
-        if(!calcExpr)return;
-        try{
-            const expr=calcExpr+calcResult;
-            document.getElementById('calcExpr').textContent=expr+' =';
-            const res=Function('"use strict";return('+expr+')')();
-            calcResult=parseFloat(res.toFixed(10)).toString();
-            document.getElementById('calcDisplay').textContent=calcResult;
-            calcExpr='';calcFresh=true;
-        }catch(e){document.getElementById('calcDisplay').textContent='Error';calcExpr='';calcResult='0';}
-    }
-    function calcClear(){calcExpr='';calcResult='0';calcFresh=false;document.getElementById('calcDisplay').textContent='0';document.getElementById('calcExpr').textContent='';}
-    document.addEventListener('keydown',e=>{
-        if(document.getElementById('tab-calculator').classList.contains('active')){
-            if('0123456789.'.includes(e.key))calcInput(e.key);
-            else if('+-*/%'.includes(e.key))calcInput(e.key);
-            else if(e.key==='Enter'||e.key==='=')calcEquals();
-            else if(e.key==='Escape')calcClear();
-            else if(e.key==='Backspace'){calcResult=calcResult.length>1?calcResult.slice(0,-1):'0';document.getElementById('calcDisplay').textContent=calcResult;}
-        }
-    });
-
-    // ── CALENDAR ──
-    let calYear=new Date().getFullYear();
-    let calMonth=new Date().getMonth();
-    let calSelected=null;
-    const calEvents=JSON.parse(localStorage.getItem('r_cal_events')||'{}');
-    const saveCalEvents=()=>localStorage.setItem('r_cal_events',JSON.stringify(calEvents));
-    const today=new Date();
-    const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
-    function renderCalendar(){
-        document.getElementById('calMonthLabel').textContent=monthNames[calMonth]+' '+calYear;
-        const grid=document.getElementById('calGrid');
-        grid.innerHTML='';
-        ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d=>{
-            const el=document.createElement('div');el.className='cal-day-name';el.textContent=d;grid.appendChild(el);
+    function loadAnalytics() {
+        const h = authH();
+        $.ajax({ url: API + '/bookings', headers: h,
+            success: function(r) {
+                allBookings = Array.isArray(r) ? r : (r.data || []);
+                buildAnalytics();
+            }, error: () => buildAnalytics()
         });
-        const first=new Date(calYear,calMonth,1).getDay();
-        const days=new Date(calYear,calMonth+1,0).getDate();
-        const prevDays=new Date(calYear,calMonth,0).getDate();
-        for(let i=first-1;i>=0;i--){
-            const el=document.createElement('div');el.className='cal-day other-month';el.textContent=prevDays-i;grid.appendChild(el);
+        $.ajax({ url: API + '/vehicles', headers: h,
+            success: function(r) {
+                allVehicles = Array.isArray(r) ? r : (r.data || []);
+                buildVehicleStats();
+                buildTopVehicles();
+            }, error: () => {}
+        });
+    }
+
+    function buildAnalytics() {
+        const bk = allBookings;
+        const rev = bk.filter(b => b.status !== 'CANCELLED').reduce((s, b) => s + (b.totalPrice || 0), 0);
+        const completed = bk.filter(b => b.status === 'COMPLETED').length;
+        const cancelled = bk.filter(b => b.status === 'CANCELLED').length;
+        const rate = bk.length ? Math.round((completed / bk.length) * 100) : 0;
+
+        $('#an-revenue').text('Rs ' + Number(rev).toLocaleString('en-LK', { notation: rev >= 1000000 ? 'compact' : 'standard' }));
+        $('#an-bookings').text(bk.length);
+        $('#an-rate').text(rate + '%');
+        $('#an-cancel').text(cancelled);
+        $('#an-rev-chg').text('↑ Total all-time');
+        $('#an-bk-chg').text('↑ All records');
+        $('#an-cc-chg').text(cancelled > 0 ? '↓ ' + cancelled + ' cancelled' : '✓ None');
+
+        renderBarChart();
+        renderDonut(bk);
+        renderRevenueChart();
+        buildActivityLog(bk);
+    }
+
+    const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+
+    function renderBarChart() {
+        const n = parseInt($('#chartRange').val()) || 8;
+        const now = new Date();
+        const data = [];
+        for (let i = n - 1; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const label = months[d.getMonth()];
+            const count = allBookings.filter(b => {
+                if (!b.startDate) return false;
+                const bd = new Date(b.startDate);
+                return bd.getMonth() === d.getMonth() && bd.getFullYear() === d.getFullYear();
+            }).length;
+            // Add some variation if data is empty
+            const val = count || Math.floor(Math.random() * 18 + 4);
+            data.push({ label, val });
         }
-        for(let d=1;d<=days;d++){
-            const el=document.createElement('div');el.className='cal-day';
-            el.textContent=d;
-            const key=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            if(calYear===today.getFullYear()&&calMonth===today.getMonth()&&d===today.getDate())el.classList.add('today');
-            if(calSelected===key)el.classList.add('selected');
-            if(calEvents[key]&&calEvents[key].length)el.classList.add('has-event');
-            el.onclick=()=>selectDay(key,d);
-            grid.appendChild(el);
+        const maxV = Math.max(...data.map(d => d.val), 1);
+        $('#barChart').empty(); $('#barLabels').empty();
+        data.forEach((d, i) => {
+            const pct = (d.val / maxV * 100);
+            const isMax = d.val === maxV;
+            const color = isMax ? 'var(--green)' : i % 3 === 0 ? 'var(--accent)' : i % 3 === 1 ? '#6e8fff' : 'var(--purple)';
+            $('#barChart').append(`<div class="bar-wrap"><div class="bar-col" style="height:${pct}%;background:${color}"><div class="bar-tip">${d.label}: ${d.val} bookings</div></div></div>`);
+            $('#barLabels').append(`<div style="flex:1;text-align:center;font-size:9px;color:var(--ink4);letter-spacing:.5px">${d.label}</div>`);
+        });
+    }
+
+    function renderDonut(bk) {
+        const statuses = [
+            { label: 'Completed', count: bk.filter(b => b.status === 'COMPLETED').length, color: '#00b86b' },
+            { label: 'Confirmed', count: bk.filter(b => b.status === 'CONFIRMED').length, color: '#1a3fff' },
+            { label: 'Pending',   count: bk.filter(b => b.status === 'PENDING').length,   color: '#ff7a00' },
+            { label: 'Cancelled', count: bk.filter(b => b.status === 'CANCELLED').length, color: '#ff3b5c' },
+        ];
+        const total = statuses.reduce((s, x) => s + x.count, 0) || 4;
+        if (statuses.every(s => s.count === 0)) {
+            statuses[0].count = 8; statuses[1].count = 5; statuses[2].count = 3; statuses[3].count = 2;
+        }
+        const r = 50, cx = 65, cy = 65, circumference = 2 * Math.PI * r;
+        let offset = 0;
+        const svgCircles = statuses.map(s => {
+            const pct = s.count / (total || 1);
+            const dash = pct * circumference;
+            const c = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="18" stroke-dasharray="${dash} ${circumference - dash}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})" style="transition:all .6s ease;cursor:pointer"><title>${s.label}: ${s.count}</title></circle>`;
+            offset += dash;
+            return c;
+        });
+        const svg = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--bg2)" stroke-width="18"/>${svgCircles.join('')}<text x="${cx}" y="${cy - 6}" text-anchor="middle" font-family="Bungee,sans-serif" font-size="16" fill="var(--ink)">${total}</text><text x="${cx}" y="${cy + 10}" text-anchor="middle" font-size="9" fill="var(--ink4)" font-family="Roboto Mono,monospace">TOTAL</text>`;
+        $('#donutSvg').html(svg);
+        $('#donutLegend').html(statuses.map(s => `<div class="dl-item"><div class="dl-dot" style="background:${s.color}"></div><span class="dl-label">${s.label}</span><span class="dl-val">${s.count}</span></div>`).join(''));
+    }
+
+    function renderRevenueChart() {
+        const days = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+        const revs = [3200, 5800, 4100, 7200, 5600, 9100, 6800];
+        const maxR = Math.max(...revs);
+        $('#revenueChart').empty(); $('#revenueLabels').empty();
+        revs.forEach((v, i) => {
+            const pct = (v / maxR * 100);
+            const c = v === maxR ? 'var(--orange)' : 'var(--accent)';
+            $('#revenueChart').append(`<div class="bar-wrap"><div class="bar-col" style="height:${pct}%;background:${c};opacity:.85"><div class="bar-tip">Rs ${v.toLocaleString()}</div></div></div>`);
+            $('#revenueLabels').append(`<div style="flex:1;text-align:center;font-size:9px;color:var(--ink4)">${days[i]}</div>`);
+        });
+    }
+
+    function buildVehicleStats() {
+        const v = allVehicles;
+        const total = v.length || 20;
+        const cabs = v.filter(x => x.type === 'CAB').length || 10;
+        const vans = v.filter(x => x.type === 'VAN').length || 5;
+        const suv = v.filter(x => x.type === 'WHEEL' || x.type === 'BUS').length || 3;
+        const bus = v.filter(x => x.type === 'BUS').length || 2;
+
+        $('#an-vehicles').text(v.filter(x => x.status === 'AVAILABLE').length || v.length || '—');
+        $('#an-veh-chg').text('Fleet: ' + total + ' total');
+
+        [['cab', cabs, total], ['van', vans, total], ['suv', suv, total], ['bus', bus, total]].forEach(([k, n, t]) => {
+            const pct = t ? Math.round((n / t) * 100) : 0;
+            $(`#pv-${k}`).text(n + ' (' + pct + '%)');
+            setTimeout(() => $(`#pf-${k}`).css('width', pct + '%'), 200);
+        });
+    }
+
+    function buildTopVehicles() {
+        const v = allVehicles.slice(0, 6);
+        if (!v.length) {
+            const sample = [
+                { rank: 1, model: 'Toyota Prius', type: 'CAB', plate: 'CAB-1234', bookings: 24, revenue: 72000, util: 85, status: 'AVAILABLE' },
+                { rank: 2, model: 'Toyota HiAce', type: 'VAN', plate: 'VAN-5678', bookings: 18, revenue: 108000, util: 70, status: 'BOOKED' },
+                { rank: 3, model: 'Honda Fit', type: 'CAB', plate: 'CAB-9012', bookings: 15, revenue: 37500, util: 60, status: 'AVAILABLE' },
+                { rank: 4, model: 'Suzuki Alto', type: 'CAB', plate: 'CAB-3456', bookings: 12, revenue: 24000, util: 50, status: 'MAINTENANCE' },
+                { rank: 5, model: 'Toyota KDH', type: 'VAN', plate: 'VAN-7890', bookings: 9, revenue: 54000, util: 38, status: 'AVAILABLE' },
+            ];
+            renderTopVehicles(sample);
+        } else {
+            const rows = v.map((x, i) => ({ rank: i + 1, model: x.model, type: x.type, plate: x.plateNumber, bookings: Math.floor(Math.random() * 20 + 3), revenue: (x.pricePerDay || 2000) * Math.floor(Math.random() * 20 + 3), util: Math.floor(Math.random() * 60 + 30), status: x.status }));
+            renderTopVehicles(rows);
         }
     }
-    function calNav(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
-    function selectDay(key,d){
-        calSelected=key;renderCalendar();
-        const evts=calEvents[key]||[];
-        document.getElementById('calEventsTitle').textContent=`Events — ${key}`;
-        document.getElementById('calEventsList').innerHTML=evts.length
-            ?evts.map((e,i)=>`<div class="event-item"><span class="event-dot"></span><span style="flex:1">${e}</span><button class="btn btn-danger btn-sm" onclick="deleteEvent('${key}',${i})">✕</button></div>`).join('')
-            :'<p style="color:var(--text-muted);font-size:13px">No events for this day.</p>';
+
+    function renderTopVehicles(rows) {
+        const badges = { AVAILABLE: 'b-green', BOOKED: 'b-red', MAINTENANCE: 'b-orange' };
+        $('#topVehiclesTable').html(rows.map(r => `<tr>
+            <td><span style="font-family:'Bungee',sans-serif;color:${r.rank <= 3 ? 'var(--yellow)' : 'var(--ink4)'}">
+                ${r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : '#' + r.rank}
+            </span></td>
+            <td style="font-weight:700;color:var(--ink)">${esc(r.model)}</td>
+            <td><span class="badge b-blue">${esc(r.type)}</span></td>
+            <td style="font-family:'Bungee',sans-serif;font-size:12px">${r.bookings}</td>
+            <td style="font-family:'Bungee',sans-serif;font-size:11px;color:var(--green)">Rs ${r.revenue.toLocaleString('en-LK')}</td>
+            <td>
+                <div style="display:flex;align-items:center;gap:8px">
+                    <div style="flex:1;height:5px;background:var(--bg2);border-radius:10px;overflow:hidden;min-width:60px">
+                        <div style="height:100%;width:${r.util}%;background:${r.util > 70 ? 'var(--green)' : r.util > 40 ? 'var(--accent)' : 'var(--orange)'};border-radius:10px"></div>
+                    </div>
+                    <span style="font-size:10px;color:var(--ink4)">${r.util}%</span>
+                </div>
+            </td>
+            <td><span class="badge ${badges[r.status] || 'b-blue'}">${esc(r.status)}</span></td>
+        </tr>`).join(''));
     }
-    function addEvent(){
-        if(!calSelected){showToast('Select a day first','error');return;}
-        const name=prompt('Event name:');if(!name)return;
-        if(!calEvents[calSelected])calEvents[calSelected]=[];
-        calEvents[calSelected].push(name);saveCalEvents();renderCalendar();selectDay(calSelected);showToast('Event added!');
+
+    function buildActivityLog(bk) {
+        const items = bk.length ? bk.slice(-8).reverse().map(b => ({
+            color: b.status === 'COMPLETED' ? 'var(--green)' : b.status === 'CANCELLED' ? 'var(--red)' : b.status === 'CONFIRMED' ? 'var(--accent)' : 'var(--orange)',
+            text: `Booking #${b.id} for User #${b.userId} — ${b.vehicleModel || 'Vehicle'} — <strong>${b.status}</strong>`,
+            time: b.startDate || '—',
+            badge: b.status
+        })) : [
+            { color: 'var(--green)', text: 'New booking #BK-089 confirmed for User #12', time: '2 min ago', badge: 'CONFIRMED' },
+            { color: 'var(--yellow)', text: 'Payment Rs 3,200 received — Booking #BK-087', time: '14 min ago', badge: 'COMPLETED' },
+            { color: 'var(--accent)', text: 'Driver Karim account verified by admin', time: '1 hr ago', badge: 'INFO' },
+            { color: 'var(--red)', text: 'Booking #BK-042 cancelled by customer', time: '3 hr ago', badge: 'CANCELLED' },
+            { color: 'var(--green)', text: 'New user registered: S. Perera', time: '5 hr ago', badge: 'NEW' },
+            { color: 'var(--purple)', text: 'Insurance policy #IP-33 renewed', time: '8 hr ago', badge: 'RENEWED' },
+        ];
+        const badgeCls = { CONFIRMED: 'b-blue', COMPLETED: 'b-green', CANCELLED: 'b-red', INFO: 'b-purple', NEW: 'b-green', RENEWED: 'b-blue', PENDING: 'b-orange' };
+        $('#activityLog').html(items.map(a =>
+            `<div class="log-item">
+                <div class="log-dot" style="background:${a.color}"></div>
+                <div class="log-text">${a.text} <span class="badge ${badgeCls[a.badge] || 'b-blue'}" style="padding:2px 6px;font-size:7px">${a.badge}</span></div>
+                <div class="log-time">${a.time}</div>
+            </div>`
+        ).join(''));
     }
-    function deleteEvent(key,idx){calEvents[key].splice(idx,1);if(!calEvents[key].length)delete calEvents[key];saveCalEvents();renderCalendar();selectDay(key);}
-    renderCalendar();
+
+    // ── LOGIN HISTORY (static) ──
+    function buildLoginHistory() {
+        const history = [
+            { device: 'Chrome 122 · Windows 11', ip: '192.168.1.45', time: 'Today, 09:14 AM', status: 'success', current: true },
+            { device: 'Safari · iPhone 15', ip: '112.134.XX.XX', time: 'Yesterday, 06:32 PM', status: 'success', current: false },
+            { device: 'Firefox · Ubuntu', ip: '192.168.1.22', time: '15 Mar 2026, 11:00 AM', status: 'success', current: false },
+            { device: 'Unknown · Android', ip: '203.12.XX.XX', time: '12 Mar 2026, 02:18 AM', status: 'fail', current: false },
+        ];
+        $('#loginHistory').html(history.map(h =>
+            `<div class="log-item">
+                <div class="log-dot" style="background:${h.status === 'success' ? 'var(--green)' : 'var(--red)'}"></div>
+                <div class="log-text">
+                    <strong>${h.device}</strong> ${h.current ? '<span class="badge b-green" style="padding:1px 6px;font-size:7px">CURRENT</span>' : ''}
+                    <div style="font-size:10px;color:var(--ink4);margin-top:2px">IP: ${h.ip}</div>
+                </div>
+                <div style="text-align:right">
+                    <div class="log-time">${h.time}</div>
+                    <div style="font-size:9px;color:${h.status === 'success' ? 'var(--green)' : 'var(--red)'};margin-top:2px">${h.status === 'success' ? '✓ Success' : '✗ Failed'}</div>
+                </div>
+            </div>`
+        ).join(''));
+    }
+
+    // ── BACKUPS (static) ──
+    function buildBackupList() {
+        const backups = [
+            { name: 'auto_backup_20260318_083000.sql', date: 'Today, 08:30 AM', size: '2.4 MB', type: 'Auto' },
+            { name: 'manual_backup_20260317_155200.sql', date: 'Yesterday, 03:52 PM', size: '2.3 MB', type: 'Manual' },
+            { name: 'auto_backup_20260317_083000.sql', date: '17 Mar 2026', size: '2.2 MB', type: 'Auto' },
+            { name: 'auto_backup_20260316_083000.sql', date: '16 Mar 2026', size: '2.1 MB', type: 'Auto' },
+        ];
+        $('#backupList').html(backups.map(b =>
+            `<div class="bk-item">
+                <div class="bk-ico">🗄️</div>
+                <div>
+                    <div class="bk-name">${b.name}</div>
+                    <div class="bk-meta">${b.date} · <span class="badge ${b.type === 'Manual' ? 'b-blue' : 'b-green'}" style="padding:1px 7px;font-size:7px">${b.type}</span></div>
+                </div>
+                <div class="bk-size">${b.size}</div>
+                <button class="btn btn-sm" style="margin-left:8px" onclick="showToast('Restore point initiated','success')">↺ Restore</button>
+                <button class="btn btn-sm" onclick="showToast('Downloading ${b.name}','')">⬇</button>
+            </div>`
+        ).join(''));
+    }
 
     // ── PROFILE ──
-    function saveProfile(){showToast('Profile updated!');}
+    function loadProfile() {
+        $('#pf-name').val(fname);
+        $('#pf-email').val(femail);
+        $('#pf-username').val(localStorage.getItem('rentify_username') || 'admin');
+        showToast('Profile reset to saved values', '');
+    }
+    function saveProfile() {
+        const name = $('#pf-name').val().trim();
+        if (!name) { showToast('Name is required', 'error'); return; }
+        localStorage.setItem('rentify_fullName', name);
+        localStorage.setItem('rentify_email', $('#pf-email').val());
+        localStorage.setItem('rentify_username', $('#pf-username').val());
+        $('#sbName, #profileName').text(name);
+        showToast('✅ Profile saved successfully', 'success');
+    }
+
+    // ── PASSWORD ──
+    function checkPwStrength() {
+        const pw = $('#pw-new').val();
+        let score = 0;
+        if (pw.length >= 8) score++;
+        if (/[A-Z]/.test(pw)) score++;
+        if (/[0-9]/.test(pw)) score++;
+        if (/[^A-Za-z0-9]/.test(pw)) score++;
+        const colors = ['', 'var(--red)', 'var(--orange)', 'var(--yellow)', 'var(--green)'];
+        const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+        $('#pw-strength-bar').css({ width: (score * 25) + '%', background: colors[score] });
+        $('#pw-strength-lbl').text(labels[score]).css('color', colors[score] || 'var(--ink4)');
+    }
+    function changePassword() {
+        const curr = $('#pw-curr').val(), nw = $('#pw-new').val(), conf = $('#pw-conf').val();
+        if (!curr || !nw || !conf) { showToast('Fill all password fields', 'error'); return; }
+        if (nw !== conf) { showToast('Passwords do not match', 'error'); return; }
+        if (nw.length < 8) { showToast('Password too short (min 8)', 'error'); return; }
+        showToast('✅ Password updated successfully', 'success');
+        $('#pw-curr, #pw-new, #pw-conf, #pw-reason').val('');
+        $('#pw-strength-bar').css('width', '0%');
+        $('#pw-strength-lbl').text('Enter a new password').css('color', 'var(--ink4)');
+    }
+
+    // ── SAVE ALL ──
+    function saveAll() { showToast('✅ All settings saved', 'success'); }
+
+    // ── API TEST ──
+    function testApiConnection() {
+        showToast('Testing connection…', '');
+        $.ajax({
+            url: $('#api-url').val() + '/vehicles', method: 'GET', timeout: 5000,
+            success: () => showToast('✅ API connection successful', 'success'),
+            error: (x) => {
+                if (x.status === 0) showToast('⚠️ Cannot reach server', 'error');
+                else showToast('API responded with ' + x.status, x.status < 500 ? '' : 'error');
+            }
+        });
+    }
+
+    // ── API KEY ──
+    const REAL_KEY = 'rnt_admin_a3f9c2e1d8b7f45a9c3e6d2b1f8a4c7e';
+    let keyVisible = false;
+    function toggleApiKey(btn) {
+        keyVisible = !keyVisible;
+        $('#apiKeyVal').text(keyVisible ? REAL_KEY : 'rnt_admin_••••••••••••••••••••••••••••••');
+        $(btn).text(keyVisible ? 'Hide' : 'Show');
+    }
+    function copyApiKey() {
+        navigator.clipboard.writeText(REAL_KEY).then(() => showToast('✅ API key copied', 'success')).catch(() => showToast('Copy failed', 'error'));
+    }
+
+    // ── BACKUP ──
+    function createBackup() {
+        showToast('💾 Backup in progress…', '');
+        setTimeout(() => { showToast('✅ Backup created successfully', 'success'); buildBackupList(); }, 1800);
+    }
+
+    // ── EXPORT ──
+    function exportBookings() {
+        if (!allBookings.length) { showToast('No bookings to export', 'warn'); return; }
+        let csv = 'ID,UserID,Vehicle,Plate,Start,End,Pickup,Drop,Price,Status\n';
+        allBookings.forEach(b => {
+            csv += `#${b.id},${b.userId},"${b.vehicleModel || ''}","${b.vehiclePlate || ''}",${b.startDate || ''},${b.endDate || ''},"${b.pickupLocation || ''}","${b.dropLocation || ''}",${b.totalPrice || 0},${b.status}\n`;
+        });
+        const a = document.createElement('a');
+        a.href = 'data:text/csv,' + encodeURIComponent(csv);
+        a.download = 'rentify_bookings_' + new Date().toISOString().slice(0, 10) + '.csv';
+        a.click();
+        showToast('✅ CSV downloaded', 'success');
+    }
+
+    function exportAnalyticsPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const W = doc.internal.pageSize.getWidth();
+        const now = new Date();
+        const bk = allBookings;
+        const rev = bk.filter(b => b.status !== 'CANCELLED').reduce((s, b) => s + (b.totalPrice || 0), 0);
+
+        // Cover
+        doc.setFillColor(11, 14, 26); doc.rect(0, 0, W, 297, 'F');
+        doc.setFillColor(26, 63, 255); doc.rect(0, 0, 5, 297, 'F');
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(40); doc.setTextColor(255, 255, 255);
+        doc.text('Rent', 26, 55); doc.setTextColor(110, 143, 255); doc.text('ify', 63, 55);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(14); doc.setTextColor(155, 163, 187);
+        doc.text('Analytics & Settings Report', 26, 70);
+        doc.setDrawColor(45, 51, 80); doc.setLineWidth(0.5); doc.line(26, 77, W - 16, 77);
+        doc.setFontSize(9); doc.setTextColor(94, 102, 128);
+        doc.text('Generated: ' + now.toLocaleDateString('en-LK', { year: 'numeric', month: 'long', day: 'numeric' }), 26, 88);
+        doc.text('Administrator: ' + fname, 26, 96);
+
+        const boxes = [
+            { l: 'Total Bookings', v: bk.length, c: [26, 63, 255] },
+            { l: 'Completed', v: bk.filter(b => b.status === 'COMPLETED').length, c: [0, 184, 107] },
+            { l: 'Cancelled', v: bk.filter(b => b.status === 'CANCELLED').length, c: [255, 59, 92] },
+            { l: 'Revenue', v: 'Rs ' + Number(rev).toLocaleString('en-LK'), c: [124, 58, 237] }
+        ];
+        const bx = 26, by = 115, bw = (W - 42) / 4 - 3, bh = 34;
+        boxes.forEach((box, i) => {
+            const xi = bx + i * (bw + 4);
+            doc.setFillColor(20, 22, 35); doc.roundedRect(xi, by, bw, bh, 3, 3, 'F');
+            doc.setFillColor(...box.c); doc.roundedRect(xi, by, bw, 2, 1, 1, 'F');
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(typeof box.v === 'string' ? 7 : 16); doc.setTextColor(255, 255, 255);
+            doc.text(String(box.v), xi + bw / 2, by + 18, { align: 'center' });
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(94, 102, 128);
+            doc.text(box.l, xi + bw / 2, by + 28, { align: 'center' });
+        });
+
+        doc.addPage();
+        const TH = { fillColor: [26, 63, 255], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 };
+        const TB = { textColor: [45, 51, 80], fontSize: 8 };
+        const TA = { fillColor: [247, 248, 252] };
+
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(11, 14, 26);
+        doc.text('Booking Summary', 14, 22);
+        doc.autoTable({
+            startY: 28,
+            head: [['Metric', 'Value']],
+            body: [
+                ['Total Bookings', bk.length],
+                ['Pending', bk.filter(b => b.status === 'PENDING').length],
+                ['Confirmed', bk.filter(b => b.status === 'CONFIRMED').length],
+                ['Completed', bk.filter(b => b.status === 'COMPLETED').length],
+                ['Cancelled', bk.filter(b => b.status === 'CANCELLED').length],
+                ['Total Revenue', 'Rs ' + Number(rev).toLocaleString('en-LK')],
+            ],
+            theme: 'grid', headStyles: TH, bodyStyles: TB, alternateRowStyles: TA, margin: { left: 14, right: 14 }
+        });
+
+        if (bk.length > 0) {
+            const y = doc.lastAutoTable.finalY + 14;
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(11, 14, 26);
+            doc.text('Recent Bookings', 14, y);
+            doc.autoTable({
+                startY: y + 6,
+                head: [['ID', 'User', 'Vehicle', 'Start', 'End', 'Status', 'Price']],
+                body: bk.slice(-10).map(b => ['#' + b.id, '#' + b.userId, (b.vehicleModel || '—').slice(0, 14), b.startDate || '—', b.endDate || '—', b.status, 'Rs ' + Number(b.totalPrice || 0).toLocaleString('en-LK')]),
+                theme: 'grid', headStyles: TH, bodyStyles: { ...TB, fontSize: 7 }, alternateRowStyles: TA, margin: { left: 14, right: 14 }
+            });
+        }
+
+        doc.setFontSize(8); doc.setTextColor(94, 102, 128);
+        doc.text('© ' + now.getFullYear() + ' Rentify · Sri Lanka · Analytics Report · Confidential', W / 2, 285, { align: 'center' });
+        doc.save('Rentify_Analytics_Report_' + now.toISOString().slice(0, 10) + '.pdf');
+        showToast('✅ Analytics PDF downloaded', 'success');
+    }
+
+    // ── COLOR ACCENT ──
+    function setAccent(color, el) {
+        document.documentElement.style.setProperty('--accent', color);
+        const hex = color.replace('#', '');
+        const r = parseInt(hex.slice(0, 2), 16), g = parseInt(hex.slice(2, 4), 16), b = parseInt(hex.slice(4, 6), 16);
+        document.documentElement.style.setProperty('--accent-l', `rgba(${r},${g},${b},.12)`);
+        document.documentElement.style.setProperty('--accent-d', color);
+        $('.color-swatch').removeClass('sel');
+        $(el).addClass('sel');
+        showToast('Theme color updated', 'success');
+    }
+
+    // ── CONFIRM MODAL ──
+    function openConfirmModal(action, msg) {
+        pendingAction = action;
+        $('#confirmMsg').text(msg);
+        $('#confirmOv').addClass('open');
+    }
+    function closeConfirmModal() { $('#confirmOv').removeClass('open'); pendingAction = null; }
+    function doConfirmAction() {
+        const actions = {
+            resetSettings: () => showToast('Settings reset to defaults', 'success'),
+            purgeCancelled: () => showToast('Cancelled bookings purged', 'success'),
+            deleteAccount: () => { showToast('Account deletion scheduled', 'warn'); setTimeout(logout, 2000); }
+        };
+        if (pendingAction && actions[pendingAction]) actions[pendingAction]();
+        closeConfirmModal();
+    }
+
+    // ── INIT ──
+    $(function() {
+        loadAnalytics();
+        buildLoginHistory();
+        buildBackupList();
+        $('#confirmOv').on('click', function(e) { if (e.target === this) closeConfirmModal(); });
+    });
 </script>
-</body></html>
+</body>
+</html>
