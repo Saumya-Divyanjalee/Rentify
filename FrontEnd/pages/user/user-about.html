@@ -401,6 +401,7 @@
     document.querySelectorAll('#commentStarSelector .s').forEach(s=>{
         s.addEventListener('click',()=>{commentStar=parseInt(s.dataset.val);document.querySelectorAll('#commentStarSelector .s').forEach((x,i)=>x.classList.toggle('lit',i<commentStar));});
     });
+
     function addComment(){
         const name=document.getElementById('cName').value.trim(),text=document.getElementById('cText').value.trim(),svc=document.getElementById('cService').value;
         if(!name||!text){alert('Please fill in your name and message.');return;}
