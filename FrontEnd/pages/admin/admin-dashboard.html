@@ -3,283 +3,570 @@
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Rentify Admin — Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <style>
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
         :root{
-            --g:#16a34a;--gd:#14532d;--gm:#22c55e;--gl:#bbf7d0;--gs:#f0fdf4;--gg:rgba(22,163,74,.14);
-            --y:#d97706;--ym:#f59e0b;--yp:#fef3c7;
-            --r:#dc2626;--rs:#fef2f2;--b:#2563eb;--bs:#eff6ff;--p:#7c3aed;--o:#ea580c;
-            --t1:#0f172a;--t2:#334155;--t3:#64748b;--t4:#94a3b8;
-            --bg:#f8fafc;--bg2:#f1f5f9;--card:#fff;--bdr:#e2e8f0;--bdr2:#cbd5e1;
-            --sb:#0f172a;--sb2:#1e293b;
-            --ff:'Syne',sans-serif;--fm:'DM Sans',sans-serif;--fc:'Roboto Mono',monospace;
-            --s1:0 1px 3px rgba(15,23,42,.06),0 1px 2px rgba(15,23,42,.04);
-            --s2:0 4px 16px rgba(15,23,42,.08),0 2px 6px rgba(15,23,42,.04);
-            --s3:0 12px 40px rgba(15,23,42,.1),0 4px 12px rgba(15,23,42,.06);
-            --s4:0 24px 64px rgba(15,23,42,.14);
+            --white:#ffffff;--bg:#f7f8fc;--bg2:#f0f2f8;
+            --ink:#0b0e1a;--ink2:#2d3350;--ink3:#5e6680;--ink4:#9ba3bb;
+            --border:#e4e7f0;--border2:#d0d5e8;
+            --accent:#1a3fff;--accent-l:#eef1ff;--accent-d:#0028cc;
+            --green:#00b86b;--green-l:#e6fff4;
+            --red:#ff3b5c;--red-l:#fff0f3;
+            --orange:#ff7a00;--orange-l:#fff4ea;
+            --purple:#7c3aed;--purple-l:#f3eeff;
+            --yellow:#f5c518;
+            --sidebar:260px;
+            --shadow-sm:0 1px 4px rgba(11,14,26,.06);
+            --shadow:0 4px 20px rgba(11,14,26,.08);
+            --shadow-lg:0 16px 56px rgba(11,14,26,.14);
+            --r:12px;--r-sm:8px;--r-lg:16px;
         }
-        html{scroll-behavior:smooth;}
-        body{font-family:var(--fm);background:var(--bg);color:var(--t1);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;font-size:14px;}
-        .sidebar{width:252px;min-height:100vh;background:var(--sb);display:flex;flex-direction:column;padding:0;position:fixed;top:0;left:0;bottom:0;z-index:200;overflow-y:auto;scrollbar-width:none;}
-        .sidebar::-webkit-scrollbar{display:none;}
-        .sb-inner{display:flex;flex-direction:column;flex:1;padding:20px 14px;}
-        .sn-logo{display:flex;align-items:center;gap:0;padding:4px 8px 22px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,.06);}
-        .sn-logo-text{font-family:var(--fc);font-size:19px;font-weight:600;color:#fff;letter-spacing:-.3px;}
-        .sn-logo-text b{color:var(--ym);font-weight:600;}
-        .sn-badge{font-size:8px;background:var(--ym);color:#000;padding:2px 8px;border-radius:20px;font-weight:800;letter-spacing:.6px;font-family:var(--ff);margin-left:9px;}
-        .sn-sec{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.22);margin:18px 0 7px;padding:0 8px;font-family:var(--ff);}
-        .sn-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;text-decoration:none;color:rgba(255,255,255,.48);font-size:13px;font-weight:500;transition:all .16s;margin-bottom:2px;letter-spacing:-.1px;}
-        .sn-link:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.88);}
-        .sn-link.active{background:rgba(245,158,11,.14);color:var(--ym);font-weight:600;border:1px solid rgba(245,158,11,.22);}
-        .sn-ico{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
-        .sn-bottom{margin-top:auto;padding-top:14px;border-top:1px solid rgba(255,255,255,.07);}
-        .sn-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.06);cursor:pointer;transition:.16s;}
-        .sn-user:hover{background:rgba(255,255,255,.1);}
-        .sn-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ym),#b45309);display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-size:13px;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 0 0 2px rgba(245,158,11,.35);}
-        .sn-uname{font-size:13px;font-weight:600;color:#fff;line-height:1.3;}
-        .sn-urole{font-size:9px;color:rgba(255,255,255,.3);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
-        .main{margin-left:252px;flex:1;padding:26px 32px;background:var(--bg);}
-        .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
-        .tb-greeting{font-family:var(--ff);font-size:21px;font-weight:800;color:var(--t1);letter-spacing:-.5px;}
-        .tb-greeting em{font-style:normal;color:var(--g);}
-        .tb-sub{font-size:13px;color:var(--t3);margin-top:3px;}
-        .tb-right{display:flex;align-items:center;gap:10px;}
-        .tb-date{font-family:var(--fc);font-size:11px;background:var(--gs);color:var(--g);border:1px solid var(--gl);padding:6px 13px;border-radius:20px;}
-        .av-wrap{position:relative;}
-        .av-btn{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--g),var(--gd));color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-size:14px;font-weight:700;cursor:pointer;border:none;box-shadow:0 0 0 3px var(--gl);transition:all .18s;}
-        .av-btn:hover{transform:scale(1.07);}
-        .av-drop{display:none;position:absolute;top:calc(100% + 9px);right:0;background:var(--card);border:1px solid var(--bdr);border-radius:14px;min-width:204px;box-shadow:var(--s3);z-index:999;overflow:hidden;}
-        .av-drop.open{display:block;animation:dropIn .17s ease;}
-        @keyframes dropIn{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:none}}
-        .adf-info{padding:13px 15px 10px;border-bottom:1px solid var(--bdr);}
-        .adf-name{font-family:var(--ff);font-size:13px;font-weight:700;color:var(--t1);}
-        .adf-role{font-size:11px;color:var(--t3);margin-top:1px;}
-        .adf-item{display:flex;align-items:center;gap:8px;padding:9px 15px;font-size:13px;color:var(--t2);text-decoration:none;background:none;border:none;width:100%;cursor:pointer;font-family:var(--fm);transition:.14s;text-align:left;}
-        .adf-item:hover{background:var(--bg);}
-        .adf-item.out{color:var(--r);}
-        .adf-item.out:hover{background:var(--rs);}
-        .sc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px;}
-        .sc{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:20px 18px;position:relative;overflow:hidden;box-shadow:var(--s1);transition:all .2s;}
-        .sc:hover{box-shadow:var(--s2);transform:translateY(-2px);}
-        .sc-stripe{position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
-        .sc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
-        .sc-iw{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
-        .sc-lbl{font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);margin-bottom:5px;font-family:var(--ff);}
-        .sc-val{font-family:var(--ff);font-size:27px;font-weight:800;color:var(--t1);letter-spacing:-1.5px;line-height:1;}
-        .sc-sub{font-size:11px;color:var(--t4);margin-top:5px;}
-        .sc-sub.up{color:var(--g);}
-        .sc-sub.dn{color:var(--r);}
-        .qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;}
-        .qa{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--card);border:1.5px solid var(--bdr);border-radius:12px;text-decoration:none;color:var(--t2);transition:all .2s;box-shadow:var(--s1);}
-        .qa:hover{border-color:var(--g);background:var(--gs);color:var(--g);transform:translateY(-2px);box-shadow:0 4px 16px var(--gg);}
-        .qa-ico{font-size:22px;}
-        .qa-lbl{font-family:var(--ff);font-size:13px;font-weight:600;}
-        .qa-sub{font-size:10px;color:var(--t4);margin-top:1px;}
-        .two-col{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-bottom:18px;}
-        .card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;overflow:hidden;box-shadow:var(--s1);}
-        .card-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--bdr);}
-        .card-title{font-family:var(--ff);font-size:13px;font-weight:700;color:var(--t1);}
-        .card-bd{padding:16px 20px;}
-        .bchart{display:flex;align-items:flex-end;gap:6px;height:90px;padding-top:8px;}
-        .bar{flex:1;border-radius:5px 5px 0 0;position:relative;transition:.2s;cursor:default;min-height:4px;}
-        .bar-tip{position:absolute;top:-26px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--t3);white-space:nowrap;font-family:var(--fc);background:var(--card);border:1px solid var(--bdr);padding:2px 6px;border-radius:5px;box-shadow:var(--s1);opacity:0;pointer-events:none;transition:.14s;}
-        .bar:hover .bar-tip{opacity:1;}
-        .bar-lbls{display:flex;gap:6px;margin-top:7px;}
-        .bar-lbls span{flex:1;text-align:center;font-size:9px;color:var(--t4);font-family:var(--fc);}
-        .act-list{list-style:none;display:flex;flex-direction:column;}
-        .act-item{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--bdr);}
+        html{font-size:14px;scroll-behavior:smooth;}
+        body{font-family:'Roboto Mono',monospace;background:var(--bg);color:var(--ink);display:flex;min-height:100vh;}
+        .bungee-regular{font-family:"Bungee",sans-serif;font-weight:400;font-style:normal;}
+
+        /* ── SIDEBAR ── */
+        .sidebar{
+            width:var(--sidebar);min-height:100vh;background:var(--white);
+            border-right:1.5px solid var(--border);
+            display:flex;flex-direction:column;
+            position:fixed;top:0;left:0;bottom:0;z-index:300;
+            box-shadow:2px 0 20px rgba(11,14,26,.05);
+        }
+        .sb-top{padding:22px 20px 16px;border-bottom:1.5px solid var(--border);}
+        .sb-brand{display:flex;align-items:center;gap:12px;}
+        .sb-brand-ico{width:38px;height:38px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+        .sb-brand-name{font-family:"Bungee",sans-serif;font-size:20px;color:var(--ink);letter-spacing:.5px;}
+        .sb-brand-name span{color:var(--accent);}
+
+        /* ADMIN PROFILE in sidebar */
+        .sb-profile{
+            margin:16px 20px 0;padding:14px;
+            background:var(--bg);border:1.5px solid var(--border);
+            border-radius:var(--r);display:flex;align-items:center;gap:12px;
+        }
+        .sb-av{
+            width:40px;height:40px;border-radius:10px;flex-shrink:0;
+            background:linear-gradient(135deg,var(--accent),#6e8fff);
+            display:flex;align-items:center;justify-content:center;
+            font-family:"Bungee",sans-serif;font-size:14px;color:#fff;
+        }
+        .sb-av-info .av-name{font-size:12px;font-weight:700;color:var(--ink);letter-spacing:.2px;}
+        .sb-av-info .av-role{
+            font-size:9px;letter-spacing:1.5px;text-transform:uppercase;
+            color:var(--accent);margin-top:2px;
+            background:var(--accent-l);padding:2px 6px;border-radius:4px;display:inline-block;
+        }
+        .sb-online{width:8px;height:8px;border-radius:50%;background:var(--green);margin-left:auto;flex-shrink:0;box-shadow:0 0 6px rgba(0,184,107,.5);}
+
+        .sb-nav{flex:1;padding:16px 12px;overflow-y:auto;scrollbar-width:none;}
+        .sb-nav::-webkit-scrollbar{display:none;}
+        .sb-sec{
+            font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:2.5px;
+            color:var(--ink4);padding:10px 8px 5px;text-transform:uppercase;
+        }
+        .sb-link{
+            display:flex;align-items:center;gap:12px;padding:10px 12px;
+            border-radius:var(--r-sm);text-decoration:none;color:var(--ink3);
+            font-size:11px;font-weight:500;letter-spacing:.3px;
+            transition:all .18s;margin-bottom:2px;
+        }
+        .sb-link:hover{background:var(--bg);color:var(--ink);}
+        .sb-link.active{
+            background:var(--accent-l);color:var(--accent);font-weight:700;
+            border:1.5px solid rgba(26,63,255,.15);
+        }
+        .sb-link .ico{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
+        .sb-bottom{padding:12px;border-top:1.5px solid var(--border);}
+        .sb-logout{
+            display:flex;align-items:center;gap:12px;padding:10px 12px;
+            border-radius:var(--r-sm);background:none;border:none;cursor:pointer;
+            color:var(--ink3);font-size:11px;font-weight:500;font-family:'Roboto Mono',monospace;
+            width:100%;text-align:left;transition:all .18s;
+        }
+        .sb-logout:hover{background:var(--red-l);color:var(--red);}
+
+        /* ── MAIN ── */
+        .main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;}
+
+        /* ── TOPBAR ── */
+        .topbar{
+            background:var(--white);border-bottom:1.5px solid var(--border);
+            padding:14px 28px;display:flex;align-items:center;justify-content:space-between;
+            position:sticky;top:0;z-index:100;gap:16px;
+        }
+        .tb-left h1{font-family:"Bungee",sans-serif;font-size:18px;color:var(--ink);letter-spacing:.3px;}
+        .tb-left p{font-size:10px;color:var(--ink4);margin-top:2px;letter-spacing:.3px;}
+        .tb-right{display:flex;align-items:center;gap:12px;}
+        .tb-search{
+            display:flex;align-items:center;gap:8px;
+            background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);
+            padding:8px 14px;font-size:12px;color:var(--ink3);width:220px;transition:.18s;
+        }
+        .tb-search:focus-within{border-color:var(--accent);background:var(--white);}
+        .tb-search input{border:none;background:none;outline:none;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--ink);width:100%;}
+        .tb-search input::placeholder{color:var(--ink4);}
+        .tb-notif{
+            position:relative;width:38px;height:38px;border-radius:var(--r-sm);
+            background:var(--bg);border:1.5px solid var(--border);
+            display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:.18s;
+        }
+        .tb-notif:hover{border-color:var(--accent);background:var(--accent-l);}
+        .notif-dot{position:absolute;top:7px;right:7px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid #fff;}
+
+        /* ── PAGE ── */
+        .page{padding:24px 28px;flex:1;}
+
+        /* ── STATS ── */
+        .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+        .stat-card{
+            background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);
+            padding:20px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm);transition:all .22s;
+        }
+        .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+        .stat-card.rev::before{background:linear-gradient(90deg,var(--orange),var(--yellow));}
+        .stat-card.book::before{background:linear-gradient(90deg,var(--accent),#6e8fff);}
+        .stat-card.users::before{background:linear-gradient(90deg,var(--green),#00e5a0);}
+        .stat-card.cars::before{background:linear-gradient(90deg,var(--purple),#b07df5);}
+        .stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);}
+        .stat-ico{width:42px;height:42px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:14px;}
+        .stat-lbl{font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.8px;color:var(--ink4);margin-bottom:6px;text-transform:uppercase;}
+        .stat-val{font-family:"Bungee",sans-serif;font-size:28px;color:var(--ink);letter-spacing:-1px;line-height:1;}
+        .stat-change{font-size:10px;color:var(--ink4);margin-top:7px;letter-spacing:.3px;}
+        .stat-change.up{color:var(--green);}
+        .stat-change.dn{color:var(--red);}
+
+        /* ── MID GRID ── */
+        .mid-grid{display:grid;grid-template-columns:1fr 300px 280px;gap:14px;margin-bottom:22px;}
+
+        /* ── CHART ── */
+        .card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:20px;box-shadow:var(--shadow-sm);}
+        .card-title{font-family:"Bungee",sans-serif;font-size:12px;color:var(--ink);letter-spacing:.3px;margin-bottom:3px;}
+        .card-sub{font-size:10px;color:var(--ink4);letter-spacing:.3px;margin-bottom:18px;}
+        .bar-chart{display:flex;align-items:flex-end;gap:8px;height:110px;}
+        .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
+        .bar-col{width:100%;border-radius:5px 5px 0 0;position:relative;cursor:pointer;transition:.2s;min-height:6px;}
+        .bar-col:hover{filter:brightness(1.1);}
+        .bar-tip{position:absolute;bottom:calc(100%+5px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:9px;padding:3px 7px;border-radius:5px;white-space:nowrap;pointer-events:none;opacity:0;transition:.14s;}
+        .bar-col:hover .bar-tip{opacity:1;}
+        .bar-day{font-size:9px;color:var(--ink4);letter-spacing:.5px;}
+
+        /* ── CALCULATOR ── */
+        .calc-display{background:var(--ink);border-radius:var(--r-sm);padding:14px 16px;min-height:70px;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;margin-bottom:12px;}
+        .calc-expr{font-size:10px;color:rgba(255,255,255,.35);min-height:15px;word-break:break-all;text-align:right;letter-spacing:.3px;}
+        .calc-result{font-family:"Bungee",sans-serif;font-size:24px;color:#fff;letter-spacing:-1px;word-break:break-all;text-align:right;}
+        .calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+        .c-btn{
+            border:none;border-radius:var(--r-sm);padding:11px 5px;
+            font-family:"Bungee",sans-serif;font-size:12px;cursor:pointer;transition:.15s;
+            display:flex;align-items:center;justify-content:center;
+        }
+        .c-btn:active{transform:scale(.92);}
+        .c-num{background:var(--bg);color:var(--ink);border:1.5px solid var(--border);}
+        .c-num:hover{background:var(--border);border-color:var(--border2);}
+        .c-op{background:var(--accent-l);color:var(--accent);border:1.5px solid rgba(26,63,255,.18);}
+        .c-op:hover{background:var(--accent);color:#fff;}
+        .c-eq{background:var(--accent);color:#fff;border:1.5px solid transparent;grid-column:span 2;}
+        .c-eq:hover{background:var(--accent-d);}
+        .c-clr{background:var(--red-l);color:var(--red);border:1.5px solid rgba(255,59,92,.2);}
+        .c-clr:hover{background:var(--red);color:#fff;}
+        .c-zero{grid-column:span 2;}
+
+        /* ── CALENDAR ── */
+        .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+        .cal-nav{background:none;border:1.5px solid var(--border);border-radius:var(--r-sm);width:30px;height:30px;cursor:pointer;color:var(--ink3);font-size:14px;display:flex;align-items:center;justify-content:center;transition:.16s;}
+        .cal-nav:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+        .cal-month{font-family:"Bungee",sans-serif;font-size:12px;color:var(--ink);letter-spacing:.3px;}
+        .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+        .cal-dow{text-align:center;font-size:8px;font-weight:700;color:var(--ink4);letter-spacing:1px;padding:3px 0 7px;}
+        .cal-day{text-align:center;font-size:10px;padding:6px 0;border-radius:6px;cursor:pointer;color:var(--ink3);transition:.14s;line-height:1;}
+        .cal-day:hover:not(.empty){background:var(--accent-l);color:var(--accent);}
+        .cal-day.today{background:var(--accent);color:#fff;font-weight:700;}
+        .cal-day.has-event{position:relative;}
+        .cal-day.has-event::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--green);}
+        .cal-day.today.has-event::after{background:rgba(255,255,255,.7);}
+        .cal-day.empty{cursor:default;}
+        .cal-day.other{color:var(--ink4);}
+
+        /* ── TABLE ── */
+        .table-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
+        .table-card .card-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+        .tw{overflow-x:auto;}
+        table{width:100%;border-collapse:collapse;}
+        thead th{
+            padding:10px 18px;text-align:left;
+            font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;
+            color:var(--ink4);background:var(--bg);border-bottom:1.5px solid var(--border);
+            text-transform:uppercase;
+        }
+        tbody tr{border-bottom:1px solid var(--border);transition:.14s;}
+        tbody tr:last-child{border-bottom:none;}
+        tbody tr:hover{background:var(--bg);}
+        tbody td{padding:12px 18px;font-size:12px;color:var(--ink2);vertical-align:middle;letter-spacing:.2px;}
+        .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:.8px;text-transform:uppercase;}
+        .b-green{background:var(--green-l);color:#007f4e;}
+        .b-blue{background:var(--accent-l);color:var(--accent);}
+        .b-orange{background:var(--orange-l);color:var(--orange);}
+        .b-red{background:var(--red-l);color:var(--red);}
+
+        /* ── BOTTOM ── */
+        .bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
+        .act-list{list-style:none;display:flex;flex-direction:column;gap:0;margin-top:6px;}
+        .act-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
         .act-item:last-child{border-bottom:none;}
         .act-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-        .act-txt{font-size:12px;color:var(--t2);flex:1;line-height:1.4;}
-        .act-tm{font-size:10px;color:var(--t4);white-space:nowrap;font-family:var(--fc);}
-        .table-wrap{overflow-x:auto;}
-        table{width:100%;border-collapse:collapse;}
-        thead th{padding:9px 16px;text-align:left;font-size:9px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--t3);border-bottom:1.5px solid var(--bdr);background:var(--bg);font-family:var(--ff);}
-        tbody tr{border-bottom:1px solid var(--bdr);transition:.14s;}
-        tbody tr:last-child{border-bottom:none;}
-        tbody tr:hover{background:var(--gs);}
-        tbody td{padding:11px 16px;font-size:13px;color:var(--t2);vertical-align:middle;}
-        .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:9.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;font-family:var(--ff);}
-        .bg-g{background:rgba(22,163,74,.1);color:var(--g);border:1px solid rgba(22,163,74,.22);}
-        .bg-y{background:rgba(217,119,6,.1);color:var(--y);border:1px solid rgba(217,119,6,.22);}
-        .bg-r{background:rgba(220,38,38,.1);color:var(--r);border:1px solid rgba(220,38,38,.2);}
-        .bg-b{background:rgba(37,99,235,.1);color:var(--b);border:1px solid rgba(37,99,235,.2);}
-        .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;font-size:13px;font-weight:600;font-family:var(--fm);border:none;cursor:pointer;transition:all .17s;text-decoration:none;white-space:nowrap;}
-        .btn-sm{padding:5px 12px;font-size:11px;border-radius:7px;}
-        .btn-outline{background:var(--card);color:var(--t2);border:1.5px solid var(--bdr);}
-        .btn-outline:hover{border-color:var(--g);color:var(--g);background:var(--gs);}
-        .lbg{position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.5);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;}
-        .lbg.show{display:flex;animation:fade .18s ease;}
-        @keyframes fade{from{opacity:0}to{opacity:1}}
-        .lmodal{background:var(--card);border-radius:20px;padding:36px 32px;max-width:370px;width:100%;text-align:center;box-shadow:var(--s4);border:1px solid var(--bdr);animation:mIn .25s cubic-bezier(.16,1,.3,1);}
-        @keyframes mIn{from{transform:scale(.93) translateY(12px);opacity:0}to{transform:none;opacity:1}}
-        .lm-ico{font-size:44px;margin-bottom:14px;}
-        .lm-h{font-family:var(--ff);font-size:20px;font-weight:800;color:var(--t1);margin-bottom:8px;}
-        .lm-p{font-size:13px;color:var(--t3);line-height:1.6;margin-bottom:22px;}
-        .lm-row{display:flex;gap:10px;}
-        .lm-cancel{flex:1;padding:10px;border-radius:9px;font-size:13px;font-weight:600;background:var(--bg2);border:1.5px solid var(--bdr);color:var(--t2);cursor:pointer;font-family:var(--fm);transition:.17s;}
-        .lm-cancel:hover{border-color:var(--bdr2);}
-        .lm-logout{flex:1;padding:10px;border-radius:9px;font-size:13px;font-weight:700;background:var(--r);border:none;color:#fff;cursor:pointer;font-family:var(--ff);box-shadow:0 2px 10px rgba(220,38,38,.28);transition:.17s;}
-        .lm-logout:hover{background:#b91c1c;transform:translateY(-1px);}
-        #toast{position:fixed;bottom:24px;right:24px;z-index:99999;background:var(--sb);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;box-shadow:var(--s3);display:none;max-width:300px;}
-        #toast.success{background:var(--g);}
-        #toast.error{background:var(--r);}
-        @media(max-width:1200px){.two-col{grid-template-columns:1fr;}}
-        @media(max-width:1024px){.sidebar{display:none;}.main{margin-left:0;padding:16px;}}
-        @media(max-width:768px){.sc-grid,.qa-grid{grid-template-columns:1fr 1fr;}}
-        @media(max-width:480px){.sc-grid{grid-template-columns:1fr;}.qa-grid{grid-template-columns:1fr 1fr;}}
+        .act-text{font-size:11px;color:var(--ink2);flex:1;line-height:1.5;letter-spacing:.2px;}
+        .act-time{font-size:9px;color:var(--ink4);white-space:nowrap;letter-spacing:.5px;}
+        .qa-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px;}
+        .qa-btn{
+            display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 8px;
+            border-radius:var(--r-sm);background:var(--bg);border:1.5px solid var(--border);
+            cursor:pointer;text-decoration:none;color:var(--ink3);font-size:10px;letter-spacing:.3px;
+            transition:all .18s;font-family:'Roboto Mono',monospace;
+        }
+        .qa-btn:hover{border-color:var(--accent);background:var(--accent-l);color:var(--accent);}
+        .qa-btn span:first-child{font-size:20px;}
+
+        /* ── BTN ── */
+        .btn{
+            display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r-sm);
+            font-family:'Roboto Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.3px;
+            border:1.5px solid var(--border);background:var(--white);color:var(--ink2);cursor:pointer;text-decoration:none;transition:.17s;
+        }
+        .btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-l);}
+
+        /* ── MODAL ── */
+        .overlay{position:fixed;inset:0;z-index:9999;background:rgba(11,14,26,.45);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;}
+        .overlay.show{display:flex;animation:fadeIn .18s ease;}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        .modal{
+            background:var(--white);border-radius:var(--r-lg);padding:36px 32px;max-width:360px;width:90%;
+            text-align:center;box-shadow:var(--shadow-lg);border:1.5px solid var(--border);
+            animation:popIn .22s cubic-bezier(.16,1,.3,1);
+        }
+        @keyframes popIn{from{transform:scale(.92)translateY(14px);opacity:0}to{transform:none;opacity:1}}
+        .modal-ico{font-size:40px;margin-bottom:14px;}
+        .modal-title{font-family:"Bungee",sans-serif;font-size:20px;color:var(--ink);margin-bottom:8px;}
+        .modal-p{font-size:11px;color:var(--ink3);line-height:1.7;margin-bottom:24px;letter-spacing:.3px;}
+        .modal-row{display:flex;gap:10px;}
+        .btn-cancel{flex:1;padding:11px;border-radius:var(--r-sm);font-family:"Bungee",sans-serif;font-size:12px;letter-spacing:.5px;background:var(--bg);border:1.5px solid var(--border);color:var(--ink2);cursor:pointer;transition:.17s;}
+        .btn-cancel:hover{border-color:var(--border2);}
+        .btn-out{flex:1;padding:11px;border-radius:var(--r-sm);font-family:"Bungee",sans-serif;font-size:12px;letter-spacing:.5px;background:var(--red);border:none;color:#fff;cursor:pointer;box-shadow:0 2px 12px rgba(255,59,92,.3);transition:.17s;}
+        .btn-out:hover{background:#cc2244;transform:translateY(-1px);}
+
+        /* ── TOAST ── */
+        #toast{position:fixed;bottom:24px;right:24px;z-index:99999;background:var(--ink);color:#fff;padding:12px 20px;border-radius:var(--r-sm);font-size:11px;letter-spacing:.3px;box-shadow:var(--shadow-lg);display:none;max-width:280px;}
+        #toast.show{display:block;animation:fadeIn .2s ease;}
+        #toast.success{background:var(--green);}
+        #toast.error{background:var(--red);}
+
+        @media(max-width:1100px){.mid-grid{grid-template-columns:1fr 280px;}}
+        @media(max-width:900px){.sidebar{display:none;}.main{margin-left:0!important;}}
+        @media(max-width:700px){.stats-grid{grid-template-columns:1fr 1fr;}.bottom-grid{grid-template-columns:1fr;}}
     </style>
 </head>
 <body>
-<aside class="sidebar">
-    <div class="sb-inner">
-        <div class="sn-logo">
-            <div class="sn-logo-text">Rent<b>ify</b></div>
-            <div class="sn-badge">ADMIN</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+        <div class="sb-brand">
+            <div class="sb-brand-ico">🚗</div>
+            <div class="sb-brand-name">Rent<span>ify</span></div>
         </div>
-        <div class="sn-sec">Fleet</div>
-        <a href="admin-vehicles.html" class="sn-link"><span class="sn-ico">🚗</span> Vehicles</a>
-        <a href="booking.html"        class="sn-link"><span class="sn-ico">📋</span> Bookings</a>
-        <a href="payment.html"        class="sn-link"><span class="sn-ico">💳</span> Payments</a>
-        <a href="insurance.html"      class="sn-link"><span class="sn-ico">🛡️</span> Insurance</a>
-        <div class="sn-sec">Manage</div>
-        <a href="users.html"          class="sn-link"><span class="sn-ico">👥</span> Users</a>
-        <a href="drivers.html"        class="sn-link"><span class="sn-ico">🧑‍✈️</span> Drivers</a>
-        <div class="sn-sec">System</div>
-        <a href="admin-dashboard.html" class="sn-link active"><span class="sn-ico">🏠</span> Dashboard</a>
-        <a href="#"                    class="sn-link"><span class="sn-ico">⚙️</span> Settings</a>
-        <div class="sn-bottom">
-            <div class="sn-user">
-                <div class="sn-av" id="snAv">AD</div>
-                <div><div class="sn-uname" id="snName">Admin</div><div class="sn-urole">Administrator</div></div>
+        <!-- Admin Profile -->
+        <div class="sb-profile">
+            <div class="sb-av" id="sbAv">AD</div>
+            <div class="sb-av-info">
+                <div class="av-name" id="sbName">Admin User</div>
+                <div class="av-role">Administrator</div>
             </div>
+            <div class="sb-online"></div>
         </div>
     </div>
+
+    <nav class="sb-nav">
+        <div class="sb-sec">Main</div>
+        <a href="admin-dashboard.html" class="sb-link active" data-page="home"><span class="ico">🏠</span>Home</a>
+        <div class="sb-sec">Fleet</div>
+        <a href="admin-booking.html" class="sb-link" data-page="bookings"><span class="ico">📋</span>Bookings</a>
+        <a href="admin-vehicle.html" class="sb-link" data-page="vehicles"><span class="ico">🚗</span>Vehicles</a>
+        <a href="admin-driver.html" class="sb-link" data-page="drivers"><span class="ico">🧑‍✈️</span>Drivers</a>
+        <div class="sb-sec">Admin</div>
+        <a href="insurance.html" class="sb-link" data-page="insurance"><span class="ico">🛡️</span>Insurance</a>
+        <a href="users.html" class="sb-link" data-page="users"><span class="ico">👥</span>Users</a>
+        <a href="#" class="sb-link" data-page="settings"><span class="ico">⚙️</span>Settings</a>
+    </nav>
+
+    <div class="sb-bottom">
+        <button class="sb-logout" id="logoutBtn"><span class="ico">🚪</span>Sign Out</button>
+    </div>
 </aside>
-<main class="main">
-    <div class="topbar">
-        <div>
-            <div class="tb-greeting">Good morning, <em id="greetName">Admin</em> 👋</div>
-            <div class="tb-sub">Here's what's happening with Rentify today.</div>
+
+<!-- MAIN -->
+<div class="main" id="mainWrap">
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="tb-left">
+            <h1 id="pageTitle">DASHBOARD</h1>
+            <p id="pageDate"></p>
         </div>
         <div class="tb-right">
-            <div class="tb-date" id="todayDate"></div>
-            <div class="av-wrap">
-                <button class="av-btn" id="avBtn">AD</button>
-                <div class="av-drop" id="avDrop">
-                    <div class="adf-info"><div class="adf-name" id="ddName">Admin</div><div class="adf-role">👑 Administrator</div></div>
-                    <a class="adf-item" href="admin-dashboard.html">🏠 Dashboard</a>
-                    <a class="adf-item" href="users.html">👥 Manage Users</a>
-                    <hr style="margin:4px 0;border-color:var(--bdr)">
-                    <button class="adf-item out" id="logoutBtn">🚪 Sign Out</button>
+            <div class="tb-search">
+                <span>🔍</span>
+                <input type="text" placeholder="Search anything...">
+            </div>
+            <div class="tb-notif" title="Notifications">🔔<div class="notif-dot"></div></div>
+        </div>
+    </header>
+
+    <!-- PAGE -->
+    <div class="page">
+        <!-- STATS -->
+        <div class="stats-grid">
+            <div class="stat-card rev">
+                <div class="stat-ico" style="background:var(--orange-l)">💰</div>
+                <div class="stat-lbl">Monthly Revenue</div>
+                <div class="stat-val" id="s-revenue">—</div>
+                <div class="stat-change up" id="rev-change">↑ Loading...</div>
+            </div>
+            <div class="stat-card book">
+                <div class="stat-ico" style="background:var(--accent-l)">📅</div>
+                <div class="stat-lbl">Total Bookings</div>
+                <div class="stat-val" id="s-bookings">—</div>
+                <div class="stat-change up">↑ 8% this week</div>
+            </div>
+            <div class="stat-card users">
+                <div class="stat-ico" style="background:var(--green-l)">👥</div>
+                <div class="stat-lbl">Registered Users</div>
+                <div class="stat-val" id="s-users">1,284</div>
+                <div class="stat-change up">↑ 5 new today</div>
+            </div>
+            <div class="stat-card cars">
+                <div class="stat-ico" style="background:var(--purple-l)">🚗</div>
+                <div class="stat-lbl">Active Vehicles</div>
+                <div class="stat-val" id="s-cabs">—</div>
+                <div class="stat-change dn">↓ 2 in service</div>
+            </div>
+        </div>
+
+        <!-- MID ROW -->
+        <div class="mid-grid">
+            <!-- BAR CHART -->
+            <div class="card">
+                <div class="card-title">REVENUE — LAST 7 DAYS</div>
+                <div class="card-sub">Weekly performance overview</div>
+                <div class="bar-chart" id="barChart"></div>
+                <div style="display:flex;gap:8px;margin-top:10px;" id="barLabels"></div>
+            </div>
+            <!-- CALCULATOR -->
+            <div class="card">
+                <div class="card-title">QUICK CALC</div>
+                <div class="card-sub" style="margin-bottom:10px;">On-the-fly calculations</div>
+                <div class="calc-display">
+                    <div class="calc-expr" id="calcExpr"></div>
+                    <div class="calc-result" id="calcResult">0</div>
+                </div>
+                <div class="calc-grid">
+                    <button class="c-btn c-clr" onclick="ca('C')">C</button>
+                    <button class="c-btn c-op" onclick="ca('⌫')">⌫</button>
+                    <button class="c-btn c-op" onclick="ca('%')">%</button>
+                    <button class="c-btn c-op" onclick="ca('/')">÷</button>
+                    <button class="c-btn c-num" onclick="ca('7')">7</button>
+                    <button class="c-btn c-num" onclick="ca('8')">8</button>
+                    <button class="c-btn c-num" onclick="ca('9')">9</button>
+                    <button class="c-btn c-op" onclick="ca('*')">×</button>
+                    <button class="c-btn c-num" onclick="ca('4')">4</button>
+                    <button class="c-btn c-num" onclick="ca('5')">5</button>
+                    <button class="c-btn c-num" onclick="ca('6')">6</button>
+                    <button class="c-btn c-op" onclick="ca('-')">−</button>
+                    <button class="c-btn c-num" onclick="ca('1')">1</button>
+                    <button class="c-btn c-num" onclick="ca('2')">2</button>
+                    <button class="c-btn c-num" onclick="ca('3')">3</button>
+                    <button class="c-btn c-op" onclick="ca('+')">+</button>
+                    <button class="c-btn c-num c-zero" onclick="ca('0')">0</button>
+                    <button class="c-btn c-num" onclick="ca('.')">.</button>
+                    <button class="c-btn c-eq" onclick="ca('=')">=</button>
+                </div>
+            </div>
+            <!-- CALENDAR -->
+            <div class="card">
+                <div class="cal-header">
+                    <button class="cal-nav" id="calPrev">‹</button>
+                    <div class="cal-month" id="calMonth">MARCH 2026</div>
+                    <button class="cal-nav" id="calNext">›</button>
+                </div>
+                <div class="cal-grid">
+                    <div class="cal-dow">SUN</div><div class="cal-dow">MON</div><div class="cal-dow">TUE</div>
+                    <div class="cal-dow">WED</div><div class="cal-dow">THU</div><div class="cal-dow">FRI</div><div class="cal-dow">SAT</div>
+                </div>
+                <div class="cal-grid" id="calGrid"></div>
+            </div>
+        </div>
+
+        <!-- BOOKINGS TABLE -->
+        <div class="table-card">
+            <div class="card-hd">
+                <div>
+                    <div class="card-title">RECENT BOOKINGS</div>
+                    <div style="font-size:10px;color:var(--ink4);margin-top:2px;letter-spacing:.3px;">Latest 5 transactions</div>
+                </div>
+                <a href="admin-booking.html" class="btn">View All →</a>
+            </div>
+            <div class="tw">
+                <table>
+                    <thead><tr><th>Customer</th><th>Vehicle</th><th>Pickup</th><th>Status</th><th>Amount</th></tr></thead>
+                    <tbody id="dashTbl"><tr><td colspan="5" style="text-align:center;padding:32px;color:var(--ink4)">Loading...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- BOTTOM -->
+        <div class="bottom-grid">
+            <div class="card">
+                <div class="card-title">RECENT ACTIVITY</div>
+                <div style="font-size:10px;color:var(--ink4);margin-top:2px;letter-spacing:.3px;">System events</div>
+                <ul class="act-list" id="actList"></ul>
+            </div>
+            <div class="card">
+                <div class="card-title">QUICK ACTIONS</div>
+                <div style="font-size:10px;color:var(--ink4);margin-top:2px;letter-spacing:.3px;">Common tasks</div>
+                <div class="qa-grid">
+                    <a href="admin-booking.html" class="qa-btn"><span>➕</span><span>New Booking</span></a>
+                    <a href="admin-vehicle.html" class="qa-btn"><span>🚗</span><span>Add Vehicle</span></a>
+                    <a href="users.html" class="qa-btn"><span>👤</span><span>Add User</span></a>
+                    <a href="admin-driver.html" class="qa-btn"><span>🧑‍✈️</span><span>Add Driver</span></a>
+                    <a href="insurance.html" class="qa-btn"><span>🛡️</span><span>Add Policy</span></a>
+                    <a href="#" class="qa-btn"><span>📊</span><span>Reports</span></a>
                 </div>
             </div>
         </div>
     </div>
-    <div class="sc-grid">
-        <div class="sc">
-            <div class="sc-stripe" style="background:linear-gradient(90deg,#d97706,#f59e0b)"></div>
-            <div class="sc-top"><div><div class="sc-lbl">Monthly Revenue</div><div class="sc-val" id="s-revenue">—</div><div class="sc-sub up" id="rev-sub">Fetching…</div></div><div class="sc-iw" style="background:#fef3c7">💰</div></div>
-        </div>
-        <div class="sc">
-            <div class="sc-stripe" style="background:linear-gradient(90deg,#2563eb,#60a5fa)"></div>
-            <div class="sc-top"><div><div class="sc-lbl">Total Bookings</div><div class="sc-val" id="s-bookings">—</div><div class="sc-sub up">↑ 8% this week</div></div><div class="sc-iw" style="background:#eff6ff">📅</div></div>
-        </div>
-        <div class="sc">
-            <div class="sc-stripe" style="background:linear-gradient(90deg,#16a34a,#22c55e)"></div>
-            <div class="sc-top"><div><div class="sc-lbl">Registered Users</div><div class="sc-val" id="s-users">—</div><div class="sc-sub">↑ 5 new today</div></div><div class="sc-iw" style="background:#f0fdf4">👥</div></div>
-        </div>
-        <div class="sc">
-            <div class="sc-stripe" style="background:linear-gradient(90deg,#7c3aed,#a78bfa)"></div>
-            <div class="sc-top"><div><div class="sc-lbl">Active Vehicles</div><div class="sc-val" id="s-cabs">—</div><div class="sc-sub dn">↓ 2 in service</div></div><div class="sc-iw" style="background:#f5f3ff">🚗</div></div>
-        </div>
-    </div>
-    <div class="qa-grid">
-        <a href="booking.html"  class="qa"><div class="qa-ico">📋</div><div><div class="qa-lbl">Bookings</div><div class="qa-sub">View all orders</div></div></a>
-        <a href="users.html"    class="qa"><div class="qa-ico">👥</div><div><div class="qa-lbl">Users</div><div class="qa-sub">Manage accounts</div></div></a>
-        <a href="insurance.html" class="qa"><div class="qa-ico">🛡️</div><div><div class="qa-lbl">Insurance</div><div class="qa-sub">Policy management</div></div></a>
-        <a href="payment.html"  class="qa"><div class="qa-ico">💳</div><div><div class="qa-lbl">Payments</div><div class="qa-sub">Transactions</div></div></a>
-    </div>
-    <div class="two-col">
-        <div class="card">
-            <div class="card-hd">
-                <span class="card-title">📈 Revenue — Last 7 Days</span>
-                <span style="font-size:11px;color:var(--t4);font-family:var(--fc)" id="revTotal"></span>
-            </div>
-            <div class="card-bd">
-                <div class="bchart" id="bchart"></div>
-                <div class="bar-lbls" id="blbls"></div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-hd"><span class="card-title">🕐 Recent Activity</span></div>
-            <div class="card-bd" style="padding:10px 20px"><ul class="act-list" id="actList"></ul></div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-hd">
-            <span class="card-title">📋 Recent Bookings</span>
-            <a href="booking.html" class="btn btn-outline btn-sm">View All →</a>
-        </div>
-        <div class="table-wrap">
-            <table>
-                <thead><tr><th>Customer</th><th>Vehicle</th><th>Pickup</th><th>Status</th><th>Amount</th></tr></thead>
-                <tbody id="dashTbl"></tbody>
-            </table>
-        </div>
-    </div>
-</main>
-<div class="lbg" id="lbg">
-    <div class="lmodal">
-        <div class="lm-ico">👋</div>
-        <div class="lm-h">Sign Out?</div>
-        <div class="lm-p">You'll be logged out and redirected to the sign-in page.</div>
-        <div class="lm-row">
-            <button class="lm-cancel" id="lCancel">Cancel</button>
-            <button class="lm-logout" id="lConfirm">Yes, Sign Out</button>
+</div>
+
+<!-- LOGOUT MODAL -->
+<div class="overlay" id="overlay">
+    <div class="modal">
+        <div class="modal-ico">👋</div>
+        <div class="modal-title">SIGN OUT?</div>
+        <div class="modal-p">You'll be logged out of the Rentify Admin dashboard.</div>
+        <div class="modal-row">
+            <button class="btn-cancel" id="cancelBtn">Cancel</button>
+            <button class="btn-out" id="confirmBtn">Yes, Sign Out</button>
         </div>
     </div>
 </div>
 <div id="toast"></div>
+
 <script>
     const API='http://localhost:8081/api/v1';
-    function getToken(){return localStorage.getItem('rentify_token')||'';}
-    function authH(){const t=getToken();return t?{Authorization:'Bearer '+t}:{};}
-    const fname=localStorage.getItem('rentify_fullName')||localStorage.getItem('rentify_username')||'Admin';
-    const init=fname.trim().split(/\s+/).map(x=>x[0].toUpperCase()).join('').slice(0,2)||'AD';
-    ['#greetName','#snName','#ddName'].forEach(s=>$(s).text(fname));
-    ['#snAv','#avBtn'].forEach(s=>$(s).text(init));
-    $('#todayDate').text(new Date().toLocaleDateString('en-LK',{weekday:'short',year:'numeric',month:'short',day:'numeric'}));
-    $('#avBtn').on('click',e=>{e.stopPropagation();$('#avDrop').toggleClass('open');});
-    $(document).on('click',()=>$('#avDrop').removeClass('open'));
-    $('#logoutBtn').on('click',()=>{$('#avDrop').removeClass('open');$('#lbg').addClass('show');});
-    $('#lCancel').on('click',()=>$('#lbg').removeClass('show'));
-    $('#lbg').on('click',function(e){if(e.target===this)$(this).removeClass('show');});
-    $('#lConfirm').on('click',()=>{
+    // Init user
+    const fname=localStorage.getItem('rentify_fullName')||localStorage.getItem('rentify_username')||'Admin User';
+    const initials=fname.trim().split(/\s+/).map(x=>x[0]?.toUpperCase()).join('').slice(0,2)||'AD';
+    $('#sbAv').text(initials);$('#sbName').text(fname);
+    const now=new Date();
+    document.getElementById('pageDate').textContent=now.toLocaleDateString('en-LK',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+    // Toast
+    function showToast(m,t){const $t=$('#toast');$t.text(m).attr('class','toast show '+(t||''));clearTimeout($t.data('tt'));$t.data('tt',setTimeout(()=>$t.attr('class','toast'),3400));}
+
+    // Logout
+    $('#logoutBtn').on('click',()=>$('#overlay').addClass('show'));
+    $('#cancelBtn').on('click',()=>$('#overlay').removeClass('show'));
+    $('#overlay').on('click',function(e){if(e.target===this)$(this).removeClass('show');});
+    $('#confirmBtn').on('click',()=>{
         ['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(k=>localStorage.removeItem(k));
-        window.location.href='../../pages/sign-in.html';
+        showToast('Signing out...','');
+        setTimeout(()=>{window.location.href='../sign-in.html';},800);
     });
-    const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+    // Bar chart
+    const days=['MON','TUE','WED','THU','FRI','SAT','SUN'];
     const revs=[4200,6800,5300,7900,6100,9200,7400];
     const maxR=Math.max(...revs);
-    const colors=['rgba(22,163,74,.7)','rgba(22,163,74,.75)','rgba(22,163,74,.8)','rgba(22,163,74,.9)','rgba(22,163,74,.85)','rgba(22,163,74,1)','rgba(22,163,74,.88)'];
-    $('#revTotal').text('Total: Rs '+revs.reduce((a,b)=>a+b,0).toLocaleString('en-LK'));
-    revs.forEach((v,i)=>{$('#bchart').append(`<div class="bar" style="height:${v/maxR*100}%;background:${colors[i]};"><div class="bar-tip">Rs ${v.toLocaleString()}</div></div>`);$('#blbls').append(`<span>${days[i]}</span>`);});
-    [{c:'#22c55e',t:'New booking #BK-089',m:'2 min ago'},{c:'#f59e0b',t:'Payment Rs 3,200 received',m:'14 min ago'},{c:'#6366f1',t:'Driver Karim verified',m:'1 hr ago'},{c:'#f87171',t:'Booking #BK-042 cancelled',m:'3 hr ago'},{c:'#22c55e',t:'New user registered',m:'5 hr ago'}]
-        .forEach(a=>{$('#actList').append(`<li class="act-item"><div class="act-dot" style="background:${a.c}"></div><div class="act-txt">${a.t}</div><div class="act-tm">${a.m}</div></li>`);});
-    function sc(s){return s==='COMPLETED'?'bg-g':s==='CONFIRMED'?'bg-b':s==='PENDING'?'bg-y':'bg-r';}
-    $.ajax({url:API+'/vehicles',method:'GET',headers:authH(),success:function(r){const v=Array.isArray(r)?r:(r.data||[]);$('#s-cabs').text(v.filter(x=>x.status==='AVAILABLE').length+' avail');}});
-    $.ajax({url:API+'/bookings',method:'GET',headers:authH(),success:function(r){
-            const b=Array.isArray(r)?r:(r.data||[]);$('#s-bookings').text(b.length);
+    revs.forEach((v,i)=>{
+        const pct=(v/maxR*100);const isTop=v===maxR;
+        $('#barChart').append(`<div class="bar-wrap"><div class="bar-col" style="height:${pct}%;background:${isTop?'var(--green)':'var(--accent)'};opacity:${isTop?1:.6+i*.05}"><div class="bar-tip">Rs ${v.toLocaleString()}</div></div></div>`);
+        $('#barLabels').append(`<div style="flex:1;text-align:center;font-size:9px;color:var(--ink4);letter-spacing:.5px">${days[i]}</div>`);
+    });
+
+    // Calc
+    let cStr='',cNew=true;
+    function ca(v){
+        const $e=$('#calcExpr'),$r=$('#calcResult');
+        if(v==='C'){cStr='';$r.text('0');$e.text('');cNew=true;return;}
+        if(v==='⌫'){cStr=cStr.slice(0,-1);$r.text(cStr||'0');return;}
+        if(v==='='){try{const r=Function('"use strict";return ('+cStr+')')();$e.text(cStr+' =');cStr=String(parseFloat(r.toFixed(10)));$r.text(cStr);}catch{$r.text('ERR');}cNew=true;return;}
+        if(v==='%'){try{cStr=String(parseFloat(cStr)/100);$r.text(cStr);}catch{}return;}
+        cStr+=v;$r.text(cStr);$e.text('');
+    }
+    document.addEventListener('keydown',e=>{
+        if('0123456789+-*/.'.includes(e.key))ca(e.key);
+        if(e.key==='Enter')ca('=');if(e.key==='Backspace')ca('⌫');if(e.key==='Escape')ca('C');
+    });
+
+    // Calendar
+    let calDate=new Date();
+    function renderCal(){
+        const yr=calDate.getFullYear(),mo=calDate.getMonth();
+        const months=['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+        $('#calMonth').text(months[mo]+' '+yr);
+        const $g=$('#calGrid');$g.empty();
+        const first=new Date(yr,mo,1).getDay(),dim=new Date(yr,mo+1,0).getDate(),prev=new Date(yr,mo,0).getDate();
+        const today=new Date(),events=[3,7,12,18,22,25,28];
+        for(let i=0;i<first;i++)$g.append(`<div class="cal-day other">${prev-first+1+i}</div>`);
+        for(let d=1;d<=dim;d++){
+            const isTd=d===today.getDate()&&mo===today.getMonth()&&yr===today.getFullYear();
+            $g.append(`<div class="cal-day ${isTd?'today':''} ${events.includes(d)?'has-event':''}">${d}</div>`);
+        }
+    }
+    renderCal();
+    $('#calPrev').on('click',()=>{calDate.setMonth(calDate.getMonth()-1);renderCal();});
+    $('#calNext').on('click',()=>{calDate.setMonth(calDate.getMonth()+1);renderCal();});
+
+    // Activity
+    const activities=[
+        {c:'#00b86b',t:'New booking #BK-089 confirmed',m:'2 min ago'},
+        {c:'#f5c518',t:'Payment Rs 3,200 received',m:'14 min ago'},
+        {c:'#1a3fff',t:'Driver Karim account verified',m:'1 hr ago'},
+        {c:'#ff3b5c',t:'Booking #BK-042 cancelled',m:'3 hr ago'},
+        {c:'#00b86b',t:'New user registered: S. Perera',m:'5 hr ago'},
+        {c:'#7c3aed',t:'Insurance policy #IP-33 renewed',m:'8 hr ago'},
+    ];
+    activities.forEach(a=>{
+        $('#actList').append(`<li class="act-item"><div class="act-dot" style="background:${a.c}"></div><div class="act-text">${a.t}</div><div class="act-time">${a.m}</div></li>`);
+    });
+
+    // API
+    function authH(){const t=localStorage.getItem('rentify_token')||'';return t?{Authorization:'Bearer '+t}:{};}
+    function badge(s){return s==='COMPLETED'?'b-green':s==='CONFIRMED'?'b-blue':s==='PENDING'?'b-orange':'b-red';}
+
+    $.ajax({url:API+'/vehicles',headers:authH(),success:function(r){
+            const v=Array.isArray(r)?r:(r.data||[]);
+            $('#s-cabs').text(v.filter(x=>x.status==='AVAILABLE').length+' avail');
+        },error:()=>$('#s-cabs').text('—')});
+
+    $.ajax({url:API+'/bookings',headers:authH(),success:function(r){
+            const b=Array.isArray(r)?r:(r.data||[]);
+            $('#s-bookings').text(b.length);
             const rev=b.filter(x=>x.status!=='CANCELLED').reduce((s,x)=>s+(x.totalPrice||0),0);
-            $('#s-revenue').text('Rs '+Number(rev).toLocaleString('en-LK'));$('#rev-sub').addClass('up').text('↑ 12% vs last month');
+            $('#s-revenue').text('Rs '+Number(rev).toLocaleString('en-LK'));
+            $('#rev-change').text('↑ 12% vs last month');
             const recent=b.slice(-5).reverse();
-            $('#dashTbl').html(recent.length?recent.map(x=>`<tr><td><strong style="color:var(--t1)">User #${x.userId}</strong></td><td>${x.vehicleModel||'—'}</td><td style="color:var(--t3)">${x.pickupLocation||'—'}</td><td><span class="badge ${sc(x.status)}">${x.status}</span></td><td style="font-weight:700;color:var(--g);font-family:'Syne',sans-serif">Rs ${Number(x.totalPrice||0).toLocaleString('en-LK')}</td></tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:28px;color:var(--t4)">No bookings yet</td></tr>');
+            $('#dashTbl').html(recent.length?recent.map(x=>`
+    <tr>
+      <td><strong style="color:var(--ink)">User #${x.userId}</strong></td>
+      <td>${x.vehicleModel||'—'}</td>
+      <td style="color:var(--ink3)">${x.pickupLocation||'—'}</td>
+      <td><span class="badge ${badge(x.status)}">${x.status}</span></td>
+      <td style="font-family:'Bungee',sans-serif;font-size:12px;color:var(--green)">Rs ${Number(x.totalPrice||0).toLocaleString('en-LK')}</td>
+    </tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--ink4)">No bookings yet</td></tr>');
+        },error:()=>{
+            $('#s-bookings,#s-revenue').text('—');
+            $('#dashTbl').html('<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--ink4)">Connect to API to see bookings</td></tr>');
         }});
-    $('#s-users').text('—');
-    function showToast(m,t){$('#toast').text(m).attr('class',t||'').show();setTimeout(()=>$('#toast').hide(),3200);}
 </script>
 </body>
 </html>

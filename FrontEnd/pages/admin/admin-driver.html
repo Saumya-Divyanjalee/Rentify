@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Rentify Admin — Drivers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+        :root{
+            --white:#ffffff;--bg:#f7f8fc;--bg2:#f0f2f8;
+            --ink:#0b0e1a;--ink2:#2d3350;--ink3:#5e6680;--ink4:#9ba3bb;
+            --border:#e4e7f0;--border2:#d0d5e8;
+            --accent:#1a3fff;--accent-l:#eef1ff;--accent-d:#0028cc;
+            --green:#00b86b;--green-l:#e6fff4;
+            --red:#ff3b5c;--red-l:#fff0f3;
+            --orange:#ff7a00;--orange-l:#fff4ea;
+            --yellow:#f5c518;--purple:#7c3aed;--purple-l:#f3eeff;
+            --sidebar:260px;
+            --shadow-sm:0 1px 4px rgba(11,14,26,.06);--shadow:0 4px 20px rgba(11,14,26,.08);--shadow-lg:0 16px 56px rgba(11,14,26,.14);
+            --r:12px;--r-sm:8px;--r-lg:16px;
+        }
+        body{font-family:'Roboto Mono',monospace;background:var(--bg);color:var(--ink);display:flex;min-height:100vh;}
+        .sidebar{width:var(--sidebar);min-height:100vh;background:var(--white);border-right:1.5px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:300;box-shadow:2px 0 20px rgba(11,14,26,.05);}
+        .sb-top{padding:22px 20px 16px;border-bottom:1.5px solid var(--border);}
+        .sb-brand{display:flex;align-items:center;gap:12px;}
+        .sb-brand-ico{width:38px;height:38px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+        .sb-brand-name{font-family:"Bungee",sans-serif;font-size:20px;color:var(--ink);letter-spacing:.5px;}
+        .sb-brand-name span{color:var(--accent);}
+        .sb-profile{margin:14px 20px 0;padding:14px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);display:flex;align-items:center;gap:12px;}
+        .sb-av{width:40px;height:40px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,var(--accent),#6e8fff);display:flex;align-items:center;justify-content:center;font-family:"Bungee",sans-serif;font-size:14px;color:#fff;}
+        .sb-av-info .av-name{font-size:12px;font-weight:700;color:var(--ink);}
+        .sb-av-info .av-role{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-top:2px;background:var(--accent-l);padding:2px 6px;border-radius:4px;display:inline-block;}
+        .sb-online{width:8px;height:8px;border-radius:50%;background:var(--green);margin-left:auto;flex-shrink:0;box-shadow:0 0 6px rgba(0,184,107,.5);}
+        .sb-nav{flex:1;padding:16px 12px;overflow-y:auto;scrollbar-width:none;}
+        .sb-sec{font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:2.5px;color:var(--ink4);padding:10px 8px 5px;text-transform:uppercase;}
+        .sb-link{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-sm);text-decoration:none;color:var(--ink3);font-size:11px;font-weight:500;letter-spacing:.3px;transition:all .18s;margin-bottom:2px;}
+        .sb-link:hover{background:var(--bg);color:var(--ink);}
+        .sb-link.active{background:var(--accent-l);color:var(--accent);font-weight:700;border:1.5px solid rgba(26,63,255,.15);}
+        .sb-link .ico{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
+        .sb-bottom{padding:12px;border-top:1.5px solid var(--border);}
+        .sb-logout{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-sm);background:none;border:none;cursor:pointer;color:var(--ink3);font-size:11px;font-family:'Roboto Mono',monospace;width:100%;text-align:left;transition:all .18s;}
+        .sb-logout:hover{background:var(--red-l);color:var(--red);}
+        .main{margin-left:var(--sidebar);flex:1;padding:28px 32px;background:var(--bg);}
+        .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+        .ph-title{font-family:"Bungee",sans-serif;font-size:22px;color:var(--ink);letter-spacing:.3px;}
+        .ph-sub{font-size:12px;color:var(--ink4);margin-top:3px;letter-spacing:.3px;}
+        .ph-btns{display:flex;gap:9px;flex-wrap:wrap;}
+        /* STATS */
+        .sc-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+        .sc{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:18px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm);transition:all .2s;}
+        .sc:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+        .sc-stripe{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-lg) var(--r-lg) 0 0;}
+        .sc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+        .sc-iw{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+        .sc-lbl{font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--ink4);margin-bottom:5px;text-transform:uppercase;}
+        .sc-val{font-family:"Bungee",sans-serif;font-size:26px;color:var(--ink);letter-spacing:-1px;line-height:1;}
+        .filter-row{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;}
+        .sw{display:flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:9px 13px;flex:1;min-width:200px;transition:.16s;box-shadow:var(--shadow-sm);}
+        .sw:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,63,255,.07);}
+        .sw input{border:none;outline:none;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--ink);background:transparent;width:100%;}
+        .sw input::placeholder{color:var(--ink4);}
+        .fsel{padding:9px 12px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--ink2);font-size:12px;font-family:'Roboto Mono',monospace;outline:none;cursor:pointer;box-shadow:var(--shadow-sm);}
+        .fsel:focus{border-color:var(--accent);}
+        .card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
+        .card-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1.5px solid var(--border);}
+        .card-title{font-family:"Bungee",sans-serif;font-size:12px;color:var(--ink);letter-spacing:.3px;}
+        .tw{overflow-x:auto;}
+        table{width:100%;border-collapse:collapse;}
+        thead th{padding:10px 14px;text-align:left;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--ink4);background:var(--bg);border-bottom:1.5px solid var(--border);text-transform:uppercase;white-space:nowrap;}
+        tbody tr{border-bottom:1px solid var(--border);transition:.14s;}
+        tbody tr:last-child{border-bottom:none;}
+        tbody tr:hover{background:var(--bg);}
+        tbody td{padding:11px 14px;font-size:12px;color:var(--ink2);vertical-align:middle;}
+        .dav{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid var(--green-l);box-shadow:var(--shadow-sm);}
+        .dav-ph{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#6e8fff);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;font-family:"Bungee",sans-serif;border:2px solid rgba(26,63,255,.2);}
+        .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:.8px;text-transform:uppercase;}
+        .bg-g{background:var(--green-l);color:#007f4e;border:1px solid rgba(0,184,107,.2);}
+        .bg-y{background:var(--orange-l);color:var(--orange);border:1px solid rgba(255,122,0,.2);}
+        .bg-r{background:var(--red-l);color:var(--red);border:1px solid rgba(255,59,92,.2);}
+        .bg-b{background:var(--accent-l);color:var(--accent);border:1px solid rgba(26,63,255,.2);}
+        .bg-gray{background:var(--bg2);color:var(--ink3);border:1px solid var(--border);}
+        .exp-warn{color:var(--red);font-size:9px;font-weight:700;margin-top:2px;}
+        .exp-soon{color:var(--orange);font-size:9px;font-weight:600;margin-top:2px;}
+        .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r-sm);font-family:'Roboto Mono',monospace;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:var(--white);color:var(--ink2);cursor:pointer;transition:all .17s;white-space:nowrap;}
+        .btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-l);}
+        .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 10px rgba(26,63,255,.25);}
+        .btn-primary:hover{background:var(--accent-d);color:#fff;transform:translateY(-1px);}
+        .btn-sm{padding:5px 11px;font-size:10px;border-radius:6px;}
+        .btn-del{background:transparent;color:var(--red);border:1.5px solid rgba(255,59,92,.25);padding:5px 11px;font-size:10px;border-radius:6px;cursor:pointer;font-family:'Roboto Mono',monospace;transition:.16s;}
+        .btn-del:hover{background:var(--red-l);border-color:var(--red);}
+        .badge-count{background:var(--green-l);color:#007f4e;border:1px solid rgba(0,184,107,.2);padding:3px 10px;border-radius:20px;font-size:10px;}
+        .erow td{text-align:center;padding:48px;color:var(--ink4);}
+        .lrow td{text-align:center;padding:40px;color:var(--ink3);}
+        .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;margin-right:7px;vertical-align:middle;}
+        @keyframes sp{to{transform:rotate(360deg)}}
+        #toast{position:fixed;bottom:24px;right:24px;z-index:99999;background:var(--ink);color:#fff;padding:12px 18px;border-radius:var(--r-sm);font-size:11px;box-shadow:var(--shadow-lg);display:none;max-width:300px;}
+        #toast.show{display:block;animation:fi .2s ease;}
+        @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+        #toast.success{background:var(--green);}
+        #toast.error{background:var(--red);}
+        .ov{position:fixed;inset:0;z-index:9999;background:rgba(11,14,26,.5);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;}
+        .ov.open{display:flex;animation:fi .18s ease;}
+        .modal{background:var(--white);border-radius:var(--r-lg);max-width:600px;width:100%;max-height:90vh;overflow-y:auto;animation:popIn .25s cubic-bezier(.16,1,.3,1);box-shadow:var(--shadow-lg);border:1.5px solid var(--border);}
+        @keyframes popIn{from{transform:scale(.93)translateY(10px);opacity:0}to{transform:none;opacity:1}}
+        .mhd{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1.5px solid var(--border);position:sticky;top:0;background:var(--white);z-index:10;}
+        .mhd-title{font-family:"Bungee",sans-serif;font-size:14px;color:var(--ink);letter-spacing:.3px;}
+        .mclose{width:28px;height:28px;background:var(--bg);border:1.5px solid var(--border);border-radius:7px;cursor:pointer;font-size:12px;color:var(--ink3);transition:.15s;display:flex;align-items:center;justify-content:center;}
+        .mclose:hover{background:var(--border);color:var(--ink);}
+        .mbd{padding:20px 22px;}
+        .mft{display:flex;justify-content:flex-end;gap:8px;padding:14px 22px;border-top:1.5px solid var(--border);background:var(--bg);}
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+        .fg{display:flex;flex-direction:column;gap:5px;}
+        .fl{font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink2);}
+        .fi{padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--ink);font-size:12px;font-family:'Roboto Mono',monospace;outline:none;transition:.16s;width:100%;}
+        .fi::placeholder{color:var(--ink4);}
+        .fi:focus{border-color:var(--accent);background:var(--white);box-shadow:0 0 0 3px rgba(26,63,255,.07);}
+        select.fi{appearance:none;}
+        .pic-area{border:2px dashed var(--border2);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;transition:.18s;background:var(--bg);margin-bottom:16px;}
+        .pic-area:hover{border-color:var(--accent);background:var(--accent-l);}
+        .pic-prev{width:72px;height:72px;border-radius:50%;object-fit:cover;margin:0 auto 10px;display:block;border:3px solid var(--accent-l);box-shadow:var(--shadow-sm);}
+        .pic-ph{font-size:28px;margin-bottom:6px;}
+        .pic-txt{font-size:11px;color:var(--ink3);}
+        @media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;padding:16px;}.sc-row{grid-template-columns:1fr 1fr;}}
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sb-top">
+        <div class="sb-brand"><div class="sb-brand-ico">🚗</div><div class="sb-brand-name">Rent<span>ify</span></div></div>
+        <div class="sb-profile"><div class="sb-av" id="sbAv">AD</div><div class="sb-av-info"><div class="av-name" id="sbName">Admin User</div><div class="av-role">Administrator</div></div><div class="sb-online"></div></div>
+    </div>
+    <nav class="sb-nav">
+        <div class="sb-sec">Main</div>
+        <a href="admin-dashboard.html" class="sb-link"><span class="ico">🏠</span>Home</a>
+        <div class="sb-sec">Fleet</div>
+        <a href="admin-booking.html" class="sb-link"><span class="ico">📋</span>Bookings</a>
+        <a href="admin-vehicle.html" class="sb-link"><span class="ico">🚗</span>Vehicles</a>
+        <a href="admin-driver.html" class="sb-link active"><span class="ico">🧑‍✈️</span>Drivers</a>
+        <div class="sb-sec">Admin</div>
+        <a href="insurance.html" class="sb-link"><span class="ico">🛡️</span>Insurance</a>
+        <a href="users.html" class="sb-link"><span class="ico">👥</span>Users</a>
+        <a href="#" class="sb-link"><span class="ico">⚙️</span>Settings</a>
+    </nav>
+    <div class="sb-bottom"><button class="sb-logout" onclick="logout()"><span class="ico">🚪</span>Sign Out</button></div>
+</aside>
+
+<main class="main">
+    <div class="ph">
+        <div><div class="ph-title">🧑‍✈️ DRIVER MANAGEMENT</div><div class="ph-sub">Manage your driver fleet and licences.</div></div>
+        <div class="ph-btns">
+            <button class="btn" onclick="exportCSV()">⬇ CSV</button>
+            <button class="btn" onclick="exportPDF()">📄 PDF</button>
+            <button class="btn btn-primary" onclick="openModal()">＋ Add Driver</button>
+        </div>
+    </div>
+
+    <div class="sc-row">
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,var(--accent),#6e8fff)"></div><div class="sc-top"><div><div class="sc-lbl">Total Drivers</div><div class="sc-val" id="st-total">0</div></div><div class="sc-iw" style="background:var(--accent-l)">🧑‍✈️</div></div></div>
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,var(--green),#00e5a0)"></div><div class="sc-top"><div><div class="sc-lbl">Active</div><div class="sc-val" id="st-active">0</div></div><div class="sc-iw" style="background:var(--green-l)">✅</div></div></div>
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,var(--orange),var(--yellow))"></div><div class="sc-top"><div><div class="sc-lbl">On Trip</div><div class="sc-val" id="st-trip">0</div></div><div class="sc-iw" style="background:var(--orange-l)">🚗</div></div></div>
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,var(--red),#ff7090)"></div><div class="sc-top"><div><div class="sc-lbl">Expired Licence</div><div class="sc-val" id="st-exp">0</div></div><div class="sc-iw" style="background:var(--red-l)">⚠️</div></div></div>
+    </div>
+
+    <div class="filter-row">
+        <div class="sw"><span style="color:var(--ink4)">🔍</span><input id="searchInput" placeholder="Search driver, licence…"></div>
+        <select class="fsel" id="filterType">
+            <option value="">All Vehicle Types</option>
+            <option>Sedan</option><option>SUV</option><option>Mini</option><option>Van</option><option>Luxury</option>
+        </select>
+    </div>
+
+    <div class="card">
+        <div class="card-hd"><span class="card-title">ALL DRIVERS</span><span class="badge-count" id="countBadge">0 drivers</span></div>
+        <div class="tw">
+            <table>
+                <thead><tr><th>#</th><th>Photo</th><th>Name & Status</th><th>Phone</th><th>Licence No</th><th>Licence Expiry</th><th>Vehicle Type</th><th>Actions</th></tr></thead>
+                <tbody id="driverTable"><tr class="lrow"><td colspan="8"><span class="spin"></span>Loading drivers…</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!-- ADD/EDIT MODAL -->
+<div class="ov" id="modalOv">
+    <div class="modal">
+        <div class="mhd"><div class="mhd-title" id="mTitle">ADD DRIVER</div><button class="mclose" onclick="closeModal()">✕</button></div>
+        <div class="mbd">
+            <div class="pic-area" onclick="document.getElementById('picInput').click()">
+                <img id="picPrev" class="pic-prev" style="display:none">
+                <div id="picPh"><div class="pic-ph">📷</div><div class="pic-txt">Click to upload profile photo</div></div>
+            </div>
+            <input type="file" id="picInput" accept="image/*" style="display:none" onchange="handlePic(event)">
+            <div class="form-grid">
+                <div class="fg"><label class="fl">Full Name</label><input class="fi" id="f-name" placeholder="Driver's full name"></div>
+                <div class="fg"><label class="fl">Phone No</label><input class="fi" id="f-phone" placeholder="+94 7X XXX XXXX"></div>
+                <div class="fg"><label class="fl">Licence No</label><input class="fi" id="f-lic" placeholder="B1234567"></div>
+                <div class="fg"><label class="fl">Licence Expiry</label><input class="fi" type="date" id="f-exp"></div>
+                <div class="fg"><label class="fl">Vehicle Type</label><select class="fi" id="f-vtype"><option>Sedan</option><option>SUV</option><option>Mini</option><option>Van</option><option>Luxury</option></select></div>
+                <div class="fg"><label class="fl">Status</label><select class="fi" id="f-status"><option>Active</option><option>Inactive</option><option>On Trip</option></select></div>
+            </div>
+        </div>
+        <div class="mft"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveDriver()">Save Driver</button></div>
+    </div>
+</div>
+<div id="toast"></div>
+
+<script>
+    const BASE='http://localhost:8081/api/v1/drivers';
+    let editId=null,curPic='';
+    const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    function showToast(m,t){const $t=$('#toast');$t.text(m).attr('class','toast show '+(t||''));clearTimeout($t.data('tt'));$t.data('tt',setTimeout(()=>$t.attr('class','toast'),3400));}
+    function logout(){['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(k=>localStorage.removeItem(k));window.location.href='../sign-in.html';}
+    function getToken(){return localStorage.getItem('rentify_token')||'';}
+    function authH(){const t=getToken();return t?{Authorization:'Bearer '+t}:{};}
+    const fn=localStorage.getItem('rentify_fullName')||localStorage.getItem('rentify_username')||'Admin';
+    const ini=fn.trim().split(/\s+/).map(x=>x[0]?.toUpperCase()).join('').slice(0,2)||'AD';
+    $('#sbAv').text(ini);$('#sbName').text(fn);
+
+    function sc(s){return s==='Active'?'bg-g':s==='On Trip'?'bg-y':s==='Inactive'?'bg-gray':'bg-r';}
+    function isExpired(d){return d&&new Date(d)<new Date();}
+    function expiringSoon(d){if(!d)return false;const diff=(new Date(d)-new Date())/(1000*60*60*24);return diff<90&&diff>0;}
+
+    function renderTable(){
+        const q=$('#searchInput').val().toLowerCase(),vt=$('#filterType').val();
+        $.ajax({url:BASE,method:'GET',data:{query:q,vehicleType:vt},headers:authH(),
+            success:function(res){
+                const drivers=res.data||res||[];
+                $('#countBadge').text(drivers.length+' drivers');
+                $('#st-total').text(drivers.length);
+                $('#st-active').text(drivers.filter(d=>d.status==='Active').length);
+                $('#st-trip').text(drivers.filter(d=>d.status==='On Trip').length);
+                $('#st-exp').text(drivers.filter(d=>isExpired(d.licenceExpiry)).length);
+                if(!drivers.length){$('#driverTable').html('<tr class="erow"><td colspan="8">🔍 No drivers found.</td></tr>');return;}
+                $('#driverTable').html(drivers.map(d=>`<tr>
+        <td style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--ink4)">D${String(d.id).padStart(3,'0')}</td>
+        <td>${d.profilePic?`<img src="${esc(d.profilePic)}" class="dav">`:`<div class="dav-ph">${d.name[0]}</div>`}</td>
+        <td>
+          <div style="font-weight:700;color:var(--ink)">${esc(d.name)}</div>
+          <div style="margin-top:3px"><span class="badge ${sc(d.status)}">${esc(d.status)}</span></div>
+        </td>
+        <td style="font-family:'Roboto Mono',monospace;font-size:11px">${esc(d.phone)}</td>
+        <td style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--accent)">${esc(d.licenceNo)}</td>
+        <td>
+          <div style="font-size:11px">${d.licenceExpiry||'N/A'}</div>
+          ${isExpired(d.licenceExpiry)?'<div class="exp-warn">⚠️ EXPIRED</div>':expiringSoon(d.licenceExpiry)?'<div class="exp-soon">⚠️ Expiring soon</div>':''}
+        </td>
+        <td><span class="badge bg-b">${esc(d.vehicleType)}</span></td>
+        <td style="display:flex;gap:6px;align-items:center">
+          <button class="btn btn-sm" onclick="editDriver(${d.id})">✏️ Edit</button>
+          <button class="btn-del" onclick="deleteDriver(${d.id})">🗑️</button>
+        </td>
+      </tr>`).join(''));
+            },
+            error:function(){$('#driverTable').html('<tr class="erow"><td colspan="8">⚠️ Could not load drivers — check backend connection.</td></tr>');}
+        });
+    }
+
+    function saveDriver(){
+        const dto={name:$('#f-name').val(),phone:$('#f-phone').val(),licenceNo:$('#f-lic').val(),licenceExpiry:$('#f-exp').val(),vehicleType:$('#f-vtype').val(),status:$('#f-status').val(),profilePic:curPic};
+        if(!dto.name||!dto.licenceNo){showToast('Fill required fields','error');return;}
+        const isEdit=editId!==null;
+        $.ajax({url:isEdit?`${BASE}/${editId}`:BASE,method:isEdit?'PUT':'POST',contentType:'application/json',headers:authH(),data:JSON.stringify(dto),
+            success:function(){showToast(isEdit?'Driver updated ✅':'Driver added ✅','success');closeModal();renderTable();},
+            error:function(x){showToast(x.responseJSON?.message||'Error','error');}
+        });
+    }
+    function editDriver(id){
+        $.get(`${BASE}/${id}`,function(res){
+            const d=res.data||res;editId=d.id;curPic=d.profilePic||'';
+            $('#f-name').val(d.name);$('#f-phone').val(d.phone);$('#f-lic').val(d.licenceNo);$('#f-exp').val(d.licenceExpiry);$('#f-vtype').val(d.vehicleType);$('#f-status').val(d.status);
+            if(curPic){$('#picPrev').attr('src',curPic).show();$('#picPh').hide();}
+            $('#mTitle').text('EDIT DRIVER');$('#modalOv').addClass('open');
+        });
+    }
+    function deleteDriver(id){
+        if(confirm('Delete this driver?')){
+            $.ajax({url:`${BASE}/${id}`,method:'DELETE',headers:authH(),success:function(){renderTable();showToast('Driver deleted','success');},error:function(x){showToast(x.responseJSON?.message||'Delete failed','error');}});
+        }
+    }
+    function handlePic(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{curPic=ev.target.result;$('#picPrev').attr('src',curPic).show();$('#picPh').hide();};r.readAsDataURL(file);}
+    function openModal(){editId=null;curPic='';$('.fi').val('');$('#picPrev').hide();$('#picPh').show();$('#mTitle').text('ADD DRIVER');$('#modalOv').addClass('open');}
+    function closeModal(){$('#modalOv').removeClass('open');}
+    function exportCSV(){
+        let csv='ID,Name,Phone,Licence,Expiry,Vehicle,Status\n';
+        $('#driverTable tr').each(function(){const r=$(this).find('td');if(r.length>0)csv+=`${r.eq(0).text()},${r.eq(2).find('div:first').text()},${r.eq(3).text()},${r.eq(4).text()},${r.eq(5).find('div:first').text()},${r.eq(6).text()},${r.eq(2).find('.badge').text()}\n`;});
+        const a=document.createElement('a');a.href='data:text/csv,'+encodeURIComponent(csv);a.download='drivers.csv';a.click();
+    }
+    function exportPDF(){
+        const{jsPDF}=window.jspdf;const doc=new jsPDF('p','mm','a4');
+        doc.setFillColor(11,14,26);doc.rect(0,0,210,16,'F');
+        doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(110,143,255);doc.text('Rentify',14,11);
+        doc.setTextColor(255,255,255);doc.text('Driver Fleet Report',105,11,{align:'center'});
+        const rows=[];
+        $('#driverTable tr').each(function(){const r=$(this).find('td');if(r.length>0)rows.push([r.eq(0).text().trim(),r.eq(2).find('div:first').text().trim(),r.eq(3).text().trim(),r.eq(4).text().trim(),r.eq(5).find('div:first').text().trim(),r.eq(6).text().trim(),r.eq(2).find('.badge').text().trim()]);});
+        doc.autoTable({startY:22,head:[['ID','Name','Phone','Licence','Expiry','Vehicle','Status']],body:rows,headStyles:{fillColor:[26,63,255],textColor:[255,255,255],fontStyle:'bold',fontSize:8},bodyStyles:{textColor:[45,51,80],fontSize:8},alternateRowStyles:{fillColor:[247,248,252]},margin:{left:14,right:14}});
+        doc.setFontSize(8);doc.setTextColor(155,163,187);doc.text('© '+new Date().getFullYear()+' Rentify · Sri Lanka',105,doc.internal.pageSize.getHeight()-8,{align:'center'});
+        doc.save('Rentify_Drivers_'+new Date().toISOString().slice(0,10)+'.pdf');
+        showToast('PDF downloaded ✅','success');
+    }
+    $('#modalOv').on('click',function(e){if(e.target===this)closeModal();});
+    $('#searchInput,#filterType').on('input change',renderTable);
+    $(function(){renderTable();});
+</script>
+</body>
+</html>

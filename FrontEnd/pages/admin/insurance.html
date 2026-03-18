@@ -3,1053 +3,494 @@
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Rentify Admin — Insurance</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <style>
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
         :root{
-            --g:#16a34a;--gd:#14532d;--gm:#22c55e;--gl:#bbf7d0;--gs:#f0fdf4;--gg:rgba(22,163,74,.14);
-            --y:#d97706;--ym:#f59e0b;--yp:#fef3c7;
-            --r:#dc2626;--rs:#fef2f2;--b:#2563eb;--bs:#eff6ff;--p:#7c3aed;--o:#ea580c;
-            --t1:#0f172a;--t2:#334155;--t3:#64748b;--t4:#94a3b8;
-            --bg:#f8fafc;--bg2:#f1f5f9;--card:#fff;--bdr:#e2e8f0;--bdr2:#cbd5e1;
-            --sb:#0f172a;--sb2:#1e293b;
-            --ff:'Syne',sans-serif;--fm:'DM Sans',sans-serif;--fc:'Roboto Mono',monospace;
-            --s1:0 1px 3px rgba(15,23,42,.06),0 1px 2px rgba(15,23,42,.04);
-            --s2:0 4px 16px rgba(15,23,42,.08),0 2px 6px rgba(15,23,42,.04);
-            --s3:0 12px 40px rgba(15,23,42,.1),0 4px 12px rgba(15,23,42,.06);
-            --s4:0 24px 64px rgba(15,23,42,.14);
+            --white:#fff;--bg:#f7f8fc;--bg2:#f0f2f8;
+            --ink:#0b0e1a;--ink2:#2d3350;--ink3:#5e6680;--ink4:#9ba3bb;
+            --border:#e4e7f0;--border2:#d0d5e8;
+            --accent:#1a3fff;--accent-l:#eef1ff;--accent-d:#0028cc;
+            --green:#00b86b;--green-l:#e6fff4;
+            --red:#ff3b5c;--red-l:#fff0f3;
+            --orange:#ff7a00;--orange-l:#fff4ea;
+            --yellow:#f5c518;--purple:#7c3aed;
+            --sidebar:260px;
+            --shadow-sm:0 1px 4px rgba(11,14,26,.06);--shadow:0 4px 20px rgba(11,14,26,.08);--shadow-lg:0 16px 56px rgba(11,14,26,.14);
+            --r:12px;--r-sm:8px;--r-lg:16px;
         }
-        html{scroll-behavior:smooth;}
-        body{font-family:var(--fm);background:var(--bg);color:var(--t1);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;font-size:14px;}
+        body{font-family:'Roboto Mono',monospace;background:var(--bg);color:var(--ink);display:flex;min-height:100vh;}
+        .bungee-regular{font-family:"Bungee",sans-serif;font-weight:400;font-style:normal;}
 
-        /* ═══════════════════════════════ SIDEBAR ═══════════════════════════════ */
-        .sidebar{width:252px;min-height:100vh;background:var(--sb);display:flex;flex-direction:column;padding:0;position:fixed;top:0;left:0;bottom:0;z-index:200;overflow-y:auto;scrollbar-width:none;}
-        .sidebar::-webkit-scrollbar{display:none;}
-        .sb-inner{display:flex;flex-direction:column;flex:1;padding:20px 14px;}
-        .sn-logo{display:flex;align-items:center;gap:0;padding:4px 8px 22px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,.06);}
-        .sn-logo-text{font-family:var(--fc);font-size:19px;font-weight:600;color:#fff;letter-spacing:-.3px;}
-        .sn-logo-text b{color:var(--ym);font-weight:600;}
-        .sn-badge{font-size:8px;background:var(--ym);color:#000;padding:2px 8px;border-radius:20px;font-weight:800;letter-spacing:.6px;font-family:var(--ff);margin-left:9px;}
-        .sn-sec{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.22);margin:18px 0 7px;padding:0 8px;font-family:var(--ff);}
-        .sn-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;text-decoration:none;color:rgba(255,255,255,.48);font-size:13px;font-weight:500;transition:all .16s;margin-bottom:2px;letter-spacing:-.1px;}
-        .sn-link:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.88);}
-        .sn-link.active{background:rgba(245,158,11,.14);color:var(--ym);font-weight:600;border:1px solid rgba(245,158,11,.22);}
-        .sn-ico{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
-        .sn-bottom{margin-top:auto;padding-top:14px;border-top:1px solid rgba(255,255,255,.07);}
-        .sn-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.06);cursor:pointer;transition:.16s;}
-        .sn-user:hover{background:rgba(255,255,255,.1);}
-        .sn-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ym),#b45309);display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-size:13px;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 0 0 2px rgba(245,158,11,.35);}
-        .sn-uname{font-size:13px;font-weight:600;color:#fff;line-height:1.3;}
-        .sn-urole{font-size:9px;color:rgba(255,255,255,.3);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+        /* SIDEBAR */
+        .sidebar{width:var(--sidebar);min-height:100vh;background:var(--white);border-right:1.5px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:300;box-shadow:2px 0 20px rgba(11,14,26,.05);}
+        .sb-top{padding:22px 20px 16px;border-bottom:1.5px solid var(--border);}
+        .sb-brand{display:flex;align-items:center;gap:12px;}
+        .sb-brand-ico{width:38px;height:38px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+        .sb-brand-name{font-family:"Bungee",sans-serif;font-size:20px;color:var(--ink);letter-spacing:.5px;}
+        .sb-brand-name span{color:var(--accent);}
+        .sb-profile{margin:14px 20px 0;padding:14px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);display:flex;align-items:center;gap:12px;}
+        .sb-av{width:40px;height:40px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,var(--accent),#6e8fff);display:flex;align-items:center;justify-content:center;font-family:"Bungee",sans-serif;font-size:14px;color:#fff;}
+        .sb-av-info .av-name{font-size:12px;font-weight:700;color:var(--ink);}
+        .sb-av-info .av-role{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-top:2px;background:var(--accent-l);padding:2px 6px;border-radius:4px;display:inline-block;}
+        .sb-online{width:8px;height:8px;border-radius:50%;background:var(--green);margin-left:auto;flex-shrink:0;box-shadow:0 0 6px rgba(0,184,107,.5);}
+        .sb-nav{flex:1;padding:16px 12px;overflow-y:auto;scrollbar-width:none;}
+        .sb-nav::-webkit-scrollbar{display:none;}
+        .sb-sec{font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:2.5px;color:var(--ink4);padding:10px 8px 5px;text-transform:uppercase;}
+        .sb-link{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-sm);text-decoration:none;color:var(--ink3);font-size:11px;font-weight:500;letter-spacing:.3px;transition:all .18s;margin-bottom:2px;}
+        .sb-link:hover{background:var(--bg);color:var(--ink);}
+        .sb-link.active{background:var(--accent-l);color:var(--accent);font-weight:700;border:1.5px solid rgba(26,63,255,.15);}
+        .sb-link .ico{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
+        .sb-bottom{padding:12px;border-top:1.5px solid var(--border);}
+        .sb-logout{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-sm);background:none;border:none;cursor:pointer;color:var(--ink3);font-size:11px;font-family:'Roboto Mono',monospace;width:100%;text-align:left;transition:all .18s;}
+        .sb-logout:hover{background:var(--red-l);color:var(--red);}
 
-        /* ═══════════════════════════════ MAIN ══════════════════════════════════ */
-        .main{margin-left:252px;flex:1;padding:26px 32px;background:var(--bg);}
-
-        /* API STATUS BAR */
-        .api-bar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t3);background:var(--card);border:1px solid var(--bdr);border-radius:9px;padding:7px 14px;margin-bottom:22px;box-shadow:var(--s1);}
-        .api-dot{width:7px;height:7px;border-radius:50%;background:var(--bdr2);transition:.4s;flex-shrink:0;}
-        .api-dot.online{background:var(--gm);box-shadow:0 0 6px rgba(34,197,94,.5);}
-        .api-dot.offline{background:var(--r);}
-
-        /* PAGE HEADER */
+        .main{margin-left:var(--sidebar);flex:1;padding:28px 32px;background:var(--bg);}
+        .api-bar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink3);background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:8px 14px;margin-bottom:16px;box-shadow:var(--shadow-sm);}
+        .api-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);flex-shrink:0;transition:.4s;}
+        .api-dot.online{background:var(--green);box-shadow:0 0 6px rgba(0,184,107,.5);}
+        .api-dot.offline{background:var(--red);}
+        .expiry-banner{display:none;align-items:center;gap:10px;background:#fffbea;border:1px solid rgba(245,197,24,.35);border-radius:var(--r-sm);padding:10px 16px;margin-bottom:16px;font-size:11px;color:#9a7200;font-weight:600;}
+        .expiry-banner.show{display:flex;}
         .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
-        .ph-title{font-family:var(--ff);font-size:21px;font-weight:800;color:var(--t1);letter-spacing:-.5px;}
-        .ph-sub{font-size:13px;color:var(--t3);margin-top:3px;}
-
-        /* STAT CARDS */
-        .sc-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:22px;}
-        .sc{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:18px;position:relative;overflow:hidden;box-shadow:var(--s1);transition:all .2s;}
-        .sc:hover{box-shadow:var(--s2);transform:translateY(-2px);}
-        .sc-stripe{position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
-        .sc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-        .sc-iw{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;}
-        .sc-lbl{font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);margin-bottom:4px;font-family:var(--ff);}
-        .sc-val{font-family:var(--ff);font-size:26px;font-weight:800;color:var(--t1);letter-spacing:-1px;line-height:1;}
-        .sc-sub{font-size:10px;color:var(--t4);margin-top:4px;}
-
-        /* CONTROLS */
+        .ph-title{font-family:"Bungee",sans-serif;font-size:22px;color:var(--ink);letter-spacing:.3px;}
+        .ph-sub{font-size:12px;color:var(--ink4);margin-top:3px;letter-spacing:.3px;}
+        .sc-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px;}
+        .sc{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm);transition:all .2s;}
+        .sc:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+        .sc-stripe{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-lg) var(--r-lg) 0 0;}
+        .sc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+        .sc-iw{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+        .sc-lbl{font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--ink4);margin-bottom:5px;text-transform:uppercase;}
+        .sc-val{font-family:"Bungee",sans-serif;font-size:24px;color:var(--ink);letter-spacing:-1px;line-height:1;}
         .controls{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;}
-        .sw{display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--bdr);border-radius:9px;padding:8px 13px;flex:1;min-width:200px;transition:.16s;box-shadow:var(--s1);}
-        .sw:focus-within{border-color:var(--g);box-shadow:0 0 0 3px var(--gg);}
-        .sw input{border:none;outline:none;font-family:var(--fm);font-size:13px;color:var(--t1);background:transparent;width:100%;}
-        .sw input::placeholder{color:var(--t4);}
-        .fsel{padding:9px 12px;background:var(--card);border:1.5px solid var(--bdr);border-radius:9px;color:var(--t2);font-size:13px;font-family:var(--fm);outline:none;cursor:pointer;box-shadow:var(--s1);appearance:none;padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%2394a3b8' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
-        .fsel:focus{border-color:var(--g);}
-
-        /* EXPIRY ALERT BANNER */
-        .banner{display:none;align-items:center;gap:10px;border-radius:10px;padding:11px 16px;margin-bottom:16px;font-size:12px;font-weight:500;}
-        .banner.show{display:flex;}
-        .banner-warn{background:var(--yp);border:1px solid rgba(217,119,6,.3);color:var(--y);}
-        .banner-err{background:var(--rs);border:1px solid rgba(220,38,38,.2);color:var(--r);}
-
-        /* TABLE CARD */
-        .card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;overflow:hidden;box-shadow:var(--s1);}
-        .card-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--bdr);}
-        .card-title{font-family:var(--ff);font-size:13px;font-weight:700;color:var(--t1);}
-        .tc{font-size:11px;color:var(--t3);background:var(--bg2);padding:3px 10px;border-radius:20px;border:1px solid var(--bdr);}
+        .sw{display:flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:9px 13px;flex:1;min-width:200px;transition:.16s;box-shadow:var(--shadow-sm);}
+        .sw:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,63,255,.07);}
+        .sw input{border:none;outline:none;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--ink);background:transparent;width:100%;}
+        .sw input::placeholder{color:var(--ink4);}
+        .fsel{padding:9px 12px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--ink2);font-size:12px;font-family:'Roboto Mono',monospace;outline:none;cursor:pointer;box-shadow:var(--shadow-sm);}
+        .fsel:focus{border-color:var(--accent);}
+        .card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
+        .card-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1.5px solid var(--border);}
+        .card-title{font-family:"Bungee",sans-serif;font-size:12px;color:var(--ink);letter-spacing:.3px;}
+        .tc{font-size:10px;color:var(--ink3);background:var(--bg2);padding:3px 10px;border-radius:20px;border:1px solid var(--border);}
         .tw{overflow-x:auto;}
         table{width:100%;border-collapse:collapse;}
-        thead th{padding:9px 14px;text-align:left;font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);border-bottom:1.5px solid var(--bdr);background:var(--bg);font-family:var(--ff);white-space:nowrap;}
-        tbody tr{border-bottom:1px solid var(--bdr);transition:.14s;}
+        thead th{padding:10px 14px;text-align:left;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--ink4);background:var(--bg);border-bottom:1.5px solid var(--border);text-transform:uppercase;white-space:nowrap;}
+        tbody tr{border-bottom:1px solid var(--border);transition:.14s;}
         tbody tr:last-child{border-bottom:none;}
-        tbody tr:hover{background:var(--gs);}
-        tbody td{padding:11px 14px;font-size:13px;color:var(--t2);vertical-align:middle;}
-        .tdm{font-family:var(--fc);font-size:11px;color:var(--t3);}
-
-        /* BADGES */
-        .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:9.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;font-family:var(--ff);}
-        .badge-ACTIVE    {background:rgba(22,163,74,.1);color:var(--g);border:1px solid rgba(22,163,74,.22);}
-        .badge-EXPIRED   {background:rgba(220,38,38,.1);color:var(--r);border:1px solid rgba(220,38,38,.2);}
-        .badge-CANCELLED {background:rgba(100,116,139,.1);color:var(--t3);border:1px solid rgba(100,116,139,.2);}
-
-        /* EXPIRY WARNING IN TABLE */
-        .exp-warn{color:var(--r);font-weight:700;}
-        .exp-caution{color:var(--y);font-weight:600;}
-        .exp-ok{color:var(--t3);}
-
-        /* BUTTONS */
-        .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;font-size:13px;font-weight:600;font-family:var(--fm);border:none;cursor:pointer;transition:all .17s;white-space:nowrap;text-decoration:none;}
-        .btn-primary{background:var(--g);color:#fff;box-shadow:0 2px 10px rgba(22,163,74,.25);}
-        .btn-primary:hover{background:var(--gd);transform:translateY(-1px);}
-        .btn-outline{background:var(--card);color:var(--t2);border:1.5px solid var(--bdr);}
-        .btn-outline:hover{border-color:var(--g);color:var(--g);background:var(--gs);}
-        .btn-sm{padding:5px 11px;font-size:11px;border-radius:7px;}
-        .btn-warn{background:transparent;color:var(--y);border:1.5px solid rgba(217,119,6,.3);padding:5px 11px;font-size:11px;border-radius:7px;cursor:pointer;font-family:var(--fm);transition:.16s;}
-        .btn-warn:hover{background:var(--yp);border-color:var(--y);}
-        .btn-del{background:transparent;color:var(--r);border:1.5px solid rgba(220,38,38,.25);padding:5px 11px;font-size:11px;border-radius:7px;cursor:pointer;font-family:var(--fm);transition:.16s;}
-        .btn-del:hover{background:var(--rs);border-color:var(--r);}
-        .btn-danger{background:var(--r);color:#fff;padding:9px 18px;border-radius:9px;font-size:13px;font-weight:700;font-family:var(--ff);border:none;cursor:pointer;transition:.17s;box-shadow:0 2px 10px rgba(220,38,38,.28);}
-        .btn-danger:hover{background:#b91c1c;transform:translateY(-1px);}
-        .btn-danger:disabled,.btn-primary:disabled{opacity:.55;cursor:not-allowed;transform:none;}
-
-        /* EMPTY / LOAD */
-        .erow td{text-align:center;padding:52px;color:var(--t4);}
-        .lrow td{text-align:center;padding:44px;color:var(--t3);}
-        .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--bdr);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite;margin-right:7px;vertical-align:middle;}
-        @keyframes spin{to{transform:rotate(360deg)}}
-
-        /* TOAST */
-        #toast{position:fixed;bottom:24px;right:24px;z-index:99999;background:var(--sb);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;box-shadow:var(--s3);display:none;max-width:320px;line-height:1.4;}
-        #toast.success{background:var(--g);}
-        #toast.error{background:var(--r);}
-        #toast.warn{background:var(--y);}
-
-        /* MODALS OVERLAY */
-        .ov{position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.52);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;}
-        .ov.open{display:flex;animation:fade .18s ease;}
-        @keyframes fade{from{opacity:0}to{opacity:1}}
-        .modal{background:var(--card);border-radius:20px;max-width:680px;width:100%;max-height:91vh;overflow-y:auto;animation:mIn .25s cubic-bezier(.16,1,.3,1);box-shadow:var(--s4);border:1px solid var(--bdr);}
-        .modal-sm{max-width:420px;}
-        .modal-md{max-width:520px;}
-        @keyframes mIn{from{transform:scale(.93) translateY(10px);opacity:0}to{transform:none;opacity:1}}
-        .mhd{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--card);z-index:10;border-radius:20px 20px 0 0;}
-        .mhd-title{font-family:var(--ff);font-size:16px;font-weight:700;color:var(--t1);}
-        .mclose{width:28px;height:28px;background:var(--bg2);border:1px solid var(--bdr);border-radius:7px;cursor:pointer;font-size:12px;color:var(--t3);transition:.15s;display:flex;align-items:center;justify-content:center;}
-        .mclose:hover{background:var(--bdr);color:var(--t1);}
+        tbody tr:hover{background:var(--bg);}
+        tbody td{padding:11px 14px;font-size:12px;color:var(--ink2);vertical-align:middle;}
+        .tdm{font-family:'Roboto Mono',monospace;font-size:11px;}
+        .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:.8px;text-transform:uppercase;}
+        .badge-ACTIVE{background:var(--green-l);color:#007f4e;border:1px solid rgba(0,184,107,.2);}
+        .badge-EXPIRED{background:var(--red-l);color:var(--red);border:1px solid rgba(255,59,92,.2);}
+        .badge-CANCELLED{background:var(--bg2);color:var(--ink3);border:1px solid var(--border);}
+        .exp-warn{color:var(--red);}
+        .exp-caution{color:var(--orange);}
+        .exp-ok{color:var(--ink3);}
+        .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r-sm);font-family:'Roboto Mono',monospace;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:var(--white);color:var(--ink2);cursor:pointer;transition:all .17s;white-space:nowrap;text-decoration:none;}
+        .btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-l);}
+        .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 10px rgba(26,63,255,.25);}
+        .btn-primary:hover{background:var(--accent-d);color:#fff;transform:translateY(-1px);}
+        .btn-sm{padding:5px 11px;font-size:10px;border-radius:6px;}
+        .btn-warn-sm{background:transparent;color:var(--orange);border:1.5px solid rgba(255,122,0,.25);padding:5px 11px;font-size:10px;border-radius:6px;cursor:pointer;font-family:'Roboto Mono',monospace;transition:.16s;}
+        .btn-warn-sm:hover{background:var(--orange-l);border-color:var(--orange);}
+        .btn-del{background:transparent;color:var(--red);border:1.5px solid rgba(255,59,92,.25);padding:5px 11px;font-size:10px;border-radius:6px;cursor:pointer;font-family:'Roboto Mono',monospace;transition:.16s;}
+        .btn-del:hover{background:var(--red-l);border-color:var(--red);}
+        .btn-danger{background:var(--red);color:#fff;padding:9px 18px;border-radius:var(--r-sm);font-family:"Bungee",sans-serif;font-size:12px;border:none;cursor:pointer;transition:.17s;box-shadow:0 2px 10px rgba(255,59,92,.28);}
+        .btn-danger:hover{background:#cc2244;transform:translateY(-1px);}
+        .btn-danger:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+        .erow td{text-align:center;padding:52px;color:var(--ink4);}
+        .lrow td{text-align:center;padding:44px;color:var(--ink3);}
+        .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;margin-right:7px;vertical-align:middle;}
+        @keyframes sp{to{transform:rotate(360deg)}}
+        #toast{position:fixed;bottom:24px;right:24px;z-index:99999;background:var(--ink);color:#fff;padding:12px 18px;border-radius:var(--r-sm);font-size:11px;box-shadow:var(--shadow-lg);display:none;max-width:300px;}
+        #toast.show{display:block;animation:fi .2s ease;}
+        @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+        #toast.success{background:var(--green);}
+        #toast.error{background:var(--red);}
+        #toast.warn{background:var(--orange);}
+        .ov{position:fixed;inset:0;z-index:9999;background:rgba(11,14,26,.5);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;}
+        .ov.open{display:flex;animation:fi .18s ease;}
+        .modal{background:var(--white);border-radius:var(--r-lg);max-width:680px;width:100%;max-height:91vh;overflow-y:auto;animation:popIn .25s cubic-bezier(.16,1,.3,1);box-shadow:var(--shadow-lg);border:1.5px solid var(--border);}
+        .modal-sm{max-width:420px;}.modal-md{max-width:520px;}
+        @keyframes popIn{from{transform:scale(.93)translateY(10px);opacity:0}to{transform:none;opacity:1}}
+        .mhd{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1.5px solid var(--border);position:sticky;top:0;background:var(--white);z-index:10;}
+        .mhd-title{font-family:"Bungee",sans-serif;font-size:14px;color:var(--ink);letter-spacing:.3px;}
+        .mclose{width:28px;height:28px;background:var(--bg);border:1.5px solid var(--border);border-radius:7px;cursor:pointer;font-size:12px;color:var(--ink3);transition:.15s;display:flex;align-items:center;justify-content:center;}
+        .mclose:hover{background:var(--border);color:var(--ink);}
         .mbd{padding:20px 22px;}
-        .mft{display:flex;justify-content:flex-end;gap:8px;padding:14px 22px;border-top:1px solid var(--bdr);background:var(--bg);border-radius:0 0 20px 20px;}
-
-        /* FORM ELEMENTS */
+        .mft{display:flex;justify-content:flex-end;gap:8px;padding:14px 22px;border-top:1.5px solid var(--border);background:var(--bg);}
         .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-        .form-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
         .fg{margin-bottom:13px;}
-        .fg label{display:block;font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t2);margin-bottom:5px;font-family:var(--ff);}
-        .fi{width:100%;padding:9px 12px;background:var(--bg);border:1.5px solid var(--bdr);border-radius:9px;color:var(--t1);font-size:13px;font-family:var(--fm);outline:none;transition:.16s;}
-        .fi::placeholder{color:var(--t4);}
-        .fi:focus{border-color:var(--g);background:var(--card);box-shadow:0 0 0 3px var(--gg);}
-        select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%2394a3b8' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px;}
-        textarea.fi{resize:vertical;min-height:72px;}
-        .ferr{color:var(--r);font-size:11px;margin-top:3px;display:none;}
+        .fg label{display:block;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink2);margin-bottom:5px;}
+        .fi{width:100%;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--ink);font-size:12px;font-family:'Roboto Mono',monospace;outline:none;transition:.16s;}
+        .fi::placeholder{color:var(--ink4);}
+        .fi:focus{border-color:var(--accent);background:var(--white);box-shadow:0 0 0 3px rgba(26,63,255,.07);}
+        select.fi{appearance:none;}
+        textarea.fi{resize:vertical;min-height:70px;}
+        .ferr{color:var(--red);font-size:10px;margin-top:3px;display:none;}
         .ferr.show{display:block;}
-        .sdiv{font-family:var(--ff);font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);padding:8px 0 7px;border-bottom:1px solid var(--bdr);margin:4px 0 12px;}
-
-        /* VEHICLE SELECT DROPDOWN SEARCH */
+        .sdiv{font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink4);padding:8px 0 7px;border-bottom:1px solid var(--border);margin-bottom:12px;}
         .vsel-wrap{position:relative;}
-        .vsel-search{display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--bdr);border-radius:9px;padding:9px 12px;cursor:pointer;transition:.16s;}
-        .vsel-search:focus-within,.vsel-search.open{border-color:var(--g);background:var(--card);box-shadow:0 0 0 3px var(--gg);}
-        .vsel-search input{border:none;outline:none;font-family:var(--fm);font-size:13px;color:var(--t1);background:transparent;width:100%;cursor:pointer;}
-        .vsel-search input::placeholder{color:var(--t4);}
-        .vsel-drop{display:none;position:absolute;top:calc(100%+4px);left:0;right:0;background:var(--card);border:1.5px solid var(--bdr);border-radius:12px;box-shadow:var(--s3);z-index:100;overflow:hidden;max-height:220px;overflow-y:auto;}
+        .vsel-search{display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;cursor:pointer;transition:.16s;}
+        .vsel-search:focus-within,.vsel-search.open{border-color:var(--accent);background:var(--white);box-shadow:0 0 0 3px rgba(26,63,255,.07);}
+        .vsel-search input{border:none;outline:none;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--ink);background:transparent;width:100%;}
+        .vsel-search input::placeholder{color:var(--ink4);}
+        .vsel-drop{display:none;position:absolute;top:calc(100%+4px);left:0;right:0;background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);z-index:100;overflow:hidden;max-height:220px;overflow-y:auto;}
         .vsel-drop.open{display:block;animation:dropIn .15s ease;}
         @keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
-        .vsel-opt{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;transition:.12s;border-bottom:1px solid var(--bdr);}
+        .vsel-opt{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;transition:.12s;border-bottom:1px solid var(--border);}
         .vsel-opt:last-child{border-bottom:none;}
-        .vsel-opt:hover{background:var(--gs);}
-        .vsel-opt-name{font-size:13px;color:var(--t1);font-weight:500;}
-        .vsel-opt-plate{font-family:var(--fc);font-size:10px;color:var(--t3);}
-        .vsel-none{padding:18px;text-align:center;color:var(--t4);font-size:12px;}
-
-        /* DETAIL MODAL */
+        .vsel-opt:hover{background:var(--accent-l);}
+        .vsel-opt-name{font-size:12px;color:var(--ink);font-weight:600;}
+        .vsel-opt-plate{font-family:'Roboto Mono',monospace;font-size:10px;color:var(--ink4);}
+        .vsel-none{padding:18px;text-align:center;color:var(--ink4);font-size:12px;}
         .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
-        .dg-item{padding:12px 16px;border-bottom:1px solid var(--bdr);}
-        .dg-item:nth-child(odd){border-right:1px solid var(--bdr);}
-        .dg-lbl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t4);font-family:var(--ff);margin-bottom:4px;}
-        .dg-val{font-size:13px;color:var(--t1);font-weight:500;}
-        .dg-val.mono{font-family:var(--fc);font-size:12px;color:var(--t2);}
-
-        /* CONFIRM MODAL */
+        .dg-item{padding:12px 16px;border-bottom:1px solid var(--border);}
+        .dg-item:nth-child(odd){border-right:1px solid var(--border);}
+        .dg-lbl{font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink4);margin-bottom:4px;}
+        .dg-val{font-size:12px;color:var(--ink);font-weight:600;}
+        .dg-val.mono{font-family:'Roboto Mono',monospace;font-size:11px;color:var(--ink2);}
         .conf-body{text-align:center;padding:28px 24px 18px;}
-        .conf-ico{font-size:42px;margin-bottom:14px;}
-        .conf-h{font-family:var(--ff);font-size:17px;font-weight:700;color:var(--t1);margin-bottom:8px;}
-        .conf-p{font-size:13px;color:var(--t3);line-height:1.6;}
-
-        @media(max-width:1280px){.sc-row{grid-template-columns:repeat(3,1fr);}}
-        @media(max-width:1024px){.sidebar{display:none;}.main{margin-left:0;padding:16px;}.sc-row{grid-template-columns:repeat(2,1fr);}}
-        @media(max-width:640px){.sc-row{grid-template-columns:1fr 1fr;}.form-row,.form-row3{grid-template-columns:1fr;}.controls{flex-direction:column;align-items:stretch;}}
+        .conf-ico{font-size:40px;margin-bottom:12px;}
+        .conf-h{font-family:"Bungee",sans-serif;font-size:16px;color:var(--ink);margin-bottom:8px;}
+        .conf-p{font-size:12px;color:var(--ink3);line-height:1.6;}
+        @media(max-width:1200px){.sc-row{grid-template-columns:repeat(3,1fr);}}
+        @media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;padding:16px;}.sc-row{grid-template-columns:1fr 1fr;}}
     </style>
 </head>
 <body>
 
-<!-- ════════════════════════════ SIDEBAR ════════════════════════════ -->
 <aside class="sidebar">
-    <div class="sb-inner">
-        <div class="sn-logo">
-            <div class="sn-logo-text">Rent<b>ify</b></div>
-            <div class="sn-badge">ADMIN</div>
-        </div>
-
-        <div class="sn-sec">Fleet</div>
-        <a href="admin-vehicles.html" class="sn-link"><span class="sn-ico">🚗</span> Vehicles</a>
-        <a href="booking.html"        class="sn-link"><span class="sn-ico">📋</span> Bookings</a>
-        <a href="payment.html"        class="sn-link"><span class="sn-ico">💳</span> Payments</a>
-        <a href="insurance.html"      class="sn-link active"><span class="sn-ico">🛡️</span> Insurance</a>
-
-        <div class="sn-sec">Manage</div>
-        <a href="users.html"    class="sn-link"><span class="sn-ico">👥</span> Users</a>
-        <a href="drivers.html"  class="sn-link"><span class="sn-ico">🧑‍✈️</span> Drivers</a>
-
-        <div class="sn-sec">System</div>
-        <a href="admin-dashboard.html" class="sn-link"><span class="sn-ico">🏠</span> Dashboard</a>
-        <a href="#"                    class="sn-link"><span class="sn-ico">⚙️</span> Settings</a>
-
-        <div class="sn-bottom">
-            <div class="sn-user">
-                <div class="sn-av" id="snAv">AD</div>
-                <div>
-                    <div class="sn-uname" id="snName">Admin</div>
-                    <div class="sn-urole">Administrator</div>
-                </div>
-            </div>
-        </div>
+    <div class="sb-top">
+        <div class="sb-brand"><div class="sb-brand-ico">🚗</div><div class="sb-brand-name">Rent<span>ify</span></div></div>
+        <div class="sb-profile"><div class="sb-av" id="sbAv">AD</div><div class="sb-av-info"><div class="av-name" id="sbName">Admin User</div><div class="av-role">Administrator</div></div><div class="sb-online"></div></div>
     </div>
+    <nav class="sb-nav">
+        <div class="sb-sec">Main</div>
+        <a href="admin-dashboard.html" class="sb-link"><span class="ico">🏠</span>Home</a>
+        <div class="sb-sec">Fleet</div>
+        <a href="admin-booking.html" class="sb-link"><span class="ico">📋</span>Bookings</a>
+        <a href="admin-vehicle.html" class="sb-link"><span class="ico">🚗</span>Vehicles</a>
+        <a href="admin-driver.html" class="sb-link"><span class="ico">🧑‍✈️</span>Drivers</a>
+        <div class="sb-sec">Admin</div>
+        <a href="insurance.html" class="sb-link active"><span class="ico">🛡️</span>Insurance</a>
+        <a href="users.html" class="sb-link"><span class="ico">👥</span>Users</a>
+        <a href="#" class="sb-link"><span class="ico">⚙️</span>Settings</a>
+    </nav>
+    <div class="sb-bottom"><button class="sb-logout" onclick="logout()"><span class="ico">🚪</span>Sign Out</button></div>
 </aside>
 
-<!-- ════════════════════════════ MAIN ════════════════════════════════ -->
 <main class="main">
-
-    <!-- API STATUS -->
-    <div class="api-bar">
-        <div class="api-dot" id="apiDot"></div>
-        <span id="apiTxt">Checking API…</span>
-        <span style="margin-left:auto;font-size:10px;color:var(--t4)" id="lastFetch"></span>
-    </div>
-
-    <!-- EXPIRY ALERT BANNER -->
-    <div class="banner banner-warn" id="expiryBanner"></div>
-
-    <!-- PAGE HEADER -->
+    <div class="api-bar"><div class="api-dot" id="apiDot"></div><span id="apiTxt">Checking API…</span><span style="margin-left:auto;font-size:10px;color:var(--ink4)" id="lastFetch"></span></div>
+    <div class="expiry-banner" id="expiryBanner"></div>
     <div class="ph">
-        <div>
-            <div class="ph-title">🛡️ Insurance Management</div>
-            <div class="ph-sub">Manage vehicle insurance policies — track coverage, expiry & renewals.</div>
-        </div>
+        <div><div class="ph-title">🛡️ INSURANCE MANAGEMENT</div><div class="ph-sub">Track coverage, expiry and renewals.</div></div>
         <div style="display:flex;gap:9px;flex-wrap:wrap">
-            <button class="btn btn-outline" id="expiringBtn">⏰ Expiring Soon</button>
-            <button class="btn btn-outline" id="refreshBtn">↺ Refresh</button>
+            <button class="btn" id="expiringBtn">⏰ Expiring Soon</button>
+            <button class="btn" id="refreshBtn">↺ Refresh</button>
             <button class="btn btn-primary" id="addBtn">＋ Add Policy</button>
         </div>
     </div>
-
-    <!-- STAT CARDS -->
     <div class="sc-row">
-        <div class="sc">
-            <div class="sc-stripe" style="background:linear-gradient(90deg,#16a34a,#22c55e)"></div>
-            <div class="sc-top">
-                <div><div class="sc-lbl">Total Policies</div><div class="sc-val" id="st-total">—</div></div>
-                <div class="sc-iw" style="background:#f0fdf4">🛡️</div>
-            </div>
-        </div>
-        <div class="sc">
-            <div class="sc-stripe" style="background:linear-gradient(90deg,#2563eb,#60a5fa)"></div>
-            <div class="sc-top">
-                <div><div class="sc-lbl">Active</div><div class="sc-val" id="st-active">—</div></div>
-                <div class="sc-iw" style="background:#eff6ff">✅</div>
-            </div>
-        </div>
-        <div class="sc">
-            <div class="sc-stripe" style="background:linear-gradient(90deg,#dc2626,#f87171)"></div>
-            <div class="sc-top">
-                <div><div class="sc-lbl">Expired</div><div class="sc-val" id="st-expired">—</div></div>
-                <div class="sc-iw" style="background:#fef2f2">⛔</div>
-            </div>
-        </div>
-        <div class="sc">
-            <div class="sc-stripe" style="background:linear-gradient(90deg,#64748b,#94a3b8)"></div>
-            <div class="sc-top">
-                <div><div class="sc-lbl">Cancelled</div><div class="sc-val" id="st-cancelled">—</div></div>
-                <div class="sc-iw" style="background:#f1f5f9">🚫</div>
-            </div>
-        </div>
-        <div class="sc">
-            <div class="sc-stripe" style="background:linear-gradient(90deg,#d97706,#f59e0b)"></div>
-            <div class="sc-top">
-                <div><div class="sc-lbl">Expiring ≤ 30d</div><div class="sc-val" id="st-expiring">—</div></div>
-                <div class="sc-iw" style="background:#fef3c7">⏰</div>
-            </div>
-            <div class="sc-sub" id="st-expiring-sub" style="color:var(--y);font-size:10px;margin-top:2px"></div>
-        </div>
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,var(--accent),#6e8fff)"></div><div class="sc-top"><div><div class="sc-lbl">Total Policies</div><div class="sc-val" id="st-total">—</div></div><div class="sc-iw" style="background:var(--accent-l)">🛡️</div></div></div>
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,var(--green),#00e5a0)"></div><div class="sc-top"><div><div class="sc-lbl">Active</div><div class="sc-val" id="st-active">—</div></div><div class="sc-iw" style="background:var(--green-l)">✅</div></div></div>
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,var(--red),#ff7090)"></div><div class="sc-top"><div><div class="sc-lbl">Expired</div><div class="sc-val" id="st-expired">—</div></div><div class="sc-iw" style="background:var(--red-l)">⛔</div></div></div>
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,var(--ink3),var(--ink4))"></div><div class="sc-top"><div><div class="sc-lbl">Cancelled</div><div class="sc-val" id="st-cancelled">—</div></div><div class="sc-iw" style="background:var(--bg2)">🚫</div></div></div>
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,var(--orange),var(--yellow))"></div><div class="sc-top"><div><div class="sc-lbl">Expiring ≤30d</div><div class="sc-val" id="st-expiring">—</div></div><div class="sc-iw" style="background:var(--orange-l)">⏰</div></div></div>
     </div>
-
-    <!-- FILTERS -->
     <div class="controls">
-        <div class="sw">
-            <span style="color:var(--t4)">🔍</span>
-            <input type="text" id="tSearch" placeholder="Search policy #, provider, vehicle plate, coverage…">
-        </div>
-        <select class="fsel" id="tStatus">
-            <option value="">All Status</option>
-            <option value="ACTIVE">ACTIVE</option>
-            <option value="EXPIRED">EXPIRED</option>
-            <option value="CANCELLED">CANCELLED</option>
-        </select>
-        <select class="fsel" id="tCoverage">
-            <option value="">All Coverage Types</option>
-            <option value="Comprehensive">Comprehensive</option>
-            <option value="Third Party">Third Party</option>
-            <option value="Fire & Theft">Fire &amp; Theft</option>
-        </select>
+        <div class="sw"><span style="color:var(--ink4)">🔍</span><input type="text" id="tSearch" placeholder="Search policy #, provider, vehicle…"></div>
+        <select class="fsel" id="tStatus"><option value="">All Status</option><option value="ACTIVE">ACTIVE</option><option value="EXPIRED">EXPIRED</option><option value="CANCELLED">CANCELLED</option></select>
+        <select class="fsel" id="tCoverage"><option value="">All Coverage</option><option value="Comprehensive">Comprehensive</option><option value="Third Party">Third Party</option><option value="Fire &amp; Theft">Fire & Theft</option></select>
     </div>
-
-    <!-- TABLE -->
     <div class="card">
-        <div class="card-hd">
-            <span class="card-title">Policy Registry</span>
-            <span class="tc"><span id="tCount">0</span> policies</span>
-        </div>
+        <div class="card-hd"><span class="card-title">POLICY REGISTRY</span><span class="tc"><span id="tCount">0</span> policies</span></div>
         <div class="tw">
             <table>
-                <thead>
-                <tr>
-                    <th>Policy #</th>
-                    <th>Vehicle</th>
-                    <th>Provider</th>
-                    <th>Coverage</th>
-                    <th>Premium / Year</th>
-                    <th>Max Coverage</th>
-                    <th>Start</th>
-                    <th>Expiry</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody id="insTable">
-                <tr class="lrow"><td colspan="10"><span class="spin"></span>Loading policies…</td></tr>
-                </tbody>
+                <thead><tr><th>Policy #</th><th>Vehicle</th><th>Provider</th><th>Coverage</th><th>Premium/yr</th><th>Max Coverage</th><th>Start</th><th>Expiry</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="insTable"><tr class="lrow"><td colspan="10"><span class="spin"></span>Loading policies…</td></tr></tbody>
             </table>
         </div>
     </div>
 </main>
 
-<!-- ════════════════════ ADD / EDIT MODAL ════════════════════════════ -->
+<!-- ADD/EDIT MODAL -->
 <div class="ov" id="insModal">
     <div class="modal">
-        <div class="mhd">
-            <div class="mhd-title" id="mTitle">Add Insurance Policy</div>
-            <button class="mclose" id="mClose">✕</button>
-        </div>
+        <div class="mhd"><div class="mhd-title" id="mTitle">ADD INSURANCE POLICY</div><button class="mclose" id="mClose">✕</button></div>
         <div class="mbd">
-
             <div class="sdiv">Vehicle</div>
-            <!-- Custom vehicle search -->
-            <div class="fg">
-                <label>Vehicle *</label>
+            <div class="fg"><label>Vehicle *</label>
                 <div class="vsel-wrap" id="vselWrap">
-                    <div class="vsel-search" id="vselSearch">
-                        <span>🚗</span>
-                        <input type="text" id="vselInput" placeholder="Search vehicle by model or plate…" autocomplete="off">
-                        <span style="color:var(--t4);font-size:10px">▾</span>
-                    </div>
+                    <div class="vsel-search" id="vselSearch"><span>🚗</span><input type="text" id="vselInput" placeholder="Search by model or plate…" autocomplete="off"><span style="color:var(--ink4);font-size:10px">▾</span></div>
                     <div class="vsel-drop" id="vselDrop"></div>
                 </div>
-                <input type="hidden" id="f_vehicleId">
-                <div class="ferr" id="e_vehicleId">Please select a vehicle</div>
+                <input type="hidden" id="f_vehicleId"><div class="ferr" id="e_vehicleId">Please select a vehicle</div>
             </div>
-
             <div class="sdiv">Policy Details</div>
             <div class="form-row">
-                <div class="fg">
-                    <label>Policy Number *</label>
-                    <input class="fi" id="f_policyNumber" placeholder="e.g. INS-2025-00123">
-                    <div class="ferr" id="e_policyNumber">Required (max 50 chars)</div>
-                </div>
-                <div class="fg">
-                    <label>Provider Name *</label>
-                    <input class="fi" id="f_providerName" placeholder="e.g. AIA Insurance">
-                    <div class="ferr" id="e_providerName">Required</div>
-                </div>
+                <div class="fg"><label>Policy Number *</label><input class="fi" id="f_policyNumber" placeholder="INS-2025-00123"><div class="ferr" id="e_policyNumber">Required</div></div>
+                <div class="fg"><label>Provider Name *</label><input class="fi" id="f_providerName" placeholder="AIA Insurance"><div class="ferr" id="e_providerName">Required</div></div>
             </div>
             <div class="form-row">
-                <div class="fg">
-                    <label>Coverage Type *</label>
-                    <input class="fi" id="f_coverageType" placeholder="e.g. Comprehensive" list="coverageList">
-                    <datalist id="coverageList">
-                        <option value="Comprehensive">
-                        <option value="Third Party">
-                        <option value="Fire &amp; Theft">
-                    </datalist>
-                    <div class="ferr" id="e_coverageType">Required</div>
-                </div>
-                <div class="fg">
-                    <label>Status</label>
-                    <select class="fi" id="f_status">
-                        <option value="ACTIVE">ACTIVE</option>
-                        <option value="EXPIRED">EXPIRED</option>
-                        <option value="CANCELLED">CANCELLED</option>
-                    </select>
-                </div>
+                <div class="fg"><label>Coverage Type *</label><input class="fi" id="f_coverageType" placeholder="Comprehensive" list="covList"><datalist id="covList"><option value="Comprehensive"><option value="Third Party"><option value="Fire &amp; Theft"></datalist><div class="ferr" id="e_coverageType">Required</div></div>
+                <div class="fg"><label>Status</label><select class="fi" id="f_status"><option value="ACTIVE">ACTIVE</option><option value="EXPIRED">EXPIRED</option><option value="CANCELLED">CANCELLED</option></select></div>
             </div>
-
             <div class="sdiv">Financial Details</div>
             <div class="form-row">
-                <div class="fg">
-                    <label>Annual Premium (LKR) *</label>
-                    <input type="number" class="fi" id="f_premiumAmount" placeholder="e.g. 15000" min="0">
-                    <div class="ferr" id="e_premiumAmount">Must be greater than 0</div>
-                </div>
-                <div class="fg">
-                    <label>Max Coverage Amount (LKR) *</label>
-                    <input type="number" class="fi" id="f_coverageAmount" placeholder="e.g. 2000000" min="0">
-                    <div class="ferr" id="e_coverageAmount">Must be greater than 0</div>
-                </div>
+                <div class="fg"><label>Annual Premium (LKR) *</label><input type="number" class="fi" id="f_premiumAmount" placeholder="15000" min="0"><div class="ferr" id="e_premiumAmount">Must be > 0</div></div>
+                <div class="fg"><label>Max Coverage (LKR) *</label><input type="number" class="fi" id="f_coverageAmount" placeholder="2000000" min="0"><div class="ferr" id="e_coverageAmount">Must be > 0</div></div>
             </div>
-
             <div class="sdiv">Policy Period</div>
             <div class="form-row">
-                <div class="fg">
-                    <label>Start Date *</label>
-                    <input type="date" class="fi" id="f_startDate">
-                    <div class="ferr" id="e_startDate">Required</div>
-                </div>
-                <div class="fg">
-                    <label>Expiry Date *</label>
-                    <input type="date" class="fi" id="f_expiryDate">
-                    <div class="ferr" id="e_expiryDate">Must be after start date</div>
-                </div>
+                <div class="fg"><label>Start Date *</label><input type="date" class="fi" id="f_startDate"><div class="ferr" id="e_startDate">Required</div></div>
+                <div class="fg"><label>Expiry Date *</label><input type="date" class="fi" id="f_expiryDate"><div class="ferr" id="e_expiryDate">Must be after start</div></div>
             </div>
-
             <div class="sdiv">Notes</div>
-            <div class="fg">
-                <label>Notes / Remarks</label>
-                <textarea class="fi" id="f_notes" placeholder="Optional — e.g. Includes roadside assistance" maxlength="500"></textarea>
-            </div>
-
+            <div class="fg"><label>Notes / Remarks</label><textarea class="fi" id="f_notes" placeholder="Optional…" maxlength="500"></textarea></div>
         </div>
-        <div class="mft">
-            <button class="btn btn-outline" id="mCancel">Cancel</button>
-            <button class="btn btn-primary" id="mSave">Save Policy</button>
-        </div>
+        <div class="mft"><button class="btn" id="mCancel">Cancel</button><button class="btn btn-primary" id="mSave">Save Policy</button></div>
     </div>
 </div>
 
-<!-- ════════════════════ DETAIL VIEW MODAL ═══════════════════════════ -->
+<!-- DETAIL MODAL -->
 <div class="ov" id="detailModal">
     <div class="modal modal-md">
-        <div class="mhd">
-            <div class="mhd-title" id="detailTitle">Policy Details</div>
-            <button class="mclose" id="detailClose">✕</button>
-        </div>
+        <div class="mhd"><div class="mhd-title" id="detailTitle">POLICY DETAILS</div><button class="mclose" id="detailClose">✕</button></div>
         <div id="detailBody" style="padding:0"></div>
-        <div class="mft">
-            <button class="btn btn-outline" id="detailEdit">✏️ Edit</button>
-            <button class="btn btn-outline" id="detailCloseBtn">Close</button>
-        </div>
+        <div class="mft"><button class="btn" id="detailEdit">✏️ Edit</button><button class="btn" id="detailCloseBtn">Close</button></div>
     </div>
 </div>
 
-<!-- ════════════════════ CANCEL CONFIRM MODAL ════════════════════════ -->
+<!-- CANCEL CONFIRM -->
 <div class="ov" id="cancelModal">
     <div class="modal modal-sm">
-        <div class="mhd">
-            <div class="mhd-title">Cancel Policy</div>
-            <button class="mclose" id="cancelClose">✕</button>
-        </div>
-        <div class="conf-body">
-            <div class="conf-ico">🚫</div>
-            <div class="conf-h">Cancel this policy?</div>
-            <div class="conf-p">Policy <strong id="cancelPolicyNum">—</strong> will be marked as <strong>CANCELLED</strong>. The record is kept for audit purposes.</div>
-        </div>
-        <div class="mft">
-            <button class="btn btn-outline" id="cancelAbort">Go Back</button>
-            <button class="btn-warn" style="padding:8px 18px;font-size:13px;font-weight:700;font-family:var(--ff);border-radius:9px;cursor:pointer;transition:.17s;border:1.5px solid rgba(217,119,6,.35)" id="cancelConfirm">Yes, Cancel Policy</button>
-        </div>
+        <div class="mhd"><div class="mhd-title">CANCEL POLICY</div><button class="mclose" id="cancelClose">✕</button></div>
+        <div class="conf-body"><div class="conf-ico">🚫</div><div class="conf-h">Cancel this policy?</div><div class="conf-p">Policy <strong id="cancelPolicyNum">—</strong> will be marked CANCELLED.</div></div>
+        <div class="mft"><button class="btn" id="cancelAbort">Go Back</button><button class="btn-warn-sm" style="padding:9px 18px;font-size:12px;font-family:'Bungee',sans-serif;border-radius:var(--r-sm);cursor:pointer;" id="cancelConfirm">Yes, Cancel Policy</button></div>
     </div>
 </div>
 
-<!-- ════════════════════ DELETE CONFIRM MODAL ════════════════════════ -->
+<!-- DELETE CONFIRM -->
 <div class="ov" id="delModal">
     <div class="modal modal-sm">
-        <div class="mhd">
-            <div class="mhd-title">Delete Policy</div>
-            <button class="mclose" id="delClose">✕</button>
-        </div>
-        <div class="conf-body">
-            <div class="conf-ico">🗑️</div>
-            <div class="conf-h">Delete permanently?</div>
-            <div class="conf-p">You are about to permanently remove policy <strong id="delPolicyNum">—</strong>. This action cannot be undone.</div>
-        </div>
-        <div class="mft">
-            <button class="btn btn-outline" id="delAbort">Cancel</button>
-            <button class="btn-danger" id="delConfirm">Delete Permanently</button>
-        </div>
+        <div class="mhd"><div class="mhd-title">DELETE POLICY</div><button class="mclose" id="delClose">✕</button></div>
+        <div class="conf-body"><div class="conf-ico">🗑️</div><div class="conf-h">Delete permanently?</div><div class="conf-p">Remove policy <strong id="delPolicyNum">—</strong>. Cannot be undone.</div></div>
+        <div class="mft"><button class="btn" id="delAbort">Cancel</button><button class="btn-danger" id="delConfirm">Delete Permanently</button></div>
     </div>
 </div>
-
 <div id="toast"></div>
 
-<!-- ════════════════════ SCRIPT ══════════════════════════════════════ -->
 <script>
-    const API = 'http://localhost:8081/api/v1';
+    const API='http://localhost:8081/api/v1';
+    let allPolicies=[],allVehicles=[],editId=null,cancelId=null,delId=null,detailViewId=null;
+    const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const fmtLKR=n=>'Rs '+Number(n||0).toLocaleString('en-LK');
+    function showToast(m,t){const $t=$('#toast');$t.text(m).attr('class','toast show '+(t||''));clearTimeout($t.data('tt'));$t.data('tt',setTimeout(()=>$t.attr('class','toast'),3500));}
+    function logout(){['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(k=>localStorage.removeItem(k));window.location.href='../sign-in.html';}
+    function getToken(){return localStorage.getItem('rentify_token')||'';}
+    function authH(){const t=getToken();return t?{Authorization:'Bearer '+t,'Content-Type':'application/json'}:{'Content-Type':'application/json'};}
+    function parseErr(xhr,fb){if(!xhr.responseJSON)return fb||'Network error';const j=xhr.responseJSON;if(j.errors)return Object.values(j.errors).join(', ');return j.message||j.error||fb||'Error';}
 
-    /* ── Auth helpers ──────────────────────────────────────────────── */
-    function getToken() { return localStorage.getItem('rentify_token') || ''; }
-    function authH() {
-        const t = getToken();
-        return t ? { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+    const fn=localStorage.getItem('rentify_fullName')||localStorage.getItem('rentify_username')||'Admin';
+    const ini=fn.trim().split(/\s+/).map(x=>x[0]?.toUpperCase()).join('').slice(0,2)||'AD';
+    $('#sbAv').text(ini);$('#sbName').text(fn);
+
+    function daysUntil(d){if(!d)return null;const n=new Date();n.setHours(0,0,0,0);return Math.ceil((new Date(d)-n)/86400000);}
+    function expiryClass(d,s){if(s!=='ACTIVE')return'';const v=daysUntil(d);if(v===null)return'';if(v<0||v<=7)return'exp-warn';if(v<=30)return'exp-caution';return'exp-ok';}
+    function expiryLabel(d,s){
+        if(!d)return'—';const v=daysUntil(d);
+        if(s!=='ACTIVE'||v===null)return d;
+        if(v<0)return d+` <span style="font-size:9px;font-weight:700;color:var(--red)">(${Math.abs(v)}d ago)</span>`;
+        if(v===0)return d+` <span style="font-size:9px;font-weight:700;color:var(--red)">(Today!)</span>`;
+        if(v<=30)return d+` <span style="font-size:9px;font-weight:700;color:var(--orange)">(${v}d left)</span>`;
+        return d;
     }
 
-    /* ── Global state ──────────────────────────────────────────────── */
-    let allPolicies = [];
-    let allVehicles  = [];
-    let editId       = null;
-    let cancelId     = null;
-    let delId        = null;
-    let detailViewId = null;
+    function checkApi(){$.ajax({url:API+'/vehicles',method:'GET',timeout:5000,success:()=>{$('#apiDot').addClass('online').removeClass('offline');$('#apiTxt').text('API Online');},error:()=>{$('#apiDot').addClass('offline').removeClass('online');$('#apiTxt').text('API Offline');}});}
+    function loadVehicles(cb){$.ajax({url:API+'/vehicles',method:'GET',headers:authH(),success:function(r){allVehicles=Array.isArray(r)?r:(r.data||[]);if(cb)cb();},error:function(){allVehicles=[];}});}
 
-    /* ── User init ─────────────────────────────────────────────────── */
-    (function initUser() {
-        const fn = localStorage.getItem('rentify_fullName') || localStorage.getItem('rentify_username') || 'Admin';
-        const ini = fn.trim().split(/\s+/).map(x => x[0].toUpperCase()).join('').slice(0, 2) || 'AD';
-        $('#snAv').text(ini);
-        $('#snName').text(fn);
-    })();
-
-    /* ── Helpers ───────────────────────────────────────────────────── */
-    const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    const fmtLKR = n => 'Rs ' + Number(n || 0).toLocaleString('en-LK');
-
-    function showToast(msg, type) {
-        $('#toast').text(msg).attr('class', type || '').show();
-        clearTimeout(window._tt);
-        window._tt = setTimeout(() => $('#toast').hide(), 3500);
-    }
-
-    function parseErr(xhr, fallback) {
-        if (!xhr.responseJSON) return fallback || 'Network error';
-        const j = xhr.responseJSON;
-        if (j.errors) return Object.values(j.errors).join(', ');
-        return j.message || j.error || fallback || 'Error';
-    }
-
-    /* ── Date helpers ──────────────────────────────────────────────── */
-    function daysUntil(dateStr) {
-        if (!dateStr) return null;
-        const d = new Date(dateStr);
-        const now = new Date(); now.setHours(0,0,0,0);
-        return Math.ceil((d - now) / 86400000);
-    }
-
-    function expiryClass(dateStr, status) {
-        if (status !== 'ACTIVE') return '';
-        const d = daysUntil(dateStr);
-        if (d === null) return '';
-        if (d < 0)  return 'exp-warn';
-        if (d <= 7)  return 'exp-warn';
-        if (d <= 30) return 'exp-caution';
-        return 'exp-ok';
-    }
-
-    function expiryLabel(dateStr, status) {
-        if (!dateStr) return '—';
-        const d = daysUntil(dateStr);
-        const base = dateStr;
-        if (status !== 'ACTIVE' || d === null) return base;
-        if (d < 0)   return base + ` <span style="font-size:9px;font-weight:700;color:var(--r)">(${Math.abs(d)}d ago)</span>`;
-        if (d === 0) return base + ` <span style="font-size:9px;font-weight:700;color:var(--r)">(Today!)</span>`;
-        if (d <= 30) return base + ` <span style="font-size:9px;font-weight:700;color:var(--y)">(${d}d left)</span>`;
-        return base;
-    }
-
-    /* ── API: Check status ─────────────────────────────────────────── */
-    function checkApi() {
-        $.ajax({
-            url: API + '/vehicles', method: 'GET', timeout: 5000,
-            success: () => { $('#apiDot').addClass('online').removeClass('offline'); $('#apiTxt').text('API Online'); },
-            error:   () => { $('#apiDot').addClass('offline').removeClass('online'); $('#apiTxt').text('API Offline'); }
-        });
-    }
-
-    /* ── API: Load vehicles for selector ───────────────────────────── */
-    function loadVehicles(cb) {
-        $.ajax({
-            url: API + '/vehicles', method: 'GET', headers: authH(),
-            success: function(r) { allVehicles = Array.isArray(r) ? r : (r.data || []); if (cb) cb(); },
-            error: function() { allVehicles = []; }
-        });
-    }
-
-    /* ── API: Load all policies ────────────────────────────────────── */
-    function fetchPolicies() {
+    function fetchPolicies(){
         $('#insTable').html('<tr class="lrow"><td colspan="10"><span class="spin"></span>Loading…</td></tr>');
-        $.ajax({
-            url: API + '/insurances', method: 'GET', headers: authH(),
-            success: function(r) {
-                allPolicies = Array.isArray(r) ? r : (r.data || []);
-                updateStats();
-                renderTable(getFiltered());
-                checkExpiryBanner();
-                $('#lastFetch').text('Updated: ' + new Date().toLocaleTimeString('en-LK'));
-            },
-            error: function(xhr) {
-                const m = parseErr(xhr, 'Failed to load policies');
-                $('#insTable').html(`<tr class="erow"><td colspan="10">⚠️ ${esc(m)}</td></tr>`);
-                showToast(m, 'error');
-            }
+        $.ajax({url:API+'/insurances',method:'GET',headers:authH(),
+            success:function(r){allPolicies=Array.isArray(r)?r:(r.data||[]);updateStats();renderTable(getFiltered());checkExpiryBanner();$('#lastFetch').text('Updated: '+new Date().toLocaleTimeString('en-LK'));},
+            error:function(xhr){const m=parseErr(xhr,'Failed');$('#insTable').html(`<tr class="erow"><td colspan="10">⚠️ ${esc(m)}</td></tr>`);showToast(m,'error');}
         });
     }
 
-    /* ── Stats ─────────────────────────────────────────────────────── */
-    function updateStats() {
-        const total     = allPolicies.length;
-        const active    = allPolicies.filter(p => p.status === 'ACTIVE').length;
-        const expired   = allPolicies.filter(p => p.status === 'EXPIRED').length;
-        const cancelled = allPolicies.filter(p => p.status === 'CANCELLED').length;
-        const expiring  = allPolicies.filter(p => p.status === 'ACTIVE' && daysUntil(p.expiryDate) !== null && daysUntil(p.expiryDate) <= 30 && daysUntil(p.expiryDate) >= 0).length;
-
-        $('#st-total').text(total);
-        $('#st-active').text(active);
-        $('#st-expired').text(expired);
-        $('#st-cancelled').text(cancelled);
-        $('#st-expiring').text(expiring);
-        if (expiring > 0) $('#st-expiring-sub').text('Needs renewal soon');
+    function updateStats(){
+        const e=p=>p.status==='ACTIVE'&&daysUntil(p.expiryDate)!==null&&daysUntil(p.expiryDate)<=30&&daysUntil(p.expiryDate)>=0;
+        $('#st-total').text(allPolicies.length);
+        $('#st-active').text(allPolicies.filter(p=>p.status==='ACTIVE').length);
+        $('#st-expired').text(allPolicies.filter(p=>p.status==='EXPIRED').length);
+        $('#st-cancelled').text(allPolicies.filter(p=>p.status==='CANCELLED').length);
+        $('#st-expiring').text(allPolicies.filter(e).length);
     }
 
-    /* ── Expiry alert banner ───────────────────────────────────────── */
-    function checkExpiryBanner() {
-        const expiring = allPolicies.filter(p => p.status === 'ACTIVE' && daysUntil(p.expiryDate) !== null && daysUntil(p.expiryDate) <= 14 && daysUntil(p.expiryDate) >= 0);
-        if (expiring.length > 0) {
-            $('#expiryBanner').html(`⏰ <strong>${expiring.length} active polic${expiring.length > 1 ? 'ies are' : 'y is'} expiring within 14 days.</strong> Please renew them to avoid coverage gaps.`).addClass('show');
-        } else {
-            $('#expiryBanner').removeClass('show');
-        }
+    function checkExpiryBanner(){
+        const e=allPolicies.filter(p=>p.status==='ACTIVE'&&daysUntil(p.expiryDate)!==null&&daysUntil(p.expiryDate)<=14&&daysUntil(p.expiryDate)>=0);
+        if(e.length>0)$('#expiryBanner').html(`⏰ <strong>${e.length} active polic${e.length>1?'ies are':'y is'} expiring within 14 days.</strong> Please renew them.`).addClass('show');
+        else $('#expiryBanner').removeClass('show');
     }
 
-    /* ── Filtering ─────────────────────────────────────────────────── */
-    function getFiltered() {
-        const q   = $('#tSearch').val().toLowerCase().trim();
-        const st  = $('#tStatus').val();
-        const cov = $('#tCoverage').val();
-        return allPolicies.filter(p => {
-            if (st  && p.status !== st) return false;
-            if (cov && p.coverageType !== cov) return false;
-            if (q) {
-                const hay = [p.policyNumber, p.providerName, p.vehiclePlateNumber, p.coverageType, p.notes].join(' ').toLowerCase();
-                if (!hay.includes(q)) return false;
-            }
+    function getFiltered(){
+        const q=$('#tSearch').val().toLowerCase().trim(),st=$('#tStatus').val(),cov=$('#tCoverage').val();
+        return allPolicies.filter(p=>{
+            if(st&&p.status!==st)return false;
+            if(cov&&p.coverageType!==cov)return false;
+            if(q){const hay=[p.policyNumber,p.providerName,p.vehiclePlateNumber,p.coverageType,p.notes].join(' ').toLowerCase();if(!hay.includes(q))return false;}
             return true;
         });
     }
 
-    /* ── Render table ──────────────────────────────────────────────── */
-    function renderTable(list) {
+    function renderTable(list){
         $('#tCount').text(list.length);
-        if (!list.length) {
-            $('#insTable').html('<tr class="erow"><td colspan="10">🔍 No policies match your filters.</td></tr>');
-            return;
-        }
-        $('#insTable').html(list.map(p => {
-            const expCls = expiryClass(p.expiryDate, p.status);
-            return `<tr>
-            <td><span class="tdm" style="color:var(--b);font-weight:600">${esc(p.policyNumber)}</span></td>
-            <td>
-                <div style="font-weight:600;color:var(--t1);font-size:13px">${esc(p.vehiclePlateNumber || '—')}</div>
-            </td>
-            <td style="font-weight:500">${esc(p.providerName)}</td>
-            <td><span style="font-size:12px;color:var(--t2)">${esc(p.coverageType)}</span></td>
-            <td style="font-family:var(--fc);font-size:12px;color:var(--g);font-weight:600">${fmtLKR(p.premiumAmount)}</td>
-            <td style="font-family:var(--fc);font-size:12px;color:var(--b)">${fmtLKR(p.coverageAmount)}</td>
-            <td><span class="tdm">${p.startDate || '—'}</span></td>
-            <td><span class="tdm ${expCls}">${expiring => expiring}</span></td>
-            <td><span class="badge badge-${esc(p.status)}">${esc(p.status)}</span></td>
-            <td>
-                <div style="display:flex;gap:4px;flex-wrap:wrap">
-                    <button class="btn btn-outline btn-sm btn-view" data-id="${p.id}" title="View Details">👁</button>
-                    <button class="btn btn-outline btn-sm btn-edit-row" data-id="${p.id}" title="Edit">✏️</button>
-                    ${p.status === 'ACTIVE' ? `<button class="btn-warn btn-cancel-row" data-id="${p.id}" data-pnum="${esc(p.policyNumber)}" title="Cancel">🚫</button>` : ''}
-                    <button class="btn-del btn-del-row" data-id="${p.id}" data-pnum="${esc(p.policyNumber)}" title="Delete">🗑️</button>
-                </div>
-            </td>
-        </tr>`;
-        }).join('')
-            // Fix the expiry cell — replace inline function call with actual value
-            .replace(/\$\{expiring => expiring\}/g, '')); // We'll build cells properly below
-
-        // Rebuild table correctly (the above was a placeholder hack - let's do it properly)
-        $('#insTable').html(list.map(p => {
-            const expCls   = expiryClass(p.expiryDate, p.status);
-            const expLbl   = expiryLabel(p.expiryDate, p.status);
-            return `<tr>
-            <td><span class="tdm" style="color:var(--b);font-weight:600">${esc(p.policyNumber)}</span></td>
-            <td><div style="font-weight:600;color:var(--t1)">${esc(p.vehiclePlateNumber||'—')}</div></td>
-            <td style="font-weight:500">${esc(p.providerName)}</td>
-            <td><span style="font-size:12px;color:var(--t2)">${esc(p.coverageType)}</span></td>
-            <td style="font-family:var(--fc);font-size:12px;color:var(--g);font-weight:600">${fmtLKR(p.premiumAmount)}</td>
-            <td style="font-family:var(--fc);font-size:12px;color:var(--b)">${fmtLKR(p.coverageAmount)}</td>
-            <td><span class="tdm">${p.startDate||'—'}</span></td>
-            <td><span class="tdm ${expCls}">${expLbl}</span></td>
-            <td><span class="badge badge-${esc(p.status)}">${esc(p.status)}</span></td>
-            <td>
-                <div style="display:flex;gap:4px;flex-wrap:wrap">
-                    <button class="btn btn-outline btn-sm btn-view" data-id="${p.id}" title="View">👁</button>
-                    <button class="btn btn-outline btn-sm btn-edit-row" data-id="${p.id}" title="Edit">✏️</button>
-                    ${p.status==='ACTIVE'?`<button class="btn-warn btn-cancel-row" data-id="${p.id}" data-pnum="${esc(p.policyNumber)}" title="Cancel Policy">🚫</button>`:''}
-                    <button class="btn-del btn-del-row" data-id="${p.id}" data-pnum="${esc(p.policyNumber)}" title="Delete">🗑️</button>
-                </div>
-            </td>
-        </tr>`;
+        if(!list.length){$('#insTable').html('<tr class="erow"><td colspan="10">🔍 No policies match.</td></tr>');return;}
+        $('#insTable').html(list.map(p=>{
+            const expCls=expiryClass(p.expiryDate,p.status),expLbl=expiryLabel(p.expiryDate,p.status);
+            return`<tr>
+      <td><span class="tdm" style="color:var(--accent);font-weight:700">${esc(p.policyNumber)}</span></td>
+      <td><div style="font-weight:700;color:var(--ink)">${esc(p.vehiclePlateNumber||'—')}</div></td>
+      <td style="font-weight:600">${esc(p.providerName)}</td>
+      <td><span style="font-size:11px">${esc(p.coverageType)}</span></td>
+      <td style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--green);font-weight:700">${fmtLKR(p.premiumAmount)}</td>
+      <td style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--accent)">${fmtLKR(p.coverageAmount)}</td>
+      <td><span class="tdm">${p.startDate||'—'}</span></td>
+      <td><span class="tdm ${expCls}">${expLbl}</span></td>
+      <td><span class="badge badge-${esc(p.status)}">${esc(p.status)}</span></td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-view" data-id="${p.id}">👁</button>
+        <button class="btn btn-sm btn-edit-row" data-id="${p.id}">✏️</button>
+        ${p.status==='ACTIVE'?`<button class="btn-warn-sm btn-cancel-row" data-id="${p.id}" data-pnum="${esc(p.policyNumber)}">🚫</button>`:''}
+        <button class="btn-del btn-del-row" data-id="${p.id}" data-pnum="${esc(p.policyNumber)}">🗑️</button>
+      </div></td>
+    </tr>`;
         }).join(''));
     }
 
-    /* ══════════════ VEHICLE SELECTOR ══════════════════════════════════ */
-    function buildVehicleDropdown(filter) {
-        const q = (filter || '').toLowerCase();
-        const matches = allVehicles.filter(v => {
-            if (!q) return true;
-            return (v.model||'').toLowerCase().includes(q) || (v.plateNumber||'').toLowerCase().includes(q);
-        });
-        if (!matches.length) {
-            $('#vselDrop').html('<div class="vsel-none">No vehicles found</div>');
-        } else {
-            $('#vselDrop').html(matches.map(v =>
-                `<div class="vsel-opt" data-id="${v.id}" data-label="${esc(v.model)} — ${esc(v.plateNumber)}">
-                <span class="vsel-opt-name">${esc(v.model)}</span>
-                <span class="vsel-opt-plate">${esc(v.plateNumber)}</span>
-            </div>`
-            ).join(''));
-        }
-    }
+    // Vehicle selector
+    function buildVsel(f){const q=(f||'').toLowerCase();const m=allVehicles.filter(v=>!q||(v.model||'').toLowerCase().includes(q)||(v.plateNumber||'').toLowerCase().includes(q));if(!m.length)$('#vselDrop').html('<div class="vsel-none">No vehicles found</div>');else $('#vselDrop').html(m.map(v=>`<div class="vsel-opt" data-id="${v.id}" data-label="${esc(v.model)} — ${esc(v.plateNumber)}"><span class="vsel-opt-name">${esc(v.model)}</span><span class="vsel-opt-plate">${esc(v.plateNumber)}</span></div>`).join(''));}
+    function openVsel(){buildVsel($('#vselInput').val());$('#vselDrop').addClass('open');$('#vselSearch').addClass('open');}
+    function closeVsel(){$('#vselDrop').removeClass('open');$('#vselSearch').removeClass('open');}
+    function setVehicle(id,label){$('#f_vehicleId').val(id);$('#vselInput').val(label);closeVsel();$('#e_vehicleId').removeClass('show');}
 
-    function openVselDrop() {
-        buildVehicleDropdown($('#vselInput').val());
-        $('#vselDrop').addClass('open');
-        $('#vselSearch').addClass('open');
-    }
+    function clearForm(){$('#f_vehicleId').val('');$('#vselInput').val('');$('#f_policyNumber,#f_providerName,#f_coverageType,#f_premiumAmount,#f_coverageAmount,#f_startDate,#f_expiryDate,#f_notes').val('');$('#f_status').val('ACTIVE');$('.ferr').removeClass('show');}
 
-    function closeVselDrop() {
-        $('#vselDrop').removeClass('open');
-        $('#vselSearch').removeClass('open');
-    }
+    function openAdd(){editId=null;clearForm();$('#mTitle').text('ADD INSURANCE POLICY');$('#mSave').text('Add Policy').prop('disabled',false);loadVehicles();$('#insModal').addClass('open');}
 
-    function setVehicle(id, label) {
-        $('#f_vehicleId').val(id);
-        $('#vselInput').val(label);
-        closeVselDrop();
-        $('#e_vehicleId').removeClass('show');
-    }
-
-    function clearVehicle() {
-        $('#f_vehicleId').val('');
-        $('#vselInput').val('');
-    }
-
-    /* ══════════════ ADD / EDIT FORM ════════════════════════════════════ */
-    function clearForm() {
-        clearVehicle();
-        $('#f_policyNumber,#f_providerName,#f_coverageType,#f_premiumAmount,#f_coverageAmount,#f_startDate,#f_expiryDate,#f_notes').val('');
-        $('#f_status').val('ACTIVE');
-        $('.ferr').removeClass('show');
-    }
-
-    function openAdd() {
-        editId = null;
-        clearForm();
-        $('#mTitle').text('Add Insurance Policy');
-        $('#mSave').text('Add Policy').prop('disabled', false);
-        loadVehicles();
-        $('#insModal').addClass('open');
-    }
-
-    function openEdit(id) {
-        const p = allPolicies.find(x => x.id === id);
-        if (!p) { showToast('Policy not found', 'error'); return; }
-        editId = id;
-        clearForm();
-        $('#mTitle').text('Edit Insurance Policy');
-        $('#mSave').prop('disabled', true).text('Loading…');
-        $('#insModal').addClass('open');
-
-        loadVehicles(function() {
-            // Populate form
+    function openEdit(id){
+        const p=allPolicies.find(x=>x.id===id);if(!p){showToast('Policy not found','error');return;}
+        editId=id;clearForm();$('#mTitle').text('EDIT INSURANCE POLICY');$('#mSave').prop('disabled',true).text('Loading…');$('#insModal').addClass('open');
+        loadVehicles(function(){
             $('#f_vehicleId').val(p.vehicleId);
-            $('#vselInput').val(p.vehiclePlateNumber ? (allVehicles.find(v=>v.id===p.vehicleId)||{}).model + ' — ' + p.vehiclePlateNumber : p.vehiclePlateNumber || '');
-            $('#f_policyNumber').val(p.policyNumber || '');
-            $('#f_providerName').val(p.providerName || '');
-            $('#f_coverageType').val(p.coverageType || '');
-            $('#f_status').val(p.status || 'ACTIVE');
-            $('#f_premiumAmount').val(p.premiumAmount || '');
-            $('#f_coverageAmount').val(p.coverageAmount || '');
-            $('#f_startDate').val(p.startDate || '');
-            $('#f_expiryDate').val(p.expiryDate || '');
-            $('#f_notes').val(p.notes || '');
-            $('#mSave').prop('disabled', false).text('Save Changes');
+            const v=allVehicles.find(x=>x.id===p.vehicleId);
+            $('#vselInput').val(v?v.model+' — '+v.plateNumber:p.vehiclePlateNumber||'');
+            $('#f_policyNumber').val(p.policyNumber||'');$('#f_providerName').val(p.providerName||'');$('#f_coverageType').val(p.coverageType||'');$('#f_status').val(p.status||'ACTIVE');$('#f_premiumAmount').val(p.premiumAmount||'');$('#f_coverageAmount').val(p.coverageAmount||'');$('#f_startDate').val(p.startDate||'');$('#f_expiryDate').val(p.expiryDate||'');$('#f_notes').val(p.notes||'');
+            $('#mSave').prop('disabled',false).text('Save Changes');
         });
     }
 
-    function validateForm() {
-        let ok = true;
-        function chk(cond, errId) { if (!cond) { $('#'+errId).addClass('show'); ok = false; } else { $('#'+errId).removeClass('show'); } }
-
-        chk(!!$('#f_vehicleId').val(), 'e_vehicleId');
-        chk(($('#f_policyNumber').val()||'').trim().length >= 1 && ($('#f_policyNumber').val()||'').trim().length <= 50, 'e_policyNumber');
-        chk(($('#f_providerName').val()||'').trim().length >= 1, 'e_providerName');
-        chk(($('#f_coverageType').val()||'').trim().length >= 1, 'e_coverageType');
-        chk(parseFloat($('#f_premiumAmount').val()) > 0, 'e_premiumAmount');
-        chk(parseFloat($('#f_coverageAmount').val()) > 0, 'e_coverageAmount');
-        chk(!!$('#f_startDate').val(), 'e_startDate');
-
-        const sd = $('#f_startDate').val(), ed = $('#f_expiryDate').val();
-        chk(!!ed && new Date(ed) > new Date(sd), 'e_expiryDate');
-
+    function validateForm(){
+        let ok=true;
+        function chk(c,id){if(!c){$('#'+id).addClass('show');ok=false;}else{$('#'+id).removeClass('show');}}
+        chk(!!$('#f_vehicleId').val(),'e_vehicleId');
+        chk(($('#f_policyNumber').val()||'').trim().length>=1&&($('#f_policyNumber').val()||'').trim().length<=50,'e_policyNumber');
+        chk(($('#f_providerName').val()||'').trim().length>=1,'e_providerName');
+        chk(($('#f_coverageType').val()||'').trim().length>=1,'e_coverageType');
+        chk(parseFloat($('#f_premiumAmount').val())>0,'e_premiumAmount');
+        chk(parseFloat($('#f_coverageAmount').val())>0,'e_coverageAmount');
+        chk(!!$('#f_startDate').val(),'e_startDate');
+        const sd=$('#f_startDate').val(),ed=$('#f_expiryDate').val();
+        chk(!!ed&&new Date(ed)>new Date(sd),'e_expiryDate');
         return ok;
     }
 
-    function buildPayload() {
-        return {
-            vehicleId:      parseInt($('#f_vehicleId').val()),
-            policyNumber:   $('#f_policyNumber').val().trim(),
-            providerName:   $('#f_providerName').val().trim(),
-            coverageType:   $('#f_coverageType').val().trim(),
-            status:         $('#f_status').val(),
-            premiumAmount:  parseFloat($('#f_premiumAmount').val()),
-            coverageAmount: parseFloat($('#f_coverageAmount').val()),
-            startDate:      $('#f_startDate').val(),
-            expiryDate:     $('#f_expiryDate').val(),
-            notes:          $('#f_notes').val().trim() || null
-        };
-    }
+    function buildPayload(){return{vehicleId:parseInt($('#f_vehicleId').val()),policyNumber:$('#f_policyNumber').val().trim(),providerName:$('#f_providerName').val().trim(),coverageType:$('#f_coverageType').val().trim(),status:$('#f_status').val(),premiumAmount:parseFloat($('#f_premiumAmount').val()),coverageAmount:parseFloat($('#f_coverageAmount').val()),startDate:$('#f_startDate').val(),expiryDate:$('#f_expiryDate').val(),notes:$('#f_notes').val().trim()||null};}
 
-    function savePolicy() {
-        if (!validateForm()) return;
-        if (!getToken()) { showToast('Not logged in', 'error'); return; }
-
-        const isEdit = editId !== null;
-        const url    = isEdit ? `${API}/insurances/${editId}` : `${API}/insurances`;
-        const method = isEdit ? 'PUT' : 'POST';
-
-        $('#mSave').prop('disabled', true).text(isEdit ? 'Saving…' : 'Adding…');
-
-        $.ajax({
-            url, method,
-            headers: authH(),
-            data: JSON.stringify(buildPayload()),
-            success: function(r) {
-                const saved = r.data || r;
-                if (isEdit) {
-                    const idx = allPolicies.findIndex(p => p.id === editId);
-                    if (idx >= 0) allPolicies[idx] = saved; else allPolicies.push(saved);
-                } else {
-                    allPolicies.push(saved);
-                }
-                updateStats();
-                renderTable(getFiltered());
-                checkExpiryBanner();
-                $('#insModal').removeClass('open');
-                showToast((isEdit ? 'Policy updated' : 'Policy added') + ' ✅', 'success');
-            },
-            error: function(xhr) {
-                let m = parseErr(xhr, isEdit ? 'Update failed' : 'Add failed');
-                if (xhr.status === 401) m = '401 — Token expired. Please re-login.';
-                if (xhr.status === 403) m = '403 — ADMIN access required.';
-                if (xhr.status === 0)   m = 'Cannot reach server.';
-                showToast(m, 'error');
-            },
-            complete: function() {
-                $('#mSave').prop('disabled', false).text(editId !== null ? 'Save Changes' : 'Add Policy');
-            }
+    function savePolicy(){
+        if(!validateForm())return;if(!getToken()){showToast('Not logged in','error');return;}
+        const isEdit=editId!==null,url=isEdit?`${API}/insurances/${editId}`:`${API}/insurances`,method=isEdit?'PUT':'POST';
+        $('#mSave').prop('disabled',true).text(isEdit?'Saving…':'Adding…');
+        $.ajax({url,method,headers:authH(),data:JSON.stringify(buildPayload()),
+            success:function(r){const saved=r.data||r;if(isEdit){const idx=allPolicies.findIndex(p=>p.id===editId);if(idx>=0)allPolicies[idx]=saved;else allPolicies.push(saved);}else allPolicies.push(saved);updateStats();renderTable(getFiltered());checkExpiryBanner();$('#insModal').removeClass('open');showToast((isEdit?'Policy updated':'Policy added')+' ✅','success');},
+            error:function(xhr){let m=parseErr(xhr,isEdit?'Update failed':'Add failed');if(xhr.status===401)m='401 — Token expired';if(xhr.status===403)m='403 — ADMIN required';if(xhr.status===0)m='Cannot reach server';showToast(m,'error');},
+            complete:function(){$('#mSave').prop('disabled',false).text(editId!==null?'Save Changes':'Add Policy');}
         });
     }
 
-    /* ══════════════ DETAIL VIEW ════════════════════════════════════════ */
-    function openDetail(id) {
-        const p = allPolicies.find(x => x.id === id);
-        if (!p) return;
-        detailViewId = id;
-        $('#detailTitle').text('🛡️ ' + (p.policyNumber || 'Policy Details'));
-
-        const d = daysUntil(p.expiryDate);
-        const expCls = expiryClass(p.expiryDate, p.status);
-        const expLabel = p.expiryDate + (p.status === 'ACTIVE' && d !== null ? (d < 0 ? ` (expired ${Math.abs(d)}d ago)` : ` (${d}d remaining)`) : '');
-
-        $('#detailBody').html(`
-        <div class="detail-grid">
-            <div class="dg-item"><div class="dg-lbl">Policy Number</div><div class="dg-val mono" style="color:var(--b);font-weight:700">${esc(p.policyNumber)}</div></div>
-            <div class="dg-item"><div class="dg-lbl">Status</div><div class="dg-val"><span class="badge badge-${esc(p.status)}">${esc(p.status)}</span></div></div>
-            <div class="dg-item"><div class="dg-lbl">Vehicle Plate</div><div class="dg-val mono">${esc(p.vehiclePlateNumber||'—')}</div></div>
-            <div class="dg-item"><div class="dg-lbl">Vehicle ID</div><div class="dg-val mono">#${p.vehicleId||'—'}</div></div>
-            <div class="dg-item"><div class="dg-lbl">Provider</div><div class="dg-val">${esc(p.providerName)}</div></div>
-            <div class="dg-item"><div class="dg-lbl">Coverage Type</div><div class="dg-val">${esc(p.coverageType)}</div></div>
-            <div class="dg-item"><div class="dg-lbl">Annual Premium</div><div class="dg-val" style="color:var(--g);font-weight:700">${fmtLKR(p.premiumAmount)}</div></div>
-            <div class="dg-item"><div class="dg-lbl">Max Coverage</div><div class="dg-val" style="color:var(--b);font-weight:700">${fmtLKR(p.coverageAmount)}</div></div>
-            <div class="dg-item"><div class="dg-lbl">Start Date</div><div class="dg-val mono">${p.startDate||'—'}</div></div>
-            <div class="dg-item"><div class="dg-lbl">Expiry Date</div><div class="dg-val mono ${expCls}">${expLabel}</div></div>
-            <div class="dg-item" style="grid-column:1/-1"><div class="dg-lbl">Notes</div><div class="dg-val">${esc(p.notes||'—')}</div></div>
-        </div>
-    `);
+    function openDetail(id){
+        const p=allPolicies.find(x=>x.id===id);if(!p)return;
+        detailViewId=id;
+        $('#detailTitle').text('🛡️ '+esc(p.policyNumber||'Policy Details'));
+        const d=daysUntil(p.expiryDate),expCls=expiryClass(p.expiryDate,p.status);
+        const expLabel=p.expiryDate+(p.status==='ACTIVE'&&d!==null?(d<0?` (expired ${Math.abs(d)}d ago)`:` (${d}d remaining)`):'');
+        $('#detailBody').html(`<div class="detail-grid">
+    <div class="dg-item"><div class="dg-lbl">Policy Number</div><div class="dg-val mono" style="color:var(--accent);font-weight:700">${esc(p.policyNumber)}</div></div>
+    <div class="dg-item"><div class="dg-lbl">Status</div><div class="dg-val"><span class="badge badge-${esc(p.status)}">${esc(p.status)}</span></div></div>
+    <div class="dg-item"><div class="dg-lbl">Vehicle Plate</div><div class="dg-val mono">${esc(p.vehiclePlateNumber||'—')}</div></div>
+    <div class="dg-item"><div class="dg-lbl">Vehicle ID</div><div class="dg-val mono">#${p.vehicleId||'—'}</div></div>
+    <div class="dg-item"><div class="dg-lbl">Provider</div><div class="dg-val">${esc(p.providerName)}</div></div>
+    <div class="dg-item"><div class="dg-lbl">Coverage Type</div><div class="dg-val">${esc(p.coverageType)}</div></div>
+    <div class="dg-item"><div class="dg-lbl">Annual Premium</div><div class="dg-val" style="color:var(--green);font-weight:700">${fmtLKR(p.premiumAmount)}</div></div>
+    <div class="dg-item"><div class="dg-lbl">Max Coverage</div><div class="dg-val" style="color:var(--accent);font-weight:700">${fmtLKR(p.coverageAmount)}</div></div>
+    <div class="dg-item"><div class="dg-lbl">Start Date</div><div class="dg-val mono">${p.startDate||'—'}</div></div>
+    <div class="dg-item"><div class="dg-lbl">Expiry Date</div><div class="dg-val mono ${expCls}">${expLabel}</div></div>
+    <div class="dg-item" style="grid-column:1/-1"><div class="dg-lbl">Notes</div><div class="dg-val">${esc(p.notes||'—')}</div></div>
+  </div>`);
         $('#detailModal').addClass('open');
     }
 
-    /* ══════════════ CANCEL POLICY ══════════════════════════════════════ */
-    function openCancel(id, pnum) {
-        cancelId = id;
-        $('#cancelPolicyNum').text(pnum);
-        $('#cancelModal').addClass('open');
-    }
-
-    function doCancel() {
-        if (!cancelId) return;
-        $('#cancelConfirm').prop('disabled', true).text('Cancelling…');
-        $.ajax({
-            url: `${API}/insurances/${cancelId}/cancel`, method: 'PATCH', headers: authH(),
-            success: function(r) {
-                const saved = r.data || r;
-                const idx = allPolicies.findIndex(p => p.id === cancelId);
-                if (idx >= 0) allPolicies[idx] = saved;
-                updateStats(); renderTable(getFiltered()); checkExpiryBanner();
-                $('#cancelModal').removeClass('open');
-                showToast('Policy cancelled ✅', 'warn');
-            },
-            error: function(xhr) {
-                showToast(parseErr(xhr, 'Cancel failed'), 'error');
-            },
-            complete: function() {
-                $('#cancelConfirm').prop('disabled', false).text('Yes, Cancel Policy');
-            }
+    function doCancel(){
+        if(!cancelId)return;$('#cancelConfirm').prop('disabled',true).text('Cancelling…');
+        $.ajax({url:`${API}/insurances/${cancelId}/cancel`,method:'PATCH',headers:authH(),
+            success:function(r){const saved=r.data||r;const idx=allPolicies.findIndex(p=>p.id===cancelId);if(idx>=0)allPolicies[idx]=saved;updateStats();renderTable(getFiltered());checkExpiryBanner();$('#cancelModal').removeClass('open');showToast('Policy cancelled ✅','warn');},
+            error:function(xhr){showToast(parseErr(xhr,'Cancel failed'),'error');},
+            complete:function(){$('#cancelConfirm').prop('disabled',false).text('Yes, Cancel Policy');}
         });
     }
 
-    /* ══════════════ DELETE POLICY ══════════════════════════════════════ */
-    function openDelete(id, pnum) {
-        delId = id;
-        $('#delPolicyNum').text(pnum);
-        $('#delModal').addClass('open');
-    }
-
-    function doDelete() {
-        if (!delId) return;
-        $('#delConfirm').prop('disabled', true).text('Deleting…');
-        $.ajax({
-            url: `${API}/insurances/${delId}`, method: 'DELETE', headers: authH(),
-            success: function() {
-                allPolicies = allPolicies.filter(p => p.id !== delId);
-                updateStats(); renderTable(getFiltered()); checkExpiryBanner();
-                $('#delModal').removeClass('open');
-                showToast('Policy deleted ✅', 'success');
-            },
-            error: function(xhr) {
-                let m = parseErr(xhr, 'Delete failed');
-                if (xhr.status === 404) m = 'Policy already removed.';
-                showToast(m, 'error');
-            },
-            complete: function() {
-                $('#delConfirm').prop('disabled', false).text('Delete Permanently');
-            }
+    function doDelete(){
+        if(!delId)return;$('#delConfirm').prop('disabled',true).text('Deleting…');
+        $.ajax({url:`${API}/insurances/${delId}`,method:'DELETE',headers:authH(),
+            success:function(){allPolicies=allPolicies.filter(p=>p.id!==delId);updateStats();renderTable(getFiltered());checkExpiryBanner();$('#delModal').removeClass('open');showToast('Policy deleted ✅','success');},
+            error:function(xhr){showToast(parseErr(xhr,'Delete failed'),'error');},
+            complete:function(){$('#delConfirm').prop('disabled',false).text('Delete Permanently');}
         });
     }
 
-    /* ══════════════ EXPIRING SOON QUICK VIEW ════════════════════════════ */
-    function showExpiringOnly() {
-        $('#tStatus').val('ACTIVE');
-        $('#tSearch').val('');
-        const expiring = allPolicies.filter(p => p.status === 'ACTIVE' && daysUntil(p.expiryDate) !== null && daysUntil(p.expiryDate) <= 30 && daysUntil(p.expiryDate) >= 0);
-        $('#tCount').text(expiring.length);
-        if (!expiring.length) { showToast('No active policies expiring within 30 days 🎉', 'success'); renderTable(getFiltered()); return; }
-        renderTable(expiring);
-        showToast(`Showing ${expiring.length} polic${expiring.length>1?'ies':'y'} expiring within 30 days`, 'warn');
+    function showExpiringOnly(){
+        $('#tStatus').val('ACTIVE');$('#tSearch').val('');
+        const e=allPolicies.filter(p=>p.status==='ACTIVE'&&daysUntil(p.expiryDate)!==null&&daysUntil(p.expiryDate)<=30&&daysUntil(p.expiryDate)>=0);
+        $('#tCount').text(e.length);
+        if(!e.length){showToast('No policies expiring within 30 days 🎉','success');renderTable(getFiltered());return;}
+        renderTable(e);showToast(`Showing ${e.length} expiring polic${e.length>1?'ies':'y'}…`,'warn');
     }
 
-    /* ══════════════ EVENT BINDINGS ══════════════════════════════════════ */
-    $(function() {
-        checkApi();
-        fetchPolicies();
-
-        // Top buttons
-        $('#addBtn').on('click', openAdd);
-        $('#refreshBtn').on('click', fetchPolicies);
-        $('#expiringBtn').on('click', showExpiringOnly);
-
-        // Filters
-        let sT;
-        $('#tSearch').on('input', function() { clearTimeout(sT); sT = setTimeout(() => renderTable(getFiltered()), 260); });
-        $('#tStatus, #tCoverage').on('change', () => renderTable(getFiltered()));
-
-        // Table row actions (delegated)
-        $(document).on('click', '.btn-view', function(e) {
-            e.stopPropagation();
-            openDetail(parseInt($(this).data('id')));
-        });
-        $(document).on('click', '.btn-edit-row', function(e) {
-            e.stopPropagation();
-            openEdit(parseInt($(this).data('id')));
-        });
-        $(document).on('click', '.btn-cancel-row', function(e) {
-            e.stopPropagation();
-            openCancel(parseInt($(this).data('id')), $(this).data('pnum'));
-        });
-        $(document).on('click', '.btn-del-row', function(e) {
-            e.stopPropagation();
-            openDelete(parseInt($(this).data('id')), $(this).data('pnum'));
-        });
-
-        // Add/Edit modal
-        $('#mSave').on('click', savePolicy);
-        $('#mClose, #mCancel').on('click', () => { $('#insModal').removeClass('open'); editId = null; });
-        $('#insModal').on('click', function(e) { if (e.target === this) { $(this).removeClass('open'); editId = null; } });
-
-        // Detail modal
-        $('#detailClose, #detailCloseBtn').on('click', () => $('#detailModal').removeClass('open'));
-        $('#detailModal').on('click', function(e) { if (e.target === this) $(this).removeClass('open'); });
-        $('#detailEdit').on('click', () => {
-            $('#detailModal').removeClass('open');
-            if (detailViewId) openEdit(detailViewId);
-        });
-
-        // Cancel modal
-        $('#cancelConfirm').on('click', doCancel);
-        $('#cancelClose, #cancelAbort').on('click', () => $('#cancelModal').removeClass('open'));
-        $('#cancelModal').on('click', function(e) { if (e.target === this) $(this).removeClass('open'); });
-
-        // Delete modal
-        $('#delConfirm').on('click', doDelete);
-        $('#delClose, #delAbort').on('click', () => $('#delModal').removeClass('open'));
-        $('#delModal').on('click', function(e) { if (e.target === this) $(this).removeClass('open'); });
-
-        // Vehicle selector
-        $('#vselInput').on('focus click', function() {
-            buildVehicleDropdown($(this).val());
-            openVselDrop();
-        });
-        $('#vselInput').on('input', function() {
-            buildVehicleDropdown($(this).val());
-            $('#vselDrop').addClass('open');
-            // Clear selection if user types
-            $('#f_vehicleId').val('');
-        });
-        $(document).on('click', '.vsel-opt', function() {
-            setVehicle($(this).data('id'), $(this).data('label'));
-        });
-        $(document).on('click', function(e) {
-            if (!$(e.target).closest('#vselWrap').length) closeVselDrop();
-        });
+    $(function(){
+        checkApi();fetchPolicies();
+        $('#addBtn').on('click',openAdd);$('#refreshBtn').on('click',fetchPolicies);$('#expiringBtn').on('click',showExpiringOnly);
+        let sT;$('#tSearch').on('input',function(){clearTimeout(sT);sT=setTimeout(()=>renderTable(getFiltered()),260);});
+        $('#tStatus,#tCoverage').on('change',()=>renderTable(getFiltered()));
+        $(document).on('click','.btn-view',function(e){e.stopPropagation();openDetail(parseInt($(this).data('id')));});
+        $(document).on('click','.btn-edit-row',function(e){e.stopPropagation();openEdit(parseInt($(this).data('id')));});
+        $(document).on('click','.btn-cancel-row',function(e){e.stopPropagation();cancelId=parseInt($(this).data('id'));$('#cancelPolicyNum').text($(this).data('pnum'));$('#cancelModal').addClass('open');});
+        $(document).on('click','.btn-del-row',function(e){e.stopPropagation();delId=parseInt($(this).data('id'));$('#delPolicyNum').text($(this).data('pnum'));$('#delModal').addClass('open');});
+        $('#mSave').on('click',savePolicy);
+        $('#mClose,#mCancel').on('click',()=>{$('#insModal').removeClass('open');editId=null;});
+        $('#insModal').on('click',function(e){if(e.target===this){$(this).removeClass('open');editId=null;}});
+        $('#detailClose,#detailCloseBtn').on('click',()=>$('#detailModal').removeClass('open'));
+        $('#detailModal').on('click',function(e){if(e.target===this)$(this).removeClass('open');});
+        $('#detailEdit').on('click',()=>{$('#detailModal').removeClass('open');if(detailViewId)openEdit(detailViewId);});
+        $('#cancelConfirm').on('click',doCancel);$('#cancelClose,#cancelAbort').on('click',()=>$('#cancelModal').removeClass('open'));$('#cancelModal').on('click',function(e){if(e.target===this)$(this).removeClass('open');});
+        $('#delConfirm').on('click',doDelete);$('#delClose,#delAbort').on('click',()=>$('#delModal').removeClass('open'));$('#delModal').on('click',function(e){if(e.target===this)$(this).removeClass('open');});
+        $('#vselInput').on('focus click',function(){buildVsel($(this).val());openVsel();});
+        $('#vselInput').on('input',function(){buildVsel($(this).val());$('#vselDrop').addClass('open');$('#f_vehicleId').val('');});
+        $(document).on('click','.vsel-opt',function(){setVehicle($(this).data('id'),$(this).data('label'));});
+        $(document).on('click',function(e){if(!$(e.target).closest('#vselWrap').length)closeVsel();});
     });
 </script>
 </body>

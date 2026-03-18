@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Rentify Admin — Vehicles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+        :root{
+            --white:#ffffff;--bg:#f7f8fc;--bg2:#f0f2f8;
+            --ink:#0b0e1a;--ink2:#2d3350;--ink3:#5e6680;--ink4:#9ba3bb;
+            --border:#e4e7f0;--border2:#d0d5e8;
+            --accent:#1a3fff;--accent-l:#eef1ff;--accent-d:#0028cc;
+            --green:#00b86b;--green-l:#e6fff4;
+            --red:#ff3b5c;--red-l:#fff0f3;
+            --orange:#ff7a00;--orange-l:#fff4ea;
+            --sidebar:260px;
+            --shadow-sm:0 1px 4px rgba(11,14,26,.06);--shadow:0 4px 20px rgba(11,14,26,.08);--shadow-lg:0 16px 56px rgba(11,14,26,.14);
+            --r:12px;--r-sm:8px;--r-lg:16px;
+        }
+        body{font-family:'Roboto Mono',monospace;background:var(--bg);color:var(--ink);display:flex;min-height:100vh;}
+        .sidebar{width:var(--sidebar);min-height:100vh;background:var(--white);border-right:1.5px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:300;box-shadow:2px 0 20px rgba(11,14,26,.05);}
+        .sb-top{padding:22px 20px 16px;border-bottom:1.5px solid var(--border);}
+        .sb-brand{display:flex;align-items:center;gap:12px;}
+        .sb-brand-ico{width:38px;height:38px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+        .sb-brand-name{font-family:"Bungee",sans-serif;font-size:20px;color:var(--ink);letter-spacing:.5px;}
+        .sb-brand-name span{color:var(--accent);}
+        .sb-profile{margin:14px 20px 0;padding:14px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);display:flex;align-items:center;gap:12px;}
+        .sb-av{width:40px;height:40px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,var(--accent),#6e8fff);display:flex;align-items:center;justify-content:center;font-family:"Bungee",sans-serif;font-size:14px;color:#fff;}
+        .sb-av-info .av-name{font-size:12px;font-weight:700;color:var(--ink);}
+        .sb-av-info .av-role{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-top:2px;background:var(--accent-l);padding:2px 6px;border-radius:4px;display:inline-block;}
+        .sb-online{width:8px;height:8px;border-radius:50%;background:var(--green);margin-left:auto;flex-shrink:0;box-shadow:0 0 6px rgba(0,184,107,.5);}
+        .sb-nav{flex:1;padding:16px 12px;overflow-y:auto;scrollbar-width:none;}
+        .sb-sec{font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:2.5px;color:var(--ink4);padding:10px 8px 5px;text-transform:uppercase;}
+        .sb-link{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-sm);text-decoration:none;color:var(--ink3);font-size:11px;font-weight:500;letter-spacing:.3px;transition:all .18s;margin-bottom:2px;}
+        .sb-link:hover{background:var(--bg);color:var(--ink);}
+        .sb-link.active{background:var(--accent-l);color:var(--accent);font-weight:700;border:1.5px solid rgba(26,63,255,.15);}
+        .sb-link .ico{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
+        .sb-bottom{padding:12px;border-top:1.5px solid var(--border);}
+        .sb-logout{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-sm);background:none;border:none;cursor:pointer;color:var(--ink3);font-size:11px;font-family:'Roboto Mono',monospace;width:100%;text-align:left;transition:all .18s;}
+        .sb-logout:hover{background:var(--red-l);color:var(--red);}
+        .main{margin-left:var(--sidebar);flex:1;padding:28px 32px;background:var(--bg);}
+        .api-bar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink3);background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:8px 14px;margin-bottom:22px;box-shadow:var(--shadow-sm);}
+        .api-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);flex-shrink:0;transition:.4s;}
+        .api-dot.online{background:var(--green);box-shadow:0 0 6px rgba(0,184,107,.5);}
+        .api-dot.offline{background:var(--red);}
+        .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+        .ph-title{font-family:"Bungee",sans-serif;font-size:22px;color:var(--ink);letter-spacing:.3px;}
+        .ph-sub{font-size:12px;color:var(--ink4);margin-top:3px;letter-spacing:.3px;}
+        .sc-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+        .sc{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:18px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm);transition:all .2s;}
+        .sc:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+        .sc-stripe{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-lg) var(--r-lg) 0 0;}
+        .sc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+        .sc-iw{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+        .sc-lbl{font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--ink4);margin-bottom:5px;text-transform:uppercase;}
+        .sc-val{font-family:"Bungee",sans-serif;font-size:26px;color:var(--ink);letter-spacing:-1px;line-height:1;}
+        .controls{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;}
+        .sw{display:flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:9px 13px;flex:1;min-width:200px;transition:.16s;box-shadow:var(--shadow-sm);}
+        .sw:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,63,255,.07);}
+        .sw input{border:none;outline:none;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--ink);background:transparent;width:100%;}
+        .sw input::placeholder{color:var(--ink4);}
+        .fsel{padding:9px 12px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--ink2);font-size:12px;font-family:'Roboto Mono',monospace;outline:none;cursor:pointer;box-shadow:var(--shadow-sm);}
+        .fsel:focus{border-color:var(--accent);}
+        .card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
+        .card-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1.5px solid var(--border);}
+        .card-title{font-family:"Bungee",sans-serif;font-size:12px;color:var(--ink);letter-spacing:.3px;}
+        .tc{font-size:10px;color:var(--ink3);background:var(--bg2);padding:3px 10px;border-radius:20px;border:1px solid var(--border);}
+        .tw{overflow-x:auto;}
+        table{width:100%;border-collapse:collapse;}
+        thead th{padding:10px 14px;text-align:left;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--ink4);background:var(--bg);border-bottom:1.5px solid var(--border);text-transform:uppercase;white-space:nowrap;}
+        tbody tr{border-bottom:1px solid var(--border);transition:.14s;}
+        tbody tr:last-child{border-bottom:none;}
+        tbody tr:hover{background:var(--bg);}
+        tbody td{padding:11px 14px;font-size:12px;color:var(--ink2);vertical-align:middle;}
+        .tdm{font-family:'Roboto Mono',monospace;font-size:11px;}
+        .tdi{width:48px;height:36px;border-radius:7px;object-fit:cover;}
+        .tdi-fb{width:48px;height:36px;border-radius:7px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:18px;}
+        .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:.8px;text-transform:uppercase;}
+        .badge-AVAILABLE{background:var(--green-l);color:#007f4e;border:1px solid rgba(0,184,107,.2);}
+        .badge-BOOKED{background:var(--red-l);color:var(--red);border:1px solid rgba(255,59,92,.2);}
+        .badge-MAINTENANCE{background:var(--bg2);color:var(--ink3);border:1px solid var(--border);}
+        .badge-CAB{background:var(--orange-l);color:var(--orange);}
+        .badge-VAN{background:var(--accent-l);color:var(--accent);}
+        .badge-BUS{background:var(--green-l);color:#007f4e;}
+        .badge-WHEEL{background:#fff4ea;color:#ff7a00;}
+        .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r-sm);font-family:'Roboto Mono',monospace;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:var(--white);color:var(--ink2);cursor:pointer;transition:all .17s;white-space:nowrap;text-decoration:none;}
+        .btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-l);}
+        .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 10px rgba(26,63,255,.25);}
+        .btn-primary:hover{background:var(--accent-d);color:#fff;transform:translateY(-1px);}
+        .btn-sm{padding:5px 11px;font-size:10px;border-radius:6px;}
+        .btn-del{background:transparent;color:var(--red);border:1.5px solid rgba(255,59,92,.25);padding:5px 11px;font-size:10px;border-radius:6px;cursor:pointer;font-family:'Roboto Mono',monospace;transition:.16s;}
+        .btn-del:hover{background:var(--red-l);border-color:var(--red);}
+        .btn-danger{background:var(--red);color:#fff;padding:9px 18px;border-radius:var(--r-sm);font-family:"Bungee",sans-serif;font-size:12px;border:none;cursor:pointer;transition:.17s;box-shadow:0 2px 10px rgba(255,59,92,.28);}
+        .btn-danger:hover{background:#cc2244;transform:translateY(-1px);}
+        .btn-danger:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+        .erow td{text-align:center;padding:48px;color:var(--ink4);}
+        .lrow td{text-align:center;padding:40px;color:var(--ink3);}
+        .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;margin-right:7px;vertical-align:middle;}
+        @keyframes sp{to{transform:rotate(360deg)}}
+        .banner{display:none;align-items:center;gap:10px;background:#fffbea;border:1px solid rgba(245,197,24,.3);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:16px;font-size:11px;color:#9a7200;}
+        .banner.show{display:flex;}
+        #toast{position:fixed;bottom:24px;right:24px;z-index:99999;background:var(--ink);color:#fff;padding:12px 18px;border-radius:var(--r-sm);font-size:11px;box-shadow:var(--shadow-lg);display:none;max-width:300px;}
+        #toast.show{display:block;animation:fi .2s ease;}
+        @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+        #toast.success{background:var(--green);}
+        #toast.error{background:var(--red);}
+        .ov{position:fixed;inset:0;z-index:9999;background:rgba(11,14,26,.5);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;}
+        .ov.open{display:flex;animation:fi .18s ease;}
+        .modal{background:var(--white);border-radius:var(--r-lg);max-width:640px;width:100%;max-height:90vh;overflow-y:auto;animation:popIn .25s cubic-bezier(.16,1,.3,1);box-shadow:var(--shadow-lg);border:1.5px solid var(--border);}
+        .modal-sm{max-width:400px;}
+        @keyframes popIn{from{transform:scale(.93)translateY(10px);opacity:0}to{transform:none;opacity:1}}
+        .mhd{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1.5px solid var(--border);position:sticky;top:0;background:var(--white);z-index:10;}
+        .mhd-title{font-family:"Bungee",sans-serif;font-size:14px;color:var(--ink);letter-spacing:.3px;}
+        .mclose{width:28px;height:28px;background:var(--bg);border:1.5px solid var(--border);border-radius:7px;cursor:pointer;font-size:12px;color:var(--ink3);transition:.15s;display:flex;align-items:center;justify-content:center;}
+        .mclose:hover{background:var(--border);color:var(--ink);}
+        .mbd{padding:20px 22px;}
+        .mft{display:flex;justify-content:flex-end;gap:8px;padding:14px 22px;border-top:1.5px solid var(--border);background:var(--bg);}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+        .form-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+        .fg{margin-bottom:13px;}
+        .fg label{display:block;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink2);margin-bottom:5px;}
+        .fi{width:100%;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--ink);font-size:12px;font-family:'Roboto Mono',monospace;outline:none;transition:.16s;}
+        .fi::placeholder{color:var(--ink4);}
+        .fi:focus{border-color:var(--accent);background:var(--white);box-shadow:0 0 0 3px rgba(26,63,255,.07);}
+        select.fi{appearance:none;}
+        .ferr{color:var(--red);font-size:10px;margin-top:3px;display:none;}
+        .ferr.show{display:block;}
+        .sdiv{font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink4);padding:8px 0 7px;border-bottom:1px solid var(--border);margin-bottom:12px;}
+        .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);margin-bottom:12px;}
+        .tgl{position:relative;width:40px;height:22px;}
+        .tgl input{opacity:0;width:0;height:0;}
+        .sl{position:absolute;cursor:pointer;inset:0;background:var(--border2);border-radius:22px;transition:.22s;}
+        .sl:before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.22s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+        .tgl input:checked+.sl{background:var(--accent);}
+        .tgl input:checked+.sl:before{transform:translateX(18px);}
+        .img-prev{width:100%;height:120px;border-radius:var(--r-sm);object-fit:cover;border:1.5px solid var(--border);margin-bottom:8px;display:none;}
+        .img-prev.show{display:block;}
+        .conf-body{text-align:center;padding:28px;}
+        .conf-ico{font-size:40px;margin-bottom:12px;}
+        .conf-h{font-family:"Bungee",sans-serif;font-size:16px;color:var(--ink);margin-bottom:8px;}
+        .conf-p{font-size:12px;color:var(--ink3);line-height:1.6;}
+        @media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;padding:16px;}.sc-row{grid-template-columns:1fr 1fr;}}
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sb-top">
+        <div class="sb-brand"><div class="sb-brand-ico">🚗</div><div class="sb-brand-name">Rent<span>ify</span></div></div>
+        <div class="sb-profile"><div class="sb-av" id="sbAv">AD</div><div class="sb-av-info"><div class="av-name" id="sbName">Admin User</div><div class="av-role">Administrator</div></div><div class="sb-online"></div></div>
+    </div>
+    <nav class="sb-nav">
+        <div class="sb-sec">Main</div>
+        <a href="admin-dashboard.html" class="sb-link"><span class="ico">🏠</span>Home</a>
+        <div class="sb-sec">Fleet</div>
+        <a href="admin-booking.html" class="sb-link"><span class="ico">📋</span>Bookings</a>
+        <a href="admin-vehicle.html" class="sb-link active"><span class="ico">🚗</span>Vehicles</a>
+        <a href="admin-driver.html" class="sb-link"><span class="ico">🧑‍✈️</span>Drivers</a>
+        <div class="sb-sec">Admin</div>
+        <a href="insurance.html" class="sb-link"><span class="ico">🛡️</span>Insurance</a>
+        <a href="users.html" class="sb-link"><span class="ico">👥</span>Users</a>
+        <a href="#" class="sb-link"><span class="ico">⚙️</span>Settings</a>
+    </nav>
+    <div class="sb-bottom"><button class="sb-logout" onclick="logout()"><span class="ico">🚪</span>Sign Out</button></div>
+</aside>
+
+<main class="main">
+    <div class="api-bar"><div class="api-dot" id="apiDot"></div><span id="apiTxt">Checking…</span><span style="margin-left:auto;font-size:10px;color:var(--ink4)" id="lastFetch"></span></div>
+    <div class="banner" id="banner">⚠️ Not logged in as ADMIN. <a href="../sign-in.html" style="color:#9a7200;font-weight:700;margin-left:4px">Sign in</a></div>
+    <div class="ph">
+        <div><div class="ph-title">🚗 VEHICLE MANAGEMENT</div><div class="ph-sub">Add, edit and manage the vehicle fleet.</div></div>
+        <div style="display:flex;gap:9px">
+            <button class="btn" id="refreshBtn">↺ Refresh</button>
+            <button class="btn btn-primary" id="addBtn">＋ Add Vehicle</button>
+        </div>
+    </div>
+    <div class="sc-row">
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,var(--accent),#6e8fff)"></div><div class="sc-top"><div><div class="sc-lbl">Total Vehicles</div><div class="sc-val" id="st-total">—</div></div><div class="sc-iw" style="background:var(--accent-l)">🚗</div></div></div>
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,var(--green),#00e5a0)"></div><div class="sc-top"><div><div class="sc-lbl">Available</div><div class="sc-val" id="st-avail">—</div></div><div class="sc-iw" style="background:var(--green-l)">✅</div></div></div>
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,var(--red),#ff7090)"></div><div class="sc-top"><div><div class="sc-lbl">Booked</div><div class="sc-val" id="st-booked">—</div></div><div class="sc-iw" style="background:var(--red-l)">🔴</div></div></div>
+        <div class="sc"><div class="sc-stripe" style="background:linear-gradient(90deg,var(--ink3),var(--ink4))"></div><div class="sc-top"><div><div class="sc-lbl">Maintenance</div><div class="sc-val" id="st-maint">—</div></div><div class="sc-iw" style="background:var(--bg2)">🔧</div></div></div>
+    </div>
+    <div class="controls">
+        <div class="sw"><span style="color:var(--ink4)">🔍</span><input type="text" id="tSearch" placeholder="Search model, plate, description…"></div>
+        <select class="fsel" id="tType"><option value="">All Types</option><option value="CAB">CAB</option><option value="VAN">VAN</option><option value="BUS">BUS</option><option value="WHEEL">WHEEL</option></select>
+        <select class="fsel" id="tStatus"><option value="">All Status</option><option value="AVAILABLE">AVAILABLE</option><option value="BOOKED">BOOKED</option><option value="MAINTENANCE">MAINTENANCE</option></select>
+    </div>
+    <div class="card">
+        <div class="card-hd"><span class="card-title">FLEET LIST</span><span class="tc"><span id="tCount">0</span> vehicles</span></div>
+        <div class="tw">
+            <table>
+                <thead><tr><th style="width:56px">Image</th><th>Model</th><th>Plate</th><th>Type</th><th>Seats</th><th>Year</th><th>Price/Day</th><th>Status</th><th>Insurance</th><th>Actions</th></tr></thead>
+                <tbody id="vTable"><tr class="lrow"><td colspan="10"><span class="spin"></span>Loading…</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!-- ADD/EDIT MODAL -->
+<div class="ov" id="vModal">
+    <div class="modal">
+        <div class="mhd"><div class="mhd-title" id="mTitle">ADD NEW VEHICLE</div><button class="mclose" id="vmClose">✕</button></div>
+        <div class="mbd">
+            <div class="sdiv">Basic Information</div>
+            <div class="form-row">
+                <div class="fg"><label>Model Name *</label><input class="fi" id="v_model" placeholder="Toyota Prius"><div class="ferr" id="e_model">Min 2 characters</div></div>
+                <div class="fg"><label>Plate Number *</label><input class="fi" id="v_plate" placeholder="CAB-1234" style="text-transform:uppercase"><div class="ferr" id="e_plate">Format: AB-1234</div></div>
+            </div>
+            <div class="form-row3">
+                <div class="fg"><label>Type *</label><select class="fi" id="v_type"><option value="">Select type</option><option value="CAB">CAB</option><option value="VAN">VAN</option><option value="BUS">BUS</option><option value="WHEEL">WHEEL</option></select><div class="ferr" id="e_type">Required</div></div>
+                <div class="fg"><label>Capacity *</label><input type="number" class="fi" id="v_cap" placeholder="4" min="1" max="60"><div class="ferr" id="e_cap">1–60 seats</div></div>
+                <div class="fg"><label>Year *</label><input type="number" class="fi" id="v_year" placeholder="2022" min="1990" max="2030"><div class="ferr" id="e_year">1990–2030</div></div>
+            </div>
+            <div class="form-row">
+                <div class="fg"><label>Price Per Day (LKR) *</label><input type="number" class="fi" id="v_price" placeholder="5000" min="0"><div class="ferr" id="e_price">Must be > 0</div></div>
+                <div class="fg"><label>Status</label><select class="fi" id="v_status"><option value="AVAILABLE">AVAILABLE</option><option value="BOOKED">BOOKED</option><option value="MAINTENANCE">MAINTENANCE</option></select></div>
+            </div>
+            <div class="fg"><label>Description</label><textarea class="fi" id="v_desc" rows="2" placeholder="Optional…" maxlength="500" style="resize:vertical"></textarea></div>
+            <div class="sdiv">Insurance</div>
+            <div class="toggle-row"><span style="font-size:12px;color:var(--ink2)">Insurance Active</span><label class="tgl"><input type="checkbox" id="v_ins" checked><span class="sl"></span></label></div>
+            <div class="fg"><label>Insurance Expiry Date</label><input type="date" class="fi" id="v_exp"></div>
+            <div class="sdiv">Vehicle Image</div>
+            <img class="img-prev" id="imgPrev" src="" alt="preview">
+            <div class="fg"><label>Image URL</label><input type="text" class="fi" id="v_img" placeholder="https://…"></div>
+        </div>
+        <div class="mft"><button class="btn" id="vmCancel">Cancel</button><button class="btn btn-primary" id="vSave">Save Vehicle</button></div>
+    </div>
+</div>
+
+<!-- DELETE CONFIRM -->
+<div class="ov" id="delModal">
+    <div class="modal modal-sm">
+        <div class="mhd"><div class="mhd-title">CONFIRM DELETE</div><button class="mclose" id="delClose">✕</button></div>
+        <div class="conf-body"><div class="conf-ico">🗑️</div><div class="conf-h">Delete this vehicle?</div><div class="conf-p">Remove <strong id="delName">—</strong>. This cannot be undone.</div></div>
+        <div class="mft"><button class="btn" id="delCancel">Cancel</button><button class="btn-danger" id="delConfirm">Delete Permanently</button></div>
+    </div>
+</div>
+<div id="toast"></div>
+
+<script>
+    const API='http://localhost:8081/api/v1';
+    let allV=[],editId=null,delId=null;
+    const ICON={CAB:'🚕',VAN:'🚐',BUS:'🚌',WHEEL:'🛺'};
+    const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const fmtP=p=>'Rs '+Number(p||0).toLocaleString('en-LK');
+    function showToast(m,t){const $t=$('#toast');$t.text(m).attr('class','toast show '+(t||''));clearTimeout($t.data('tt'));$t.data('tt',setTimeout(()=>$t.attr('class','toast'),3400));}
+    function logout(){['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(k=>localStorage.removeItem(k));window.location.href='../sign-in.html';}
+    function getToken(){return localStorage.getItem('rentify_token')||'';}
+    function authH(){const t=getToken();return t?{'Authorization':'Bearer '+t}:{};}
+    function parseErr(x,fb){if(!x?.responseJSON)return fb||'Network error';const j=x.responseJSON;if(j.errors)return Object.values(j.errors).join(', ');return j.message||j.error||fb||'Error';}
+
+    // Init
+    const fn=localStorage.getItem('rentify_fullName')||localStorage.getItem('rentify_username')||'Admin';
+    const ini=fn.trim().split(/\s+/).map(x=>x[0]?.toUpperCase()).join('').slice(0,2)||'AD';
+    $('#sbAv').text(ini);$('#sbName').text(fn);
+    const role=localStorage.getItem('rentify_role')||'';
+    if(!getToken())$('#banner').addClass('show');
+    else if(role!=='ADMIN')$('#banner').html('⚠️ Logged in as USER. Write operations require ADMIN.').addClass('show');
+
+    function checkApi(){$.ajax({url:API+'/vehicles',method:'GET',timeout:5000,success:()=>{$('#apiDot').addClass('online').removeClass('offline');$('#apiTxt').text('API Online');},error:()=>{$('#apiDot').addClass('offline').removeClass('online');$('#apiTxt').text('API Offline');}});}
+    function fetchV(){
+        $('#vTable').html('<tr class="lrow"><td colspan="10"><span class="spin"></span>Loading…</td></tr>');
+        $.ajax({url:API+'/vehicles',headers:authH(),success:function(r){allV=Array.isArray(r)?r:(r.data||r.content||[]);updStats();renderTable(getFiltered());$('#lastFetch').text('Updated: '+new Date().toLocaleTimeString('en-LK'));},error:function(x){const m=parseErr(x,'Failed');$('#vTable').html(`<tr class="erow"><td colspan="10">⚠️ ${esc(m)}</td></tr>`);showToast(m,'error');}});
+    }
+    function updStats(){$('#st-total').text(allV.length);$('#st-avail').text(allV.filter(v=>v.status==='AVAILABLE').length);$('#st-booked').text(allV.filter(v=>v.status==='BOOKED').length);$('#st-maint').text(allV.filter(v=>v.status==='MAINTENANCE').length);}
+    function getFiltered(){const q=$('#tSearch').val().toLowerCase().trim(),ty=$('#tType').val(),st=$('#tStatus').val();return allV.filter(v=>{if(ty&&v.type!==ty)return false;if(st&&v.status!==st)return false;if(q&&!v.model.toLowerCase().includes(q)&&!(v.plateNumber||'').toLowerCase().includes(q)&&!(v.description||'').toLowerCase().includes(q))return false;return true;});}
+    function renderTable(list){
+        $('#tCount').text(list.length);
+        if(!list.length){$('#vTable').html('<tr class="erow"><td colspan="10">🔍 No vehicles match.</td></tr>');return;}
+        $('#vTable').html(list.map(v=>{
+            const ico=ICON[v.type]||'🚗';
+            const img=v.image?`<img class="tdi" src="${esc(v.image)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=\\'tdi-fb\\'>${ico}</div>'">`:`<div class="tdi-fb">${ico}</div>`;
+            const insExp=v.insuranceExpiryDate?`<div style="font-size:10px;color:${new Date(v.insuranceExpiryDate)<new Date(Date.now()+30*86400000)?'var(--red)':'var(--ink4)'};margin-top:2px;font-family:'Roboto Mono',monospace">${v.insuranceExpiryDate}</div>`:'';
+            return`<tr>
+      <td>${img}</td>
+      <td style="font-weight:700;color:var(--ink)">${esc(v.model)}</td>
+      <td><span class="tdm">${esc(v.plateNumber||'—')}</span></td>
+      <td><span class="badge badge-${esc(v.type)}">${esc(v.type)}</span></td>
+      <td>${v.capacity}</td>
+      <td>${v.year||'—'}</td>
+      <td style="font-family:'Bungee',sans-serif;font-size:12px;color:var(--green)">${fmtP(v.pricePerDay)}</td>
+      <td><span class="badge badge-${esc(v.status||'AVAILABLE')}">${esc(v.status||'AVAILABLE')}</span></td>
+      <td>${v.insuranceActive?`<span style="color:var(--green);font-size:11px;font-weight:700">✓ Active</span>${insExp}`:`<span style="color:var(--red);font-size:11px;font-weight:700">✗ Inactive</span>${insExp}`}</td>
+      <td><div style="display:flex;gap:5px">
+        <button class="btn btn-sm btn-edit" data-id="${v.id}">✏️ Edit</button>
+        <button class="btn-del btn-del-v" data-id="${v.id}" data-name="${esc(v.model)}">🗑️</button>
+      </div></td>
+    </tr>`;
+        }).join(''));
+    }
+    function openAdd(){editId=null;$('#mTitle').text('ADD NEW VEHICLE');$('#vSave').text('Add Vehicle').prop('disabled',false);clearForm();$('#vModal').addClass('open');}
+    function openEdit(id){
+        editId=id;$('#mTitle').text('EDIT VEHICLE');$('#vSave').prop('disabled',true).text('Loading…');clearForm();$('#vModal').addClass('open');
+        $.ajax({url:API+'/vehicles/'+id,headers:authH(),success:function(r){
+                const v=(r&&r.data)?r.data:r;
+                $('#v_model').val(v.model||'');$('#v_plate').val(v.plateNumber||'');$('#v_type').val(v.type||'');$('#v_cap').val(v.capacity||'');$('#v_year').val(v.year||'');$('#v_price').val(v.pricePerDay||'');$('#v_status').val(v.status||'AVAILABLE');$('#v_desc').val(v.description||'');$('#v_ins').prop('checked',v.insuranceActive!==false);$('#v_exp').val(v.insuranceExpiryDate||'');$('#v_img').val(v.image||'');
+                if(v.image)$('#imgPrev').attr('src',v.image).addClass('show');
+                $('#vSave').prop('disabled',false).text('Save Changes');
+            },error:function(x){showToast(parseErr(x,'Failed'),'error');$('#vModal').removeClass('open');}});
+    }
+    function clearForm(){$('#v_model,#v_plate,#v_type,#v_cap,#v_year,#v_price,#v_desc,#v_exp,#v_img').val('');$('#v_status').val('AVAILABLE');$('#v_ins').prop('checked',true);$('#imgPrev').removeClass('show').attr('src','');$('.ferr').removeClass('show');}
+    function validate(){
+        let ok=true;const model=$('#v_model').val().trim(),plate=$('#v_plate').val().trim().toUpperCase(),type=$('#v_type').val(),cap=parseInt($('#v_cap').val()),year=parseInt($('#v_year').val()),price=parseFloat($('#v_price').val());
+        const chk=(c,id)=>{if(!c){$('#'+id).addClass('show');ok=false;}else{$('#'+id).removeClass('show');}};
+        chk(model&&model.length>=2&&model.length<=100,'e_model');
+        chk(plate&&/^[A-Z]{2,3}-\d{4}$/.test(plate),'e_plate');if(plate)$('#v_plate').val(plate);
+        chk(!!type,'e_type');chk(cap&&cap>=1&&cap<=60,'e_cap');chk(year&&year>=1990&&year<=2030,'e_year');chk(!isNaN(price)&&price>0,'e_price');
+        return ok;
+    }
+    function buildDTO(){return{model:$('#v_model').val().trim(),plateNumber:$('#v_plate').val().trim().toUpperCase(),type:$('#v_type').val(),capacity:parseInt($('#v_cap').val()),year:parseInt($('#v_year').val()),pricePerDay:parseFloat($('#v_price').val()),status:$('#v_status').val(),description:$('#v_desc').val().trim()||null,insuranceActive:$('#v_ins').prop('checked'),insuranceExpiryDate:$('#v_exp').val()||null,image:$('#v_img').val().trim()||null};}
+    function saveV(){
+        if(!validate())return;if(!getToken()){showToast('Not logged in','error');return;}
+        const dto=buildDTO(),isEdit=editId!==null,url=isEdit?`${API}/vehicles/${editId}`:`${API}/vehicles`,method=isEdit?'PUT':'POST';
+        $('#vSave').prop('disabled',true).text(isEdit?'Saving…':'Adding…');
+        $.ajax({url,method,contentType:'application/json',headers:authH(),data:JSON.stringify(dto),
+            success:function(r){const sv=(r&&r.data)?r.data:r;if(isEdit){const i=allV.findIndex(v=>v.id===editId);if(i>=0)allV[i]=sv;else allV.push(sv);}else allV.push(sv);updStats();renderTable(getFiltered());$('#vModal').removeClass('open');showToast((isEdit?'"'+sv.model+'" updated':'New vehicle added')+' ✅','success');},
+            error:function(x){let m=parseErr(x,isEdit?'Update failed':'Add failed');if(x.status===401)m='401 — Token expired';if(x.status===403)m='403 — ADMIN required';if(x.status===0)m='Cannot reach server';showToast(m,'error');},
+            complete:function(){$('#vSave').prop('disabled',false).text(editId!==null?'Save Changes':'Add Vehicle');}
+        });
+    }
+    function openDel(id,name){delId=id;$('#delName').text(name);$('#delModal').addClass('open');}
+    function doDelete(){
+        if(!delId)return;if(!getToken()){showToast('Not logged in','error');return;}
+        $('#delConfirm').prop('disabled',true).text('Deleting…');
+        $.ajax({url:`${API}/vehicles/${delId}`,method:'DELETE',headers:authH(),
+            success:function(){allV=allV.filter(v=>v.id!==delId);updStats();renderTable(getFiltered());$('#delModal').removeClass('open');showToast('Vehicle deleted ✅','success');},
+            error:function(x){showToast(parseErr(x,'Delete failed'),'error');},
+            complete:function(){$('#delConfirm').prop('disabled',false).text('Delete Permanently');}
+        });
+    }
+    $(function(){
+        checkApi();fetchV();
+        $('#addBtn').on('click',openAdd);
+        $('#refreshBtn').on('click',fetchV);
+        let sT;$('#tSearch').on('input',function(){clearTimeout(sT);sT=setTimeout(()=>renderTable(getFiltered()),280);});
+        $('#tType,#tStatus').on('change',()=>renderTable(getFiltered()));
+        $(document).on('click','.btn-edit',function(e){e.stopPropagation();openEdit(parseInt($(this).data('id')));});
+        $(document).on('click','.btn-del-v',function(e){e.stopPropagation();openDel(parseInt($(this).data('id')),$(this).data('name'));});
+        $('#vmClose,#vmCancel').on('click',()=>{$('#vModal').removeClass('open');editId=null;});
+        $('#vModal').on('click',function(e){if(e.target===this){$(this).removeClass('open');editId=null;}});
+        $('#vSave').on('click',saveV);
+        $('#delClose,#delCancel').on('click',()=>$('#delModal').removeClass('open'));
+        $('#delModal').on('click',function(e){if(e.target===this)$(this).removeClass('open');});
+        $('#delConfirm').on('click',doDelete);
+        let imgT;$('#v_img').on('input',function(){clearTimeout(imgT);const u=$(this).val().trim();imgT=setTimeout(()=>{if(u)$('#imgPrev').attr('src',u).addClass('show').off('error').on('error',function(){$(this).removeClass('show');});else $('#imgPrev').removeClass('show').attr('src','');},600);});
+        $('#v_plate').on('input',function(){$(this).val($(this).val().toUpperCase());});
+    });
+</script>
+</body>
+</html>
