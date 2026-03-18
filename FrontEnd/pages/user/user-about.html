@@ -391,6 +391,7 @@
         const t=parseInt(el.dataset.count);let c=0;const step=Math.max(1,Math.floor(t/80));
         const obs=new IntersectionObserver(([e])=>{if(!e.isIntersecting)return;obs.unobserve(el);const go=setInterval(()=>{c=Math.min(c+step,t);el.textContent=t>=98?c+'%':c.toLocaleString();if(c>=t)clearInterval(go);},20);});obs.observe(el);
     });
+
     // Stars
     let selStar=0,commentStar=0;
     document.querySelectorAll('#starSelector .s').forEach(s=>{
