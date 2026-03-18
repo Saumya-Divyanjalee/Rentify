@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Gallery — Rentify Sri Lanka</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+        :root{--white:#fff;--bg:#f8f9fc;--ink:#0a0d1a;--ink2:#1e2340;--ink3:#4a5278;--ink4:#8890b0;--border:#e8eaf2;--accent:#1a3fff;--accent-l:#eef1ff;--green:#00b86b;--red:#ff3b5c;--yellow:#f5c518;--shadow:0 4px 24px rgba(10,13,26,.08);--shadow-lg:0 16px 56px rgba(10,13,26,.14);--r:12px;--r-lg:20px;}
+        html{scroll-behavior:smooth;font-size:14px;}
+        body{font-family:'Roboto Mono',monospace;background:var(--white);color:var(--ink);overflow-x:hidden;}
+        nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;padding:0 48px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.96);backdrop-filter:blur(20px);border-bottom:1.5px solid var(--border);box-shadow:0 2px 16px rgba(10,13,26,.05);}
+        .logo{font-family:"Bungee",sans-serif;font-size:22px;text-decoration:none;color:var(--ink);}
+        .logo span{color:var(--accent);}
+        .nav-links{display:flex;gap:4px;}
+        .nav-links a{text-decoration:none;color:var(--ink3);font-size:12px;font-weight:500;padding:8px 14px;border-radius:8px;transition:.18s;}
+        .nav-links a:hover{color:var(--ink);background:var(--bg);}
+        .nav-links a.active{color:var(--accent);background:var(--accent-l);font-weight:700;}
+        .nav-right{display:flex;align-items:center;gap:10px;}
+        .nav-btn{background:var(--accent);color:#fff;padding:9px 20px;border-radius:9px;font-size:12px;font-weight:600;font-family:'Roboto Mono',monospace;border:none;cursor:pointer;transition:.18s;text-decoration:none;display:inline-flex;align-items:center;gap:7px;box-shadow:0 2px 12px rgba(26,63,255,.25);}
+        .nav-btn:hover{background:#0028cc;transform:translateY(-1px);}
+        .user-menu{position:relative;}
+        .user-avatar{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#6e8fff);display:flex;align-items:center;justify-content:center;font-family:"Bungee",sans-serif;font-size:13px;color:#fff;cursor:pointer;border:2px solid rgba(26,63,255,.2);transition:.18s;}
+        .user-avatar:hover{transform:scale(1.05);}
+        .user-dropdown{position:absolute;top:calc(100%+10px);right:0;background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);min-width:200px;padding:8px;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transform:translateY(-8px);transition:.2s;z-index:99;}
+        .user-menu:hover .user-dropdown{opacity:1;pointer-events:all;transform:translateY(0);}
+        .ud-name{font-family:"Bungee",sans-serif;font-size:11px;color:var(--ink);padding:8px 12px 4px;}
+        .ud-role{font-size:9px;color:var(--accent);background:var(--accent-l);padding:2px 7px;border-radius:4px;margin:0 12px 8px;display:inline-block;font-family:"Bungee",sans-serif;}
+        .ud-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;text-decoration:none;color:var(--ink3);font-size:11px;cursor:pointer;transition:.15s;background:none;border:none;width:100%;text-align:left;font-family:'Roboto Mono',monospace;}
+        .ud-item:hover{background:var(--bg);color:var(--ink);}
+        .ud-item.logout:hover{background:#fff0f3;color:var(--red);}
+        .ud-divider{height:1px;background:var(--border);margin:5px 0;}
+        .signin-btn{padding:8px 16px;border:1.5px solid var(--border);border-radius:9px;font-size:12px;color:var(--ink3);background:#fff;cursor:pointer;font-family:'Roboto Mono',monospace;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:.18s;}
+        .signin-btn:hover{border-color:var(--accent);color:var(--accent);}
+        .hero{position:relative;height:80vh;min-height:480px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-top:68px;}
+        .hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+        .hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,13,26,.78) 0%,rgba(26,63,255,.15) 100%);z-index:1;}
+        .hero-cnt{position:relative;z-index:2;text-align:center;padding:0 24px;max-width:760px;}
+        .hbadge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:"Bungee",sans-serif;font-size:10px;letter-spacing:2px;padding:8px 18px;border-radius:20px;margin-bottom:22px;}
+        .hero-cnt h1{font-family:"Bungee",sans-serif;font-size:clamp(40px,6vw,76px);color:#fff;letter-spacing:-2px;line-height:1;margin-bottom:16px;}
+        .hero-cnt h1 span{color:var(--yellow);}
+        .hero-cnt p{font-size:13px;color:rgba(255,255,255,.75);max-width:460px;margin:0 auto;line-height:1.7;}
+        .filter-bar{background:#fff;padding:18px 48px;border-bottom:1.5px solid var(--border);position:sticky;top:68px;z-index:500;display:flex;gap:8px;align-items:center;flex-wrap:wrap;box-shadow:0 2px 12px rgba(10,13,26,.04);}
+        .f-btn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--ink3);font-size:11px;font-family:'Roboto Mono',monospace;cursor:pointer;transition:.18s;}
+        .f-btn:hover{border-color:var(--accent);color:var(--ink);}
+        .f-btn.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+        .gallery-wrap{padding:48px;}
+        .g-grid{columns:4;column-gap:16px;}
+        .g-item{break-inside:avoid;margin-bottom:16px;border-radius:var(--r);overflow:hidden;position:relative;cursor:pointer;box-shadow:var(--shadow);}
+        .g-item img{width:100%;display:block;transition:transform .4s;}
+        .g-item:hover img{transform:scale(1.05);}
+        .g-cat-badge{position:absolute;top:10px;left:10px;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1px;padding:4px 10px;border-radius:20px;background:rgba(10,13,26,.65);backdrop-filter:blur(6px);color:#fff;}
+        .g-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,13,26,.7) 0%,transparent 50%);opacity:0;transition:.25s;display:flex;align-items:flex-end;padding:14px;}
+        .g-item:hover .g-overlay{opacity:1;}
+        .g-info h4{font-family:"Bungee",sans-serif;font-size:11px;color:#fff;margin-bottom:3px;letter-spacing:.3px;}
+        .g-info span{font-size:10px;color:rgba(255,255,255,.7);}
+        .video-section{padding:60px 48px;background:var(--bg);}
+        .sec-tag{font-family:"Bungee",sans-serif;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);background:var(--accent-l);padding:5px 12px;border-radius:20px;display:inline-block;margin-bottom:14px;}
+        .sec-title{font-family:"Bungee",sans-serif;font-size:clamp(24px,4vw,38px);color:var(--ink);letter-spacing:-1px;margin-bottom:32px;}
+        .v-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+        .v-embed{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow);transition:.25s;}
+        .v-embed:hover{box-shadow:var(--shadow-lg);border-color:var(--accent);}
+        .v-embed iframe{width:100%;height:220px;display:block;}
+        .v-info{padding:18px;}
+        .v-info h4{font-family:"Bungee",sans-serif;font-size:12px;color:var(--ink);margin-bottom:4px;letter-spacing:.3px;}
+        .v-info p{font-size:11px;color:var(--ink4);}
+        .stats-strip{background:var(--ink);padding:56px 48px;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+        .st-item{text-align:center;}
+        .st-n{font-family:"Bungee",sans-serif;font-size:36px;color:var(--yellow);letter-spacing:-2px;margin-bottom:8px;}
+        .st-l{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:1.5px;text-transform:uppercase;}
+        .gal-ad{background:linear-gradient(135deg,var(--accent),#0028cc);padding:60px 48px;text-align:center;}
+        .gal-ad h2{font-family:"Bungee",sans-serif;font-size:26px;color:#fff;letter-spacing:-1px;margin-bottom:14px;}
+        .btn-blk{background:var(--yellow);color:var(--ink);padding:13px 28px;border-radius:10px;font-family:"Bungee",sans-serif;font-size:12px;letter-spacing:1px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:.18s;}
+        .btn-blk:hover{background:#e0b200;transform:translateY(-1px);}
+        footer{background:var(--ink);padding:60px 48px 0;}
+        .ft-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;}
+        .ft-logo{font-family:"Bungee",sans-serif;font-size:22px;color:#fff;margin-bottom:12px;}
+        .ft-logo span{color:var(--accent);}
+        .ft-desc{font-size:11px;color:rgba(255,255,255,.4);line-height:1.8;max-width:240px;}
+        .ft-soc{display:flex;gap:10px;margin-top:18px;}
+        .soc-b{width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:13px;text-decoration:none;transition:.18s;}
+        .soc-b:hover{background:var(--accent);color:#fff;}
+        .ft-col h4{font-family:"Bungee",sans-serif;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:16px;}
+        .ft-col a{display:block;text-decoration:none;color:rgba(255,255,255,.45);font-size:11px;margin-bottom:9px;transition:.18s;}
+        .ft-col a:hover{color:#fff;}
+        .ct-item{display:flex;gap:10px;margin-bottom:10px;}
+        .ct-ic{width:28px;height:28px;background:rgba(255,255,255,.06);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);flex-shrink:0;}
+        .ct-txt{font-size:10px;color:rgba(255,255,255,.4);line-height:1.5;}
+        .ct-txt strong{display:block;color:rgba(255,255,255,.6);font-family:"Bungee",sans-serif;font-size:9px;letter-spacing:.5px;margin-bottom:2px;}
+        .ft-bottom{border-top:1px solid rgba(255,255,255,.06);padding:18px 0;display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.25);}
+        .wa{position:fixed;bottom:28px;right:28px;z-index:999;width:56px;height:56px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:26px;color:#fff;box-shadow:0 8px 28px rgba(37,211,102,.4);transition:.2s;}
+        .wa:hover{transform:scale(1.12);}
+        .wa-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(37,211,102,.4);animation:ring 2s infinite;}
+        @keyframes ring{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.5);opacity:0}}
+        .lb{position:fixed;inset:0;z-index:9999;background:rgba(10,13,26,.92);backdrop-filter:blur(16px);display:none;align-items:center;justify-content:center;padding:20px;}
+        .lb.show{display:flex;animation:fadeIn .2s ease;}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        .lb-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:9px;width:40px;height:40px;cursor:pointer;font-size:16px;color:#fff;display:flex;align-items:center;justify-content:center;}
+        .lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;width:48px;height:56px;cursor:pointer;font-size:24px;color:#fff;display:flex;align-items:center;justify-content:center;transition:.18s;}
+        .lb-nav:hover{background:rgba(255,255,255,.2);}
+        .lb-prev{left:20px;}.lb-next{right:20px;}
+        .lb-inner{max-width:860px;width:100%;text-align:center;}
+        .lb-img{max-width:100%;max-height:70vh;border-radius:var(--r-lg);object-fit:contain;}
+        .lb-title{font-family:"Bungee",sans-serif;font-size:16px;color:#fff;margin-top:16px;}
+        .lb-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;}
+        .reveal{opacity:0;transform:translateY(28px);transition:.6s ease;}
+        .reveal.vis{opacity:1;transform:none;}
+        @media(max-width:900px){nav{padding:0 20px;}.nav-links{display:none;}.g-grid{columns:2;}.v-grid{grid-template-columns:1fr;}.stats-strip{grid-template-columns:1fr 1fr;}.gallery-wrap{padding:24px 20px;}.filter-bar{padding:14px 20px;}.ft-grid{grid-template-columns:1fr 1fr;}}
+    </style>
+</head>
+<body>
+<nav>
+    <a href="user-dashboard.html" class="logo">Rent<span>ify</span></a>
+    <div class="nav-links"><a href="user-dashboard.html">Home</a><a href="user-about.html">About</a><a href="user-destinations.html">Destinations</a><a href="user-vehicle.html">Cabs</a><a href="user-gallery.html" class="active">Gallery</a><a href="user-contact.html">Contact</a></div>
+    <div class="nav-right" id="navRight"></div>
+</nav>
+
+<div class="hero">
+    <video class="hero-video" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1519046904884-53103b34b206?w=1920&q=80">
+        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        <img src="https://images.unsplash.com/photo-1519046904884-53103b34b206?w=1920&q=80" style="width:100%;height:100%;object-fit:cover;">
+    </video>
+    <div class="hero-overlay"></div>
+    <div class="hero-cnt">
+        <div class="hbadge">📸 Our Gallery</div>
+        <h1 class="bungee-regular" style="font-family:'Bungee',sans-serif;">Moments <span>Captured</span><br>in Every Journey</h1>
+        <p>Browse weddings, island trips, airport transfers and everyday beautiful rides.</p>
+    </div>
+</div>
+
+<div class="filter-bar">
+    <button class="f-btn active" onclick="filterGal('all',this)">🌟 All</button>
+    <button class="f-btn" onclick="filterGal('wedding',this)">💍 Wedding</button>
+    <button class="f-btn" onclick="filterGal('trip',this)">🏖️ Island Trips</button>
+    <button class="f-btn" onclick="filterGal('usual',this)">🚗 Regular Rides</button>
+    <button class="f-btn" onclick="filterGal('airport',this)">✈️ Airport Transfers</button>
+    <button class="f-btn" onclick="filterGal('corporate',this)">💼 Corporate</button>
+</div>
+
+<div class="gallery-wrap">
+    <div class="g-grid" id="galGrid"></div>
+    <div style="text-align:center;margin-top:32px;" id="loadMoreWrap">
+        <button onclick="loadMore()" style="padding:13px 36px;background:var(--ink);color:#fff;border:none;border-radius:12px;font-family:'Bungee',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;" id="loadBtn">Load More Photos</button>
+    </div>
+</div>
+
+<div class="video-section reveal">
+    <div class="sec-tag">🎬 Video Gallery</div>
+    <h2 class="sec-title">Watch the Journey</h2>
+    <div class="v-grid">
+        <div class="v-embed"><iframe src="https://www.youtube.com/embed/KCn5Gc38oO4" title="Sri Lanka" allowfullscreen loading="lazy"></iframe><div class="v-info"><h4>🌴 Sri Lanka Highlights Tour</h4><p>Explore the best destinations across the island with Rentify</p></div></div>
+        <div class="v-embed"><iframe src="https://www.youtube.com/embed/WShm59EQ_Iw" title="Kandy" allowfullscreen loading="lazy"></iframe><div class="v-info"><h4>🏛️ Kandy Cultural Tour</h4><p>The Sacred City — Temple of Tooth, Cultural Dances & More</p></div></div>
+        <div class="v-embed"><iframe src="https://www.youtube.com/embed/I2ScxQCrM0A" title="Ella" allowfullscreen loading="lazy"></iframe><div class="v-info"><h4>🚂 Ella & Hill Country</h4><p>Nine Arch Bridge, tea trails & the world's most scenic train ride</p></div></div>
+        <div class="v-embed"><iframe src="https://www.youtube.com/embed/OlO3rvp2feg" title="Yala" allowfullscreen loading="lazy"></iframe><div class="v-info"><h4>🐆 Yala Safari Drive</h4><p>Leopards, elephants and wildlife — the Rentify Yala experience</p></div></div>
+    </div>
+</div>
+
+<div class="stats-strip reveal">
+    <div class="st-item"><div class="st-n" data-c="4800">0</div><div class="st-l">Photos & Videos</div></div>
+    <div class="st-item"><div class="st-n" data-c="250">0</div><div class="st-l">Weddings Shot</div></div>
+    <div class="st-item"><div class="st-n" data-c="120">0</div><div class="st-l">Tour Trips Covered</div></div>
+    <div class="st-item"><div class="st-n" data-c="98">0</div><div class="st-l">% Happy Customers</div></div>
+</div>
+
+<div class="gal-ad reveal">
+    <h2>Want to Be in Our Gallery? Book a Rentify Ride Today!</h2>
+    <a href="user-vehicle.html" class="btn-blk" style="margin-top:8px;"><i class="fas fa-car"></i> Book Now →</a>
+</div>
+
+<footer>
+    <div class="ft-grid">
+        <div><div class="ft-logo">Rent<span>ify</span></div><p class="ft-desc">Sri Lanka's most trusted cab & travel service.</p><div class="ft-soc"><a class="soc-b" href="#"><i class="fab fa-facebook-f"></i></a><a class="soc-b" href="#"><i class="fab fa-instagram"></i></a><a class="soc-b" href="#"><i class="fab fa-whatsapp"></i></a></div></div>
+        <div class="ft-col"><h4>Quick Links</h4><a href="user-dashboard.html">Home</a><a href="user-about.html">About</a><a href="user-destinations.html">Destinations</a><a href="user-vehicle.html">Cabs</a><a href="user-gallery.html">Gallery</a><a href="user-contact.html">Contact</a></div>
+        <div class="ft-col"><h4>Gallery</h4><a href="#">Wedding</a><a href="#">Island Trips</a><a href="#">Airport</a><a href="#">Corporate</a><a href="#">Regular Rides</a></div>
+        <div class="ft-col"><h4>Contact</h4><div class="ct-item"><div class="ct-ic"><i class="fas fa-phone"></i></div><div class="ct-txt"><strong>Phone</strong>+94 77 123 4567</div></div><div class="ct-item"><div class="ct-ic"><i class="fas fa-envelope"></i></div><div class="ct-txt"><strong>Email</strong>hello@rentify.lk</div></div></div>
+    </div>
+    <div class="ft-bottom"><span>© 2026 Rentify. All Rights Reserved.</span><span>Made with ❤️ in Sri Lanka 🇱🇰</span></div>
+</footer>
+
+<div class="lb" id="lb" onclick="closeLB(event)">
+    <button class="lb-close" onclick="document.getElementById('lb').classList.remove('show')">✕</button>
+    <button class="lb-nav lb-prev" onclick="navLB(-1)">‹</button>
+    <button class="lb-nav lb-next" onclick="navLB(1)">›</button>
+    <div class="lb-inner"><img class="lb-img" id="lb-img" src="" alt=""><div class="lb-title" id="lb-title"></div><div class="lb-sub" id="lb-sub"></div></div>
+</div>
+
+<a class="wa" href="https://wa.me/94771234567" target="_blank"><span class="wa-ring"></span><i class="fab fa-whatsapp"></i></a>
+
+<script>
+    (function(){
+        const token=localStorage.getItem('rentify_token'),role=localStorage.getItem('rentify_role'),
+            username=localStorage.getItem('rentify_username')||'User',fullName=localStorage.getItem('rentify_fullName')||username;
+        const el=document.getElementById('navRight');
+        const ini=fullName.trim().split(/\s+/).map(x=>x[0]?.toUpperCase()).join('').slice(0,2)||'U';
+        if(token&&role){
+            el.innerHTML='<a href="user-vehicle.html" class="nav-btn"><i class="fas fa-car"></i> Book Now</a><div class="user-menu"><div class="user-avatar" title="'+fullName+'">'+ini+'</div><div class="user-dropdown"><div class="ud-name">'+fullName+'</div><div class="ud-role">'+(role==='ADMIN'?'👑 Administrator':'🧑 User')+'</div>'+(role==='ADMIN'?'<a class="ud-item" href="../admin/admin-dashboard.html"><span>🏠</span> Admin Dashboard</a>':'<a class="ud-item" href="profile-update.html"><span>👤</span> My Profile</a>')+'<a class="ud-item" href="#"><span>📋</span> My Bookings</a><div class="ud-divider"></div><button class="ud-item logout" id="logoutBtn"><span>🚪</span> Sign Out</button></div></div>';
+            document.getElementById('logoutBtn').onclick=function(){['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(function(k){localStorage.removeItem(k);});location.href='../sign-in.html';};
+        } else {
+            el.innerHTML='<a href="../sign-in.html" class="signin-btn"><i class="fas fa-sign-in-alt"></i> Sign In</a><a href="user-vehicle.html" class="nav-btn"><i class="fas fa-car"></i> Book Now</a>';
+        }
+    })();
+
+    const items=[
+        {cat:'wedding',src:'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=700&q=80',title:'Wedding Convoy',sub:'Elegant bridal car decorations'},
+        {cat:'wedding',src:'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=700&q=80',title:'Bridal Party Transfer',sub:'From venue to reception'},
+        {cat:'wedding',src:'https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=700&q=80',title:'Wedding Decoration',sub:'Luxury decorated vehicle'},
+        {cat:'trip',src:'https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=700&q=80',title:'Sigiriya Adventure',sub:'Heritage Tour'},
+        {cat:'trip',src:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=700&q=80',title:'Mirissa Sunset',sub:'South Coast Beach Trip'},
+        {cat:'trip',src:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=700&q=80',title:'Ella Hills',sub:'Highland Adventure'},
+        {cat:'trip',src:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=80',title:'Tea Country',sub:'Nuwara Eliya Tour'},
+        {cat:'trip',src:'https://images.unsplash.com/photo-1564760055775-d63b17a55c44?w=700&q=80',title:'Yala Safari',sub:'Wildlife National Park'},
+        {cat:'usual',src:'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=700&q=80',title:'City Ride',sub:'Colombo City Commute'},
+        {cat:'usual',src:'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=700&q=80',title:'Standard Cab',sub:'Daily Ride'},
+        {cat:'usual',src:'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=700&q=80',title:'Hybrid Ride',sub:'Eco-Friendly Journey'},
+        {cat:'airport',src:'https://images.unsplash.com/photo-1556388158-158ea5ccacbd?w=700&q=80',title:'BIA Airport Pickup',sub:'Bandaranaike International'},
+        {cat:'airport',src:'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=700&q=80',title:'Luxury Airport Drop',sub:'Premium Transfer'},
+        {cat:'corporate',src:'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=700&q=80',title:'Corporate Fleet',sub:'Business Travel'},
+        {cat:'corporate',src:'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=700&q=80',title:'Executive Ride',sub:'VIP Corporate Service'},
+        {cat:'trip',src:'https://images.unsplash.com/photo-1569366823519-f4b4d698bc41?w=700&q=80',title:'Kandy City',sub:'Cultural Capital'},
+        {cat:'wedding',src:'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=700&q=80',title:'Wedding Evening',sub:'Sunset Wedding Ride'},
+        {cat:'usual',src:'https://images.unsplash.com/photo-1502877338535-766e1452684a?w=700&q=80',title:'Family Van Ride',sub:'Group Travel'},
+    ];
+    const catLabel={wedding:'💍 Wedding',trip:'🏖️ Trip',usual:'🚗 Ride',airport:'✈️ Airport',corporate:'💼 Corporate'};
+    let visibleCount=12,filteredItems=items,activeCat='all',currentIdx=0;
+    function renderGal(data){
+        const grid=document.getElementById('galGrid');
+        grid.innerHTML=data.slice(0,visibleCount).map((item,idx)=>`
+    <div class="g-item" onclick="openLB(${idx})">
+      <img src="${item.src}" alt="${item.title}" loading="lazy">
+      <div class="g-cat-badge">${catLabel[item.cat]||item.cat}</div>
+      <div class="g-overlay"><div class="g-info"><h4>${item.title}</h4><span>${item.sub}</span></div></div>
+    </div>`).join('');
+        document.getElementById('loadBtn').style.display=data.length>visibleCount?'':'none';
+    }
+    function filterGal(cat,btn){activeCat=cat;visibleCount=12;document.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');filteredItems=cat==='all'?items:items.filter(i=>i.cat===cat);renderGal(filteredItems);}
+    function loadMore(){visibleCount+=6;renderGal(filteredItems);}
+    function openLB(idx){currentIdx=idx;const item=filteredItems[idx];document.getElementById('lb-img').src=item.src;document.getElementById('lb-title').textContent=item.title;document.getElementById('lb-sub').textContent=item.sub;document.getElementById('lb').classList.add('show');}
+    function navLB(dir){currentIdx=(currentIdx+dir+filteredItems.length)%filteredItems.length;openLB(currentIdx);}
+    function closeLB(e){if(e.target.id==='lb')document.getElementById('lb').classList.remove('show');}
+    document.addEventListener('keydown',function(e){if(!document.getElementById('lb').classList.contains('show'))return;if(e.key==='ArrowLeft')navLB(-1);if(e.key==='ArrowRight')navLB(1);if(e.key==='Escape')document.getElementById('lb').classList.remove('show');});
+    renderGal(filteredItems);
+
+    document.querySelectorAll('.st-n').forEach(function(el){
+        var obs=new IntersectionObserver(function(entries){
+            if(entries[0].isIntersecting){var t=parseInt(el.dataset.c),c=0,step=Math.max(1,Math.floor(t/60));
+                var go=setInterval(function(){c=Math.min(c+step,t);el.textContent=t>=98?c+'%':c.toLocaleString()+'+';if(c>=t)clearInterval(go);},25);obs.unobserve(el);}
+        },{threshold:.5});obs.observe(el);
+    });
+    var obs=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('vis');});},{threshold:.1});
+    document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el);});
+</script>
+</body>
+</html>
