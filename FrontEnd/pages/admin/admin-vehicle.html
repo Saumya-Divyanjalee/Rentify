@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <link rel="icon" type="image/x-icon" href="../../assets/icons/favicon.ico">
-
     <style>
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
         :root{
@@ -115,7 +114,7 @@
         .ov{position:fixed;inset:0;z-index:9999;background:rgba(11,14,26,.5);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;}
         .ov.open{display:flex;animation:fi .18s ease;}
         .modal{background:var(--white);border-radius:var(--r-lg);max-width:640px;width:100%;max-height:90vh;overflow-y:auto;animation:popIn .25s cubic-bezier(.16,1,.3,1);box-shadow:var(--shadow-lg);border:1.5px solid var(--border);}
-        .modal-sm{max-width:400px;}
+        .modal-sm{max-width:440px;}
         @keyframes popIn{from{transform:scale(.93)translateY(10px);opacity:0}to{transform:none;opacity:1}}
         .mhd{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1.5px solid var(--border);position:sticky;top:0;background:var(--white);z-index:10;}
         .mhd-title{font-family:"Bungee",sans-serif;font-size:14px;color:var(--ink);letter-spacing:.3px;}
@@ -147,6 +146,12 @@
         .conf-ico{font-size:40px;margin-bottom:12px;}
         .conf-h{font-family:"Bungee",sans-serif;font-size:16px;color:var(--ink);margin-bottom:8px;}
         .conf-p{font-size:12px;color:var(--ink3);line-height:1.6;}
+
+        /* ✅ NEW: FK error warning box */
+        .fk-warn{display:none;background:#fff4ea;border:1.5px solid rgba(255,122,0,.3);border-radius:var(--r-sm);padding:14px 16px;margin:0 22px 14px;font-size:11px;color:#9a4500;line-height:1.7;}
+        .fk-warn.show{display:block;}
+        .fk-warn strong{display:block;font-family:"Bungee",sans-serif;font-size:10px;letter-spacing:.5px;margin-bottom:5px;color:var(--orange);}
+
         @media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;padding:16px;}.sc-row{grid-template-columns:1fr 1fr;}}
     </style>
 </head>
@@ -167,7 +172,8 @@
         <div class="sb-sec">Admin</div>
         <a href="admin-insurance.html" class="sb-link"><span class="ico">🛡️</span>Insurance</a>
         <a href="users-info.html" class="sb-link"><span class="ico">👥</span>Users</a>
-        <a href="#" class="sb-link"><span class="ico">⚙️</span>Settings</a>
+        <a href="admin-settings.html" class="sb-link"><span class="ico">⚙️</span>Settings</a>
+<!--        <a href="admin-settings.html" class="sb-link"><span class="ico">⚙️</span>Settings</a>-->
     </nav>
     <div class="sb-bottom"><button class="sb-logout" onclick="logout()"><span class="ico">🚪</span>Sign Out</button></div>
 </aside>
@@ -212,7 +218,7 @@
             <div class="sdiv">Basic Information</div>
             <div class="form-row">
                 <div class="fg"><label>Model Name *</label><input class="fi" id="v_model" placeholder="Toyota Prius"><div class="ferr" id="e_model">Min 2 characters</div></div>
-                <div class="fg"><label>Plate Number *</label><input class="fi" id="v_plate" placeholder="CAB-1234" style="text-transform:uppercase"><div class="ferr" id="e_plate">Format: AB-1234</div></div>
+                <div class="fg"><label>Plate Number *</label><input class="fi" id="v_plate" placeholder="CAB-1234" style="text-transform:uppercase"><div class="ferr" id="e_plate">Format: AB-1234 or ABC-1234</div></div>
             </div>
             <div class="form-row3">
                 <div class="fg"><label>Type *</label><select class="fi" id="v_type"><option value="">Select type</option><option value="CAB">CAB</option><option value="VAN">VAN</option><option value="BUS">BUS</option><option value="WHEEL">WHEEL</option></select><div class="ferr" id="e_type">Required</div></div>
@@ -235,51 +241,123 @@
     </div>
 </div>
 
-<!-- DELETE CONFIRM -->
+<!-- ✅ IMPROVED DELETE CONFIRM — FK warning included -->
 <div class="ov" id="delModal">
     <div class="modal modal-sm">
         <div class="mhd"><div class="mhd-title">CONFIRM DELETE</div><button class="mclose" id="delClose">✕</button></div>
-        <div class="conf-body"><div class="conf-ico">🗑️</div><div class="conf-h">Delete this vehicle?</div><div class="conf-p">Remove <strong id="delName">—</strong>. This cannot be undone.</div></div>
-        <div class="mft"><button class="btn" id="delCancel">Cancel</button><button class="btn-danger" id="delConfirm">Delete Permanently</button></div>
+        <div class="conf-body">
+            <div class="conf-ico">🗑️</div>
+            <div class="conf-h">Delete this vehicle?</div>
+            <div class="conf-p">Remove <strong id="delName">—</strong>.<br>This action cannot be undone.</div>
+        </div>
+        <!-- ✅ FK Error warning — booking ඇත්නම් show වෙනවා -->
+        <div class="fk-warn" id="fkWarn">
+            <strong>⚠️ Cannot Delete — Active Bookings Exist</strong>
+            මේ vehicle එකට linked bookings database එකේ තියෙනවා.<br>
+            Delete කරන්න කලින් backend developer ලාට කියන්න:<br>
+            <code style="background:rgba(255,122,0,.1);padding:2px 6px;border-radius:4px;font-size:10px;">ON DELETE SET NULL</code> constraint එක bookings table එකට add කරන්න.
+        </div>
+        <div class="mft">
+            <button class="btn" id="delCancel">Cancel</button>
+            <button class="btn-danger" id="delConfirm">Delete Permanently</button>
+        </div>
     </div>
 </div>
+
 <div id="toast"></div>
 
 <script>
-    const API='http://localhost:8081/api/v1';
-    let allV=[],editId=null,delId=null;
-    const ICON={CAB:'🚕',VAN:'🚐',BUS:'🚌',WHEEL:'🛺'};
-    const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    const fmtP=p=>'Rs '+Number(p||0).toLocaleString('en-LK');
-    function showToast(m,t){const $t=$('#toast');$t.text(m).attr('class','toast show '+(t||''));clearTimeout($t.data('tt'));$t.data('tt',setTimeout(()=>$t.attr('class','toast'),3400));}
-    function logout(){['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(k=>localStorage.removeItem(k));window.location.href='../sign-in.html';}
-    function getToken(){return localStorage.getItem('rentify_token')||'';}
-    function authH(){const t=getToken();return t?{'Authorization':'Bearer '+t}:{};}
-    function parseErr(x,fb){if(!x?.responseJSON)return fb||'Network error';const j=x.responseJSON;if(j.errors)return Object.values(j.errors).join(', ');return j.message||j.error||fb||'Error';}
+    const API = 'http://localhost:8081/api/v1';
+    let allV = [], editId = null, delId = null;
+    const ICON = {CAB:'🚕', VAN:'🚐', BUS:'🚌', WHEEL:'🛺'};
+    const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const fmtP = p => 'Rs ' + Number(p||0).toLocaleString('en-LK');
 
-    // Init
-    const fn=localStorage.getItem('rentify_fullName')||localStorage.getItem('rentify_username')||'Admin';
-    const ini=fn.trim().split(/\s+/).map(x=>x[0]?.toUpperCase()).join('').slice(0,2)||'AD';
-    $('#sbAv').text(ini);$('#sbName').text(fn);
-    const role=localStorage.getItem('rentify_role')||'';
-    if(!getToken())$('#banner').addClass('show');
-    else if(role!=='ADMIN')$('#banner').html('⚠️ Logged in as USER. Write operations require ADMIN.').addClass('show');
+    function showToast(m, t){
+        const $t = $('#toast');
+        $t.text(m).attr('class','toast show '+(t||''));
+        clearTimeout($t.data('tt'));
+        $t.data('tt', setTimeout(()=>$t.attr('class','toast'), 3400));
+    }
+    function logout(){
+        ['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(k=>localStorage.removeItem(k));
+        window.location.href='../sign-in.html';
+    }
+    function getToken(){ return localStorage.getItem('rentify_token') || ''; }
+    function authH(){ const t=getToken(); return t ? {'Authorization':'Bearer '+t} : {}; }
+    function parseErr(x, fb){
+        if(!x?.responseJSON) return fb || 'Network error';
+        const j = x.responseJSON;
+        if(j.errors) return Object.values(j.errors).join(', ');
+        return j.message || j.error || fb || 'Error';
+    }
 
-    function checkApi(){$.ajax({url:API+'/vehicles',method:'GET',timeout:5000,success:()=>{$('#apiDot').addClass('online').removeClass('offline');$('#apiTxt').text('API Online');},error:()=>{$('#apiDot').addClass('offline').removeClass('online');$('#apiTxt').text('API Offline');}});}
+    // ✅ FK Constraint error check
+    function isFKError(x){
+        const msg = (x?.responseJSON?.message || x?.responseText || '').toLowerCase();
+        return msg.includes('foreign key') || msg.includes('constraint') || msg.includes('a parent row');
+    }
+
+    const fn  = localStorage.getItem('rentify_fullName') || localStorage.getItem('rentify_username') || 'Admin';
+    const ini = fn.trim().split(/\s+/).map(x=>x[0]?.toUpperCase()).join('').slice(0,2) || 'AD';
+    $('#sbAv').text(ini); $('#sbName').text(fn);
+    const role = localStorage.getItem('rentify_role') || '';
+    if(!getToken()) $('#banner').addClass('show');
+    else if(role !== 'ADMIN') $('#banner').html('⚠️ Logged in as USER. Write operations require ADMIN.').addClass('show');
+
+    function checkApi(){
+        $.ajax({url:API+'/vehicles',method:'GET',timeout:5000,
+            success:()=>{ $('#apiDot').addClass('online').removeClass('offline'); $('#apiTxt').text('API Online'); },
+            error: ()=>{ $('#apiDot').addClass('offline').removeClass('online'); $('#apiTxt').text('API Offline'); }
+        });
+    }
+
     function fetchV(){
         $('#vTable').html('<tr class="lrow"><td colspan="10"><span class="spin"></span>Loading…</td></tr>');
-        $.ajax({url:API+'/vehicles',headers:authH(),success:function(r){allV=Array.isArray(r)?r:(r.data||r.content||[]);updStats();renderTable(getFiltered());$('#lastFetch').text('Updated: '+new Date().toLocaleTimeString('en-LK'));},error:function(x){const m=parseErr(x,'Failed');$('#vTable').html(`<tr class="erow"><td colspan="10">⚠️ ${esc(m)}</td></tr>`);showToast(m,'error');}});
+        $.ajax({
+            url: API+'/vehicles', headers: authH(),
+            success: function(r){
+                allV = Array.isArray(r) ? r : (r.data || r.content || []);
+                updStats(); renderTable(getFiltered());
+                $('#lastFetch').text('Updated: '+new Date().toLocaleTimeString('en-LK'));
+            },
+            error: function(x){
+                const m = parseErr(x,'Failed');
+                $('#vTable').html(`<tr class="erow"><td colspan="10">⚠️ ${esc(m)}</td></tr>`);
+                showToast(m,'error');
+            }
+        });
     }
-    function updStats(){$('#st-total').text(allV.length);$('#st-avail').text(allV.filter(v=>v.status==='AVAILABLE').length);$('#st-booked').text(allV.filter(v=>v.status==='BOOKED').length);$('#st-maint').text(allV.filter(v=>v.status==='MAINTENANCE').length);}
-    function getFiltered(){const q=$('#tSearch').val().toLowerCase().trim(),ty=$('#tType').val(),st=$('#tStatus').val();return allV.filter(v=>{if(ty&&v.type!==ty)return false;if(st&&v.status!==st)return false;if(q&&!v.model.toLowerCase().includes(q)&&!(v.plateNumber||'').toLowerCase().includes(q)&&!(v.description||'').toLowerCase().includes(q))return false;return true;});}
+
+    function updStats(){
+        $('#st-total').text(allV.length);
+        $('#st-avail').text(allV.filter(v=>v.status==='AVAILABLE').length);
+        $('#st-booked').text(allV.filter(v=>v.status==='BOOKED').length);
+        $('#st-maint').text(allV.filter(v=>v.status==='MAINTENANCE').length);
+    }
+
+    function getFiltered(){
+        const q=$('#tSearch').val().toLowerCase().trim(), ty=$('#tType').val(), st=$('#tStatus').val();
+        return allV.filter(v=>{
+            if(ty && v.type!==ty) return false;
+            if(st && v.status!==st) return false;
+            if(q && !v.model.toLowerCase().includes(q) && !(v.plateNumber||'').toLowerCase().includes(q) && !(v.description||'').toLowerCase().includes(q)) return false;
+            return true;
+        });
+    }
+
     function renderTable(list){
         $('#tCount').text(list.length);
-        if(!list.length){$('#vTable').html('<tr class="erow"><td colspan="10">🔍 No vehicles match.</td></tr>');return;}
+        if(!list.length){ $('#vTable').html('<tr class="erow"><td colspan="10">🔍 No vehicles match.</td></tr>'); return; }
         $('#vTable').html(list.map(v=>{
-            const ico=ICON[v.type]||'🚗';
-            const img=v.image?`<img class="tdi" src="${esc(v.image)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=\\'tdi-fb\\'>${ico}</div>'">`:`<div class="tdi-fb">${ico}</div>`;
-            const insExp=v.insuranceExpiryDate?`<div style="font-size:10px;color:${new Date(v.insuranceExpiryDate)<new Date(Date.now()+30*86400000)?'var(--red)':'var(--ink4)'};margin-top:2px;font-family:'Roboto Mono',monospace">${v.insuranceExpiryDate}</div>`:'';
-            return`<tr>
+            const ico = ICON[v.type] || '🚗';
+            const img = v.image
+                ? `<img class="tdi" src="${esc(v.image)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=\\'tdi-fb\\'>${ico}</div>'">`
+                : `<div class="tdi-fb">${ico}</div>`;
+            const insExp = v.insuranceExpiryDate
+                ? `<div style="font-size:10px;color:${new Date(v.insuranceExpiryDate)<new Date(Date.now()+30*86400000)?'var(--red)':'var(--ink4)'};margin-top:2px;font-family:'Roboto Mono',monospace">${v.insuranceExpiryDate}</div>`
+                : '';
+            return `<tr>
       <td>${img}</td>
       <td style="font-weight:700;color:var(--ink)">${esc(v.model)}</td>
       <td><span class="tdm">${esc(v.plateNumber||'—')}</span></td>
@@ -288,7 +366,10 @@
       <td>${v.year||'—'}</td>
       <td style="font-family:'Bungee',sans-serif;font-size:12px;color:var(--green)">${fmtP(v.pricePerDay)}</td>
       <td><span class="badge badge-${esc(v.status||'AVAILABLE')}">${esc(v.status||'AVAILABLE')}</span></td>
-      <td>${v.insuranceActive?`<span style="color:var(--green);font-size:11px;font-weight:700">✓ Active</span>${insExp}`:`<span style="color:var(--red);font-size:11px;font-weight:700">✗ Inactive</span>${insExp}`}</td>
+      <td>${v.insuranceActive
+                ? `<span style="color:var(--green);font-size:11px;font-weight:700">✓ Active</span>${insExp}`
+                : `<span style="color:var(--red);font-size:11px;font-weight:700">✗ Inactive</span>${insExp}`
+            }</td>
       <td><div style="display:flex;gap:5px">
         <button class="btn btn-sm btn-edit" data-id="${v.id}">✏️ Edit</button>
         <button class="btn-del btn-del-v" data-id="${v.id}" data-name="${esc(v.model)}">🗑️</button>
@@ -296,62 +377,177 @@
     </tr>`;
         }).join(''));
     }
-    function openAdd(){editId=null;$('#mTitle').text('ADD NEW VEHICLE');$('#vSave').text('Add Vehicle').prop('disabled',false);clearForm();$('#vModal').addClass('open');}
-    function openEdit(id){
-        editId=id;$('#mTitle').text('EDIT VEHICLE');$('#vSave').prop('disabled',true).text('Loading…');clearForm();$('#vModal').addClass('open');
-        $.ajax({url:API+'/vehicles/'+id,headers:authH(),success:function(r){
-                const v=(r&&r.data)?r.data:r;
-                $('#v_model').val(v.model||'');$('#v_plate').val(v.plateNumber||'');$('#v_type').val(v.type||'');$('#v_cap').val(v.capacity||'');$('#v_year').val(v.year||'');$('#v_price').val(v.pricePerDay||'');$('#v_status').val(v.status||'AVAILABLE');$('#v_desc').val(v.description||'');$('#v_ins').prop('checked',v.insuranceActive!==false);$('#v_exp').val(v.insuranceExpiryDate||'');$('#v_img').val(v.image||'');
-                if(v.image)$('#imgPrev').attr('src',v.image).addClass('show');
-                $('#vSave').prop('disabled',false).text('Save Changes');
-            },error:function(x){showToast(parseErr(x,'Failed'),'error');$('#vModal').removeClass('open');}});
+
+    function openAdd(){
+        editId=null;
+        $('#mTitle').text('ADD NEW VEHICLE');
+        $('#vSave').text('Add Vehicle').prop('disabled',false);
+        clearForm();
+        $('#vModal').addClass('open');
     }
-    function clearForm(){$('#v_model,#v_plate,#v_type,#v_cap,#v_year,#v_price,#v_desc,#v_exp,#v_img').val('');$('#v_status').val('AVAILABLE');$('#v_ins').prop('checked',true);$('#imgPrev').removeClass('show').attr('src','');$('.ferr').removeClass('show');}
+
+    function openEdit(id){
+        editId=id;
+        $('#mTitle').text('EDIT VEHICLE');
+        $('#vSave').prop('disabled',true).text('Loading…');
+        clearForm();
+        $('#vModal').addClass('open');
+        $.ajax({
+            url: API+'/vehicles/'+id, headers: authH(),
+            success: function(r){
+                const v = (r&&r.data) ? r.data : r;
+                $('#v_model').val(v.model||'');
+                $('#v_plate').val(v.plateNumber||'');
+                $('#v_type').val(v.type||'');
+                $('#v_cap').val(v.capacity||'');
+                $('#v_year').val(v.year||'');
+                $('#v_price').val(v.pricePerDay||'');
+                $('#v_status').val(v.status||'AVAILABLE');
+                $('#v_desc').val(v.description||'');
+                $('#v_ins').prop('checked', v.insuranceActive!==false);
+                $('#v_exp').val(v.insuranceExpiryDate||'');
+                $('#v_img').val(v.image||'');
+                if(v.image) $('#imgPrev').attr('src',v.image).addClass('show');
+                $('#vSave').prop('disabled',false).text('Save Changes');
+            },
+            error: function(x){ showToast(parseErr(x,'Failed'),'error'); $('#vModal').removeClass('open'); }
+        });
+    }
+
+    function clearForm(){
+        $('#v_model,#v_plate,#v_type,#v_cap,#v_year,#v_price,#v_desc,#v_exp,#v_img').val('');
+        $('#v_status').val('AVAILABLE');
+        $('#v_ins').prop('checked',true);
+        $('#imgPrev').removeClass('show').attr('src','');
+        $('.ferr').removeClass('show');
+    }
+
     function validate(){
-        let ok=true;const model=$('#v_model').val().trim(),plate=$('#v_plate').val().trim().toUpperCase(),type=$('#v_type').val(),cap=parseInt($('#v_cap').val()),year=parseInt($('#v_year').val()),price=parseFloat($('#v_price').val());
-        const chk=(c,id)=>{if(!c){$('#'+id).addClass('show');ok=false;}else{$('#'+id).removeClass('show');}};
-        chk(model&&model.length>=2&&model.length<=100,'e_model');
-        chk(plate&&/^[A-Z]{2,3}-\d{4}$/.test(plate),'e_plate');if(plate)$('#v_plate').val(plate);
-        chk(!!type,'e_type');chk(cap&&cap>=1&&cap<=60,'e_cap');chk(year&&year>=1990&&year<=2030,'e_year');chk(!isNaN(price)&&price>0,'e_price');
+        let ok=true;
+        const model=$('#v_model').val().trim();
+        const plate=$('#v_plate').val().trim().toUpperCase();
+        const type=$('#v_type').val();
+        const cap=parseInt($('#v_cap').val());
+        const year=parseInt($('#v_year').val());
+        const price=parseFloat($('#v_price').val());
+        const chk=(c,id)=>{ if(!c){ $('#'+id).addClass('show'); ok=false; } else { $('#'+id).removeClass('show'); } };
+        chk(model && model.length>=2 && model.length<=100, 'e_model');
+        chk(plate && /^[A-Z]{2,3}-\d{4}$/.test(plate), 'e_plate');
+        if(plate) $('#v_plate').val(plate);
+        chk(!!type, 'e_type');
+        chk(cap && cap>=1 && cap<=60, 'e_cap');
+        chk(year && year>=1990 && year<=2030, 'e_year');
+        chk(!isNaN(price) && price>0, 'e_price');
         return ok;
     }
-    function buildDTO(){return{model:$('#v_model').val().trim(),plateNumber:$('#v_plate').val().trim().toUpperCase(),type:$('#v_type').val(),capacity:parseInt($('#v_cap').val()),year:parseInt($('#v_year').val()),pricePerDay:parseFloat($('#v_price').val()),status:$('#v_status').val(),description:$('#v_desc').val().trim()||null,insuranceActive:$('#v_ins').prop('checked'),insuranceExpiryDate:$('#v_exp').val()||null,image:$('#v_img').val().trim()||null};}
+
+    function buildDTO(){
+        return {
+            model:               $('#v_model').val().trim(),
+            plateNumber:         $('#v_plate').val().trim().toUpperCase(),
+            type:                $('#v_type').val(),
+            capacity:            parseInt($('#v_cap').val()),
+            year:                parseInt($('#v_year').val()),
+            pricePerDay:         parseFloat($('#v_price').val()),
+            status:              $('#v_status').val(),
+            description:         $('#v_desc').val().trim() || null,
+            insuranceActive:     $('#v_ins').prop('checked'),
+            insuranceExpiryDate: $('#v_exp').val() || null,
+            image:               $('#v_img').val().trim() || null
+        };
+    }
+
     function saveV(){
-        if(!validate())return;if(!getToken()){showToast('Not logged in','error');return;}
-        const dto=buildDTO(),isEdit=editId!==null,url=isEdit?`${API}/vehicles/${editId}`:`${API}/vehicles`,method=isEdit?'PUT':'POST';
+        if(!validate()) return;
+        if(!getToken()){ showToast('Not logged in','error'); return; }
+        const dto=buildDTO(), isEdit=editId!==null;
+        const url  = isEdit ? `${API}/vehicles/${editId}` : `${API}/vehicles`;
+        const method = isEdit ? 'PUT' : 'POST';
         $('#vSave').prop('disabled',true).text(isEdit?'Saving…':'Adding…');
-        $.ajax({url,method,contentType:'application/json',headers:authH(),data:JSON.stringify(dto),
-            success:function(r){const sv=(r&&r.data)?r.data:r;if(isEdit){const i=allV.findIndex(v=>v.id===editId);if(i>=0)allV[i]=sv;else allV.push(sv);}else allV.push(sv);updStats();renderTable(getFiltered());$('#vModal').removeClass('open');showToast((isEdit?'"'+sv.model+'" updated':'New vehicle added')+' ✅','success');},
-            error:function(x){let m=parseErr(x,isEdit?'Update failed':'Add failed');if(x.status===401)m='401 — Token expired';if(x.status===403)m='403 — ADMIN required';if(x.status===0)m='Cannot reach server';showToast(m,'error');},
-            complete:function(){$('#vSave').prop('disabled',false).text(editId!==null?'Save Changes':'Add Vehicle');}
+        $.ajax({
+            url, method, contentType:'application/json', headers:authH(), data:JSON.stringify(dto),
+            success: function(r){
+                const sv = (r&&r.data) ? r.data : r;
+                if(isEdit){ const i=allV.findIndex(v=>v.id===editId); if(i>=0) allV[i]=sv; else allV.push(sv); }
+                else allV.push(sv);
+                updStats(); renderTable(getFiltered());
+                $('#vModal').removeClass('open');
+                showToast((isEdit?'"'+sv.model+'" updated':'New vehicle added ✅ — User side eke auto refresh වෙනවා'),'success');
+            },
+            error: function(x){
+                let m=parseErr(x,isEdit?'Update failed':'Add failed');
+                if(x.status===401) m='401 — Token expired';
+                if(x.status===403) m='403 — ADMIN required';
+                if(x.status===0)   m='Cannot reach server';
+                showToast(m,'error');
+            },
+            complete: function(){ $('#vSave').prop('disabled',false).text(editId!==null?'Save Changes':'Add Vehicle'); }
         });
     }
-    function openDel(id,name){delId=id;$('#delName').text(name);$('#delModal').addClass('open');}
+
+    function openDel(id, name){
+        delId=id;
+        $('#delName').text(name);
+        $('#fkWarn').removeClass('show'); // ✅ Warning hide කරනවා initially
+        $('#delConfirm').prop('disabled',false).text('Delete Permanently');
+        $('#delModal').addClass('open');
+    }
+
+    // ✅ FIX: Delete function — FK error properly handle කරනවා
     function doDelete(){
-        if(!delId)return;if(!getToken()){showToast('Not logged in','error');return;}
+        if(!delId) return;
+        if(!getToken()){ showToast('Not logged in','error'); return; }
         $('#delConfirm').prop('disabled',true).text('Deleting…');
-        $.ajax({url:`${API}/vehicles/${delId}`,method:'DELETE',headers:authH(),
-            success:function(){allV=allV.filter(v=>v.id!==delId);updStats();renderTable(getFiltered());$('#delModal').removeClass('open');showToast('Vehicle deleted ✅','success');},
-            error:function(x){showToast(parseErr(x,'Delete failed'),'error');},
-            complete:function(){$('#delConfirm').prop('disabled',false).text('Delete Permanently');}
+        $('#fkWarn').removeClass('show');
+
+        $.ajax({
+            url: `${API}/vehicles/${delId}`, method:'DELETE', headers:authH(),
+            success: function(){
+                allV = allV.filter(v=>v.id!==delId);
+                updStats(); renderTable(getFiltered());
+                $('#delModal').removeClass('open');
+                showToast('Vehicle deleted ✅','success');
+            },
+            error: function(x){
+                // ✅ FIX: FK constraint error detect කරනවා
+                if(isFKError(x)){
+                    // FK error නම් — friendly warning show කරනවා
+                    $('#fkWarn').addClass('show');
+                    $('#delConfirm').prop('disabled',true).text('Cannot Delete');
+                    showToast('⚠️ Bookings linked — delete failed. See warning below.','error');
+                } else {
+                    showToast(parseErr(x,'Delete failed'),'error');
+                    $('#delConfirm').prop('disabled',false).text('Delete Permanently');
+                }
+            }
         });
     }
+
     $(function(){
-        checkApi();fetchV();
-        $('#addBtn').on('click',openAdd);
-        $('#refreshBtn').on('click',fetchV);
-        let sT;$('#tSearch').on('input',function(){clearTimeout(sT);sT=setTimeout(()=>renderTable(getFiltered()),280);});
-        $('#tType,#tStatus').on('change',()=>renderTable(getFiltered()));
-        $(document).on('click','.btn-edit',function(e){e.stopPropagation();openEdit(parseInt($(this).data('id')));});
-        $(document).on('click','.btn-del-v',function(e){e.stopPropagation();openDel(parseInt($(this).data('id')),$(this).data('name'));});
-        $('#vmClose,#vmCancel').on('click',()=>{$('#vModal').removeClass('open');editId=null;});
-        $('#vModal').on('click',function(e){if(e.target===this){$(this).removeClass('open');editId=null;}});
-        $('#vSave').on('click',saveV);
-        $('#delClose,#delCancel').on('click',()=>$('#delModal').removeClass('open'));
-        $('#delModal').on('click',function(e){if(e.target===this)$(this).removeClass('open');});
-        $('#delConfirm').on('click',doDelete);
-        let imgT;$('#v_img').on('input',function(){clearTimeout(imgT);const u=$(this).val().trim();imgT=setTimeout(()=>{if(u)$('#imgPrev').attr('src',u).addClass('show').off('error').on('error',function(){$(this).removeClass('show');});else $('#imgPrev').removeClass('show').attr('src','');},600);});
-        $('#v_plate').on('input',function(){$(this).val($(this).val().toUpperCase());});
+        checkApi(); fetchV();
+        $('#addBtn').on('click', openAdd);
+        $('#refreshBtn').on('click', fetchV);
+        let sT;
+        $('#tSearch').on('input', function(){ clearTimeout(sT); sT=setTimeout(()=>renderTable(getFiltered()),280); });
+        $('#tType,#tStatus').on('change', ()=>renderTable(getFiltered()));
+        $(document).on('click','.btn-edit', function(e){ e.stopPropagation(); openEdit(parseInt($(this).data('id'))); });
+        $(document).on('click','.btn-del-v', function(e){ e.stopPropagation(); openDel(parseInt($(this).data('id')),$(this).data('name')); });
+        $('#vmClose,#vmCancel').on('click', ()=>{ $('#vModal').removeClass('open'); editId=null; });
+        $('#vModal').on('click', function(e){ if(e.target===this){ $(this).removeClass('open'); editId=null; } });
+        $('#vSave').on('click', saveV);
+        $('#delClose,#delCancel').on('click', ()=>{ $('#delModal').removeClass('open'); $('#fkWarn').removeClass('show'); });
+        $('#delModal').on('click', function(e){ if(e.target===this){ $(this).removeClass('open'); $('#fkWarn').removeClass('show'); } });
+        $('#delConfirm').on('click', doDelete);
+        let imgT;
+        $('#v_img').on('input', function(){
+            clearTimeout(imgT);
+            const u=$(this).val().trim();
+            imgT=setTimeout(()=>{
+                if(u) $('#imgPrev').attr('src',u).addClass('show').off('error').on('error',function(){ $(this).removeClass('show'); });
+                else $('#imgPrev').removeClass('show').attr('src','');
+            },600);
+        });
+        $('#v_plate').on('input', function(){ $(this).val($(this).val().toUpperCase()); });
     });
 </script>
 </body>

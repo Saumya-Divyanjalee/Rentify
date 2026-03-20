@@ -6,12 +6,8 @@
     <meta name="keywords" content="Rentify,HTML,CSS,JavaScript,Spring,SpringBoot,ORM,Mysql">
     <meta name="description" content="Rentify-Smart Cab Renting Platform">
     <meta name="author" content="Saumya Divyanjalee">
-
     <link rel="icon" type="image/x-icon" href="../../assets/icons/favicon.ico">
-
-
     <title>Rentify — Browse Vehicles</title>
-    <!-- RENTIFY v4.1 - cardName fix applied -->
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -27,14 +23,12 @@
         html{scroll-behavior:smooth;font-size:14px;}
         body{font-family:'Roboto Mono',monospace;background:var(--white);color:var(--ink);overflow-x:hidden;}
 
-        /* ── TOAST ── */
         .toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column-reverse;gap:8px;align-items:center;pointer-events:none;}
         .toast{background:var(--ink);color:#fff;padding:12px 24px;border-radius:12px;font-size:12px;font-weight:500;box-shadow:var(--shadow-lg);animation:toastIn .3s ease;min-width:240px;text-align:center;pointer-events:all;font-family:'Roboto Mono',monospace;}
         .toast.success{background:var(--green);}.toast.error{background:var(--red);}.toast.warning{background:var(--orange);}
         @keyframes toastIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
         @keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateY(16px)}}
 
-        /* ── NAV ── */
         nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;padding:0 48px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.96);backdrop-filter:blur(20px);border-bottom:1.5px solid var(--border);box-shadow:0 2px 16px rgba(10,13,26,.05);}
         .logo{font-family:"Bungee",sans-serif;font-size:22px;text-decoration:none;color:var(--ink);letter-spacing:.5px;}
         .logo span{color:var(--accent);}
@@ -63,7 +57,6 @@
         .api-dot.online{background:var(--green);box-shadow:0 0 6px rgba(0,184,107,.4);}
         .api-dot.offline{background:var(--red);}
 
-        /* ── HERO VIDEO ── */
         .hero{position:relative;height:80vh;min-height:500px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-top:68px;}
         .hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
         .hero-overlay{position:absolute;inset:0;background:linear-gradient(160deg,rgba(10,13,26,.82) 0%,rgba(26,63,255,.2) 60%,rgba(10,13,26,.4) 100%);z-index:1;}
@@ -80,7 +73,6 @@
         .h-stat .num{font-family:"Bungee",sans-serif;font-size:24px;color:#fff;letter-spacing:-1px;display:block;}
         .h-stat .lbl{font-size:9px;color:rgba(255,255,255,.55);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;}
 
-        /* ── FILTER ZONE ── */
         .filter-zone{background:#fff;padding:18px 48px;border-bottom:1.5px solid var(--border);position:sticky;top:68px;z-index:900;box-shadow:0 4px 16px rgba(10,13,26,.04);}
         .search-row{display:flex;gap:12px;align-items:center;margin-bottom:14px;}
         .search-wrap{flex:1;position:relative;}
@@ -97,10 +89,8 @@
         .pill.active{background:var(--ink);color:#fff;border-color:var(--ink);}
         .divider-v{width:1px;height:20px;background:var(--border);margin:0 4px;}
 
-        /* ── MAIN LAYOUT ── */
         .main-wrap{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 68px);background:var(--bg);}
 
-        /* ── SIDEBAR ── */
         .sidebar{padding:24px 20px;border-right:1.5px solid var(--border);position:sticky;top:calc(68px + 120px);height:fit-content;background:#fff;}
         .sb-title{font-family:"Bungee",sans-serif;font-size:10px;font-weight:400;letter-spacing:2px;text-transform:uppercase;color:var(--ink);margin-bottom:24px;display:flex;align-items:center;gap:8px;}
         .sb-title::after{content:'';flex:1;height:1px;background:var(--border);}
@@ -118,14 +108,16 @@
         .check-label input:checked~.check-box{background:var(--accent);border-color:var(--accent);}
         .check-label input:checked~.check-box::after{content:'✓';font-size:10px;color:#fff;font-weight:700;}
 
-        /* ── CONTENT ── */
         .content-zone{padding:28px;background:var(--bg);}
         .content-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
         .result-meta{font-size:12px;color:var(--ink3);}
         .result-meta strong{color:var(--ink);font-family:"Bungee",sans-serif;font-size:14px;}
         .last-updated{font-size:10px;color:var(--ink4);letter-spacing:.3px;}
 
-        /* ── SKELETON ── */
+        /* ── AUTO REFRESH INDICATOR ── */
+        .refresh-bar{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--ink4);background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:4px 12px;margin-left:10px;}
+        .refresh-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite;}
+
         .loading-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
         .skeleton{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;}
         .skel-img{height:200px;background:linear-gradient(90deg,#f0ede9 25%,#e8e5e1 50%,#f0ede9 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;}
@@ -134,7 +126,6 @@
         .skel-line.w60{width:60%;}.skel-line.w40{width:40%;}
         @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-        /* ── VEHICLE GRID ── */
         .v-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;}
         .v-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;transition:all .28s;cursor:pointer;box-shadow:var(--shadow);}
         .v-card:hover{border-color:var(--accent);transform:translateY(-5px);box-shadow:var(--shadow-lg);}
@@ -168,14 +159,12 @@
         .no-results h3{font-family:"Bungee",sans-serif;font-size:18px;color:var(--ink3);margin-bottom:8px;}
         .no-results p{font-size:12px;color:var(--ink4);}
 
-        /* ── FEATURES STRIP ── */
         .feats-strip{background:var(--ink);padding:56px 48px;display:grid;grid-template-columns:repeat(4,1fr);gap:30px;}
         .feat-item{text-align:center;}
         .feat-icon{font-size:32px;margin-bottom:14px;}
         .feat-item h4{font-family:"Bungee",sans-serif;font-size:13px;color:#fff;margin-bottom:8px;letter-spacing:.3px;}
         .feat-item p{font-size:11px;color:rgba(255,255,255,.4);line-height:1.6;}
 
-        /* ── BOOKING MODAL ── */
         .modal-overlay{position:fixed;inset:0;z-index:9999;background:rgba(10,13,26,.6);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:20px;}
         .modal-overlay.open{display:flex;animation:fadein .2s ease;}
         @keyframes fadein{from{opacity:0}to{opacity:1}}
@@ -192,8 +181,6 @@
         .prog-seg.active{background:var(--accent);}
         .prog-seg.done{background:var(--green);}
         .modal-body{padding:22px 28px;}
-
-        /* vehicle summary */
         .vehicle-summary{display:flex;align-items:center;gap:12px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:18px;}
         .vs-img{width:70px;height:52px;object-fit:cover;border-radius:9px;flex-shrink:0;}
         .vs-icon-big{font-size:36px;flex-shrink:0;}
@@ -202,8 +189,6 @@
         .vs-price{margin-left:auto;text-align:right;flex-shrink:0;}
         .vs-price .amount{font-family:"Bungee",sans-serif;font-size:17px;color:var(--ink);letter-spacing:-.5px;}
         .vs-price .per{font-size:10px;color:var(--ink4);}
-
-        /* form */
         .form-group{margin-bottom:14px;}
         .form-group label{display:block;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink2);margin-bottom:6px;}
         .form-input{width:100%;padding:10px 13px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);color:var(--ink);font-size:12px;font-family:'Roboto Mono',monospace;outline:none;transition:.18s;}
@@ -214,8 +199,6 @@
         .cat-btn{padding:8px 18px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--ink3);font-size:12px;font-family:'Roboto Mono',monospace;cursor:pointer;transition:.18s;}
         .cat-btn:hover{border-color:var(--accent);color:var(--ink);}
         .cat-btn.active{background:var(--ink);color:#fff;border-color:var(--ink);}
-
-        /* payment */
         .payment-grid{display:flex;gap:8px;margin-bottom:16px;}
         .pay-opt{flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);padding:14px;cursor:pointer;transition:.18s;text-align:center;user-select:none;}
         .pay-opt:hover{border-color:var(--accent);}
@@ -234,8 +217,6 @@
         .order-line:last-child{border:none;}
         .order-line.total{color:var(--ink);font-weight:700;font-size:14px;padding-top:10px;}
         .order-line.total .total-num{color:var(--accent);font-family:"Bungee",sans-serif;letter-spacing:-.5px;}
-
-        /* modal footer */
         .modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 28px 22px;border-top:1px solid var(--border);}
         .btn-back{padding:10px 22px;background:transparent;border:1.5px solid var(--border);border-radius:var(--r);color:var(--ink3);font-size:12px;font-family:'Roboto Mono',monospace;cursor:pointer;transition:.18s;}
         .btn-back:hover{border-color:var(--ink);color:var(--ink);}
@@ -244,8 +225,6 @@
         .btn-next:disabled{opacity:.5;cursor:not-allowed;}
         .btn-next.confirm{background:var(--green);}
         .btn-next.confirm:not(:disabled):hover{background:#008d52;}
-
-        /* success screen */
         .success-screen{text-align:center;padding:36px 20px;}
         .success-icon{font-size:56px;margin-bottom:16px;animation:pop .4s cubic-bezier(.34,1.56,.64,1);}
         @keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
@@ -257,8 +236,6 @@
         .bd-item .label{font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink4);margin-bottom:4px;}
         .bd-item .value{font-size:12px;font-weight:600;color:var(--ink);}
         .pay-status-badge{margin-bottom:20px;padding:12px 20px;border-radius:12px;font-size:12px;font-weight:600;text-align:center;font-family:'Roboto Mono',monospace;}
-
-        /* ── FOOTER ── */
         footer{background:var(--ink);padding:60px 48px 0;}
         .ft-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;}
         .ft-logo{font-family:"Bungee",sans-serif;font-size:22px;color:#fff;margin-bottom:12px;}
@@ -271,12 +248,11 @@
         .ft-col a{display:block;text-decoration:none;color:rgba(255,255,255,.45);font-size:11px;margin-bottom:9px;transition:.18s;}
         .ft-col a:hover{color:#fff;}
         .ft-bottom{border-top:1px solid rgba(255,255,255,.06);padding:18px 0;display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.25);}
-
-        /* ── WA ── */
         .wa{position:fixed;bottom:28px;right:28px;z-index:998;width:56px;height:56px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:26px;color:#fff;box-shadow:0 8px 28px rgba(37,211,102,.4);transition:.2s;}
         .wa:hover{transform:scale(1.12);}
         .wa-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(37,211,102,.4);animation:ring 2s infinite;}
         @keyframes ring{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.5);opacity:0}}
+        #debugPanel{display:none;margin-top:14px;background:#0a0d1a;border-radius:10px;padding:14px;}
 
         @media(max-width:1024px){.main-wrap{grid-template-columns:1fr;}.sidebar{position:static;border-right:none;border-bottom:1.5px solid var(--border);}.feats-strip{grid-template-columns:1fr 1fr;}.ft-grid{grid-template-columns:1fr 1fr;}}
         @media(max-width:680px){nav{padding:0 20px;}.nav-links{display:none;}.filter-zone{padding:14px 20px;}.content-zone{padding:16px;}.feats-strip{grid-template-columns:1fr;padding:36px 20px;}footer{padding:36px 20px 0;}.ft-grid{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}.bd-grid{grid-template-columns:1fr;}.api-status{display:none;}}
@@ -285,7 +261,6 @@
 <body>
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- NAV -->
 <nav>
     <a href="user-dashboard.html" class="logo">Rent<span>ify</span></a>
     <div class="nav-links">
@@ -302,7 +277,6 @@
     </div>
 </nav>
 
-<!-- HERO VIDEO -->
 <div class="hero">
     <video class="hero-video" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1920&q=80">
         <source src="https://assets.mixkit.co/videos/preview/mixkit-driving-through-a-city-at-night-1739-large.mp4" type="video/mp4">
@@ -322,7 +296,6 @@
     </div>
 </div>
 
-<!-- FILTER BAR -->
 <div class="filter-zone">
     <div class="search-row">
         <div class="search-wrap">
@@ -360,7 +333,6 @@
     </div>
 </div>
 
-<!-- MAIN -->
 <div class="main-wrap">
     <aside class="sidebar">
         <div class="sb-title">Filters</div>
@@ -377,19 +349,27 @@
                 <label class="check-label"><input type="checkbox" class="pax-check" value="11+"><div class="check-box"></div>11+ seats</label>
             </div>
         </div>
+        <!-- ✅ FIX: සියල්ල default checked කළා -->
         <div class="sb-section">
             <h4>Show Status</h4>
             <div class="check-group">
                 <label class="check-label"><input type="checkbox" class="status-check" value="AVAILABLE" checked><div class="check-box"></div>Available</label>
-                <label class="check-label"><input type="checkbox" class="status-check" value="BOOKED"><div class="check-box"></div>Booked</label>
-                <label class="check-label"><input type="checkbox" class="status-check" value="MAINTENANCE"><div class="check-box"></div>Maintenance</label>
+                <label class="check-label"><input type="checkbox" class="status-check" value="BOOKED" checked><div class="check-box"></div>Booked</label>
+                <label class="check-label"><input type="checkbox" class="status-check" value="MAINTENANCE" checked><div class="check-box"></div>Maintenance</label>
             </div>
         </div>
     </aside>
     <main class="content-zone">
         <div class="content-header">
-            <div class="result-meta">Showing <strong id="countNum">0</strong> vehicles</div>
-            <div class="last-updated" id="lastUpdated"></div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div class="result-meta">Showing <strong id="countNum">0</strong> vehicles</div>
+                <!-- ✅ NEW: Auto-refresh indicator -->
+                <div class="refresh-bar"><span class="refresh-dot"></span><span id="refreshCountdown">Auto-refresh: 30s</span></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div class="last-updated" id="lastUpdated"></div>
+                <button id="manualRefreshBtn" style="padding:5px 12px;background:var(--accent-l);border:1.5px solid rgba(26,63,255,.2);border-radius:20px;font-size:10px;color:var(--accent);font-family:'Roboto Mono',monospace;cursor:pointer;transition:.18s;" onmouseover="this.style.background='var(--accent)';this.style.color='#fff'" onmouseout="this.style.background='var(--accent-l)';this.style.color='var(--accent)'">↺ Refresh</button>
+            </div>
         </div>
         <div class="loading-grid" id="loadingGrid">
             <div class="skeleton"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
@@ -402,7 +382,6 @@
     </main>
 </div>
 
-<!-- FEATURES -->
 <div class="feats-strip">
     <div class="feat-item"><div class="feat-icon">⚡</div><h4>Instant Booking</h4><p>Confirm your ride in seconds.</p></div>
     <div class="feat-item"><div class="feat-icon">🛡️</div><h4>Verified Drivers</h4><p>All drivers background-checked.</p></div>
@@ -437,7 +416,6 @@
             <div class="prog-seg" id="p2"></div>
             <div class="prog-seg" id="p3"></div>
         </div>
-        <!-- STEP 1 -->
         <div id="step1">
             <div class="modal-body">
                 <div class="vehicle-summary" id="vehicleSummary"></div>
@@ -466,7 +444,6 @@
             </div>
             <div class="modal-footer"><button class="btn-next" id="toStep2Btn">Continue → Payment</button></div>
         </div>
-        <!-- STEP 2 -->
         <div id="step2" class="hidden">
             <div class="modal-body">
                 <div class="vehicle-summary" id="vehicleSummary2"></div>
@@ -494,8 +471,7 @@
                 <div id="cashMsg" class="msg-box hidden"><div class="bi">💵</div><p>Pay in cash when the driver arrives.</p></div>
                 <div id="onlineMsg" class="msg-box hidden"><div class="bi">📱</div><p>You'll receive a secure payment link after booking.</p></div>
                 <div class="order-summary" id="orderSummary"></div>
-                <!-- DEBUG PANEL -->
-                <div id="debugPanel" style="display:none;margin-top:14px;background:#0a0d1a;border-radius:10px;padding:14px;">
+                <div id="debugPanel">
                     <div style="font-family:'Roboto Mono',monospace;font-size:9px;color:#8890b0;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">Request Payload</div>
                     <pre id="debugPayload" style="font-family:'Roboto Mono',monospace;font-size:10px;color:#6ee7b7;white-space:pre-wrap;word-break:break-all;margin:0;line-height:1.6;"></pre>
                     <div id="debugError" style="display:none;margin-top:12px;">
@@ -517,7 +493,6 @@
                 </div>
             </div>
         </div>
-        <!-- STEP 3 -->
         <div id="step3" class="hidden">
             <div class="modal-body">
                 <div class="success-screen">
@@ -536,63 +511,103 @@
 </div>
 
 <script>
-    const API='http://localhost:8081/api/v1';
-    let allVehicles=[],activeType='all',activeStatus='all',activeCategory='all';
-    let selectedVehicle=null,selectedCategory='wedding',selectedPayment='CARD',bookingTotal=0;
-    const ICON={CAB:'🚕',VAN:'🚐',BUS:'🚌',WHEEL:'🛺'};
+    const API = 'http://localhost:8081/api/v1';
+    let allVehicles = [], activeType = 'all', activeStatus = 'all', activeCategory = 'all';
+    let selectedVehicle = null, selectedCategory = 'wedding', selectedPayment = 'CARD', bookingTotal = 0;
+    let autoRefreshTimer = null, countdownTimer = null, countdownSeconds = 30;
+    const ICON = {CAB:'🚕', VAN:'🚐', BUS:'🚌', WHEEL:'🛺'};
 
-    function getToken(){return localStorage.getItem('rentify_token')||'';}
-    function getUsername(){return localStorage.getItem('rentify_username')||'';}
-    function getFullName(){return localStorage.getItem('rentify_fullName')||getUsername();}
-    function getEmail(){return localStorage.getItem('rentify_email')||'';}
-    function getUserId(){const id=localStorage.getItem('rentify_userId');return id?parseInt(id):null;}
-    function isLoggedIn(){return !!getToken();}
-    function authH(){return isLoggedIn()?{Authorization:'Bearer '+getToken()}:{};}
-    const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    const fmtP=p=>'Rs\u00a0'+Number(p).toLocaleString('en-LK');
-    const fmtD=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-LK',{year:'numeric',month:'short',day:'numeric'}):'—';
-    const ini=n=>(n||'?').trim().split(/\s+/).map(x=>x[0]?.toUpperCase()).join('').slice(0,2)||'?';
+    function getToken(){ return localStorage.getItem('rentify_token') || ''; }
+    function getUsername(){ return localStorage.getItem('rentify_username') || ''; }
+    function getFullName(){ return localStorage.getItem('rentify_fullName') || getUsername(); }
+    function getEmail(){ return localStorage.getItem('rentify_email') || ''; }
+    function getUserId(){ const id = localStorage.getItem('rentify_userId'); return id ? parseInt(id) : null; }
+    function isLoggedIn(){ return !!getToken(); }
+    function authH(){ return isLoggedIn() ? {Authorization: 'Bearer ' + getToken()} : {}; }
+    const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const fmtP = p => 'Rs\u00a0' + Number(p).toLocaleString('en-LK');
+    const fmtD = d => d ? new Date(d+'T00:00:00').toLocaleDateString('en-LK',{year:'numeric',month:'short',day:'numeric'}) : '—';
+    const ini = n => (n||'?').trim().split(/\s+/).map(x=>x[0]?.toUpperCase()).join('').slice(0,2) || '?';
 
-    function toast(msg,type){
-        const el=$(`<div class="toast ${type||''}">${esc(msg)}</div>`).appendTo('#toastContainer');
-        setTimeout(()=>{el.css('animation','toastOut .3s ease forwards');setTimeout(()=>el.remove(),300);},3200);
+    function toast(msg, type){
+        const el = $(`<div class="toast ${type||''}">${esc(msg)}</div>`).appendTo('#toastContainer');
+        setTimeout(()=>{ el.css('animation','toastOut .3s ease forwards'); setTimeout(()=>el.remove(), 300); }, 3200);
+    }
+
+    // ── AUTO REFRESH ─────────────────────────────────────────────
+    // ✅ FIX: Admin side add කළ vehicles automatically user side refresh වෙනවා
+    function startAutoRefresh(){
+        stopAutoRefresh();
+        countdownSeconds = 30;
+        countdownTimer = setInterval(()=>{
+            countdownSeconds--;
+            $('#refreshCountdown').text('Auto-refresh: ' + countdownSeconds + 's');
+            if(countdownSeconds <= 0){
+                countdownSeconds = 30;
+                fetchVehiclesSilent(); // skeleton නැතිව silently refresh
+            }
+        }, 1000);
+    }
+    function stopAutoRefresh(){
+        if(autoRefreshTimer) clearInterval(autoRefreshTimer);
+        if(countdownTimer) clearInterval(countdownTimer);
+    }
+
+    // ✅ NEW: Silent fetch — skeleton නොපෙන්වා silently data update කරනවා
+    function fetchVehiclesSilent(){
+        $.ajax({
+            url: API + '/vehicles', method: 'GET',
+            success: function(res){
+                const newData = Array.isArray(res) ? res : (res.data || res.content || []);
+                // Data change වුණාද check කරනවා
+                if(JSON.stringify(newData.map(v=>v.id).sort()) !== JSON.stringify(allVehicles.map(v=>v.id).sort())){
+                    allVehicles = newData;
+                    $('#statTotal').text(allVehicles.length);
+                    $('#statAvailable').text(allVehicles.filter(v=>v.status==='AVAILABLE').length);
+                    applyFilters();
+                    toast('✨ New vehicles available!', 'success');
+                }
+                $('#lastUpdated').text('Updated ' + new Date().toLocaleTimeString('en-LK'));
+                countdownSeconds = 30;
+            }
+        });
     }
 
     // ── NAV ──────────────────────────────────────────────────────
     function updateNav(){
-        const el=$('#navRight');
-        const navBtns=`<div class="api-status"><div class="api-dot" id="apiDot"></div><span id="apiStatusText">Connecting…</span></div>`;
+        const el = $('#navRight');
+        const navBtns = `<div class="api-status"><div class="api-dot" id="apiDot"></div><span id="apiStatusText">Connecting…</span></div>`;
         if(isLoggedIn()){
-            const fn=getFullName(),initial=ini(fn),role=localStorage.getItem('rentify_role')||'USER';
+            const fn = getFullName(), initial = ini(fn), role = localStorage.getItem('rentify_role') || 'USER';
             el.html(`${navBtns}
-      <button class="nav-btn" id="navBookBtn"><i class="fas fa-car"></i> Book Now</button>
-      <div class="user-menu">
-        <div class="user-avatar" title="${esc(fn)}">${initial}</div>
-        <div class="user-dropdown">
-          <div class="ud-name">${esc(fn)}</div>
-          <div class="ud-role">${role==='ADMIN'?'👑 Administrator':'🧑 User'}</div>
-          ${role==='ADMIN'?'<a class="ud-item" href="../admin/admin-dashboard.html"><span>🏠</span> Admin Dashboard</a>':'<a class="ud-item" href="profile-update.html"><span>👤</span> My Profile</a>'}
-          <a class="ud-item" href="#"><span>📋</span> My Bookings</a>
-          <div class="ud-divider"></div>
-          <button class="ud-item logout" id="signOutBtn"><span>🚪</span> Sign Out</button>
-        </div>
-      </div>`);
-            $('#signOutBtn').on('click',()=>{
+        <button class="nav-btn" id="navBookBtn"><i class="fas fa-car"></i> Book Now</button>
+        <div class="user-menu">
+          <div class="user-avatar" title="${esc(fn)}">${initial}</div>
+          <div class="user-dropdown">
+            <div class="ud-name">${esc(fn)}</div>
+            <div class="ud-role">${role==='ADMIN'?'👑 Administrator':'🧑 User'}</div>
+            ${role==='ADMIN'?'<a class="ud-item" href="../admin/admin-dashboard.html"><span>🏠</span> Admin Dashboard</a>':'<a class="ud-item" href="profile-update.html"><span>👤</span> My Profile</a>'}
+            <a class="ud-item" href="#"><span>📋</span> My Bookings</a>
+            <div class="ud-divider"></div>
+            <button class="ud-item logout" id="signOutBtn"><span>🚪</span> Sign Out</button>
+          </div>
+        </div>`);
+            $('#signOutBtn').on('click', ()=>{
                 ['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(k=>localStorage.removeItem(k));
-                updateNav();toast('Signed out.','');
+                updateNav(); toast('Signed out.', '');
             });
         } else {
             el.html(`${navBtns}
-      <a href="../sign-in.html" class="signin-btn"><i class="fas fa-sign-in-alt"></i> Sign In</a>
-      <button class="nav-btn" id="navBookBtn"><i class="fas fa-car"></i> Book Now</button>`);
+        <a href="../sign-in.html" class="signin-btn"><i class="fas fa-sign-in-alt"></i> Sign In</a>
+        <button class="nav-btn" id="navBookBtn"><i class="fas fa-car"></i> Book Now</button>`);
         }
-        $('#navBookBtn').on('click',()=>document.getElementById('vehicleGrid')?.scrollIntoView({behavior:'smooth'}));
+        $('#navBookBtn').on('click', ()=>document.getElementById('vehicleGrid')?.scrollIntoView({behavior:'smooth'}));
     }
 
     function checkApi(){
-        $.ajax({url:API+'/vehicles',method:'GET',timeout:5000,
-            success:()=>{$('#apiDot').addClass('online').removeClass('offline');$('#apiStatusText').text('API Online');},
-            error:()=>{$('#apiDot').addClass('offline').removeClass('online');$('#apiStatusText').text('API Offline');}
+        $.ajax({url: API+'/vehicles', method:'GET', timeout:5000,
+            success: ()=>{ $('#apiDot').addClass('online').removeClass('offline'); $('#apiStatusText').text('API Online'); },
+            error:   ()=>{ $('#apiDot').addClass('offline').removeClass('online'); $('#apiStatusText').text('API Offline'); }
         });
     }
 
@@ -601,67 +616,112 @@
         $('#vehicleGrid').addClass('hidden').empty();
         $('#noResults').addClass('hidden');
         $.ajax({
-            url:API+'/vehicles',method:'GET',
-            success:function(res){
-                allVehicles=Array.isArray(res)?res:(res.data||res.content||[]);
+            url: API + '/vehicles', method: 'GET',
+            success: function(res){
+                allVehicles = Array.isArray(res) ? res : (res.data || res.content || []);
                 $('#statTotal').text(allVehicles.length);
                 $('#statAvailable').text(allVehicles.filter(v=>v.status==='AVAILABLE').length);
-                $('#lastUpdated').text('Updated '+new Date().toLocaleTimeString('en-LK'));
+                $('#lastUpdated').text('Updated ' + new Date().toLocaleTimeString('en-LK'));
                 applyFilters();
+                startAutoRefresh(); // ✅ Fetch success වුණාම auto-refresh start කරනවා
             },
-            error:function(xhr){
+            error: function(xhr){
                 $('#loadingGrid').addClass('hidden');
-                const msg=xhr.responseJSON?.message||'Backend offline — check port 8081.';
+                const msg = xhr.responseJSON?.message || 'Backend offline — check port 8081.';
                 $('#vehicleGrid').removeClass('hidden').html(
                     `<div class="no-results" style="grid-column:1/-1"><div class="icon">⚠️</div><h3>Could not load vehicles</h3><p>${esc(msg)}</p>
-         <button id="retryBtn" style="margin-top:14px;padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:'Bungee',sans-serif;font-size:11px;letter-spacing:.8px;">↺ Retry</button></div>`
+           <button id="retryBtn" style="margin-top:14px;padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:'Bungee',sans-serif;font-size:11px;letter-spacing:.8px;">↺ Retry</button></div>`
                 );
-                $(document).one('click','#retryBtn',fetchVehicles);
-                toast('Failed to load vehicles.','error');
+                $(document).one('click', '#retryBtn', fetchVehicles);
+                toast('Failed to load vehicles.', 'error');
             }
         });
     }
 
+    // ✅ MAIN FIX: applyFilters function එක සම්පූර්ණයෙන් නිවැරදි කළා
     function applyFilters(){
-        const q=$('#searchInput').val().toLowerCase().trim();
-        const maxP=parseInt($('#priceRange').val());
-        const sort=$('#sortBy').val();
-        const pax=$('.pax-check:checked').map(function(){return $(this).val();}).get();
-        const sbSt=$('.status-check:checked').map(function(){return $(this).val();}).get();
-        const CAT_TYPE_MAP={wedding:['CAB','VAN'],trip:['CAB','VAN','BUS'],daily:['CAB','WHEEL'],special:['CAB','VAN','BUS','WHEEL']};
-        let list=allVehicles.filter(v=>{
-            if(activeType!=='all'&&v.type!==activeType)return false;
-            if(activeCategory!=='all'){const allowed=CAT_TYPE_MAP[activeCategory]||[];if(!allowed.includes(v.type))return false;}
-            if(activeStatus!=='all'){if(v.status!==activeStatus)return false;}
-            else{if(sbSt.length&&!sbSt.includes(v.status))return false;}
-            if(v.pricePerDay>maxP)return false;
-            if(q&&!v.model.toLowerCase().includes(q)&&!v.type.toLowerCase().includes(q)&&!(v.description||'').toLowerCase().includes(q)&&!(v.plateNumber||'').toLowerCase().includes(q))return false;
-            if(pax.length&&!pax.some(r=>(r==='1-4'&&v.capacity>=1&&v.capacity<=4)||(r==='5-10'&&v.capacity>=5&&v.capacity<=10)||(r==='11+'&&v.capacity>=11)))return false;
+        const q = $('#searchInput').val().toLowerCase().trim();
+        const maxP = parseInt($('#priceRange').val());
+        const sort = $('#sortBy').val();
+        const pax = $('.pax-check:checked').map(function(){ return $(this).val(); }).get();
+        const sbSt = $('.status-check:checked').map(function(){ return $(this).val(); }).get();
+        const CAT_TYPE_MAP = {
+            wedding: ['CAB','VAN'],
+            trip:    ['CAB','VAN','BUS'],
+            daily:   ['CAB','WHEEL'],
+            special: ['CAB','VAN','BUS','WHEEL']
+        };
+
+        let list = allVehicles.filter(v => {
+            // Type filter (top pill bar)
+            if(activeType !== 'all' && v.type !== activeType) return false;
+
+            // Category filter (top pill bar)
+            if(activeCategory !== 'all'){
+                const allowed = CAT_TYPE_MAP[activeCategory] || [];
+                if(!allowed.includes(v.type)) return false;
+            }
+
+            // ✅ FIX: Status filter logic නිවැරදි කළා
+            // Top pill bar status selected නම් — ඒ status විතරක් show කරනවා
+            if(activeStatus !== 'all'){
+                if(v.status !== activeStatus) return false;
+            } else {
+                // "All" selected නම් — sidebar checkboxes check කරනවා
+                // ✅ FIX: sbSt empty නම් (කිසිම checkbox checked නැත්නම්) — hide කරනවා
+                // sbSt filled නම් — checked status ඒවා show කරනවා
+                if(sbSt.length > 0 && !sbSt.includes(v.status)) return false;
+                // sbSt.length === 0 නම් — කිසිම checkbox checked නැත — nothing show
+            }
+
+            // Price filter
+            if(v.pricePerDay > maxP) return false;
+
+            // Search filter
+            if(q && !v.model.toLowerCase().includes(q) &&
+                !v.type.toLowerCase().includes(q) &&
+                !(v.description||'').toLowerCase().includes(q) &&
+                !(v.plateNumber||'').toLowerCase().includes(q)) return false;
+
+            // Passenger filter
+            if(pax.length && !pax.some(r =>
+                (r==='1-4'  && v.capacity>=1  && v.capacity<=4)  ||
+                (r==='5-10' && v.capacity>=5  && v.capacity<=10) ||
+                (r==='11+'  && v.capacity>=11)
+            )) return false;
+
             return true;
         });
-        if(sort==='price_asc')list.sort((a,b)=>a.pricePerDay-b.pricePerDay);
-        else if(sort==='price_desc')list.sort((a,b)=>b.pricePerDay-a.pricePerDay);
-        else if(sort==='name')list.sort((a,b)=>a.model.localeCompare(b.model));
-        else if(sort==='seats')list.sort((a,b)=>b.capacity-a.capacity);
+
+        // Sort
+        if(sort==='price_asc')  list.sort((a,b)=>a.pricePerDay-b.pricePerDay);
+        else if(sort==='price_desc') list.sort((a,b)=>b.pricePerDay-a.pricePerDay);
+        else if(sort==='name')  list.sort((a,b)=>a.model.localeCompare(b.model));
+        else if(sort==='seats') list.sort((a,b)=>b.capacity-a.capacity);
+
         renderGrid(list);
     }
 
     function renderGrid(list){
         $('#loadingGrid').addClass('hidden');
         $('#countNum').text(list.length);
-        if(!list.length){$('#vehicleGrid').addClass('hidden').empty();$('#noResults').removeClass('hidden');return;}
+        if(!list.length){
+            $('#vehicleGrid').addClass('hidden').empty();
+            $('#noResults').removeClass('hidden');
+            return;
+        }
         $('#noResults').addClass('hidden');
-        const html=list.map(v=>{
-            const icon=ICON[v.type]||'🚗';
-            const img=v.image
-                ?`<div class="card-img-wrap"><img src="${esc(v.image)}" alt="${esc(v.model)}" loading="lazy" onerror="this.parentElement.outerHTML='<div class=\\'card-img-fallback\\'>${icon}</div>'"></div>`
-                :`<div class="card-img-fallback">${icon}</div>`;
-            const avail=v.status==='AVAILABLE';
-            const insWarn=v.insuranceExpiryDate&&new Date(v.insuranceExpiryDate)<new Date(Date.now()+30*86400000);
+        const html = list.map(v => {
+            const icon = ICON[v.type] || '🚗';
+            const img = v.image
+                ? `<div class="card-img-wrap"><img src="${esc(v.image)}" alt="${esc(v.model)}" loading="lazy" onerror="this.parentElement.outerHTML='<div class=\\'card-img-fallback\\'>${icon}</div>'"></div>`
+                : `<div class="card-img-fallback">${icon}</div>`;
+            const avail = v.status === 'AVAILABLE';
+            const insWarn = v.insuranceExpiryDate && new Date(v.insuranceExpiryDate) < new Date(Date.now()+30*86400000);
             return `<div class="v-card" data-id="${v.id}">
       <div class="v-card-img">${img}
         <div class="status-badge status-${esc(v.status||'AVAILABLE')}">${esc(v.status||'AVAILABLE')}</div>
-        ${insWarn?'<div class="ins-warn">⚠ Insurance Soon</div>':''}
+        ${insWarn ? '<div class="ins-warn">⚠ Insurance Soon</div>' : ''}
       </div>
       <div class="v-card-body">
         <div class="card-type">${esc(v.type)}</div>
@@ -669,9 +729,9 @@
         <div class="card-desc">${esc(v.description||'Comfortable and reliable vehicle.')}</div>
         <div class="card-specs">
           <span class="spec-tag">👤 ${v.capacity} seats</span>
-          ${v.year?`<span class="spec-tag">📅 ${v.year}</span>`:''}
-          ${v.plateNumber?`<span class="spec-tag">🪪 ${esc(v.plateNumber)}</span>`:''}
-          ${v.insuranceActive?'<span class="spec-tag">🛡️ Insured</span>':'<span class="spec-tag warn">⚠ Uninsured</span>'}
+          ${v.year ? `<span class="spec-tag">📅 ${v.year}</span>` : ''}
+          ${v.plateNumber ? `<span class="spec-tag">🪪 ${esc(v.plateNumber)}</span>` : ''}
+          ${v.insuranceActive ? '<span class="spec-tag">🛡️ Insured</span>' : '<span class="spec-tag warn">⚠ Uninsured</span>'}
         </div>
         <div class="card-footer">
           <div class="card-price">
@@ -688,214 +748,149 @@
 
     // ── BOOKING MODAL ────────────────────────────────────────────
     function openBooking(id){
-        if(!isLoggedIn()){toast('Please sign in to book a vehicle.','warning');setTimeout(()=>{window.location.href='../sign-in.html?redirect=1';},1000);return;}
-        const v=allVehicles.find(x=>x.id===id);
-        if(!v||v.status!=='AVAILABLE'){toast('This vehicle is not available.','error');return;}
-        selectedVehicle=v;selectedCategory='wedding';selectedPayment='CARD';bookingTotal=0;
-        goStep(1);buildSummary();
+        if(!isLoggedIn()){ toast('Please sign in to book a vehicle.','warning'); setTimeout(()=>{ window.location.href='../sign-in.html?redirect=1'; },1000); return; }
+        const v = allVehicles.find(x=>x.id===id);
+        if(!v||v.status!=='AVAILABLE'){ toast('This vehicle is not available.','error'); return; }
+        selectedVehicle=v; selectedCategory='wedding'; selectedPayment='CARD'; bookingTotal=0;
+        goStep(1); buildSummary();
         $('#f_name').val(getFullName());
         $('#f_email').val(getEmail());
         $('#f_phone').val('');
-        const today=new Date().toISOString().split('T')[0];
-        const tomorrow=new Date(Date.now()+86400000).toISOString().split('T')[0];
-        const dayAfter=new Date(Date.now()+2*86400000).toISOString().split('T')[0];
-        // @FutureOrPresent: startDate >= today, @Future: endDate > today (must be tomorrow at minimum)
+        const today    = new Date().toISOString().split('T')[0];
+        const tomorrow = new Date(Date.now()+86400000).toISOString().split('T')[0];
+        const dayAfter = new Date(Date.now()+2*86400000).toISOString().split('T')[0];
         $('#f_start_date').attr('min',today).val(tomorrow);
         $('#f_end_date').attr('min',tomorrow).val(dayAfter);
         $('#f_pickup,#f_drop').val('');
-        $('.cat-btn').removeClass('active');$('.cat-btn[data-cat="wedding"]').addClass('active');
-        $('.pay-opt').removeClass('selected');$('.pay-opt[data-pay="CARD"]').addClass('selected');
-        $('#cardForm').removeClass('hidden');$('#cashMsg,#onlineMsg').addClass('hidden');
+        $('.cat-btn').removeClass('active'); $('.cat-btn[data-cat="wedding"]').addClass('active');
+        $('.pay-opt').removeClass('selected'); $('.pay-opt[data-pay="CARD"]').addClass('selected');
+        $('#cardForm').removeClass('hidden'); $('#cashMsg,#onlineMsg').addClass('hidden');
         $('#cardNum,#cardName,#cardExp,#cardCvv').val('');
-        $('#cardNumDisplay').text('**** **** **** ****');$('#cardNameDisplay').text('CARD HOLDER');$('#cardExpDisplay').text('MM/YY');
+        $('#cardNumDisplay').text('**** **** **** ****'); $('#cardNameDisplay').text('CARD HOLDER'); $('#cardExpDisplay').text('MM/YY');
         recompute();
         $('#bookingModal').addClass('open');
     }
-    function closeModal(){$('#bookingModal').removeClass('open');}
+
+    function closeModal(){ $('#bookingModal').removeClass('open'); }
 
     function buildSummary(){
-        if(!selectedVehicle)return;
-        const v=selectedVehicle,icon=ICON[v.type]||'🚗';
+        if(!selectedVehicle) return;
+        const v=selectedVehicle, icon=ICON[v.type]||'🚗';
         const img=v.image?`<img class="vs-img" src="${esc(v.image)}" alt="${esc(v.model)}" loading="lazy" onerror="this.outerHTML='<span style=\\'font-size:34px\\'>${icon}</span>'">`:`<span class="vs-icon-big">${icon}</span>`;
         const html=`${img}<div class="vs-info"><h3>${esc(v.model)}</h3><p>${esc(v.type)} · ${v.capacity} seats · ${esc(v.plateNumber||'N/A')}</p></div><div class="vs-price"><div class="amount">${fmtP(v.pricePerDay)}</div><div class="per">/day</div></div>`;
         $('#vehicleSummary,#vehicleSummary2').html(html);
     }
 
     function recompute(){
-        if(!selectedVehicle)return;
-        const s=$('#f_start_date').val(),e=$('#f_end_date').val();
-        // Enforce endDate min = startDate + 1 day (satisfies @Future)
+        if(!selectedVehicle) return;
+        const s=$('#f_start_date').val(), e=$('#f_end_date').val();
         if(s){
             const minEnd=new Date(new Date(s+'T00:00:00').getTime()+86400000).toISOString().split('T')[0];
             $('#f_end_date').attr('min',minEnd);
-            if(e&&new Date(e+'T00:00:00')<=new Date(s+'T00:00:00')){
-                $('#f_end_date').val(minEnd);
-            }
+            if(e && new Date(e+'T00:00:00')<=new Date(s+'T00:00:00')) $('#f_end_date').val(minEnd);
         }
         const days=(s&&e)?Math.max(1,Math.round((new Date(e)-new Date(s))/86400000)):1;
         const base=selectedVehicle.pricePerDay*days;
         const catFee=selectedCategory==='wedding'?2500:selectedCategory==='special'?1500:0;
         bookingTotal=base+catFee+500;
         let html=`<div class="order-line"><span>Base Price (${days} day${days>1?'s':''})</span><span>${fmtP(base)}</span></div>`;
-        if(catFee)html+=`<div class="order-line"><span>Category Fee (${esc(selectedCategory)})</span><span>${fmtP(catFee)}</span></div>`;
+        if(catFee) html+=`<div class="order-line"><span>Category Fee (${esc(selectedCategory)})</span><span>${fmtP(catFee)}</span></div>`;
         html+=`<div class="order-line"><span>Driver &amp; Fuel</span><span>${fmtP(500)}</span></div>`;
         html+=`<div class="order-line total"><span>Total</span><span class="total-num">${fmtP(bookingTotal)}</span></div>`;
         $('#orderSummary').html(html);
     }
 
     function goStep(n){
-        [1,2,3].forEach(i=>{$('#step'+i).toggleClass('hidden',i!==n);$('#p'+i).attr('class','prog-seg'+(i<n?' done':i===n?' active':''));});
+        [1,2,3].forEach(i=>{ $('#step'+i).toggleClass('hidden',i!==n); $('#p'+i).attr('class','prog-seg'+(i<n?' done':i===n?' active':'')); });
         $('#stepLabel').text(n<3?`Step ${n} of 3`:'Complete ✓');
     }
 
     function confirmBooking(){
-        const start=$('#f_start_date').val(),end=$('#f_end_date').val();
-        const pickup=$.trim($('#f_pickup').val()),drop=$.trim($('#f_drop').val());
-        if(!start||!end){toast('Please select booking dates.','error');return;}
-        if(!pickup||!drop){toast('Please enter pickup and drop locations.','error');return;}
+        const start=$('#f_start_date').val(), end=$('#f_end_date').val();
+        const pickup=$.trim($('#f_pickup').val()), drop=$.trim($('#f_drop').val());
+        if(!start||!end){ toast('Please select booking dates.','error'); return; }
+        if(!pickup||!drop){ toast('Please enter pickup and drop locations.','error'); return; }
         const todayCheck=new Date(); todayCheck.setHours(0,0,0,0);
         const startCheck=new Date(start+'T00:00:00'), endCheck=new Date(end+'T00:00:00');
-        if(endCheck<=startCheck){toast('End date must be after start date.','error');return;}
-        if(endCheck<=todayCheck){toast('End date must be a future date (tomorrow or later).','error');return;}
-        if(selectedPayment==='CARD'&&(!$.trim($('#cardName').val())||!$.trim($('#cardNum').val())||!$.trim($('#cardExp').val())||!$.trim($('#cardCvv').val()))){toast('Please fill in all card details.','error');return;}
+        if(endCheck<=startCheck){ toast('End date must be after start date.','error'); return; }
+        if(endCheck<=todayCheck){ toast('End date must be a future date (tomorrow or later).','error'); return; }
+        if(selectedPayment==='CARD' && (!$.trim($('#cardName').val())||!$.trim($('#cardNum').val())||!$.trim($('#cardExp').val())||!$.trim($('#cardCvv').val()))){ toast('Please fill in all card details.','error'); return; }
 
-        // ── Validate userId ──────────────────────────────────────
         const rawUid=localStorage.getItem('rentify_userId');
         const uid=rawUid?parseInt(rawUid,10):null;
-        if(!uid||isNaN(uid)){
-            toast('Session error — userId missing. Please sign out and sign in again.','error');
-            console.error('[Rentify] rentify_userId not found in localStorage. Keys present:',Object.keys(localStorage).filter(k=>k.startsWith('rentify_')));
-            return;
-        }
+        if(!uid||isNaN(uid)){ toast('Session error — userId missing. Please sign out and sign in again.','error'); return; }
 
-        // ── Validate vehicleId ──────────────────────────────────
         const vehicleId=selectedVehicle?.id;
-        if(!vehicleId){toast('No vehicle selected. Please try again.','error');return;}
+        if(!vehicleId){ toast('No vehicle selected. Please try again.','error'); return; }
 
-        // ── Build payload — matches standard Spring Boot Booking entity ──
         const bookingPayload={
-            userId:     uid,          // Long (number, NOT string)
-            vehicleId:  vehicleId,    // Long (number)
-            startDate:  start,        // "YYYY-MM-DD"
-            endDate:    end,          // "YYYY-MM-DD"
-            pickupLocation: pickup,
-            dropLocation:   drop,
-            bookingCategory: selectedCategory.toUpperCase(), // WEDDING / TRIP / DAILY / SPECIAL
-            totalAmount: bookingTotal
+            userId:          uid,
+            vehicleId:       vehicleId,
+            startDate:       start,
+            endDate:         end,
+            pickupLocation:  pickup,
+            dropLocation:    drop,
+            bookingCategory: selectedCategory.toUpperCase(),
+            totalAmount:     bookingTotal
         };
 
-        console.log('[Rentify] POST /bookings payload:', JSON.stringify(bookingPayload, null, 2));
-        // Show in debug panel if visible
-        const $dp=$('#debugPayload');if($dp.length){$dp.text(JSON.stringify(bookingPayload,null,2));}
+        const $dp=$('#debugPayload'); if($dp.length) $dp.text(JSON.stringify(bookingPayload,null,2));
         $('#debugError').hide();
-
         $('#confirmBtn').prop('disabled',true).text('Processing…');
 
         $.ajax({
-            url:API+'/bookings',
-            method:'POST',
-            contentType:'application/json',
-            headers:authH(),
-            data:JSON.stringify(bookingPayload),
-            success:function(res){
-                console.log('[Rentify] Booking success:', res);
+            url: API+'/bookings', method:'POST', contentType:'application/json',
+            headers: authH(), data: JSON.stringify(bookingPayload),
+            success: function(res){
                 const booking=(res&&res.data)?res.data:res;
-
-                // ── Payment ──────────────────────────────────────────
-                // Get booking ID — handle both { id } and { bookingId } response shapes
-                const bookingId = booking.id || booking.bookingId;
-
-                // Build payment date fields
-                const paidDate = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
-                const paidDateTime = new Date().toISOString();           // "YYYY-MM-DDTHH:mm:ss.sssZ"
-
+                const bookingId=booking.id||booking.bookingId;
+                const paidDate=new Date().toISOString().split('T')[0];
                 const payPayload={
                     bookingId:     bookingId,
-                    paymentMethod: selectedPayment,   // CARD / CASH / ONLINE
+                    paymentMethod: selectedPayment,
                     amount:        bookingTotal,
                     currency:      'LKR',
-                    paymentDate:   paidDate,          // "YYYY-MM-DD"
+                    paymentDate:   paidDate
                 };
-
                 if(selectedPayment==='CARD'){
-                    payPayload.cardName   = $.trim($('#cardName').val()); // exact field your backend expects
+                    payPayload.cardName   = $.trim($('#cardName').val());
                     payPayload.cardNumber = $('#cardNum').val().replace(/\s/g,'');
                     payPayload.expiryDate = $('#cardExp').val();
                     payPayload.cvv        = $('#cardCvv').val();
                 }
-
-                console.log('[Rentify] POST /payments/process payload:', JSON.stringify(payPayload, null, 2));
-                console.log('[Rentify] bookingId used:', bookingId, '| type:', typeof bookingId);
-
                 $.ajax({
-                    url:API+'/payments/process',
-                    method:'POST',
-                    contentType:'application/json',
-                    headers:authH(),
-                    data:JSON.stringify(payPayload),
-                    success:function(pr){
-                        console.log('[Rentify] Payment success:', pr);
-                        showSuccess(booking,pr.data||pr,start,end,pickup,drop,null);
-                    },
-                    error:function(xhr){
-                        const errBody = xhr.responseJSON || {};
-                        const errMsg  = errBody.message || errBody.error || errBody.detail || 'Payment processing failed.';
-                        console.error('[Rentify] Payment FAILED ─────────────────────────────');
-                        console.error('  Status  :', xhr.status);
-                        console.error('  Message :', errMsg);
-                        console.error('  Full body:', JSON.stringify(errBody, null, 2));
-                        console.error('  Raw text :', xhr.responseText?.substring(0,500));
-                        console.error('─────────────────────────────────────────────────────');
-
-                        // Show in debug panel automatically
+                    url: API+'/payments/process', method:'POST', contentType:'application/json',
+                    headers: authH(), data: JSON.stringify(payPayload),
+                    success: function(pr){ showSuccess(booking,pr.data||pr,start,end,pickup,drop,null); },
+                    error: function(xhr){
+                        const errBody=xhr.responseJSON||{};
+                        const errMsg=errBody.message||errBody.error||errBody.detail||'Payment processing failed.';
                         $('#debugError').show();
-                        $('#debugErrorText').text(
-                            'STATUS: ' + xhr.status + '\n\n' +
-                            'MESSAGE: ' + errMsg + '\n\n' +
-                            'FULL RESPONSE:\n' + JSON.stringify(errBody, null, 2)
-                        );
-                        if(document.getElementById('showDebug')){
-                            document.getElementById('showDebug').checked = true;
-                            document.getElementById('debugPanel').style.display = 'block';
-                        }
-
-                        showSuccess(booking, null, start, end, pickup, drop,
-                            '['+xhr.status+'] '+errMsg
-                        );
+                        $('#debugErrorText').text('STATUS: '+xhr.status+'\n\nMESSAGE: '+errMsg+'\n\nFULL RESPONSE:\n'+JSON.stringify(errBody,null,2));
+                        if(document.getElementById('showDebug')){ document.getElementById('showDebug').checked=true; document.getElementById('debugPanel').style.display='block'; }
+                        showSuccess(booking,null,start,end,pickup,drop,'['+xhr.status+'] '+errMsg);
                     },
-                    complete:function(){$('#confirmBtn').prop('disabled',false).text('✓ Confirm & Pay');}
+                    complete: function(){ $('#confirmBtn').prop('disabled',false).text('✓ Confirm & Pay'); }
                 });
             },
-            error:function(xhr){
-                console.error('[Rentify] Booking error:', xhr.status, xhr.responseText);
-
-                // ── Parse best error message from Spring Boot ────────
+            error: function(xhr){
                 let msg='Failed to create booking.';
                 try{
                     const body=xhr.responseJSON;
-                    if(body){
-                        // Spring Boot default error body: { message, error, trace }
-                        msg=body.message||body.error||body.detail||JSON.stringify(body);
-                    } else if(xhr.responseText){
-                        // Raw HTML or plain text from 500
-                        const match=xhr.responseText.match(/\<title\>(.*?)\<\/title\>/i);
-                        msg=match?match[1]:xhr.responseText.substring(0,120);
-                    }
+                    if(body) msg=body.message||body.error||body.detail||JSON.stringify(body);
+                    else if(xhr.responseText){ const m=xhr.responseText.match(/<title>(.*?)<\/title>/i); msg=m?m[1]:xhr.responseText.substring(0,120); }
                 }catch(e){}
-
-                if(xhr.status===400)msg='Bad request — check all fields: '+msg;
-                if(xhr.status===401)msg='Session expired — please sign in again.';
-                if(xhr.status===403)msg='Access denied — sign in as a regular user (not admin).';
-                if(xhr.status===404)msg='Booking endpoint not found — check API is running on port 8081.';
-                if(xhr.status===409)msg=xhr.responseJSON?.message||'Vehicle already booked for these dates.';
-                if(xhr.status===500)msg='Server error (500) — check Spring Boot console logs. Detail: '+msg;
-                // Show raw response in debug panel
+                if(xhr.status===400) msg='Bad request — check all fields: '+msg;
+                if(xhr.status===401) msg='Session expired — please sign in again.';
+                if(xhr.status===403) msg='Access denied — sign in as a regular user (not admin).';
+                if(xhr.status===404) msg='Booking endpoint not found — check API is running on port 8081.';
+                if(xhr.status===409) msg=xhr.responseJSON?.message||'Vehicle already booked for these dates.';
+                if(xhr.status===500) msg='Server error (500) — check Spring Boot console logs. Detail: '+msg;
+                if(xhr.status===0)   msg='Cannot reach server — is Spring Boot running on localhost:8081?';
                 const rawResp=xhr.responseText||JSON.stringify(xhr.responseJSON||{});
-                $('#debugError').show();$('#debugErrorText').text(rawResp.substring(0,1000));
-                if(document.getElementById('showDebug'))document.getElementById('showDebug').checked=true;
+                $('#debugError').show(); $('#debugErrorText').text(rawResp.substring(0,1000));
+                if(document.getElementById('showDebug')) document.getElementById('showDebug').checked=true;
                 document.getElementById('debugPanel').style.display='block';
-                if(xhr.status===0)  msg='Cannot reach server — is Spring Boot running on localhost:8081?';
-
                 toast(msg,'error');
                 $('#confirmBtn').prop('disabled',false).text('✓ Confirm & Pay');
             }
@@ -907,14 +902,14 @@
         const $badge=$('#paymentStatusBadge');
         if(payment&&payment.status==='COMPLETED'){
             $badge.css({background:'rgba(0,184,107,.1)',color:'var(--green)',border:'1px solid rgba(0,184,107,.25)'}).html('✅ Payment Successful').show();
-            $('#successEmoji').text('🎉');$('#successTitle').text('Booking Confirmed!');$('#successMsg').text('Your vehicle is reserved and payment received. The driver will contact you before pickup.');
-        }else if(payment&&payment.status==='PENDING'){
+            $('#successEmoji').text('🎉'); $('#successTitle').text('Booking Confirmed!'); $('#successMsg').text('Your vehicle is reserved and payment received. The driver will contact you before pickup.');
+        } else if(payment&&payment.status==='PENDING'){
             $badge.css({background:'rgba(255,122,0,.08)',color:'var(--orange)',border:'1px solid rgba(255,122,0,.25)'}).html('⏳ Payment Pending').show();
-            $('#successEmoji').text('📋');$('#successTitle').text('Booking Created!');$('#successMsg').text('Your booking is confirmed. Payment will be collected '+(selectedPayment==='CASH'?'when the driver arrives.':'via a secure link.'));
-        }else if(errNote){
+            $('#successEmoji').text('📋'); $('#successTitle').text('Booking Created!'); $('#successMsg').text('Your booking is confirmed. Payment will be collected '+(selectedPayment==='CASH'?'when the driver arrives.':'via a secure link.'));
+        } else if(errNote){
             $badge.css({background:'rgba(255,59,92,.08)',color:'var(--red)',border:'1px solid rgba(255,59,92,.2)'}).html('⚠️ Booking created — payment failed').show();
-            $('#successEmoji').text('📋');$('#successTitle').text('Booking Created');$('#successMsg').text('Your booking was created but payment failed. Please contact support with your Booking ID.');
-        }else{$badge.hide();}
+            $('#successEmoji').text('📋'); $('#successTitle').text('Booking Created'); $('#successMsg').text('Your booking was created but payment failed. Please contact support with your Booking ID.');
+        } else { $badge.hide(); }
         let det=`
     <div class="bd-item"><div class="label">Vehicle</div><div class="value">${esc(selectedVehicle.model)}</div></div>
     <div class="bd-item"><div class="label">Type</div><div class="value">${esc(selectedVehicle.type)} · ${selectedVehicle.capacity} seats</div></div>
@@ -925,82 +920,84 @@
         if(payment){
             det+=`<div class="bd-item"><div class="label">Amount</div><div class="value" style="color:var(--green)">${fmtP(bookingTotal)}</div></div>
     <div class="bd-item"><div class="label">Method</div><div class="value">${esc(payment.paymentMethod||selectedPayment)}</div></div>`;
-            if(payment.transactionId)det+=`<div class="bd-item" style="grid-column:1/-1"><div class="label">Transaction ID</div><div class="value" style="font-size:11px;color:var(--accent)">${esc(payment.transactionId)}</div></div>`;
+            if(payment.transactionId) det+=`<div class="bd-item" style="grid-column:1/-1"><div class="label">Transaction ID</div><div class="value" style="font-size:11px;color:var(--accent)">${esc(payment.transactionId)}</div></div>`;
         }
         $('#bookingDetailsGrid').html(det);
-        goStep(3);toast('Booking confirmed! 🎉','success');fetchVehicles();
+        goStep(3); toast('Booking confirmed! 🎉','success'); fetchVehiclesSilent();
     }
-
 
     // ── INIT ──────────────────────────────────────────────────────
     $(function(){
-        updateNav();checkApi();fetchVehicles();
+        updateNav(); checkApi(); fetchVehicles();
 
-        // ── Session health check ────────────────────────────────
         if(isLoggedIn()){
             const uid=localStorage.getItem('rentify_userId');
             if(!uid){
-                console.warn('[Rentify] WARNING: rentify_userId is missing from localStorage!');
-                console.warn('[Rentify] Available keys:', Object.keys(localStorage).filter(k=>k.startsWith('rentify_')));
-                // Show non-blocking warning bar
                 $('body').prepend(`<div id="sessionWarn" style="position:fixed;top:68px;left:0;right:0;z-index:999;background:#ff7a00;color:#fff;text-align:center;padding:8px 16px;font-family:'Roboto Mono',monospace;font-size:11px;display:flex;align-items:center;justify-content:center;gap:12px;">
-        ⚠️ Session issue: <strong>rentify_userId</strong> is missing — bookings will fail.
-        <a href="../sign-in.html" style="color:#fff;font-weight:700;text-decoration:underline;">Re-login to fix</a>
-        <button onclick="document.getElementById('sessionWarn').remove()" style="background:none;border:none;color:#fff;cursor:pointer;font-size:14px;">✕</button>
-      </div>`);
+          ⚠️ Session issue: <strong>rentify_userId</strong> is missing — bookings will fail.
+          <a href="../sign-in.html" style="color:#fff;font-weight:700;text-decoration:underline;">Re-login to fix</a>
+          <button onclick="document.getElementById('sessionWarn').remove()" style="background:none;border:none;color:#fff;cursor:pointer;font-size:14px;">✕</button>
+        </div>`);
             }
         }
 
+        // Manual refresh button
+        $('#manualRefreshBtn').on('click', ()=>{ countdownSeconds=30; fetchVehiclesSilent(); toast('Refreshing vehicles...',''); });
 
-        $('#modalCloseBtn').on('click',closeModal);
-        $('#bookingModal').on('click',function(e){if(e.target===this)closeModal();});
-        $('#doneBtn').on('click',closeModal);
+        $('#modalCloseBtn').on('click', closeModal);
+        $('#bookingModal').on('click', function(e){ if(e.target===this) closeModal(); });
+        $('#doneBtn').on('click', closeModal);
 
         let sT;
-        $('#searchInput').on('input',function(){clearTimeout(sT);sT=setTimeout(applyFilters,280);});
-        $('#sortBy').on('change',applyFilters);
+        $('#searchInput').on('input', function(){ clearTimeout(sT); sT=setTimeout(applyFilters, 280); });
+        $('#sortBy').on('change', applyFilters);
 
-        $('#priceRange').on('input',function(){
-            const v=parseInt($(this).val()),pct=((v-500)/(25000-500))*100;
+        $('#priceRange').on('input', function(){
+            const v=parseInt($(this).val()), pct=((v-500)/(25000-500))*100;
             $('#priceVal').text('Rs '+v.toLocaleString('en-LK'));
             $(this).css('background',`linear-gradient(to right,var(--accent) ${pct}%,var(--border) ${pct}%)`);
             applyFilters();
         });
 
-        $(document).on('click','[data-type]',function(){$('[data-type]').removeClass('active');$(this).addClass('active');activeType=$(this).data('type');applyFilters();});
-        $(document).on('click','.filter-zone [data-cat]',function(){$('.filter-zone [data-cat]').removeClass('active');$(this).addClass('active');activeCategory=$(this).data('cat');applyFilters();});
-        $(document).on('click','[data-status]',function(){$('[data-status]').removeClass('active');$(this).addClass('active');activeStatus=$(this).data('status');applyFilters();});
-        $(document).on('change','.pax-check,.status-check',applyFilters);
+        $(document).on('click','[data-type]', function(){ $('[data-type]').removeClass('active'); $(this).addClass('active'); activeType=$(this).data('type'); applyFilters(); });
+        $(document).on('click','.filter-zone [data-cat]', function(){ $('.filter-zone [data-cat]').removeClass('active'); $(this).addClass('active'); activeCategory=$(this).data('cat'); applyFilters(); });
+        $(document).on('click','[data-status]', function(){ $('[data-status]').removeClass('active'); $(this).addClass('active'); activeStatus=$(this).data('status'); applyFilters(); });
+        $(document).on('change','.pax-check,.status-check', applyFilters);
 
-        $(document).on('click','.v-card',function(e){if(!$(e.target).hasClass('book-btn'))openBooking(parseInt($(this).data('id')));});
-        $(document).on('click','.book-btn:not(:disabled)',function(e){e.stopPropagation();openBooking(parseInt($(this).data('id')));});
+        $(document).on('click','.v-card', function(e){ if(!$(e.target).hasClass('book-btn')) openBooking(parseInt($(this).data('id'))); });
+        $(document).on('click','.book-btn:not(:disabled)', function(e){ e.stopPropagation(); openBooking(parseInt($(this).data('id'))); });
 
-        $('#toStep2Btn').on('click',function(){
-            const s=$('#f_start_date').val(),e=$('#f_end_date').val();
-            const p=$.trim($('#f_pickup').val()),d=$.trim($('#f_drop').val());
-            if(!s||!e){toast('Please select booking dates.','error');return;}
-            if(!p||!d){toast('Please enter locations.','error');return;}
+        $('#toStep2Btn').on('click', function(){
+            const s=$('#f_start_date').val(), e=$('#f_end_date').val();
+            const p=$.trim($('#f_pickup').val()), d=$.trim($('#f_drop').val());
+            if(!s||!e){ toast('Please select booking dates.','error'); return; }
+            if(!p||!d){ toast('Please enter locations.','error'); return; }
             const todayDate=new Date(); todayDate.setHours(0,0,0,0);
             const startD=new Date(s+'T00:00:00'), endD=new Date(e+'T00:00:00');
-            if(endD<=startD){toast('End date must be after start date.','error');return;}
-            if(endD<=todayDate){toast('End date must be a future date (tomorrow or later).','error');return;}
-            buildSummary();recompute();goStep(2);
+            if(endD<=startD){ toast('End date must be after start date.','error'); return; }
+            if(endD<=todayDate){ toast('End date must be a future date (tomorrow or later).','error'); return; }
+            buildSummary(); recompute(); goStep(2);
         });
-        $('#toStep1Btn').on('click',()=>goStep(1));
-        $('#confirmBtn').on('click',confirmBooking);
+        $('#toStep1Btn').on('click', ()=>goStep(1));
+        $('#confirmBtn').on('click', confirmBooking);
 
-        $(document).on('click','.cat-btn',function(){$('.cat-btn').removeClass('active');$(this).addClass('active');selectedCategory=$(this).data('cat');recompute();});
-        $(document).on('click','.pay-opt',function(){
-            $('.pay-opt').removeClass('selected');$(this).addClass('selected');selectedPayment=$(this).data('pay');
-            $('#cardForm').toggleClass('hidden',selectedPayment!=='CARD');
-            $('#cashMsg').toggleClass('hidden',selectedPayment!=='CASH');
-            $('#onlineMsg').toggleClass('hidden',selectedPayment!=='ONLINE');
+        $(document).on('click','.cat-btn', function(){ $('.cat-btn').removeClass('active'); $(this).addClass('active'); selectedCategory=$(this).data('cat'); recompute(); });
+        $(document).on('click','.pay-opt', function(){
+            $('.pay-opt').removeClass('selected'); $(this).addClass('selected'); selectedPayment=$(this).data('pay');
+            $('#cardForm').toggleClass('hidden', selectedPayment!=='CARD');
+            $('#cashMsg').toggleClass('hidden', selectedPayment!=='CASH');
+            $('#onlineMsg').toggleClass('hidden', selectedPayment!=='ONLINE');
         });
-        $(document).on('change','#f_start_date,#f_end_date',recompute);
+        $(document).on('change','#f_start_date,#f_end_date', recompute);
 
-        $(document).on('input','#cardNum',function(){let v=$(this).val().replace(/\D/g,'').substring(0,16);$(this).val(v.replace(/(.{4})/g,'$1 ').trim());$('#cardNumDisplay').text($(this).val()||'**** **** **** ****');});
-        $(document).on('input','#cardName',function(){$('#cardNameDisplay').text($(this).val().toUpperCase()||'CARD HOLDER');});
-        $(document).on('input','#cardExp',function(){let v=$(this).val().replace(/\D/g,'').substring(0,4);if(v.length>=3)v=v.slice(0,2)+'/'+v.slice(2);$(this).val(v);$('#cardExpDisplay').text(v||'MM/YY');});
+        $(document).on('input','#cardNum', function(){ let v=$(this).val().replace(/\D/g,'').substring(0,16); $(this).val(v.replace(/(.{4})/g,'$1 ').trim()); $('#cardNumDisplay').text($(this).val()||'**** **** **** ****'); });
+        $(document).on('input','#cardName', function(){ $('#cardNameDisplay').text($(this).val().toUpperCase()||'CARD HOLDER'); });
+        $(document).on('input','#cardExp', function(){ let v=$(this).val().replace(/\D/g,'').substring(0,4); if(v.length>=3) v=v.slice(0,2)+'/'+v.slice(2); $(this).val(v); $('#cardExpDisplay').text(v||'MM/YY'); });
+
+        // Page visibility change වෙනකොට refresh — user tab switch කර ආවොත්
+        document.addEventListener('visibilitychange', function(){
+            if(!document.hidden){ fetchVehiclesSilent(); }
+        });
     });
 </script>
 </body>
