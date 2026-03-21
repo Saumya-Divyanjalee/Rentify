@@ -2,636 +2,971 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Rentify — Update Profile</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name ="keywords" content="Rentify,HTML,CSS,JavaScript,Spring,SpringBoot,ORM,Mysql">
-  <meta name ="description" content="Rentify-Smart Cab Renting Platform">
-  <meta name ="author" content="Saumya Divyanjalee">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="keywords" content="Rentify,HTML,CSS,JavaScript,Spring,SpringBoot,ORM,Mysql">
+  <meta name="description" content="Rentify — My Profile">
+  <meta name="author" content="Saumya Divyanjalee">
   <link rel="icon" type="image/x-icon" href="../../assets/icons/favicon.ico">
-
+  <title>Rentify — My Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    :root {
-      --green: #16a34a; --green-dark: #14532d; --green-mid: #22c55e;
-      --green-light: #bbf7d0; --green-soft: #f0fdf4;
-      --yellow: #eab308; --yellow-mid: #facc15;
-      --red: #ef4444; --red-soft: #fef2f2; --red-light: #fecaca;
-      --text-dark: #0f1a14; --text-mid: #374151; --text-muted: #6b7280;
-      --white: #ffffff; --surface: #f9fefb; --border: #e5e7eb;
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --bg:#f8f9fc;--ink:#0a0d1a;--ink2:#1e2340;--ink3:#4a5278;--ink4:#8890b0;
+      --border:#e8eaf2;--accent:#1a3fff;--accent-l:#eef1ff;
+      --green:#00b86b;--red:#ff3b5c;--yellow:#f5c518;--orange:#ff7a00;
+      --shadow:0 4px 24px rgba(10,13,26,.08);--shadow-lg:0 16px 56px rgba(10,13,26,.14);
+      --r:12px;--r-lg:20px;
     }
-    html, body { font-family: 'DM Sans', sans-serif; min-height: 100vh; background: var(--surface); color: var(--text-dark); }
+    html{scroll-behavior:smooth;font-size:14px;}
+    body{font-family:'Roboto Mono',monospace;background:var(--bg);color:var(--ink);overflow-x:hidden;}
 
-    .page-wrap { min-height: 100vh; display: grid; grid-template-columns: 360px 1fr; }
+    /* TOAST */
+    .toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column-reverse;gap:8px;pointer-events:none;}
+    .toast{background:var(--ink);color:#fff;padding:12px 24px;border-radius:12px;font-size:12px;box-shadow:var(--shadow-lg);animation:toastIn .3s ease;min-width:260px;text-align:center;pointer-events:all;font-family:'Roboto Mono',monospace;}
+    .toast.success{background:var(--green);}.toast.error{background:var(--red);}.toast.warning{background:var(--orange);}
+    @keyframes toastIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+    @keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateY(16px)}}
 
-    .sidebar { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 48px 36px; }
-    .sidebar-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-    .sidebar-overlay { position: absolute; inset: 0; background: linear-gradient(160deg, rgba(5,46,22,0.9) 0%, rgba(5,46,22,0.72) 50%, rgba(5,46,22,0.94) 100%); z-index: 1; }
-    .sidebar > *:not(.sidebar-bg):not(.sidebar-overlay) { position: relative; z-index: 2; }
-    .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 36px; }
-    .brand-mark { width: 44px; height: 44px; background: var(--yellow-mid); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Roboto Mono', monospace; font-weight: 800; font-size: 20px; color: var(--green-dark); }
-    .brand-name { font-family: 'Roboto Mono', monospace; font-size: 28px; font-weight: 800; color: var(--white); }
-    .brand-name span { color: var(--yellow-mid); }
-    .sidebar-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--white); line-height: 1.3; margin-bottom: 10px; }
-    .sidebar-title em { font-style: normal; color: greenyellow; }
-    .sidebar-desc { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.75; }
-    .steps-list { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; }
-    .step { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; transition: all 0.3s; }
-    .step.active { background: rgba(255,255,255,0.13); border-color: rgba(250,204,21,0.4); }
-    .step.done   { background: rgba(22,163,74,0.15); border-color: rgba(34,197,94,0.35); }
-    .step-num { width: 28px; height: 28px; border-radius: 8px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; transition: all 0.3s; }
-    .step.active .step-num { background: var(--yellow-mid); color: var(--green-dark); }
-    .step.done   .step-num { background: var(--green-mid); color: white; }
-    .step-title { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5); }
-    .step.active .step-title, .step.done .step-title { color: var(--white); }
-    .step-desc { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 2px; }
-    .sidebar-footer { font-size: 11px; color: rgba(255,255,255,0.3); }
+    /* NAV */
+    nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;padding:0 48px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.97);backdrop-filter:blur(20px);border-bottom:1.5px solid var(--border);box-shadow:0 2px 16px rgba(10,13,26,.05);}
+    .logo{font-family:"Bungee",sans-serif;font-size:22px;text-decoration:none;color:var(--ink);}
+    .logo span{color:var(--accent);}
+    .nav-links{display:flex;gap:4px;}
+    .nav-links a{text-decoration:none;color:var(--ink3);font-size:12px;padding:8px 14px;border-radius:8px;transition:.18s;}
+    .nav-links a:hover{color:var(--ink);background:var(--bg);}
+    .nav-links a.active{color:var(--accent);background:var(--accent-l);font-weight:700;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .nav-btn{background:var(--accent);color:#fff;padding:9px 20px;border-radius:9px;font-size:12px;font-family:'Roboto Mono',monospace;font-weight:600;border:none;cursor:pointer;transition:.18s;text-decoration:none;display:inline-flex;align-items:center;gap:7px;}
+    .nav-btn:hover{background:#0028cc;transform:translateY(-1px);}
+    .user-menu{position:relative;}
+    .user-avatar{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#6e8fff);display:flex;align-items:center;justify-content:center;font-family:"Bungee",sans-serif;font-size:13px;color:#fff;cursor:pointer;border:2px solid rgba(26,63,255,.2);overflow:hidden;}
+    .user-avatar img{width:100%;height:100%;object-fit:cover;}
+    .user-dropdown{position:absolute;top:calc(100% + 10px);right:0;background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);min-width:200px;padding:8px;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transform:translateY(-8px);transition:.2s;z-index:99;}
+    .user-menu:hover .user-dropdown{opacity:1;pointer-events:all;transform:translateY(0);}
+    .ud-name{font-family:"Bungee",sans-serif;font-size:11px;color:var(--ink);padding:8px 12px 4px;}
+    .ud-role{font-size:9px;color:var(--accent);background:var(--accent-l);padding:2px 7px;border-radius:4px;margin:0 12px 8px;display:inline-block;font-family:"Bungee",sans-serif;}
+    .ud-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;text-decoration:none;color:var(--ink3);font-size:11px;cursor:pointer;transition:.15s;background:none;border:none;width:100%;text-align:left;font-family:'Roboto Mono',monospace;}
+    .ud-item:hover{background:var(--bg);color:var(--ink);}
+    .ud-item.logout:hover{background:#fff0f3;color:var(--red);}
+    .ud-divider{height:1px;background:var(--border);margin:5px 0;}
 
-    .content { padding: 56px 60px; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; }
-    .page-header { margin-bottom: 32px; }
-    .page-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--green-soft); color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--green-light); margin-bottom: 14px; }
-    .page-badge .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: blink 1.8s infinite; }
-    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.3;} }
-    .page-title { font-family: 'Roboto Mono', monospace; font-size: 34px; font-weight: 700; color: var(--green-dark); margin-bottom: 8px; }
-    .page-sub { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+    /* HERO */
+    .page-hero{margin-top:68px;background:linear-gradient(135deg,var(--ink) 0%,#1a3fff 60%,#0028cc 100%);padding:56px 48px 100px;position:relative;overflow:hidden;}
+    .page-hero::before{content:'';position:absolute;inset:0;opacity:.4;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(255,255,255,.02) 40px,rgba(255,255,255,.02) 80px);}
+    .hero-inner{position:relative;z-index:1;max-width:1200px;margin:0 auto;}
+    .breadcrumb{display:flex;align-items:center;gap:8px;margin-bottom:20px;font-size:11px;color:rgba(255,255,255,.45);}
+    .breadcrumb a{color:rgba(255,255,255,.45);text-decoration:none;}
+    .breadcrumb a:hover{color:#fff;}
+    .breadcrumb span{color:var(--yellow);}
+    .page-hero h1{font-family:"Bungee",sans-serif;font-size:clamp(32px,4vw,52px);color:#fff;letter-spacing:-1.5px;margin-bottom:8px;}
+    .page-hero h1 em{color:var(--yellow);font-style:normal;}
+    .page-hero p{font-size:13px;color:rgba(255,255,255,.65);}
 
-    .avatar-section { display: flex; align-items: center; gap: 20px; padding: 18px 20px; background: var(--green-soft); border-radius: 14px; border: 1.5px solid var(--green-light); margin-bottom: 20px; }
-    .avatar-ring { width: 72px; height: 72px; border-radius: 50%; background: var(--green); color: var(--white); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; border: 3px solid var(--green-light); flex-shrink: 0; }
-    .avatar-info h4 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: var(--text-dark); }
-    .avatar-info p  { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
-    .role-chip { display: inline-block; margin-top: 5px; background: var(--green); color: var(--white); font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; }
-    .role-chip.admin { background: #7c3aed; }
+    /* LAYOUT */
+    .main-container{max-width:1200px;margin:-60px auto 60px;padding:0 48px;position:relative;z-index:10;}
+    .profile-grid{display:grid;grid-template-columns:300px 1fr;gap:24px;align-items:start;}
 
-    .notice { display: flex; align-items: flex-start; gap: 10px; padding: 13px 16px; border-radius: 12px; font-size: 13px; line-height: 1.6; margin-bottom: 20px; }
-    .notice.info { background: #eff6ff; border: 1.5px solid #bfdbfe; color: #1e40af; }
-    .notice.warn { background: #fefce8; border: 1.5px solid #fde68a; color: #92400e; }
-    .notice-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    /* SIDEBAR */
+    .sidebar-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow);}
+    .avatar-section{background:linear-gradient(135deg,var(--ink) 0%,#1a3fff 100%);padding:36px 24px 28px;text-align:center;}
+    .avatar-wrap{position:relative;display:inline-block;margin-bottom:16px;cursor:pointer;}
+    .big-avatar{width:100px;height:100px;border-radius:50%;border:4px solid rgba(255,255,255,.25);background:linear-gradient(135deg,#6e8fff,var(--accent));display:flex;align-items:center;justify-content:center;font-family:"Bungee",sans-serif;font-size:36px;color:#fff;overflow:hidden;transition:.3s;}
+    .avatar-wrap:hover .big-avatar{opacity:.85;}
+    .big-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+    .cam-overlay{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s;}
+    .avatar-wrap:hover .cam-overlay{opacity:1;}
+    .cam-overlay i{color:#fff;font-size:20px;}
+    .sb-name{font-family:"Bungee",sans-serif;font-size:16px;color:#fff;margin-bottom:4px;}
+    .sb-uname{font-size:11px;color:rgba(255,255,255,.6);margin-bottom:12px;}
+    .role-pill{display:inline-block;background:rgba(255,255,255,.12);color:rgba(255,255,255,.9);font-family:"Bungee",sans-serif;font-size:9px;letter-spacing:1.5px;padding:5px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.2);}
+    .sidebar-nav{padding:12px;}
+    .snav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;font-size:12px;color:var(--ink3);cursor:pointer;transition:.18s;border:none;background:none;width:100%;text-align:left;font-family:'Roboto Mono',monospace;}
+    .snav-item:hover{background:var(--bg);color:var(--ink);}
+    .snav-item.active{background:var(--accent-l);color:var(--accent);font-weight:600;}
+    .sn-icon{width:32px;height:32px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+    .sn-count{margin-left:auto;background:var(--accent);color:#fff;font-family:"Bungee",sans-serif;font-size:9px;padding:2px 9px;border-radius:20px;min-width:22px;text-align:center;}
+    .sidebar-stats{padding:16px;border-top:1.5px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .stat-mini{text-align:center;background:var(--bg);border-radius:var(--r);padding:12px 8px;}
+    .stat-mini .val{font-family:"Bungee",sans-serif;font-size:20px;color:var(--ink);letter-spacing:-1px;}
+    .stat-mini .lbl{font-size:9px;color:var(--ink4);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
 
-    .form-card { background: var(--white); border-radius: 16px; border: 1.5px solid var(--border); padding: 28px; margin-bottom: 18px; transition: box-shadow 0.3s; }
-    .form-card:hover { box-shadow: 0 4px 20px rgba(22,163,74,0.07); }
-    .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1.5px solid var(--green-soft); }
-    .card-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--green-soft); border: 1.5px solid var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 18px; }
-    .card-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-dark); }
-    .card-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    /* PANELS */
+    .panel{display:none;}
+    .panel.active{display:block;}
+    .panel-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;}
+    .panel-header{padding:22px 28px 16px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .panel-title{font-family:"Bungee",sans-serif;font-size:16px;color:var(--ink);letter-spacing:-.3px;}
+    .panel-sub{font-size:11px;color:var(--ink4);margin-top:3px;}
+    .panel-body{padding:24px 28px;}
+    .form-group{margin-bottom:18px;}
+    .form-label{display:block;font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink2);margin-bottom:7px;}
+    .form-input{width:100%;padding:11px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);color:var(--ink);font-size:13px;font-family:'Roboto Mono',monospace;outline:none;transition:.18s;}
+    .form-input::placeholder{color:var(--ink4);}
+    .form-input:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px var(--accent-l);}
+    .form-input:disabled{opacity:.55;cursor:not-allowed;background:var(--border);}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .save-btn{background:var(--ink);color:#fff;padding:12px 28px;border-radius:var(--r);font-family:"Bungee",sans-serif;font-size:11px;letter-spacing:.8px;border:none;cursor:pointer;transition:.18s;display:inline-flex;align-items:center;gap:8px;}
+    .save-btn:hover:not(:disabled){background:var(--accent);transform:scale(1.02);}
+    .save-btn:disabled{opacity:.5;cursor:not-allowed;}
+    .ghost-btn{background:var(--bg);color:var(--ink3);border:1.5px solid var(--border);padding:12px 22px;border-radius:var(--r);font-family:"Bungee",sans-serif;font-size:11px;letter-spacing:.8px;cursor:pointer;transition:.18s;display:inline-flex;align-items:center;gap:8px;}
+    .ghost-btn:hover{border-color:var(--ink);color:var(--ink);}
+    .section-divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
+    .section-divider .line{flex:1;height:1px;background:var(--border);}
+    .section-divider .text{font-family:"Bungee",sans-serif;font-size:9px;letter-spacing:2px;color:var(--ink4);white-space:nowrap;}
 
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; }
-    .span-full { grid-column: 1 / -1; }
-    .field { display: flex; flex-direction: column; gap: 6px; }
-    .field label { font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-mid); }
-    .field label .req { color: var(--red); margin-left: 2px; }
-    .input-wrap { position: relative; }
-    .input-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-muted); opacity: 0.45; pointer-events: none; }
-    .field input { width: 100%; padding: 12px 13px 12px 40px; border: 1.5px solid var(--border); border-radius: 11px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text-dark); background: var(--white); outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
-    .field input::placeholder { color: #c4c9d4; }
-    .field input:hover  { border-color: var(--green-light); }
-    .field input:focus  { border-color: var(--green); box-shadow: 0 0 0 4px rgba(22,163,74,0.09); }
-    .field input.error  { border-color: var(--red); box-shadow: 0 0 0 4px rgba(239,68,68,0.08); background: var(--red-soft); }
-    .field input.ok     { border-color: var(--green); background: var(--green-soft); }
-    .field-hint { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
-    .field-hint.err-msg { color: var(--red); display: none; }
-    .field-hint.err-msg.show { display: block; }
-    .toggle-pw { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); opacity: 0.4; transition: opacity 0.2s; display: flex; align-items: center; }
-    .toggle-pw:hover { opacity: 0.8; }
+    /* IMAGE UPLOAD — single hidden input, zero conflicts */
+    #hiddenFileInput{display:none;}
+    .img-upload-zone{border:2px dashed var(--border);border-radius:var(--r-lg);padding:28px;text-align:center;cursor:pointer;transition:.22s;background:var(--bg);user-select:none;min-height:130px;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+    .img-upload-zone:hover{border-color:var(--accent);background:var(--accent-l);}
+    .img-upload-zone.has-img{border-style:solid;border-color:var(--green);background:rgba(0,184,107,.04);}
+    .zone-preview-img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--green);margin-bottom:10px;display:block;}
+    .upload-icon{font-size:34px;margin-bottom:8px;}
+    .upload-text strong{display:block;font-family:"Bungee",sans-serif;font-size:11px;color:var(--ink);margin-bottom:3px;}
+    .upload-text small{font-size:11px;color:var(--ink4);}
+    .zone-change-hint{font-size:11px;color:var(--green);font-weight:600;margin-top:6px;}
 
-    .pw-strength { margin-top: 7px; display: none; }
-    .pw-bars { display: flex; gap: 4px; margin-bottom: 4px; }
-    .pw-bar { height: 3px; flex: 1; border-radius: 3px; background: #e5e7eb; transition: background 0.3s; }
-    .pw-bar.weak   { background: var(--red); }
-    .pw-bar.medium { background: var(--yellow); }
-    .pw-bar.strong { background: var(--green-mid); }
-    .pw-label { font-size: 11px; color: var(--text-muted); }
-    .pw-label.weak   { color: var(--red); }
-    .pw-label.medium { color: var(--yellow); }
-    .pw-label.strong { color: var(--green); }
+    /* PASSWORD */
+    .input-wrap{position:relative;}
+    .input-wrap .form-input{padding-right:44px;}
+    .pwd-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--ink4);cursor:pointer;font-size:13px;padding:4px;}
+    .pwd-toggle:hover{color:var(--ink);}
+    .pwd-strength{height:4px;border-radius:2px;margin-top:8px;background:var(--border);overflow:hidden;}
+    .pwd-fill{height:100%;border-radius:2px;transition:width .35s,background .35s;width:0;}
+    .pwd-fill.weak{background:var(--red);width:25%;}
+    .pwd-fill.fair{background:var(--orange);width:50%;}
+    .pwd-fill.good{background:var(--yellow);width:75%;}
+    .pwd-fill.strong{background:var(--green);width:100%;}
+    .pwd-label{font-size:10px;color:var(--ink4);margin-top:5px;}
 
-    .action-row { display: flex; gap: 12px; margin-top: 22px; flex-wrap: wrap; }
-    .btn { padding: 13px 26px; border-radius: 11px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.22s; display: flex; align-items: center; gap: 8px; }
-    .btn-primary { background: var(--green); color: var(--white); box-shadow: 0 4px 16px rgba(22,163,74,0.25); }
-    .btn-primary:hover { background: #15803d; transform: translateY(-1px); }
-    .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
-    .btn-ghost { background: var(--white); color: var(--text-mid); border: 1.5px solid var(--border); }
-    .btn-ghost:hover { border-color: var(--green-mid); color: var(--green); background: var(--green-soft); }
-    .spinner-sm { display: none; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* BOOKINGS */
+    .booking-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+    .bk-pill{padding:7px 16px;border-radius:20px;font-size:11px;border:1.5px solid var(--border);background:var(--bg);color:var(--ink3);cursor:pointer;transition:.18s;font-family:'Roboto Mono',monospace;}
+    .bk-pill:hover{border-color:var(--accent);color:var(--ink);}
+    .bk-pill.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+    .booking-card{border:1.5px solid var(--border);border-radius:var(--r-lg);padding:20px 20px 20px 26px;margin-bottom:14px;background:#fff;transition:.22s;position:relative;overflow:hidden;}
+    .booking-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;}
+    .booking-card.PENDING::before{background:var(--orange);}
+    .booking-card.CONFIRMED::before{background:var(--accent);}
+    .booking-card.COMPLETED::before{background:var(--green);}
+    .booking-card.CANCELLED::before{background:var(--red);}
+    .booking-card:hover{box-shadow:var(--shadow);transform:translateY(-2px);border-color:rgba(26,63,255,.25);}
+    .bk-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+    .bk-id{font-family:"Bungee",sans-serif;font-size:18px;color:var(--ink);letter-spacing:-.5px;}
+    .bk-created{font-size:10px;color:var(--ink4);margin-top:2px;}
+    .bk-status{font-family:"Bungee",sans-serif;font-size:9px;letter-spacing:1.5px;padding:5px 12px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;}
+    .bk-status.PENDING{background:rgba(255,122,0,.1);color:var(--orange);border:1px solid rgba(255,122,0,.25);}
+    .bk-status.CONFIRMED{background:var(--accent-l);color:var(--accent);border:1px solid rgba(26,63,255,.2);}
+    .bk-status.COMPLETED{background:rgba(0,184,107,.1);color:var(--green);border:1px solid rgba(0,184,107,.25);}
+    .bk-status.CANCELLED{background:rgba(255,59,92,.08);color:var(--red);border:1px solid rgba(255,59,92,.2);}
+    .bk-details{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+    .bk-detail .label{font-family:"Bungee",sans-serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink4);margin-bottom:4px;}
+    .bk-detail .value{font-size:12px;color:var(--ink);font-weight:600;}
+    .bk-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:14px;}
+    .bk-price{font-family:"Bungee",sans-serif;font-size:22px;color:var(--ink);letter-spacing:-.8px;}
+    .bk-price span{font-size:12px;color:var(--accent);font-family:'Roboto Mono',monospace;}
+    .cancel-btn{background:none;border:1.5px solid rgba(255,59,92,.35);color:var(--red);padding:9px 20px;border-radius:var(--r);font-family:"Bungee",sans-serif;font-size:10px;letter-spacing:.8px;cursor:pointer;transition:.18s;}
+    .cancel-btn:hover{background:var(--red);color:#fff;border-color:var(--red);}
+    .skel-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);padding:20px;margin-bottom:14px;}
+    .skel-line{height:12px;background:linear-gradient(90deg,#f0ede9 25%,#e8e5e1 50%,#f0ede9 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:5px;margin-bottom:10px;}
+    .skel-line.w30{width:30%;}.skel-line.w60{width:60%;}.skel-line.w80{width:80%;}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    .empty-state{text-align:center;padding:60px 20px;}
+    .empty-state .icon{font-size:48px;margin-bottom:16px;opacity:.4;}
+    .empty-state h3{font-family:"Bungee",sans-serif;font-size:16px;color:var(--ink3);margin-bottom:8px;}
+    .empty-state p{font-size:12px;color:var(--ink4);margin-bottom:20px;}
 
-    .success-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 56px 0; animation: fadeUp 0.5s ease both; }
-    .success-overlay.show { display: flex; }
-    @keyframes fadeUp { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
-    .success-icon { width: 80px; height: 80px; border-radius: 50%; background: var(--green-soft); border: 2px solid var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 20px; }
-    .success-overlay h3 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--text-dark); margin-bottom: 10px; }
-    .success-overlay p  { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-bottom: 24px; }
+    /* DANGER */
+    .danger-zone{border:1.5px solid rgba(255,59,92,.25);border-radius:var(--r-lg);padding:20px 24px;background:rgba(255,59,92,.03);}
+    .danger-zone h4{font-family:"Bungee",sans-serif;font-size:12px;color:var(--red);margin-bottom:6px;}
+    .danger-zone p{font-size:11px;color:var(--ink3);margin-bottom:14px;line-height:1.6;}
+    .danger-btn{background:rgba(255,59,92,.1);color:var(--red);border:1.5px solid rgba(255,59,92,.3);padding:10px 20px;border-radius:var(--r);font-family:"Bungee",sans-serif;font-size:10px;letter-spacing:.8px;cursor:pointer;transition:.18s;}
+    .danger-btn:hover{background:var(--red);color:#fff;}
 
-    .toast-box { position: fixed; bottom: 24px; right: 24px; z-index: 9999; background: var(--white); border-radius: 13px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.13); display: none; border-left: 4px solid var(--green); max-width: 340px; font-size: 14px; color: var(--text-mid); }
-    .toast-box.show  { display: flex; align-items: center; gap: 10px; animation: toastIn 0.3s ease; }
-    .toast-box.error { border-left-color: var(--red); }
-    @keyframes toastIn { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;z-index:9999;background:rgba(10,13,26,.65);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;}
+    .modal-overlay.open{display:flex;}
+    .modal-box{background:#fff;border:1.5px solid var(--border);border-radius:24px;max-width:420px;width:100%;padding:36px 32px;text-align:center;box-shadow:var(--shadow-lg);animation:popin .3s cubic-bezier(.34,1.56,.64,1);}
+    @keyframes popin{from{transform:scale(.88);opacity:0}to{transform:none;opacity:1}}
+    .modal-icon{font-size:52px;margin-bottom:14px;}
+    .modal-box h3{font-family:"Bungee",sans-serif;font-size:18px;color:var(--ink);margin-bottom:8px;}
+    .modal-box p{font-size:12px;color:var(--ink3);line-height:1.7;margin-bottom:24px;}
+    .modal-btns{display:flex;gap:10px;justify-content:center;}
+    .btn-keep{padding:11px 24px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);color:var(--ink3);font-size:12px;font-family:'Roboto Mono',monospace;cursor:pointer;transition:.18s;}
+    .btn-keep:hover{border-color:var(--ink);color:var(--ink);}
+    .btn-do-cancel{padding:11px 24px;background:var(--red);border:none;border-radius:var(--r);color:#fff;font-family:"Bungee",sans-serif;font-size:11px;letter-spacing:.8px;cursor:pointer;transition:.18s;}
+    .btn-do-cancel:hover:not(:disabled){background:#cc2040;}
+    .btn-do-cancel:disabled{opacity:.6;cursor:not-allowed;}
 
-    @media (max-width: 1023px) { .page-wrap { grid-template-columns: 1fr; } .sidebar { display: none; } .content { padding: 36px 24px; } }
-    @media (max-width: 599px)  { .form-grid { grid-template-columns: 1fr; } .page-title { font-size: 26px; } .action-row { flex-direction: column; } .btn { width: 100%; justify-content: center; } }
+    /* FOOTER + WA */
+    footer{background:var(--ink);padding:36px 48px;text-align:center;font-size:11px;color:rgba(255,255,255,.25);}
+    .ft-logo{font-family:"Bungee",sans-serif;font-size:18px;color:#fff;margin-bottom:8px;}
+    .ft-logo span{color:var(--accent);}
+    .wa{position:fixed;bottom:28px;right:28px;z-index:998;width:56px;height:56px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:26px;color:#fff;box-shadow:0 8px 28px rgba(37,211,102,.4);transition:.2s;}
+    .wa:hover{transform:scale(1.12);}
+    .wa-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(37,211,102,.4);animation:ring 2s infinite;}
+    @keyframes ring{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.5);opacity:0}}
+
+    @media(max-width:1024px){.profile-grid{grid-template-columns:1fr;}.main-container{padding:0 24px;}}
+    @media(max-width:768px){nav{padding:0 20px;}.nav-links{display:none;}.bk-details{grid-template-columns:1fr 1fr;}.form-row{grid-template-columns:1fr;}}
   </style>
 </head>
 <body>
 
-<div class="page-wrap">
-  <aside class="sidebar">
-    <video class="sidebar-bg" autoplay muted loop playsinline>
-      <source src="../../assets/video/night-road.mp4" type="video/mp4">
-    </video>
-    <div class="sidebar-overlay"></div>
-    <div>
-      <div class="brand">
-        <div class="brand-mark">R</div>
-        <div class="brand-name">Rent<span>ify</span></div>
-      </div>
-      <div class="sidebar-title">Update your <em>Profile</em></div>
-      <div class="sidebar-desc">Keep your details current. A complete profile helps us serve you better and keeps your account secure.</div>
-      <div class="steps-list" id="stepsList">
-        <div class="step active" data-step="1">
-          <div class="step-num">1</div>
-          <div><div class="step-title">Personal Details</div><div class="step-desc">Name, email &amp; phone</div></div>
-        </div>
-        <div class="step" data-step="2">
-          <div class="step-num">2</div>
-          <div><div class="step-title">Set New Password</div><div class="step-desc">Secure your account</div></div>
-        </div>
-        <div class="step" data-step="3">
-          <div class="step-num">3</div>
-          <div><div class="step-title">Save &amp; Sign In</div><div class="step-desc">Confirm your changes</div></div>
-        </div>
-      </div>
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ONE hidden file input — outside clickable zones, prevents all event conflicts -->
+<input type="file" id="hiddenFileInput" accept="image/jpeg,image/png,image/webp" style="display:none">
+
+<!-- NAV -->
+<nav>
+  <a href="user-dashboard.html" class="logo">Rent<span>ify</span></a>
+  <div class="nav-links">
+    <a href="user-dashboard.html">Home</a>
+    <a href="user-about.html">About</a>
+    <a href="user-destinations.html">Destinations</a>
+    <a href="user-vehicle.html">Cabs</a>
+    <a href="user-gallery.html">Gallery</a>
+    <a href="user-contact.html">Contact</a>
+  </div>
+  <div class="nav-right" id="navRight"></div>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="hero-inner">
+    <div class="breadcrumb">
+      <a href="user-dashboard.html">Home</a>
+      <i class="fas fa-chevron-right" style="font-size:9px"></i>
+      <span>My Profile</span>
     </div>
-    <div class="sidebar-footer">© 2026 Rentify Inc. · Privacy Policy</div>
-  </aside>
-
-  <main class="content">
-    <div id="formView">
-      <div class="page-header">
-        <div class="page-badge"><span class="dot"></span> Profile Management</div>
-        <h1 class="page-title">Update Your Details</h1>
-        <p class="page-sub">Change your name, email or set a new password.<br>Fields marked <span style="color:var(--red)">*</span> are required.</p>
-      </div>
-
-      <div class="avatar-section">
-        <div class="avatar-ring" id="avatarInitials">?</div>
-        <div class="avatar-info">
-          <h4 id="displayName">Loading…</h4>
-          <p  id="displayEmail">—</p>
-          <span class="role-chip" id="displayRole">USER</span>
-        </div>
-      </div>
-
-      <div class="notice info">
-        <span class="notice-icon">ℹ️</span>
-        <span>Updating your <strong>email</strong> will change your sign-in credentials. Remember your new details for next login.</span>
-      </div>
-
-      <form id="updateForm" novalidate>
-        <div class="form-card">
-          <div class="card-header">
-            <div class="card-icon">👤</div>
-            <div>
-              <div class="card-title">Personal Information</div>
-              <div class="card-subtitle">Update name, contact &amp; login details</div>
-            </div>
-          </div>
-          <div class="form-grid">
-            <div class="field">
-              <label>First Name <span class="req">*</span></label>
-              <div class="input-wrap">
-                <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10 10a4 4 0 100-8 4 4 0 000 8zm-7 8a7 7 0 1114 0H3z"/></svg>
-                <input type="text" id="firstName" placeholder="John" autocomplete="given-name">
-              </div>
-              <span class="field-hint err-msg" id="err-firstName">First name is required.</span>
-            </div>
-            <div class="field">
-              <label>Last Name <span class="req">*</span></label>
-              <div class="input-wrap">
-                <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10 10a4 4 0 100-8 4 4 0 000 8zm-7 8a7 7 0 1114 0H3z"/></svg>
-                <input type="text" id="lastName" placeholder="Doe" autocomplete="family-name">
-              </div>
-              <span class="field-hint err-msg" id="err-lastName">Last name is required.</span>
-            </div>
-            <div class="field span-full">
-              <label>Email Address <span class="req">*</span></label>
-              <div class="input-wrap">
-                <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
-                <input type="email" id="email" placeholder="john@example.com" autocomplete="email">
-              </div>
-              <span class="field-hint err-msg" id="err-email">Please enter a valid email address.</span>
-            </div>
-            <div class="field span-full">
-              <label>Phone Number</label>
-              <div class="input-wrap">
-                <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
-                <input type="tel" id="phone" placeholder="+94 77 123 4567" autocomplete="tel">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-card">
-          <div class="card-header">
-            <div class="card-icon">🔐</div>
-            <div>
-              <div class="card-title">Change Password</div>
-              <div class="card-subtitle">Leave blank to keep your current password</div>
-            </div>
-          </div>
-          <div class="notice warn">
-            <span class="notice-icon">⚠️</span>
-            <span>If you set a new password here, you must use it the next time you sign in.</span>
-          </div>
-          <div class="form-grid">
-            <div class="field span-full">
-              <label>Current Password <span class="req">*</span></label>
-              <div class="input-wrap">
-                <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-                <input type="password" id="currentPassword" placeholder="Enter your current password" autocomplete="current-password">
-                <button type="button" class="toggle-pw" data-target="currentPassword">
-                  <svg width="17" height="17" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
-                </button>
-              </div>
-              <span class="field-hint">Required only if you want to change the password.</span>
-              <span class="field-hint err-msg" id="err-currentPassword">Current password is required to change password.</span>
-            </div>
-            <div class="field">
-              <label>New Password</label>
-              <div class="input-wrap">
-                <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-                <input type="password" id="pw1" placeholder="Leave blank to keep current" autocomplete="new-password">
-                <button type="button" class="toggle-pw" data-target="pw1">
-                  <svg width="17" height="17" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
-                </button>
-              </div>
-              <div class="pw-strength" id="pwStrength">
-                <div class="pw-bars"><div class="pw-bar" id="bar1"></div><div class="pw-bar" id="bar2"></div><div class="pw-bar" id="bar3"></div></div>
-                <span class="pw-label" id="pwLabel"></span>
-              </div>
-              <span class="field-hint err-msg" id="err-pw1">Password must be at least 6 characters.</span>
-            </div>
-            <div class="field">
-              <label>Confirm New Password</label>
-              <div class="input-wrap">
-                <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                <input type="password" id="pw2" placeholder="Repeat new password" autocomplete="new-password">
-                <button type="button" class="toggle-pw" data-target="pw2">
-                  <svg width="17" height="17" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
-                </button>
-              </div>
-              <span class="field-hint err-msg" id="err-pw2">Passwords do not match.</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="action-row">
-          <button type="submit" class="btn btn-primary" id="saveBtn">
-            <div class="spinner-sm" id="saveSpinner"></div>
-            <svg id="saveIcon" width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-            <span id="saveText">Save Changes</span>
-          </button>
-          <button type="button" class="btn btn-ghost" onclick="goBack()">← Back to Sign In</button>
-        </div>
-      </form>
-    </div>
-
-    <div class="success-overlay" id="successView">
-      <div class="success-icon">🎉</div>
-      <h3>Profile Updated!</h3>
-      <p id="successMsg">Your details have been saved.<br>Redirecting to sign in…</p>
-      <button class="btn btn-primary" onclick="goToSignIn()">→ Go to Sign In</button>
-    </div>
-  </main>
+    <h1>My <em>Profile</em></h1>
+    <p>Manage your account details, bookings and security settings.</p>
+  </div>
 </div>
 
-<div class="toast-box" id="toastBox"></div>
-<script>
-  const API_BASE = 'http://localhost:8081/api/v1';
+<!-- MAIN -->
+<div class="main-container">
+  <div class="profile-grid">
 
-  // Global AJAX setup to include Token automatically
-  $.ajaxSetup({
-    headers: {
-      'Authorization': 'Bearer ' + localStorage.getItem('rentify_token')
+    <!-- SIDEBAR -->
+    <div>
+      <div class="sidebar-card">
+        <div class="avatar-section">
+          <div class="avatar-wrap" id="avatarWrap" title="Click to change photo">
+            <div class="big-avatar" id="bigAvatar">
+              <span id="bigAvatarInitials">U</span>
+            </div>
+            <div class="cam-overlay"><i class="fas fa-camera"></i></div>
+          </div>
+          <div class="sb-name" id="sidebarName">Loading…</div>
+          <div class="sb-uname" id="sidebarUsername">@user</div>
+          <div class="role-pill">🧑 User Account</div>
+        </div>
+        <div class="sidebar-nav">
+          <button class="snav-item active" data-tab="profile">
+            <div class="sn-icon">👤</div> Profile Details
+          </button>
+          <button class="snav-item" data-tab="bookings">
+            <div class="sn-icon">📋</div> My Bookings
+            <span class="sn-count" id="bkBadge">0</span>
+          </button>
+          <button class="snav-item" data-tab="password">
+            <div class="sn-icon">🔒</div> Change Password
+          </button>
+          <button class="snav-item" data-tab="settings">
+            <div class="sn-icon">⚙️</div> Account Settings
+          </button>
+        </div>
+        <div class="sidebar-stats">
+          <div class="stat-mini"><div class="val" id="stTotal">0</div><div class="lbl">Total Rides</div></div>
+          <div class="stat-mini"><div class="val" id="stActive">0</div><div class="lbl">Active</div></div>
+          <div class="stat-mini"><div class="val" id="stDone">0</div><div class="lbl">Completed</div></div>
+          <div class="stat-mini"><div class="val" id="stSpent">0</div><div class="lbl">LKR (K) Spent</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANELS -->
+    <div>
+
+      <!-- PROFILE PANEL -->
+      <div class="panel active" id="panel-profile">
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Profile Details</div>
+              <div class="panel-sub">Update your personal information and profile photo</div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label class="form-label">Profile Photo</label>
+              <div class="img-upload-zone" id="uploadZone">
+                <div class="upload-icon">📷</div>
+                <div class="upload-text">
+                  <strong>Click to upload photo</strong>
+                  <small>JPG, PNG, WebP — max 5 MB</small>
+                </div>
+              </div>
+            </div>
+            <div class="section-divider">
+              <div class="line"></div><div class="text">Personal Info</div><div class="line"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-input" id="fullName" placeholder="Your full name">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Username (read-only)</label>
+                <input type="text" class="form-input" id="username" disabled>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-input" id="email" placeholder="you@email.com">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" class="form-input" id="phone" placeholder="07X XXX XXXX">
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;">
+              <button class="save-btn" id="saveProfileBtn"><i class="fas fa-save"></i> Save Changes</button>
+              <button class="ghost-btn" id="resetProfileBtn"><i class="fas fa-undo"></i> Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOKINGS PANEL -->
+      <div class="panel" id="panel-bookings">
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">My Bookings</div>
+              <div class="panel-sub">View and manage your vehicle reservations</div>
+            </div>
+            <button class="save-btn" id="refreshBkBtn" style="padding:9px 18px;font-size:9px;"><i class="fas fa-sync-alt"></i> Refresh</button>
+          </div>
+          <div class="panel-body">
+            <div class="booking-filters">
+              <button class="bk-pill active" data-bfilter="all">✨ All</button>
+              <button class="bk-pill" data-bfilter="PENDING">⏳ Pending</button>
+              <button class="bk-pill" data-bfilter="CONFIRMED">✅ Confirmed</button>
+              <button class="bk-pill" data-bfilter="COMPLETED">🏁 Completed</button>
+              <button class="bk-pill" data-bfilter="CANCELLED">❌ Cancelled</button>
+            </div>
+            <div id="bookingsList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASSWORD PANEL -->
+      <div class="panel" id="panel-password">
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Change Password</div>
+              <div class="panel-sub">Keep your account secure with a strong password</div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label class="form-label">Current Password</label>
+              <div class="input-wrap">
+                <input type="password" class="form-input" id="currentPwd" placeholder="Enter current password" autocomplete="current-password">
+                <button type="button" class="pwd-toggle" data-target="currentPwd"><i class="fas fa-eye"></i></button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <div class="input-wrap">
+                <input type="password" class="form-input" id="newPwd" placeholder="Min. 8 characters" autocomplete="new-password">
+                <button type="button" class="pwd-toggle" data-target="newPwd"><i class="fas fa-eye"></i></button>
+              </div>
+              <div class="pwd-strength"><div class="pwd-fill" id="pwdFill"></div></div>
+              <div class="pwd-label" id="pwdLabel">Enter a new password</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm New Password</label>
+              <div class="input-wrap">
+                <input type="password" class="form-input" id="confirmPwd" placeholder="Repeat new password" autocomplete="new-password">
+                <button type="button" class="pwd-toggle" data-target="confirmPwd"><i class="fas fa-eye"></i></button>
+              </div>
+            </div>
+            <button class="save-btn" id="changePwdBtn"><i class="fas fa-lock"></i> Update Password</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS PANEL -->
+      <div class="panel" id="panel-settings">
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Account Settings</div>
+              <div class="panel-sub">Manage your account preferences</div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="section-divider"><div class="line"></div><div class="text">Account Info</div><div class="line"></div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;">
+              <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);padding:18px;">
+                <div style="font-family:'Bungee',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--ink4);text-transform:uppercase;margin-bottom:6px;">Account Type</div>
+                <div style="font-size:13px;font-weight:600;">🧑 Standard User</div>
+              </div>
+              <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);padding:18px;">
+                <div style="font-family:'Bungee',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--ink4);text-transform:uppercase;margin-bottom:6px;">User ID</div>
+                <div style="font-size:13px;font-weight:600;" id="settingsUserId">—</div>
+              </div>
+              <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);padding:18px;">
+                <div style="font-family:'Bungee',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--ink4);text-transform:uppercase;margin-bottom:6px;">Username</div>
+                <div style="font-size:13px;font-weight:600;" id="settingsUname">—</div>
+              </div>
+              <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);padding:18px;">
+                <div style="font-family:'Bungee',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--ink4);text-transform:uppercase;margin-bottom:6px;">Email</div>
+                <div style="font-size:13px;font-weight:600;word-break:break-all;" id="settingsEmail">—</div>
+              </div>
+            </div>
+            <div class="section-divider"><div class="line"></div><div class="text">Danger Zone</div><div class="line"></div></div>
+            <div class="danger-zone">
+              <h4>⚠️ Sign Out Everywhere</h4>
+              <p>This clears your local session and signs you out from all devices. You will need to sign in again.</p>
+              <button class="danger-btn" id="signOutAllBtn">Sign Out All Devices</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="ft-logo">Rent<span>ify</span></div>
+  <p>© 2026 Rentify. All Rights Reserved. Made with ❤️ in Sri Lanka 🇱🇰</p>
+</footer>
+
+<a class="wa" href="https://wa.me/94771234567" target="_blank">
+  <span class="wa-ring"></span><i class="fab fa-whatsapp"></i>
+</a>
+
+<!-- CANCEL MODAL -->
+<div class="modal-overlay" id="cancelModal">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <h3>Cancel Booking?</h3>
+    <p>You are about to cancel booking <strong id="cancelBkLabel">—</strong>. The vehicle will be released and this cannot be undone.</p>
+    <div class="modal-btns">
+      <button class="btn-keep" id="modalKeepBtn">Keep Booking</button>
+      <button class="btn-do-cancel" id="modalConfirmCancelBtn">Yes, Cancel It</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ═══════════════════════════════════════════════════════════
+     RENTIFY — profile-update.html
+     Location : FrontEnd/pages/user/profile-update.html
+     Sign-in  : FrontEnd/pages/sign-in.html  →  ../sign-in.html
+     Backend  : http://localhost:8081/api/v1
+
+     API ENDPOINTS USED:
+     GET  /user/profile          ← returns UserDTO (with profileImageBase64)
+     PUT  /user/profile          ← body: UserDTO fields + optional image
+     POST /user/change-password  ← body: { currentPassword, newPassword }
+     GET  /bookings/user/{id}    ← returns List<BookingDTO>
+     DEL  /bookings/{id}/cancel  ← ?userId={id}
+  ═══════════════════════════════════════════════════════════ */
+
+  /* ── SINGLE source of truth for API base URL ── */
+  const API = 'http://localhost:8081/api/v1';
+
+  /* ── localStorage helpers ── */
+  const ls      = k => localStorage.getItem(k) || '';
+  const getToken  = () => ls('rentify_token');
+  const getRole   = () => ls('rentify_role') || 'USER';
+  const getUid    = () => { const v = ls('rentify_userId'); return v ? parseInt(v, 10) : null; };
+  const getUname  = () => ls('rentify_username');
+  const getFname  = () => ls('rentify_fullName') || getUname();
+  const getEmailLS = () => ls('rentify_email');
+  const isLoggedIn = () => !!getToken();
+  const authH      = () => ({ Authorization: 'Bearer ' + getToken() });
+
+  /* ── Utilities ── */
+  const esc   = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const ini   = n => (n||'U').trim().split(/\s+/).map(x => x[0]?.toUpperCase()||'').join('').slice(0,2) || 'U';
+  const fmtD  = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-LK', {year:'numeric',month:'short',day:'numeric'}) : '—';
+  const fmtDT = d => d ? new Date(d).toLocaleString('en-LK', {year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+
+  function toast(msg, type) {
+    const el = $(`<div class="toast ${type||''}">${esc(msg)}</div>`).appendTo('#toastContainer');
+    setTimeout(() => { el.css('animation','toastOut .3s ease forwards'); setTimeout(() => el.remove(), 300); }, 3500);
+  }
+
+  /* ── GUARD: must be logged in ── */
+  if (!isLoggedIn()) {
+    /* sign-in.html is one folder up from /user/ */
+    window.location.href = '../sign-in.html';
+  }
+
+  /* ── App state ── */
+  let profileData     = null;
+  let allBookings     = [];
+  let pendingCancelId = null;
+  let bookingFilter   = 'all';
+  let pendingImgB64   = null;  /* pure base64, no data: prefix */
+  let pendingImgType  = null;  /* e.g. 'image/jpeg' */
+
+  /* ═══════════════════════════════════════════════════════
+     NAV
+  ═══════════════════════════════════════════════════════ */
+  function renderNav() {
+    const fn      = getFname();
+    const role    = getRole();
+    const savedSrc = sessionStorage.getItem('rentify_navAvatar');
+    const avHtml  = savedSrc
+            ? `<img src="${savedSrc}" alt="av" style="width:100%;height:100%;object-fit:cover;">`
+            : ini(fn);
+
+    $('#navRight').html(`
+            <a href="user-vehicle.html" class="nav-btn"><i class="fas fa-car"></i> Book Now</a>
+            <div class="user-menu">
+                <div class="user-avatar">${avHtml}</div>
+                <div class="user-dropdown">
+                    <div class="ud-name">${esc(fn)}</div>
+                    <div class="ud-role">${role === 'ADMIN' ? '👑 Administrator' : '🧑 User'}</div>
+                    <a class="ud-item" href="profile-update.html" style="color:var(--accent)"><span>👤</span> My Profile</a>
+                    <a class="ud-item" href="user-vehicle.html"><span>🚗</span> Book a Cab</a>
+                    <div class="ud-divider"></div>
+                    <button class="ud-item logout" id="navLogoutBtn"><span>🚪</span> Sign Out</button>
+                </div>
+            </div>`);
+    $('#navLogoutBtn').on('click', doLogout);
+  }
+
+  function doLogout() {
+    ['rentify_token','rentify_role','rentify_auth','rentify_username',
+      'rentify_fullName','rentify_email','rentify_userId','rentify_phone']
+            .forEach(k => localStorage.removeItem(k));
+    sessionStorage.removeItem('rentify_navAvatar');
+    window.location.href = '../sign-in.html';
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     TABS
+  ═══════════════════════════════════════════════════════ */
+  $(document).on('click', '.snav-item', function () {
+    const tab = $(this).data('tab');
+    $('.snav-item').removeClass('active');
+    $(this).addClass('active');
+    $('.panel').removeClass('active');
+    $(`#panel-${tab}`).addClass('active');
+    if (tab === 'bookings') fetchBookings();
+    if (tab === 'settings') {
+      $('#settingsUserId').text(getUid() || '—');
+      $('#settingsUname').text(getUname() || '—');
+      $('#settingsEmail').text(getEmailLS() || '—');
     }
   });
 
-  $(document).ready(function() {
-    // Fetch fresh profile data
-    $.get(`${API_BASE}/user/profile`, function(res) {
-      const u = res.data;
-      const names = u.fullName.split(' ');
-      $('#firstName').val(names[0]);
-      $('#lastName').val(names.slice(1).join(' '));
-      $('#email').val(u.email);
-      $('#phone').val(u.phone);
-      $('#displayName').text(u.fullName);
-      $('#avatarInitials').text(u.fullName.charAt(0));
-    });
+  /* ═══════════════════════════════════════════════════════
+     IMAGE UPLOAD
+     - Single hidden <input> avoids all duplicate-ID / event conflicts
+     - Sidebar avatar + upload zone both trigger the same input
+  ═══════════════════════════════════════════════════════ */
+  $('#avatarWrap').on('click', () => $('#hiddenFileInput').trigger('click'));
+  $('#uploadZone').on('click',  () => $('#hiddenFileInput').trigger('click'));
+
+  $('#hiddenFileInput').on('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast('Please select a JPG, PNG or WebP image.', 'error');
+      this.value = ''; return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast('Image must be under 5 MB.', 'error');
+      this.value = ''; return;
+    }
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const dataUrl  = e.target.result;
+      pendingImgB64  = dataUrl.split(',')[1];
+      pendingImgType = file.type;
+      /* sidebar avatar */
+      $('#bigAvatar').html(`<img src="${dataUrl}" alt="avatar">`);
+      $('#bigAvatarInitials').text('');
+      /* upload zone preview */
+      $('#uploadZone').addClass('has-img').html(`
+                <img src="${dataUrl}" class="zone-preview-img" alt="Preview">
+                <div class="zone-change-hint"><i class="fas fa-edit"></i> Click to change photo</div>
+            `);
+      toast('Photo selected — click Save Changes to upload.', 'success');
+    };
+    reader.onerror = () => toast('Could not read file. Try another image.', 'error');
+    reader.readAsDataURL(file);
+    this.value = ''; /* allow re-selecting same file */
   });
 
-  $('#updateForm').on('submit', function(e) {
-    e.preventDefault();
-
-    const profileData = {
-      fullName: $('#firstName').val() + ' ' + $('#lastName').val(),
-      email: $('#email').val(),
-      phone: $('#phone').val()
-    };
-
-    // 1. Update Profile
+  /* ═══════════════════════════════════════════════════════
+     FETCH PROFILE  →  GET /api/v1/user/profile
+     Spring Security extracts the username from the JWT
+     and calls UserService.getProfile(username)
+  ═══════════════════════════════════════════════════════ */
+  function fetchProfile() {
     $.ajax({
-      url: `${API_BASE}/user/profile`,
-      method: 'PUT',
-      contentType: 'application/json',
-      data: JSON.stringify(profileData),
-      success: function() {
-        // 2. If password fields are filled, call change-password
-        const newPw = $('#pw1').val();
-        if(newPw) {
-          changePassword();
-        } else {
-          showToast('Profile Updated');
-        }
-      }
-    });
-  });
-
-  function changePassword() {
-    const pwDto = {
-      currentPassword: $('#currentPassword').val(),
-      newPassword: $('#pw1').val()
-    };
-
-    $.ajax({
-      url: `${API_BASE}/user/change-password`,
-      method: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify(pwDto),
-      success: function() {
-        showToast('Password Changed! Please Login again.');
-        setTimeout(() => { window.location.href = '../sign-in.html'; }, 2000);
+      url: `${API}/user/profile`, method: 'GET', headers: authH(),
+      success(res) {
+        profileData = res.data || res;
+        fillForm(profileData);
+        updateSidebar(profileData);
       },
-      error: function(xhr) {
-        showToast(xhr.responseJSON.message, true);
+      error(xhr) {
+        if (xhr.status === 401) { toast('Session expired. Signing out…', 'error'); setTimeout(doLogout, 1600); return; }
+        /* Non-fatal — show cached data */
+        toast(`Profile load failed (${xhr.status || 'network error'}) — showing cached data.`, 'warning');
+        fillForm({ fullName: getFname(), username: getUname(), email: getEmailLS(), phone: ls('rentify_phone') });
+        updateSidebar({ fullName: getFname(), username: getUname() });
       }
     });
   }
-</script>
 
-<script>
-  // ── profile-update.html is in /pages/user/ ───────────────────────────────
-  // sign-in.html is in /pages/ → path from here: ../sign-in.html
+  function fillForm(d) {
+    $('#fullName').val(d.fullName || '');
+    $('#username').val(d.username || '');
+    $('#email').val(d.email || '');
+    $('#phone').val(d.phone || '');
+    $('#settingsUserId').text(d.userId || getUid() || '—');
+    $('#settingsUname').text(d.username || getUname() || '—');
+    $('#settingsEmail').text(d.email || getEmailLS() || '—');
 
-  const API_BASE = 'http://localhost:8080/api/v1';
-
-  function getToken()    { return localStorage.getItem('rentify_token'); }
-  function authHeaders() {
-    return {
-      'Content-Type':  'application/json',
-      'Authorization': 'Bearer ' + getToken()
-    };
+    if (d.profileImageBase64) {
+      const mime = d.imageType || 'image/jpeg';
+      const src  = `data:${mime};base64,${d.profileImageBase64}`;
+      $('#bigAvatar').html(`<img src="${src}" alt="avatar">`);
+      $('#bigAvatarInitials').text('');
+      $('#uploadZone').addClass('has-img').html(`
+                <img src="${src}" class="zone-preview-img" alt="Preview">
+                <div class="zone-change-hint"><i class="fas fa-edit"></i> Click to change photo</div>
+            `);
+      sessionStorage.setItem('rentify_navAvatar', src);
+      renderNav();
+    }
   }
 
-  /* ── Load user info from localStorage ──────────────────────────────────── */
-  function loadCurrentUser() {
-    const fullName = localStorage.getItem('rentify_fullName') || '';
-    const username = localStorage.getItem('rentify_username') || '';
-    const email    = localStorage.getItem('rentify_email')    || '';
-    const phone    = localStorage.getItem('rentify_phone')    || '';
-    const role     = localStorage.getItem('rentify_role')     || 'USER';
-
-    const parts = fullName.trim().split(' ');
-    document.getElementById('firstName').value = parts[0] || '';
-    document.getElementById('lastName').value  = parts.slice(1).join(' ') || '';
-    document.getElementById('email').value     = email;
-    document.getElementById('phone').value     = phone;
-
-    const initials = ((parts[0]||'')[0] || (username[0]||'?')).toUpperCase()
-            + ((parts[1]||'')[0] || '').toUpperCase();
-    document.getElementById('avatarInitials').textContent = initials || '?';
-    document.getElementById('displayName').textContent    = fullName || username || 'Your Account';
-    document.getElementById('displayEmail').textContent   = email || '—';
-
-    const roleEl = document.getElementById('displayRole');
-    roleEl.textContent = role;
-    if (role === 'ADMIN') roleEl.classList.add('admin');
+  function updateSidebar(d) {
+    const fn = d.fullName || getFname();
+    const un = d.username || getUname();
+    $('#sidebarName').text(fn);
+    $('#sidebarUsername').text('@' + un);
+    if (!$('#bigAvatar img').length) $('#bigAvatarInitials').text(ini(fn));
+    localStorage.setItem('rentify_fullName', fn);
   }
 
-  /* ── If user has a token, also fetch fresh data from server ─────────────── */
-  async function fetchProfileFromServer() {
-    if (!getToken()) return;
-    try {
-      const res = await fetch(`${API_BASE}/user/profile`, { headers: authHeaders() });
-      if (!res.ok) return;
-      const result = await res.json();
-      if (result.code === 200) {
-        const u = result.data;
-        const parts = (u.fullName || '').trim().split(' ');
-        document.getElementById('firstName').value = parts[0] || '';
-        document.getElementById('lastName').value  = parts.slice(1).join(' ') || '';
-        document.getElementById('email').value     = u.email || '';
-        document.getElementById('phone').value     = u.phone || '';
-        document.getElementById('displayName').textContent  = u.fullName  || '';
-        document.getElementById('displayEmail').textContent = u.email     || '';
-        const initials = ((parts[0]||'')[0]||'?').toUpperCase() + ((parts[1]||'')[0]||'').toUpperCase();
-        document.getElementById('avatarInitials').textContent = initials;
-        // Update localStorage too
-        localStorage.setItem('rentify_fullName', u.fullName || '');
-        localStorage.setItem('rentify_email',    u.email    || '');
-        localStorage.setItem('rentify_phone',    u.phone    || '');
-      }
-    } catch (e) { /* silent — localStorage values already shown */ }
-  }
+  /* ═══════════════════════════════════════════════════════
+     SAVE PROFILE  →  PUT /api/v1/user/profile
+     Body matches UserDTO: fullName, email, phone,
+     profileImageBase64 (optional), imageType (optional)
+  ═══════════════════════════════════════════════════════ */
+  $('#saveProfileBtn').on('click', function () {
+    const fullName = $('#fullName').val().trim();
+    const email    = $('#email').val().trim();
+    const phone    = $('#phone').val().trim();
 
-  /* ── Sidebar step highlighter ─────────────────────────────────────────── */
-  function setStep(active) {
-    document.querySelectorAll('#stepsList .step').forEach(s => {
-      const n = parseInt(s.dataset.step);
-      s.className = 'step' + (n < active ? ' done' : n === active ? ' active' : '');
-      if (n < active) s.querySelector('.step-num').textContent = '✓';
-      else            s.querySelector('.step-num').textContent = String(n);
-    });
-  }
+    if (!fullName) { toast('Full name is required.', 'error'); return; }
+    if (!email)    { toast('Email is required.', 'error'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('Enter a valid email address.', 'error'); return; }
 
-  /* ── Toast ─────────────────────────────────────────────────────────────── */
-  function showToast(msg, type = 'success') {
-    const t = document.getElementById('toastBox');
-    t.innerHTML = (type === 'error' ? '❌ ' : '✅ ') + msg;
-    t.className = 'toast-box show ' + (type === 'error' ? 'error' : '');
-    clearTimeout(t._t);
-    t._t = setTimeout(() => { t.className = 'toast-box'; }, 4500);
-  }
-
-  /* ── Password strength ─────────────────────────────────────────────────── */
-  document.getElementById('pw1').addEventListener('input', function () {
-    const pw  = this.value;
-    const box = document.getElementById('pwStrength');
-    const bars = [document.getElementById('bar1'), document.getElementById('bar2'), document.getElementById('bar3')];
-    const lbl  = document.getElementById('pwLabel');
-    if (!pw) { box.style.display = 'none'; return; }
-    box.style.display = 'block';
-    bars.forEach(b => b.className = 'pw-bar');
-    const score = (pw.length >= 8 ? 1 : 0) + (pw.length >= 12 ? 1 : 0)
-            + (/[A-Z]/.test(pw) ? 1 : 0) + (/[0-9]/.test(pw) ? 1 : 0) + (/[^A-Za-z0-9]/.test(pw) ? 1 : 0);
-    if (score <= 1)      { bars[0].classList.add('weak');   lbl.className = 'pw-label weak';   lbl.textContent = 'Weak — add numbers & symbols'; }
-    else if (score <= 3) { bars[0].classList.add('medium'); bars[1].classList.add('medium'); lbl.className = 'pw-label medium'; lbl.textContent = 'Fair — getting there!'; }
-    else                 { bars.forEach(b => b.classList.add('strong')); lbl.className = 'pw-label strong'; lbl.textContent = 'Strong password!'; }
-  });
-
-  document.querySelectorAll('.toggle-pw').forEach(btn => {
-    btn.addEventListener('click', function () {
-      const inp = document.getElementById(this.dataset.target);
-      inp.type = inp.type === 'password' ? 'text' : 'password';
-    });
-  });
-
-  /* ── Inline error helpers ──────────────────────────────────────────────── */
-  function setErr(id, msg) {
-    const inp = document.getElementById(id);
-    const err = document.getElementById('err-' + id);
-    if (inp) inp.classList.add('error');
-    if (err) { err.textContent = msg; err.classList.add('show'); }
-  }
-  function clearErr(id) {
-    const inp = document.getElementById(id);
-    const err = document.getElementById('err-' + id);
-    if (inp) inp.classList.remove('error');
-    if (err) err.classList.remove('show');
-  }
-
-  document.querySelectorAll('input').forEach(inp => {
-    inp.addEventListener('input', () => {
-      inp.classList.remove('error');
-      const e = document.getElementById('err-' + inp.id);
-      if (e) e.classList.remove('show');
-    });
-  });
-
-  ['firstName','lastName','email','phone'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('focus', () => setStep(1));
-  });
-  ['currentPassword','pw1','pw2'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('focus', () => setStep(2));
-  });
-
-  /* ── FORM SUBMIT ───────────────────────────────────────────────────────── */
-  document.getElementById('updateForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-
-    const firstName       = document.getElementById('firstName').value.trim();
-    const lastName        = document.getElementById('lastName').value.trim();
-    const email           = document.getElementById('email').value.trim();
-    const phone           = document.getElementById('phone').value.trim();
-    const currentPassword = document.getElementById('currentPassword').value;
-    const pw1             = document.getElementById('pw1').value;
-    const pw2             = document.getElementById('pw2').value;
-
-    let valid = true;
-    if (!firstName) { setErr('firstName', 'First name is required.'); valid = false; } else clearErr('firstName');
-    if (!lastName)  { setErr('lastName',  'Last name is required.');  valid = false; } else clearErr('lastName');
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setErr('email', 'Valid email is required.'); valid = false; } else clearErr('email');
-
-    // Password change validation — only if pw1 is filled
-    if (pw1) {
-      if (!currentPassword) { setErr('currentPassword', 'Current password is required to change password.'); valid = false; } else clearErr('currentPassword');
-      if (pw1.length < 6)   { setErr('pw1', 'Password must be at least 6 characters.'); valid = false; } else clearErr('pw1');
-      if (pw2 !== pw1)      { setErr('pw2', 'Passwords do not match.'); valid = false; } else clearErr('pw2');
-    } else {
-      clearErr('currentPassword'); clearErr('pw1'); clearErr('pw2');
+    const payload = { fullName, email, phone };
+    if (pendingImgB64) {
+      payload.profileImageBase64 = pendingImgB64;
+      payload.imageType          = pendingImgType;
     }
 
-    if (!valid) {
-      showToast('Please fix the errors highlighted above.', 'error');
-      document.querySelector('.field input.error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const $btn = $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>&nbsp;Saving…');
+
+    $.ajax({
+      url: `${API}/user/profile`, method: 'PUT',
+      contentType: 'application/json', headers: authH(),
+      data: JSON.stringify(payload),
+      success(res) {
+        const updated = res.data || res;
+        localStorage.setItem('rentify_fullName', updated.fullName || fullName);
+        localStorage.setItem('rentify_email',    updated.email    || email);
+        if (phone) localStorage.setItem('rentify_phone', phone);
+        if (pendingImgB64) {
+          sessionStorage.setItem('rentify_navAvatar', `data:${pendingImgType};base64,${pendingImgB64}`);
+          pendingImgB64 = null; pendingImgType = null;
+        }
+        profileData = updated;
+        updateSidebar(updated);
+        renderNav();
+        toast('Profile updated successfully! 🎉', 'success');
+      },
+      error(xhr) {
+        let msg = xhr.responseJSON?.message || `Failed to save profile (${xhr.status}).`;
+        if (xhr.status === 401) msg = 'Session expired. Please sign in again.';
+        if (xhr.status === 403) msg = '403 Forbidden — make sure you are signed in as a USER, not ADMIN.';
+        if (xhr.status === 0)   msg = 'Cannot reach server — is Spring Boot running on port 8081?';
+        toast(msg, 'error');
+      },
+      complete() {
+        $btn.prop('disabled', false).html('<i class="fas fa-save"></i> Save Changes');
+      }
+    });
+  });
+
+  $('#resetProfileBtn').on('click', function () {
+    if (profileData) fillForm(profileData);
+    pendingImgB64 = null; pendingImgType = null;
+    if (!profileData?.profileImageBase64) {
+      $('#uploadZone').removeClass('has-img').html(`
+                <div class="upload-icon">📷</div>
+                <div class="upload-text">
+                    <strong>Click to upload photo</strong>
+                    <small>JPG, PNG, WebP — max 5 MB</small>
+                </div>`);
+      if (!$('#bigAvatar img').length)
+        $('#bigAvatar').html(`<span id="bigAvatarInitials">${ini(getFname())}</span>`);
+    }
+    toast('Changes discarded.', '');
+  });
+
+  /* ═══════════════════════════════════════════════════════
+     BOOKINGS  →  GET /api/v1/bookings/user/{userId}
+     userId stored in localStorage as rentify_userId
+  ═══════════════════════════════════════════════════════ */
+  function fetchBookings() {
+    const uid = getUid();
+    if (!uid) {
+      $('#bookingsList').html(`
+                <div class="empty-state">
+                    <div class="icon">⚠️</div>
+                    <h3>Session Error</h3>
+                    <p>User ID missing. Please sign out and sign in again.</p>
+                    <a href="../sign-in.html" class="save-btn" style="text-decoration:none;display:inline-flex;margin-top:8px;">Sign In Again</a>
+                </div>`);
+      return;
+    }
+    $('#bookingsList').html(`
+            <div class="skel-card"><div class="skel-line w80"></div><div class="skel-line w60"></div><div class="skel-line w30"></div></div>
+            <div class="skel-card"><div class="skel-line w80"></div><div class="skel-line w60"></div><div class="skel-line w30"></div></div>
+            <div class="skel-card"><div class="skel-line w80"></div><div class="skel-line w60"></div><div class="skel-line w30"></div></div>`);
+
+    $.ajax({
+      url: `${API}/bookings/user/${uid}`, method: 'GET', headers: authH(),
+      success(res) {
+        allBookings = Array.isArray(res) ? res : (res.data || []);
+        updateBkStats();
+        renderBookings();
+      },
+      error(xhr) {
+        let msg = xhr.responseJSON?.message || `Error ${xhr.status}`;
+        if (xhr.status === 0) msg = 'Cannot reach server — is Spring Boot running?';
+        $('#bookingsList').html(`
+                    <div class="empty-state">
+                        <div class="icon">⚠️</div>
+                        <h3>Could not load bookings</h3>
+                        <p>${esc(msg)}</p>
+                    </div>`);
+      }
+    });
+  }
+
+  function updateBkStats() {
+    const total  = allBookings.length;
+    const active = allBookings.filter(b => b.status === 'PENDING' || b.status === 'CONFIRMED').length;
+    const done   = allBookings.filter(b => b.status === 'COMPLETED').length;
+    const spent  = allBookings.filter(b => b.status !== 'CANCELLED').reduce((s, b) => s + (b.totalPrice || 0), 0);
+    $('#stTotal').text(total);
+    $('#stActive').text(active);
+    $('#stDone').text(done);
+    $('#stSpent').text(Math.round(spent / 1000));
+    $('#bkBadge').text(total);
+  }
+
+  function renderBookings() {
+    const list = (bookingFilter === 'all' ? [...allBookings] : allBookings.filter(b => b.status === bookingFilter))
+            .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+    if (!list.length) {
+      const msgs = { all:'No bookings yet.', PENDING:'No pending bookings.', CONFIRMED:'No confirmed bookings.', COMPLETED:'No completed trips.', CANCELLED:'No cancelled bookings.' };
+      $('#bookingsList').html(`
+                <div class="empty-state">
+                    <div class="icon">🚗</div>
+                    <h3>${msgs[bookingFilter] || 'No bookings.'}</h3>
+                    <p>Ready for your next adventure?</p>
+                    <a href="user-vehicle.html" class="save-btn" style="text-decoration:none;display:inline-flex;margin-top:4px;">
+                        <i class="fas fa-car"></i> Browse Vehicles
+                    </a>
+                </div>`);
       return;
     }
 
-    setStep(3);
-    const btn  = document.getElementById('saveBtn');
-    const spin = document.getElementById('saveSpinner');
-    const icon = document.getElementById('saveIcon');
-    const text = document.getElementById('saveText');
-    btn.disabled = true; spin.style.display = 'block'; icon.style.display = 'none'; text.textContent = 'Saving…';
+    const SIC = { PENDING:'⏳', CONFIRMED:'✅', COMPLETED:'🏁', CANCELLED:'❌' };
 
-    const token   = getToken();
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = 'Bearer ' + token;
+    $('#bookingsList').html(list.map(b => {
+      const days = (b.startDate && b.endDate)
+              ? Math.max(1, Math.round((new Date(b.endDate) - new Date(b.startDate)) / 86400000)) : '—';
+      const canCancel = b.status === 'PENDING' || b.status === 'CONFIRMED';
+      return `
+            <div class="booking-card ${esc(b.status)}">
+                <div class="bk-head">
+                    <div>
+                        <div class="bk-id">BK-${b.id}</div>
+                        <div class="bk-created">Booked on ${fmtDT(b.createdAt)}</div>
+                    </div>
+                    <div class="bk-status ${esc(b.status)}">${SIC[b.status] || ''} ${esc(b.status)}</div>
+                </div>
+                <div class="bk-details">
+                    <div class="bk-detail"><div class="label">Vehicle</div><div class="value">${esc(b.vehicleModel || '—')}</div></div>
+                    <div class="bk-detail"><div class="label">Plate No.</div><div class="value">${esc(b.vehiclePlate || '—')}</div></div>
+                    <div class="bk-detail"><div class="label">Start Date</div><div class="value">${fmtD(b.startDate)}</div></div>
+                    <div class="bk-detail"><div class="label">End Date</div><div class="value">${fmtD(b.endDate)}</div></div>
+                    <div class="bk-detail"><div class="label">Pickup</div><div class="value">${esc(b.pickupLocation || '—')}</div></div>
+                    <div class="bk-detail"><div class="label">Drop Off</div><div class="value">${esc(b.dropLocation || '—')}</div></div>
+                    <div class="bk-detail"><div class="label">Duration</div><div class="value">${days} day${days !== 1 ? 's' : ''}</div></div>
+                    <div class="bk-detail"><div class="label">Booking ID</div><div class="value">#${b.id}</div></div>
+                </div>
+                <div class="bk-foot">
+                    <div class="bk-price"><span>Rs</span>${Number(b.totalPrice || 0).toLocaleString('en-LK')}</div>
+                    ${canCancel
+              ? `<button class="cancel-btn" data-bkid="${b.id}"><i class="fas fa-times"></i> Cancel Booking</button>`
+              : `<span style="font-size:10px;color:var(--ink4)">No actions available</span>`}
+                </div>
+            </div>`;
+    }).join(''));
+  }
 
-    try {
-      let profileUpdated  = false;
-      let passwordChanged = false;
-
-      // ── Step A: Update profile (name, email, phone) ──────────────────────
-      const profilePayload = {
-        fullName: (firstName + ' ' + lastName).trim(),
-        email,
-        phone
-      };
-
-      const profileRes = await fetch(`${API_BASE}/user/profile`, {
-        method: 'PUT', headers, body: JSON.stringify(profilePayload)
-      });
-      const profileResult = await profileRes.json();
-
-      if (!profileRes.ok || (profileResult.code && profileResult.code !== 200)) {
-        throw new Error(profileResult.message || 'Profile update failed.');
-      }
-      profileUpdated = true;
-
-      // ── Step B: Change password (only if pw1 filled) ─────────────────────
-      if (pw1 && currentPassword) {
-        const pwRes = await fetch(`${API_BASE}/user/change-password`, {
-          method: 'POST', headers,
-          body: JSON.stringify({ currentPassword, newPassword: pw1 })
-        });
-        const pwResult = await pwRes.json();
-
-        if (!pwRes.ok || (pwResult.code && pwResult.code !== 200)) {
-          throw new Error(pwResult.message || 'Password change failed.');
-        }
-        passwordChanged = true;
-      }
-
-      // ── Update localStorage ───────────────────────────────────────────────
-      localStorage.setItem('rentify_fullName', profilePayload.fullName);
-      localStorage.setItem('rentify_email',    email);
-      if (phone) localStorage.setItem('rentify_phone', phone);
-
-      if (passwordChanged) {
-        // Force fresh login after password change
-        localStorage.removeItem('rentify_token');
-        localStorage.removeItem('rentify_auth');
-      }
-
-      // ── Success ───────────────────────────────────────────────────────────
-      document.getElementById('successMsg').innerHTML = passwordChanged
-              ? 'Your details &amp; new password have been saved.<br>Please sign in again with your new password.'
-              : 'Your details have been saved successfully.<br>Redirecting to sign in…';
-
-      document.getElementById('formView').style.display = 'none';
-      document.getElementById('successView').classList.add('show');
-      showToast('Profile updated successfully!');
-      setTimeout(goToSignIn, 4000);
-
-    } catch (err) {
-      btn.disabled = false; spin.style.display = 'none'; icon.style.display = 'block'; text.textContent = 'Save Changes';
-      setStep(2);
-      showToast(err.message || 'Something went wrong. Please try again.', 'error');
-    }
+  $(document).on('click', '.bk-pill', function () {
+    $('.bk-pill').removeClass('active');
+    $(this).addClass('active');
+    bookingFilter = $(this).data('bfilter');
+    renderBookings();
   });
 
-  // profile-update.html is in /pages/user/ → sign-in.html is ../sign-in.html
-  function goBack()     { window.location.href = '../sign-in.html'; }
-  function goToSignIn() { window.location.href = '../sign-in.html'; }
+  $(document).on('click', '.cancel-btn', function () {
+    openCancelModal(parseInt($(this).data('bkid')));
+  });
 
-  // ── Init ─────────────────────────────────────────────────────────────────
-  loadCurrentUser();  // show from localStorage immediately
-  fetchProfileFromServer(); // then refresh from API if token exists
-  setStep(1);
+  $('#refreshBkBtn').on('click', fetchBookings);
+
+  /* ═══════════════════════════════════════════════════════
+     CANCEL MODAL  →  DELETE /api/v1/bookings/{id}/cancel?userId={uid}
+  ═══════════════════════════════════════════════════════ */
+  function openCancelModal(id) { pendingCancelId = id; $('#cancelBkLabel').text('BK-' + id); $('#cancelModal').addClass('open'); }
+  function closeCancelModal()  { pendingCancelId = null; $('#cancelModal').removeClass('open'); }
+
+  $('#modalKeepBtn').on('click', closeCancelModal);
+  $('#cancelModal').on('click', function (e) { if (e.target === this) closeCancelModal(); });
+
+  $('#modalConfirmCancelBtn').on('click', function () {
+    if (!pendingCancelId) return;
+    const uid = getUid();
+    if (!uid) { toast('Session error. Please sign in again.', 'error'); return; }
+
+    const $btn = $(this).prop('disabled', true).text('Cancelling…');
+
+    $.ajax({
+      url: `${API}/bookings/${pendingCancelId}/cancel?userId=${uid}`,
+      method: 'DELETE', headers: authH(),
+      success() {
+        toast('Booking cancelled successfully.', 'success');
+        closeCancelModal();
+        fetchBookings();
+      },
+      error(xhr) {
+        toast(xhr.responseJSON?.message || `Failed to cancel booking (${xhr.status}).`, 'error');
+        closeCancelModal();
+      },
+      complete() { $btn.prop('disabled', false).text('Yes, Cancel It'); }
+    });
+  });
+
+  /* ═══════════════════════════════════════════════════════
+     PASSWORD  →  POST /api/v1/user/change-password
+     Body: { currentPassword, newPassword }
+  ═══════════════════════════════════════════════════════ */
+  $(document).on('click', '.pwd-toggle', function () {
+    const inp  = document.getElementById($(this).data('target'));
+    const show = inp.type === 'password';
+    inp.type   = show ? 'text' : 'password';
+    $(this).html(show ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>');
+  });
+
+  $('#newPwd').on('input', function () {
+    const v = this.value;
+    let s = 0;
+    if (v.length >= 8)           s++;
+    if (/[A-Z]/.test(v))         s++;
+    if (/[0-9]/.test(v))         s++;
+    if (/[^A-Za-z0-9]/.test(v)) s++;
+    const cls    = ['','weak','fair','good','strong'][s];
+    const labels = ['Enter a new password','Weak — too simple','Fair — add numbers','Good — almost there!','Strong password ✓'];
+    $('#pwdFill').attr('class', 'pwd-fill ' + (v ? cls : ''));
+    $('#pwdLabel').text(v ? labels[s] : labels[0]);
+  });
+
+  $('#changePwdBtn').on('click', function () {
+    const cur  = $('#currentPwd').val();
+    const nw   = $('#newPwd').val();
+    const conf = $('#confirmPwd').val();
+    if (!cur || !nw || !conf) { toast('Please fill in all password fields.', 'error'); return; }
+    if (nw.length < 8)        { toast('New password must be at least 8 characters.', 'error'); return; }
+    if (nw !== conf)          { toast('New passwords do not match.', 'error'); return; }
+
+    const $btn = $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>&nbsp;Updating…');
+
+    $.ajax({
+      url: `${API}/user/change-password`, method: 'POST',
+      contentType: 'application/json', headers: authH(),
+      data: JSON.stringify({ currentPassword: cur, newPassword: nw }),
+      success() {
+        toast('Password updated! Please sign in with your new password. 🔒', 'success');
+        $('#currentPwd,#newPwd,#confirmPwd').val('');
+        $('#pwdFill').attr('class', 'pwd-fill');
+        $('#pwdLabel').text('Enter a new password');
+        /* Force re-login so the new password takes effect */
+        setTimeout(doLogout, 2500);
+      },
+      error(xhr) {
+        toast(xhr.responseJSON?.message || 'Wrong current password or server error.', 'error');
+      },
+      complete() { $btn.prop('disabled', false).html('<i class="fas fa-lock"></i> Update Password'); }
+    });
+  });
+
+  /* ═══════════════════════════════════════════════════════
+     SETTINGS
+  ═══════════════════════════════════════════════════════ */
+  $('#signOutAllBtn').on('click', () => { toast('Signing out…', ''); setTimeout(doLogout, 800); });
+
+  /* ═══════════════════════════════════════════════════════
+     INIT — runs when DOM is ready
+  ═══════════════════════════════════════════════════════ */
+  $(function () {
+    renderNav();
+
+    /* Populate from localStorage immediately — no blank flash */
+    $('#fullName').val(getFname());
+    $('#username').val(getUname());
+    $('#email').val(getEmailLS());
+    $('#sidebarName').text(getFname() || 'Loading…');
+    $('#sidebarUsername').text('@' + getUname());
+    $('#bigAvatarInitials').text(ini(getFname()));
+    $('#settingsUserId').text(getUid() || '—');
+    $('#settingsUname').text(getUname() || '—');
+    $('#settingsEmail').text(getEmailLS() || '—');
+
+    /* Fetch fresh data from backend */
+    fetchProfile();
+  });
 </script>
 </body>
 </html>
