@@ -17,51 +17,58 @@ import org.springframework.web.cors.*;
 
 import java.util.List;
 
+//API security control,who can access and what define,JWT token checked
+//system gate, security rules define
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity   // keeps @PreAuthorize("hasRole('ADMIN')") working on controllers
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    // Inject JWT filter (checks token in every request)
     private final JWTAuthFilter jwtAuthFilter;
+    //Handle Login verification
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                //disable CSRF (not needed for REST APIs with JWT)
                 .csrf(AbstractHttpConfigurer::disable)
+                // enable CORS (allow frontend to call backend)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
 
-                        // ── Swagger ──────────────────────────────────────────────
+                        //  Swagger
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        // ── Auth (login / register) ───────────────────────────
+                        //  Auth (login / register)
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
-                        // ── Vehicles: public GET, ADMIN for write ops ─────────
+                        //   Vehicles: public GET, ADMIN for write ops
                         .requestMatchers(HttpMethod.GET,  "/api/v1/vehicles/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/vehicles/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,  "/api/v1/vehicles/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/vehicles/**").hasRole("ADMIN")
 
-                        // ── Bookings / Payments: any authenticated user ────────
+                        //   Bookings / Payments: any authenticated user
                         .requestMatchers("/api/v1/bookings/**").authenticated()
                         .requestMatchers("/api/v1/payments/**").authenticated()
 
-                        // ── Admin-only area ───────────────────────────────────
+                        //   Admin-only area
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 
-                        // ── User profile self-service ─────────────────────────
+                        //   User profile self-service
                         .requestMatchers("/api/v1/user/profile").authenticated()
 
                         .requestMatchers("/api/v1/insurances/**").hasRole("ADMIN")
 
-                        // ── Everything else requires auth ─────────────────────
+                        //   Everything else requires auth
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->

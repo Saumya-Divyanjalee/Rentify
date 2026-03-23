@@ -24,16 +24,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
+
     private final UserRepository  userRepository;
     private final AdminRepository adminRepository;
 
-    /**
-     * Checks ADMIN table first  →  authority = ROLE_ADMIN
-     * Falls back to USER table  →  authority = ROLE_USER
-     * This is how sign-in tells admin apart from user.
-     */
     @Bean
     public UserDetailsService userDetailsService() {
+        // lambda function → takes username and returns UserDetails
         return username -> {
 
             // 1. Check admin table first
@@ -47,7 +44,7 @@ public class ApplicationConfig {
                 );
             }
 
-            // 2. Fall back to user table
+            // 2.  If not admin → check USER table
             var userOpt = userRepository.findByUsername(username);
             if (userOpt.isPresent()) {
                 var u = userOpt.get();
@@ -62,26 +59,33 @@ public class ApplicationConfig {
         };
     }
 
-    // Inject UserDetailsService as parameter — fixes red underline in IntelliJ
+    //Authentication process handle component
     @Bean
     public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();  // ← no-arg constructor
-        provider.setUserDetailsService(userDetailsService);                     // ← explicit setter
-        provider.setPasswordEncoder(passwordEncoder());                         // ← explicit setter
+        //Default Spring Security authentication class -  DaoAuthenticationProvider
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        // set how to load user data (from DB)
+        provider.setUserDetailsService(userDetailsService);
+        // set how to compare passwords (BCrypt)
+        provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
+        // main manager that handles login process
         return cfg.getAuthenticationManager();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+        // BCrypt → secure password hashing algorithm
         return new BCryptPasswordEncoder();
     }
 
     @Bean
     public ModelMapper modelMapper() {
+        // used to map DTO ↔ Entity
         return new ModelMapper();
     }
 }
