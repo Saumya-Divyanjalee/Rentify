@@ -17,8 +17,8 @@ public class JWTUtil {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration}")   // Fixed: removed hardcoded default :86400000 that conflicted
-    private long expiration;      //        with application.properties value of 864000000
+    @Value("${jwt.expiration}")
+    private long expiration;
 
     private Key key() {
         return Keys.hmacShaKeyFor(secret.getBytes());
@@ -27,7 +27,7 @@ public class JWTUtil {
     public String generateToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username)
-                // Fix: Role must be ROLE_ADMIN or ROLE_USER for .hasRole() to work
+
                 .claim("authorities", List.of(Map.of("authority", "ROLE_" + role)))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))

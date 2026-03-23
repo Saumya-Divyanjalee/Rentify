@@ -59,7 +59,7 @@ class BookingControllerTest {
         sampleBookingDTO.setCreatedAt(LocalDateTime.now());
     }
 
-    // ==================== CREATE BOOKING ====================
+    //  CREATE BOOKING
 
     @Test
     @DisplayName("✅ POST /api/bookings - USER can create booking")
@@ -87,7 +87,7 @@ class BookingControllerTest {
                 .andExpect(status().is4xxClientError());
     }
 
-    // ==================== GET MY BOOKINGS ====================
+    //  GET MY BOOKINGS
 
     @Test
     @DisplayName("✅ GET /api/bookings/user/{userId} - USER gets own bookings")
@@ -101,7 +101,7 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$").isArray());
     }
 
-    // ==================== GET ALL BOOKINGS (ADMIN) ====================
+    //  GET ALL BOOKINGS (ADMIN)
 
     @Test
     @DisplayName("✅ GET /api/bookings - ADMIN gets all bookings")
@@ -123,7 +123,7 @@ class BookingControllerTest {
                 .andExpect(status().isForbidden());
     }
 
-    // ==================== UPDATE STATUS (ADMIN) ====================
+    //   UPDATE STATUS (ADMIN)
 
     @Test
     @DisplayName("✅ PUT /api/bookings/{id}/status - ADMIN updates booking status")
@@ -140,7 +140,7 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.status").value("CONFIRMED"));
     }
 
-    // ==================== CANCEL BOOKING ====================
+    //   CANCEL BOOKING
 
     @Test
     @DisplayName("✅ DELETE /api/bookings/{id}/cancel - USER can cancel own booking")

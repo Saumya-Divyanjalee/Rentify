@@ -509,6 +509,7 @@
         </div>
     </div>
 </div>
+<script src="../../js/jquery-3.7.1.min.js"></script>
 
 <script>
     const API = 'http://localhost:8081/api/v1';
@@ -534,8 +535,8 @@
         setTimeout(()=>{ el.css('animation','toastOut .3s ease forwards'); setTimeout(()=>el.remove(), 300); }, 3200);
     }
 
-    // ── AUTO REFRESH ─────────────────────────────────────────────
-    // ✅ FIX: Admin side add කළ vehicles automatically user side refresh වෙනවා
+    //  AUTO REFRESH
+    //  Admin side add - vehicles automatically user side refresh
     function startAutoRefresh(){
         stopAutoRefresh();
         countdownSeconds = 30;
@@ -553,7 +554,7 @@
         if(countdownTimer) clearInterval(countdownTimer);
     }
 
-    // ✅ NEW: Silent fetch — skeleton නොපෙන්වා silently data update කරනවා
+
     function fetchVehiclesSilent(){
         $.ajax({
             url: API + '/vehicles', method: 'GET',
@@ -573,7 +574,7 @@
         });
     }
 
-    // ── NAV ──────────────────────────────────────────────────────
+    //  NAV
     function updateNav(){
         const el = $('#navRight');
         const navBtns = `<div class="api-status"><div class="api-dot" id="apiDot"></div><span id="apiStatusText">Connecting…</span></div>`;
@@ -623,7 +624,7 @@
                 $('#statAvailable').text(allVehicles.filter(v=>v.status==='AVAILABLE').length);
                 $('#lastUpdated').text('Updated ' + new Date().toLocaleTimeString('en-LK'));
                 applyFilters();
-                startAutoRefresh(); // ✅ Fetch success වුණාම auto-refresh start කරනවා
+                startAutoRefresh();
             },
             error: function(xhr){
                 $('#loadingGrid').addClass('hidden');
@@ -638,7 +639,7 @@
         });
     }
 
-    // ✅ MAIN FIX: applyFilters function එක සම්පූර්ණයෙන් නිවැරදි කළා
+
     function applyFilters(){
         const q = $('#searchInput').val().toLowerCase().trim();
         const maxP = parseInt($('#priceRange').val());
@@ -662,16 +663,14 @@
                 if(!allowed.includes(v.type)) return false;
             }
 
-            // ✅ FIX: Status filter logic නිවැරදි කළා
-            // Top pill bar status selected නම් — ඒ status විතරක් show කරනවා
+
+
             if(activeStatus !== 'all'){
                 if(v.status !== activeStatus) return false;
             } else {
-                // "All" selected නම් — sidebar checkboxes check කරනවා
-                // ✅ FIX: sbSt empty නම් (කිසිම checkbox checked නැත්නම්) — hide කරනවා
-                // sbSt filled නම් — checked status ඒවා show කරනවා
+
                 if(sbSt.length > 0 && !sbSt.includes(v.status)) return false;
-                // sbSt.length === 0 නම් — කිසිම checkbox checked නැත — nothing show
+
             }
 
             // Price filter
@@ -746,7 +745,7 @@
         $('#vehicleGrid').removeClass('hidden').html(html);
     }
 
-    // ── BOOKING MODAL ────────────────────────────────────────────
+    //  BOOKING MODAL
     function openBooking(id){
         if(!isLoggedIn()){ toast('Please sign in to book a vehicle.','warning'); setTimeout(()=>{ window.location.href='../sign-in.html?redirect=1'; },1000); return; }
         const v = allVehicles.find(x=>x.id===id);
@@ -926,7 +925,7 @@
         goStep(3); toast('Booking confirmed! 🎉','success'); fetchVehiclesSilent();
     }
 
-    // ── INIT ──────────────────────────────────────────────────────
+    // INIT
     $(function(){
         updateNav(); checkApi(); fetchVehicles();
 
@@ -994,7 +993,7 @@
         $(document).on('input','#cardName', function(){ $('#cardNameDisplay').text($(this).val().toUpperCase()||'CARD HOLDER'); });
         $(document).on('input','#cardExp', function(){ let v=$(this).val().replace(/\D/g,'').substring(0,4); if(v.length>=3) v=v.slice(0,2)+'/'+v.slice(2); $(this).val(v); $('#cardExpDisplay').text(v||'MM/YY'); });
 
-        // Page visibility change වෙනකොට refresh — user tab switch කර ආවොත්
+
         document.addEventListener('visibilitychange', function(){
             if(!document.hidden){ fetchVehiclesSilent(); }
         });

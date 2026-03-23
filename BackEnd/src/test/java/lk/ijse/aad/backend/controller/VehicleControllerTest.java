@@ -55,7 +55,7 @@ class VehicleControllerTest {
         sampleDTO.setYear(2022);
     }
 
-    // ==================== GET ALL (Public) ====================
+    //  GET ALL (Public)
 
     @Test
     @DisplayName("✅ GET /api/vehicles - public access, returns vehicle list")
@@ -100,7 +100,7 @@ class VehicleControllerTest {
                 .andExpect(jsonPath("$.model").value("Toyota Prius"));
     }
 
-    // ==================== ADMIN: ADD VEHICLE ====================
+    //  ADMIN: ADD VEHICLE
 
     @Test
     @DisplayName("✅ POST /api/vehicles - ADMIN can add vehicle")
@@ -137,7 +137,7 @@ class VehicleControllerTest {
                 .andExpect(status().is4xxClientError());
     }
 
-    // ==================== ADMIN: UPDATE VEHICLE ====================
+    //  ADMIN: UPDATE VEHICLE
 
     @Test
     @DisplayName("✅ PUT /api/vehicles/{id} - ADMIN can update vehicle")
@@ -152,7 +152,7 @@ class VehicleControllerTest {
                 .andExpect(status().isOk());
     }
 
-    // ==================== ADMIN: DELETE VEHICLE ====================
+    //  ADMIN: DELETE VEHICLE
 
     @Test
     @DisplayName("✅ DELETE /api/vehicles/{id} - ADMIN can delete vehicle")

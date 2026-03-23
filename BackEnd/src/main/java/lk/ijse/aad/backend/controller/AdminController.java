@@ -22,7 +22,7 @@ public class AdminController {
     private final AdminService adminService;
     private final UserService  userService;
 
-    // ── ADMIN SELF PROFILE ────────────────────────────────────────────────────
+    //  ADMIN SELF PROFILE
 
     // GET /api/v1/admin/profile
     @GetMapping("/profile")
@@ -49,7 +49,7 @@ public class AdminController {
         return ResponseEntity.ok(new APIResponse<>(200, "Password changed successfully", null));
     }
 
-    // ── ADMIN CRUD (super-admin managing other admins) ────────────────────────
+    //  ADMIN CRUD (super-admin managing other admins)
 
     // GET /api/v1/admin/all
     @GetMapping("/all")
@@ -81,7 +81,7 @@ public class AdminController {
         return ResponseEntity.ok(new APIResponse<>(200, "Admin deleted", null));
     }
 
-    // ── ADMIN: MANAGE ALL USERS ───────────────────────────────────────────────
+    //  ADMIN: MANAGE ALL USERS
 
     // GET /api/v1/admin/users
     @GetMapping("/users")

@@ -129,7 +129,7 @@ public class BookingServiceImpl implements BookingService {
         Vehicle vehicle = vehicleRepository.findById(dto.getVehicleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found: " + dto.getVehicleId()));
 
-        // 4. ✅ Run full availability check (status + insurance + date overlap)
+        // 4.  Run full availability check (status + insurance + date overlap)
         checkVehicleAvailability(vehicle, dto.getStartDate(), dto.getEndDate());
 
         // 5. Calculate total price
