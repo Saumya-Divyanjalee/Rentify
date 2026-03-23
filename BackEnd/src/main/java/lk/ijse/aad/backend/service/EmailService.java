@@ -20,7 +20,7 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String from;
 
-    // ── Public API ─────────────────────────────────────────────────────────────
+    //  Public API
 
     @Async
     public void sendEmail(String to, String subject, String body) {
@@ -44,7 +44,7 @@ public class EmailService {
         sendHtml(to, "✅ Payment Confirmed – Rentify", buildPaymentHtml(fullName, payment));
     }
 
-    // ── Internal send helper ───────────────────────────────────────────────────
+    //  Internal send helper
 
     private void sendHtml(String to, String subject, String html) {
         try {
@@ -60,7 +60,7 @@ public class EmailService {
         }
     }
 
-    // ── HTML Templates ─────────────────────────────────────────────────────────
+    //  HTML Templates
 
     private String wrap(String body) {
         return "<!DOCTYPE html><html><body style='margin:0;padding:0;background:#0d0d0d;font-family:\"Roboto Mono\",monospace'>"
