@@ -25,7 +25,6 @@ public class InsuranceServiceImpl implements InsuranceService {
     private final InsuranceRepository insuranceRepository;
     private final VehicleRepository vehicleRepository;
 
-    // ── Helpers ──────────────────────────────────────────────────────────────
 
     private InsuranceDTO toDTO(Insurance ins) {
         InsuranceDTO dto = new InsuranceDTO();
@@ -60,8 +59,7 @@ public class InsuranceServiceImpl implements InsuranceService {
         return ins;
     }
 
-    /** Derive ACTIVE/EXPIRED based on expiry date when status is not explicitly set. */
-    private InsuranceStatus deriveStatus(InsuranceDTO dto) {
+     private InsuranceStatus deriveStatus(InsuranceDTO dto) {
         if (dto.getExpiryDate() != null && dto.getExpiryDate().isBefore(LocalDate.now())) {
             return InsuranceStatus.EXPIRED;
         }
@@ -76,7 +74,6 @@ public class InsuranceServiceImpl implements InsuranceService {
                 });
     }
 
-    // ── Read operations ──────────────────────────────────────────────────────
 
     @Override
     public List<InsuranceDTO> getAllPolicies() {
@@ -130,7 +127,6 @@ public class InsuranceServiceImpl implements InsuranceService {
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // ── Write operations ─────────────────────────────────────────────────────
 
     @Override
     @Transactional
@@ -207,7 +203,6 @@ public class InsuranceServiceImpl implements InsuranceService {
         log.info("Insurance policy deleted id={}", id);
     }
 
-    // ── Validation ───────────────────────────────────────────────────────────
 
     private void validateDates(InsuranceDTO dto) {
         if (dto.getStartDate() != null && dto.getExpiryDate() != null

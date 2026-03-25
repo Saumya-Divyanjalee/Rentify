@@ -62,7 +62,7 @@ class BookingControllerTest {
     //  CREATE BOOKING
 
     @Test
-    @DisplayName("✅ POST /api/bookings - USER can create booking")
+    @DisplayName(" POST /api/bookings - USER can create booking")
     @WithMockUser(roles = "USER")
     void createBooking_AsUser_ShouldReturn200() throws Exception {
         when(bookingService.createBooking(any(BookingDTO.class))).thenReturn(sampleBookingDTO);
@@ -78,7 +78,7 @@ class BookingControllerTest {
     }
 
     @Test
-    @DisplayName("❌ POST /api/bookings - No auth returns 401/403")
+    @DisplayName(" POST /api/bookings - No auth returns 401/403")
     void createBooking_NoAuth_ShouldReturn401() throws Exception {
         mockMvc.perform(post("/api/bookings")
                         .with(csrf())
@@ -90,7 +90,7 @@ class BookingControllerTest {
     //  GET MY BOOKINGS
 
     @Test
-    @DisplayName("✅ GET /api/bookings/user/{userId} - USER gets own bookings")
+    @DisplayName(" GET /api/bookings/user/{userId} - USER gets own bookings")
     @WithMockUser(roles = "USER")
     void getMyBookings_AsUser_ShouldReturn200() throws Exception {
         when(bookingService.getBookingsByUser(1L)).thenReturn(List.of(sampleBookingDTO));
@@ -104,7 +104,7 @@ class BookingControllerTest {
     //  GET ALL BOOKINGS (ADMIN)
 
     @Test
-    @DisplayName("✅ GET /api/bookings - ADMIN gets all bookings")
+    @DisplayName(" GET /api/bookings - ADMIN gets all bookings")
     @WithMockUser(roles = "ADMIN")
     void getAllBookings_AsAdmin_ShouldReturn200() throws Exception {
         when(bookingService.getAllBookings()).thenReturn(List.of(sampleBookingDTO));
@@ -116,7 +116,7 @@ class BookingControllerTest {
     }
 
     @Test
-    @DisplayName("❌ GET /api/bookings - USER cannot access all bookings (403)")
+    @DisplayName(" GET /api/bookings - USER cannot access all bookings (403)")
     @WithMockUser(roles = "USER")
     void getAllBookings_AsUser_ShouldReturn403() throws Exception {
         mockMvc.perform(get("/api/bookings"))
@@ -126,7 +126,7 @@ class BookingControllerTest {
     //   UPDATE STATUS (ADMIN)
 
     @Test
-    @DisplayName("✅ PUT /api/bookings/{id}/status - ADMIN updates booking status")
+    @DisplayName(" PUT /api/bookings/{id}/status - ADMIN updates booking status")
     @WithMockUser(roles = "ADMIN")
     void updateStatus_AsAdmin_ShouldReturn200() throws Exception {
         sampleBookingDTO.setStatus(BookingStatus.CONFIRMED);
@@ -143,7 +143,7 @@ class BookingControllerTest {
     //   CANCEL BOOKING
 
     @Test
-    @DisplayName("✅ DELETE /api/bookings/{id}/cancel - USER can cancel own booking")
+    @DisplayName(" DELETE /api/bookings/{id}/cancel - USER can cancel own booking")
     @WithMockUser(roles = "USER")
     void cancelBooking_AsUser_ShouldReturn200() throws Exception {
         doNothing().when(bookingService).cancelBooking(1L, 1L);

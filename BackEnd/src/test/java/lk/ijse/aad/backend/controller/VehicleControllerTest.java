@@ -58,7 +58,7 @@ class VehicleControllerTest {
     //  GET ALL (Public)
 
     @Test
-    @DisplayName("✅ GET /api/vehicles - public access, returns vehicle list")
+    @DisplayName(" GET /api/vehicles - public access, returns vehicle list")
     void getAllVehicles_ShouldReturn200() throws Exception {
         when(vehicleService.getAllVehicles()).thenReturn(List.of(sampleDTO));
 
@@ -70,7 +70,7 @@ class VehicleControllerTest {
     }
 
     @Test
-    @DisplayName("✅ GET /api/vehicles/available - returns available vehicles")
+    @DisplayName(" GET /api/vehicles/available - returns available vehicles")
     void getAvailableVehicles_ShouldReturn200() throws Exception {
         when(vehicleService.getAvailableVehicles()).thenReturn(List.of(sampleDTO));
 
@@ -80,7 +80,7 @@ class VehicleControllerTest {
     }
 
     @Test
-    @DisplayName("✅ GET /api/vehicles/type/CAB - filter by type")
+    @DisplayName(" GET /api/vehicles/type/CAB - filter by type")
     void getByType_ShouldReturn200() throws Exception {
         when(vehicleService.getVehiclesByType(VehicleType.CAB)).thenReturn(List.of(sampleDTO));
 
@@ -90,7 +90,7 @@ class VehicleControllerTest {
     }
 
     @Test
-    @DisplayName("✅ GET /api/vehicles/{id} - returns single vehicle")
+    @DisplayName(" GET /api/vehicles/{id} - returns single vehicle")
     void getById_ShouldReturn200() throws Exception {
         when(vehicleService.getVehicleById(1L)).thenReturn(sampleDTO);
 
@@ -103,7 +103,7 @@ class VehicleControllerTest {
     //  ADMIN: ADD VEHICLE
 
     @Test
-    @DisplayName("✅ POST /api/vehicles - ADMIN can add vehicle")
+    @DisplayName(" POST /api/vehicles - ADMIN can add vehicle")
     @WithMockUser(roles = "ADMIN")
     void addVehicle_AsAdmin_ShouldReturn200() throws Exception {
         when(vehicleService.addVehicle(any(VehicleDTO.class))).thenReturn(sampleDTO);
@@ -117,7 +117,7 @@ class VehicleControllerTest {
     }
 
     @Test
-    @DisplayName("❌ POST /api/vehicles - USER cannot add vehicle (403)")
+    @DisplayName(" POST /api/vehicles - USER cannot add vehicle (403)")
     @WithMockUser(roles = "USER")
     void addVehicle_AsUser_ShouldReturn403() throws Exception {
         mockMvc.perform(post("/api/vehicles")
@@ -128,7 +128,7 @@ class VehicleControllerTest {
     }
 
     @Test
-    @DisplayName("❌ POST /api/vehicles - No auth returns 401/403")
+    @DisplayName(" POST /api/vehicles - No auth returns 401/403")
     void addVehicle_NoAuth_ShouldReturn401() throws Exception {
         mockMvc.perform(post("/api/vehicles")
                         .with(csrf())
@@ -140,7 +140,7 @@ class VehicleControllerTest {
     //  ADMIN: UPDATE VEHICLE
 
     @Test
-    @DisplayName("✅ PUT /api/vehicles/{id} - ADMIN can update vehicle")
+    @DisplayName(" PUT /api/vehicles/{id} - ADMIN can update vehicle")
     @WithMockUser(roles = "ADMIN")
     void updateVehicle_AsAdmin_ShouldReturn200() throws Exception {
         when(vehicleService.updateVehicle(eq(1L), any(VehicleDTO.class))).thenReturn(sampleDTO);
@@ -155,7 +155,7 @@ class VehicleControllerTest {
     //  ADMIN: DELETE VEHICLE
 
     @Test
-    @DisplayName("✅ DELETE /api/vehicles/{id} - ADMIN can delete vehicle")
+    @DisplayName(" DELETE /api/vehicles/{id} - ADMIN can delete vehicle")
     @WithMockUser(roles = "ADMIN")
     void deleteVehicle_AsAdmin_ShouldReturn200() throws Exception {
         doNothing().when(vehicleService).deleteVehicle(1L);
@@ -166,7 +166,7 @@ class VehicleControllerTest {
     }
 
     @Test
-    @DisplayName("❌ DELETE /api/vehicles/{id} - USER cannot delete (403)")
+    @DisplayName(" DELETE /api/vehicles/{id} - USER cannot delete (403)")
     @WithMockUser(roles = "USER")
     void deleteVehicle_AsUser_ShouldReturn403() throws Exception {
         mockMvc.perform(delete("/api/vehicles/1").with(csrf()))

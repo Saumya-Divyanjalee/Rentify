@@ -34,9 +34,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
     private final VehicleRepository vehicleRepository;
 
-    // ─────────────────────────────────────────────────────────────
-    // HELPER: Entity → DTO
-    // ─────────────────────────────────────────────────────────────
+
     private BookingDTO toDTO(Booking b) {
         BookingDTO dto = new BookingDTO();
         dto.setId(b.getId());
@@ -54,16 +52,10 @@ public class BookingServiceImpl implements BookingService {
         return dto;
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // VEHICLE AVAILABILITY CHECK  ← Core professional logic
-    // Checks 3 things:
-    //   1. Vehicle status is AVAILABLE
-    //   2. Insurance is active and not expired
-    //   3. No date overlap with existing bookings
-    // ─────────────────────────────────────────────────────────────
+
     private void checkVehicleAvailability(Vehicle vehicle, LocalDate startDate, LocalDate endDate) {
 
-        // ── Check 1: Status ──────────────────────────────────────
+        // Status
         if (vehicle.getStatus() != VehicleStatus.AVAILABLE) {
             log.warn("Vehicle {} is not AVAILABLE. Current status: {}", vehicle.getId(), vehicle.getStatus());
             throw new VehicleNotAvailableException(
@@ -72,7 +64,7 @@ public class BookingServiceImpl implements BookingService {
             );
         }
 
-        // ── Check 2: Insurance active ────────────────────────────
+        // Insurance active
         if (!vehicle.isInsuranceActive()) {
             log.warn("Vehicle {} insurance is not active", vehicle.getId());
             throw new VehicleNotAvailableException(
@@ -80,7 +72,7 @@ public class BookingServiceImpl implements BookingService {
             );
         }
 
-        // ── Check 3: Insurance expiry date ───────────────────────
+        // Insurance expiry date
         if (vehicle.getInsuranceExpiryDate() != null &&
                 vehicle.getInsuranceExpiryDate().isBefore(endDate)) {
             log.warn("Vehicle {} insurance expires {} before booking end date {}",
@@ -91,7 +83,7 @@ public class BookingServiceImpl implements BookingService {
             );
         }
 
-        // ── Check 4: Date overlap with existing bookings ─────────
+        // Date overlap with existing bookings
         boolean hasOverlap = bookingRepository.existsOverlappingBooking(
                 vehicle.getId(), startDate, endDate,
                 BookingStatus.CANCELLED, BookingStatus.COMPLETED
@@ -107,9 +99,7 @@ public class BookingServiceImpl implements BookingService {
         log.info("Vehicle {} passed all availability checks ✓", vehicle.getId());
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // CREATE BOOKING
-    // ─────────────────────────────────────────────────────────────
+
     @Override
     @Transactional
     public BookingDTO createBooking(BookingDTO dto) {
@@ -158,9 +148,7 @@ public class BookingServiceImpl implements BookingService {
         return toDTO(saved);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // GET BOOKINGS
-    // ─────────────────────────────────────────────────────────────
+
     @Override
     public List<BookingDTO> getBookingsByUser(Long userId) {
         log.debug("Getting bookings for userId={}", userId);
@@ -182,9 +170,7 @@ public class BookingServiceImpl implements BookingService {
         return toDTO(b);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // UPDATE STATUS (Admin)
-    // ─────────────────────────────────────────────────────────────
+
     @Override
     @Transactional
     public BookingDTO updateBookingStatus(Long bookingId, BookingStatus status) {
@@ -205,9 +191,7 @@ public class BookingServiceImpl implements BookingService {
         return toDTO(bookingRepository.save(booking));
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // CANCEL BOOKING (User)
-    // ─────────────────────────────────────────────────────────────
+
     @Override
     @Transactional
     public void cancelBooking(Long bookingId, Long userId) {

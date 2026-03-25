@@ -17,62 +17,63 @@ import org.springframework.web.cors.*;
 
 import java.util.List;
 
-//API security control,who can access and what define,JWT token checked
-//system gate, security rules define
-
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity   // keeps @PreAuthorize("hasRole('ADMIN')") working on controllers
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    // Inject JWT filter (checks token in every request)
     private final JWTAuthFilter jwtAuthFilter;
-    //Handle Login verification
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                //disable CSRF (not needed for REST APIs with JWT)
                 .csrf(AbstractHttpConfigurer::disable)
-                // enable CORS (allow frontend to call backend)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
 
-                        //  Swagger
+                        // ── Swagger ─────────────────────────────────────────────
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        //  Auth (login / register)
+                        // ── Auth ─────────────────────────────────────────────────
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
-                        //   Vehicles: public GET, ADMIN for write ops
-                        .requestMatchers(HttpMethod.GET,  "/api/v1/vehicles/**").permitAll()
+                        // ── Vehicles: public GET ──────────────────────────────────
+                        .requestMatchers(HttpMethod.GET, "/api/v1/vehicles/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/vehicles/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,  "/api/v1/vehicles/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/vehicles/**").hasRole("ADMIN")
 
-                        //   Bookings / Payments: any authenticated user
-                        .requestMatchers("/api/v1/bookings/**").authenticated()
+                        // ── PayHere notify: PUBLIC ────────────────────────────────
+                        // ⚠️ MUST be BEFORE the broad /api/v1/payments/** rule
+                        // PayHere servers POST here — they have no JWT token
+                        // Security is done by MD5 hash verification in service
+                        .requestMatchers(HttpMethod.POST, "/api/v1/payments/payhere/notify").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/api/v1/payments/payhere/status").permitAll()
+
+                        // ── All other payments: authenticated ─────────────────────
                         .requestMatchers("/api/v1/payments/**").authenticated()
 
-                        //   Admin-only area
+                        // ── Bookings: authenticated ───────────────────────────────
+                        .requestMatchers("/api/v1/bookings/**").authenticated()
+
+                        // ── Admin only ────────────────────────────────────────────
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-
-                        //   User profile self-service
-                        .requestMatchers("/api/v1/user/profile").authenticated()
-
                         .requestMatchers("/api/v1/insurances/**").hasRole("ADMIN")
 
-                        //   Everything else requires auth
+                        // ── User profile ──────────────────────────────────────────
+                        .requestMatchers("/api/v1/user/profile").authenticated()
+                        .requestMatchers("/payment-success.html", "/payment-cancel.html").permitAll()
+
+                        // ── Everything else ───────────────────────────────────────
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -81,14 +82,13 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
-
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 }

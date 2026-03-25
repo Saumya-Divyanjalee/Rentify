@@ -27,7 +27,7 @@ public class InsuranceController {
 
     private final InsuranceService insuranceService;
 
-    // ── Public / Authenticated reads ─────────────────────────────────────────
+
 
     @Operation(summary = "Get all insurance policies",
             description = "Returns all policies. ADMIN only.",
@@ -97,7 +97,7 @@ public class InsuranceController {
                 insuranceService.getExpiringPolicies(days)));
     }
 
-    // ── Admin write operations ────────────────────────────────────────────────
+    // Admin write operations
 
     @Operation(summary = "Add a new insurance policy",
             description = "ADMIN only. Links a policy to an existing vehicle.",

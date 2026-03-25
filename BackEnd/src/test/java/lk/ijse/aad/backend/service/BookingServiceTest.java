@@ -86,7 +86,7 @@ class BookingServiceTest {
     // ==================== CREATE BOOKING ====================
 
     @Test
-    @DisplayName("✅ createBooking - should create booking and set vehicle BOOKED")
+    @DisplayName(" createBooking - should create booking and set vehicle BOOKED")
     void createBooking_ShouldCreateAndMarkVehicleBooked() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
         when(vehicleRepository.findById(10L)).thenReturn(Optional.of(sampleVehicle));
@@ -103,7 +103,7 @@ class BookingServiceTest {
     }
 
     @Test
-    @DisplayName("✅ createBooking - price calculated correctly (days × pricePerDay)")
+    @DisplayName(" createBooking - price calculated correctly (days × pricePerDay)")
     void createBooking_ShouldCalculatePriceCorrectly() {
         // 3 days × 5000 = 15000
         when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
@@ -116,7 +116,7 @@ class BookingServiceTest {
     }
 
     @Test
-    @DisplayName("❌ createBooking - should throw when vehicle is NOT AVAILABLE")
+    @DisplayName(" createBooking - should throw when vehicle is NOT AVAILABLE")
     void createBooking_WhenVehicleBooked_ShouldThrow() {
         sampleVehicle.setStatus(VehicleStatus.BOOKED); // Already booked
         when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
@@ -128,7 +128,7 @@ class BookingServiceTest {
     }
 
     @Test
-    @DisplayName("❌ createBooking - should throw when user not found")
+    @DisplayName(" createBooking - should throw when user not found")
     void createBooking_WhenUserNotFound_ShouldThrow() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -138,7 +138,7 @@ class BookingServiceTest {
     }
 
     @Test
-    @DisplayName("❌ createBooking - should throw when end date before start date")
+    @DisplayName(" createBooking - should throw when end date before start date")
     void createBooking_WhenInvalidDates_ShouldThrow() {
         sampleDTO.setEndDate(LocalDate.now().minusDays(1)); // End date before start
         when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
@@ -149,10 +149,10 @@ class BookingServiceTest {
                 .hasMessageContaining("End date must be after start date");
     }
 
-    // ==================== GET BOOKINGS ====================
+
 
     @Test
-    @DisplayName("✅ getBookingsByUser - should return user bookings")
+    @DisplayName(" getBookingsByUser - should return user bookings")
     void getBookingsByUser_ShouldReturnList() {
         when(bookingRepository.findByUserUserId(1L)).thenReturn(List.of(sampleBooking));
 
@@ -163,7 +163,7 @@ class BookingServiceTest {
     }
 
     @Test
-    @DisplayName("✅ getAllBookings - should return all bookings")
+    @DisplayName(" getAllBookings - should return all bookings")
     void getAllBookings_ShouldReturnAll() {
         when(bookingRepository.findAll()).thenReturn(List.of(sampleBooking));
 
@@ -172,10 +172,10 @@ class BookingServiceTest {
         assertThat(result).hasSize(1);
     }
 
-    // ==================== UPDATE STATUS ====================
+
 
     @Test
-    @DisplayName("✅ updateBookingStatus - COMPLETED should free vehicle")
+    @DisplayName(" updateBookingStatus - COMPLETED should free vehicle")
     void updateBookingStatus_WhenCompleted_ShouldFreeVehicle() {
         sampleVehicle.setStatus(VehicleStatus.BOOKED);
         when(bookingRepository.findById(100L)).thenReturn(Optional.of(sampleBooking));
@@ -188,7 +188,7 @@ class BookingServiceTest {
     }
 
     @Test
-    @DisplayName("✅ updateBookingStatus - CANCELLED should free vehicle")
+    @DisplayName(" updateBookingStatus - CANCELLED should free vehicle")
     void updateBookingStatus_WhenCancelled_ShouldFreeVehicle() {
         sampleVehicle.setStatus(VehicleStatus.BOOKED);
         when(bookingRepository.findById(100L)).thenReturn(Optional.of(sampleBooking));
@@ -199,10 +199,10 @@ class BookingServiceTest {
         assertThat(sampleVehicle.getStatus()).isEqualTo(VehicleStatus.AVAILABLE);
     }
 
-    // ==================== CANCEL BOOKING ====================
+
 
     @Test
-    @DisplayName("✅ cancelBooking - owner can cancel their booking")
+    @DisplayName(" cancelBooking - owner can cancel their booking")
     void cancelBooking_ByOwner_ShouldSucceed() {
         sampleVehicle.setStatus(VehicleStatus.BOOKED);
         when(bookingRepository.findById(100L)).thenReturn(Optional.of(sampleBooking));
@@ -214,7 +214,7 @@ class BookingServiceTest {
     }
 
     @Test
-    @DisplayName("❌ cancelBooking - different user cannot cancel")
+    @DisplayName(" cancelBooking - different user cannot cancel")
     void cancelBooking_ByDifferentUser_ShouldThrow() {
         when(bookingRepository.findById(100L)).thenReturn(Optional.of(sampleBooking));
 

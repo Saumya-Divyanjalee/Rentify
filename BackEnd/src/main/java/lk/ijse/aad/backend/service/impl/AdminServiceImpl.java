@@ -20,14 +20,12 @@ public class AdminServiceImpl implements AdminService {
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // ── Get own profile ───────────────────────────────────────────────────────
-    @Override
+     @Override
     public AdminDTO getProfile(String username) {
         return toDTO(findByUsername(username), true);
     }
 
-    // ── Update own profile ────────────────────────────────────────────────────
-    @Override
+     @Override
     public AdminDTO updateProfile(String username, AdminDTO dto) {
         Admin admin = findByUsername(username);
         applyUpdates(admin, dto);
@@ -35,8 +33,7 @@ public class AdminServiceImpl implements AdminService {
         return toDTO(admin, false);
     }
 
-    // ── Change own password ───────────────────────────────────────────────────
-    @Override
+     @Override
     public void changePassword(String username, ChangePasswordDTO dto) {
         Admin admin = findByUsername(username);
         if (!passwordEncoder.matches(dto.getCurrentPassword(), admin.getPassword()))
@@ -45,8 +42,7 @@ public class AdminServiceImpl implements AdminService {
         adminRepository.save(admin);
     }
 
-    // ── Get all admins ────────────────────────────────────────────────────────
-    @Override
+     @Override
     public List<AdminDTO> getAllAdmins() {
         return adminRepository.findAll()
                 .stream()
@@ -54,14 +50,12 @@ public class AdminServiceImpl implements AdminService {
                 .collect(Collectors.toList());
     }
 
-    // ── Get admin by id ───────────────────────────────────────────────────────
-    @Override
+     @Override
     public AdminDTO getAdminById(Integer id) {
         return toDTO(findById(id), false);
     }
 
-    // ── Update admin ──────────────────────────────────────────────────────────
-    @Override
+     @Override
     public AdminDTO updateAdmin(Integer id, AdminDTO dto) {
         Admin admin = findById(id);
         applyUpdates(admin, dto);
@@ -69,16 +63,14 @@ public class AdminServiceImpl implements AdminService {
         return toDTO(admin, false);
     }
 
-    // ── Delete admin ──────────────────────────────────────────────────────────
-    @Override
+     @Override
     public void deleteAdmin(Integer id) {
         if (!adminRepository.existsById(Long.valueOf(id)))
             throw new RuntimeException("Admin not found with id: " + id);
         adminRepository.deleteById(Long.valueOf(id));
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-    private Admin findByUsername(String username) {
+     private Admin findByUsername(String username) {
         return adminRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Admin not found: " + username));
     }

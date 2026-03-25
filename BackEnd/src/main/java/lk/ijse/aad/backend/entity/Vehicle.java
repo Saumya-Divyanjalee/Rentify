@@ -29,7 +29,7 @@ public class Vehicle {
 
     private double pricePerDay;
 
-    // ── Insurance fields ──────────────────────────────────
+    //  Insurance fields
     private boolean insuranceActive = true;
     private LocalDate insuranceExpiryDate;
 

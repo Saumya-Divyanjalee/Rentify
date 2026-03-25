@@ -20,13 +20,12 @@ public class UserServiceImpl implements UserService {
     private final UserRepository  userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // ── Get own profile ───────────────────────────────────────────────────────
-    @Override
+     @Override
     public UserDTO getProfile(String username) {
         return toDTO(findByUsername(username), true);
     }
 
-    // ── Update own profile ────────────────────────────────────────────────────
+
     @Override
     public UserDTO updateProfile(String username, UserDTO dto) {
         User user = findByUsername(username);
@@ -35,8 +34,7 @@ public class UserServiceImpl implements UserService {
         return toDTO(user, false);
     }
 
-    // ── Change own password ───────────────────────────────────────────────────
-    @Override
+     @Override
     public void changePassword(String username, ChangePasswordDTO dto) {
         User user = findByUsername(username);
         if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword()))
@@ -45,8 +43,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-    // ── Admin: get all users ──────────────────────────────────────────────────
-    @Override
+     @Override
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll()
                 .stream()
@@ -54,14 +51,12 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
-    // ── Admin: get one user ───────────────────────────────────────────────────
-    @Override
+     @Override
     public UserDTO getUserById(Integer id) {
         return toDTO(findById(id), false);
     }
 
-    // ── Admin: update any user ────────────────────────────────────────────────
-    @Override
+     @Override
     public UserDTO updateUser(Integer id, UserDTO dto) {
         User user = findById(id);
         applyUpdates(user, dto);
@@ -69,7 +64,7 @@ public class UserServiceImpl implements UserService {
         return toDTO(user, false);
     }
 
-    // ── Admin: delete user ────────────────────────────────────────────────────
+
     @Override
     public void deleteUser(Integer id) {
         if (!userRepository.existsById(Long.valueOf(id)))
@@ -77,8 +72,7 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(Long.valueOf(id));
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-    private User findByUsername(String username) {
+     private User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
     }

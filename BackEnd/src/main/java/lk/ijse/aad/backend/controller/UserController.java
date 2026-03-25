@@ -19,7 +19,7 @@ public class UserController {
 
     private final UserService userService;
 
-    // ── USER SELF-SERVICE ─────────────────────────────────────────────────────
+    //  USER SELF-SERVICE
 
     // GET /api/v1/user/profile
     @GetMapping("/profile")
@@ -46,7 +46,7 @@ public class UserController {
         return ResponseEntity.ok(new APIResponse<>(200, "Password changed successfully", null));
     }
 
-    // ── ADMIN: USER CRUD ──────────────────────────────────────────────────────
+    //  ADMIN: USER CRUD
 
     // GET /api/v1/user
     @GetMapping

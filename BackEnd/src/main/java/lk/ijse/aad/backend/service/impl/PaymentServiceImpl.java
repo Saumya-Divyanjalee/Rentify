@@ -35,37 +35,36 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final BookingRepository  bookingRepository;
-    private final UserRepository     userRepository;
+    private final UserRepository   userRepository;
     private final VehicleRepository  vehicleRepository;
     private final EmailService emailService;
 
-    // ── 1. MAIN PROCESS ────────────────────────────────────────────────────────
 
     @Override
     @Transactional
     public PaymentResponseDTO processPayment(PaymentDTO dto, String username) {
 
-        // Step 1 ── User gannawa (JWT token ekin aawa username use karanawa)
+        // Step 1 - User gannawa (JWT token ekin aawa username use karanawa)
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
 
-        // Step 2 ── Booking gannawa
+        // Step 2 - Booking gannawa
         Booking booking = bookingRepository.findById(dto.getBookingId())
                 .orElseThrow(() -> new RuntimeException("Booking not found: " + dto.getBookingId()));
 
-        // Step 3 ── Booking user-ta belong wenawada check karanawa
+        // Step 3 - Booking user-ta belong wenawada check karanawa
         if (!booking.getUser().getUserId().equals(user.getUserId())) {
             throw new RuntimeException("This booking does not belong to you.");
         }
 
-        // Step 4 ── Already paid check
+        // Step 4 - Already paid check
         paymentRepository.findByBooking_Id(booking.getId()).ifPresent(p -> {
             if (p.getStatus() == PaymentStatus.COMPLETED) {
                 throw new RuntimeException("This booking is already paid. Transaction: " + p.getTransactionId());
             }
         });
 
-        // Step 5 ── Payment entity hada gannawa
+        // Step 5 - Payment entity hada gannawa
         Payment payment = new Payment();
         payment.setBooking(booking);
         payment.setUser(user);
@@ -73,7 +72,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setCurrency(dto.getCurrency() != null ? dto.getCurrency() : "LKR");
         payment.setTransactionId("TXN-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase());
 
-        // Step 6 ── Payment method anuwata handle karanawa
+        // Step 6 - Payment method anuwata handle karanawa
         PaymentMethod method = PaymentMethod.valueOf(dto.getPaymentMethod().toUpperCase());
         payment.setPaymentMethod(method);
 
@@ -96,7 +95,7 @@ public class PaymentServiceImpl implements PaymentService {
             }
         }
 
-        // Step 7 ── Save
+        // Step 7  Save
         Payment saved = paymentRepository.save(payment);
 
         // Step 8 ── Payment COMPLETED nattam booking CONFIRMED + Vehicle BOOKED karanawa
@@ -111,7 +110,7 @@ public class PaymentServiceImpl implements PaymentService {
             }
         }
 
-        // Step 9 ── Success email send karanawa
+        // Step 9 - Success email send karanawa
         if (saved.getStatus() == PaymentStatus.COMPLETED) {
             emailService.sendPaymentSuccessEmail(
                     user.getEmail(),
@@ -123,7 +122,6 @@ public class PaymentServiceImpl implements PaymentService {
         return mapToResponse(saved);
     }
 
-    // ── 2. GET BY BOOKING ──────────────────────────────────────────────────────
 
     @Override
     public PaymentResponseDTO getPaymentByBookingId(Long bookingId) {
@@ -132,7 +130,6 @@ public class PaymentServiceImpl implements PaymentService {
         return mapToResponse(payment);
     }
 
-    // ── 3. GET BY USER ─────────────────────────────────────────────────────────
 
     @Override
     public List<PaymentResponseDTO> getPaymentsByUser(String username) {
@@ -144,7 +141,6 @@ public class PaymentServiceImpl implements PaymentService {
                 .collect(Collectors.toList());
     }
 
-    // ── HELPERS ────────────────────────────────────────────────────────────────
 
     private void validateCardDetails(PaymentDTO dto) {
         if (dto.getCardName()   == null || dto.getCardName().isBlank())   throw new RuntimeException("Card name is required");
@@ -153,8 +149,7 @@ public class PaymentServiceImpl implements PaymentService {
         if (dto.getCvv()        == null || dto.getCvv().isBlank())        throw new RuntimeException("CVV is required");
     }
 
-    /** Card number masking — show only last 4 digits. e.g. **** **** **** 1234 */
-    private String maskCardNumber(String raw) {
+     private String maskCardNumber(String raw) {
         if (raw == null || raw.length() < 4) return "****";
         String digits = raw.replaceAll("\\s", "");
         return "**** **** **** " + digits.substring(digits.length() - 4);

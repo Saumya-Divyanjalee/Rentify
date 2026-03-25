@@ -20,19 +20,19 @@ public class Insurance {
     @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle;
 
-    private String policyNumber;       // e.g. "INS-2024-00123"
-    private String providerName;       // e.g. "AIA Insurance"
-    private String coverageType;       // e.g. "Comprehensive", "Third Party"
+    private String policyNumber;
+    private String providerName;
+    private String coverageType;
 
-    private double premiumAmount;      // Annual premium in LKR
-    private double coverageAmount;     // Max claim amount in LKR
+    private double premiumAmount;
+    private double coverageAmount;
 
     private LocalDate startDate;
     private LocalDate expiryDate;
 
     @Enumerated(EnumType.STRING)
-    private InsuranceStatus status;    // ACTIVE, EXPIRED, CANCELLED
+    private InsuranceStatus status;
 
-    private String notes;              // Optional extra info
+    private String notes;
 }
 

@@ -20,7 +20,7 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String from;
 
-    //  Public API
+
 
     @Async
     public void sendEmail(String to, String subject, String body) {

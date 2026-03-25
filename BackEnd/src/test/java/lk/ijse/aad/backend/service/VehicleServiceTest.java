@@ -63,10 +63,10 @@ class VehicleServiceTest {
         sampleDTO.setDescription("Comfortable cab");
     }
 
-    // ==================== GET ALL ====================
+
 
     @Test
-    @DisplayName("✅ getAllVehicles - should return all vehicles")
+    @DisplayName(" getAllVehicles - should return all vehicles")
     void getAllVehicles_ShouldReturnAllVehicles() {
         when(vehicleRepository.findAll()).thenReturn(List.of(sampleVehicle));
 
@@ -78,7 +78,7 @@ class VehicleServiceTest {
     }
 
     @Test
-    @DisplayName("✅ getAllVehicles - empty list when no vehicles")
+    @DisplayName(" getAllVehicles - empty list when no vehicles")
     void getAllVehicles_WhenEmpty_ShouldReturnEmptyList() {
         when(vehicleRepository.findAll()).thenReturn(List.of());
 
@@ -87,10 +87,10 @@ class VehicleServiceTest {
         assertThat(result).isEmpty();
     }
 
-    // ==================== GET BY TYPE ====================
+
 
     @Test
-    @DisplayName("✅ getVehiclesByType - should return only CAB vehicles")
+    @DisplayName(" getVehiclesByType - should return only CAB vehicles")
     void getVehiclesByType_ShouldReturnCorrectType() {
         when(vehicleRepository.findByType(VehicleType.CAB)).thenReturn(List.of(sampleVehicle));
 
@@ -100,10 +100,10 @@ class VehicleServiceTest {
         assertThat(result.get(0).getType()).isEqualTo(VehicleType.CAB);
     }
 
-    // ==================== GET AVAILABLE ====================
+
 
     @Test
-    @DisplayName("✅ getAvailableVehicles - should return AVAILABLE vehicles only")
+    @DisplayName(" getAvailableVehicles - should return AVAILABLE vehicles only")
     void getAvailableVehicles_ShouldReturnAvailableOnly() {
         when(vehicleRepository.findByStatus(VehicleStatus.AVAILABLE))
                 .thenReturn(List.of(sampleVehicle));
@@ -114,10 +114,10 @@ class VehicleServiceTest {
         assertThat(result.get(0).getStatus()).isEqualTo(VehicleStatus.AVAILABLE);
     }
 
-    // ==================== GET BY ID ====================
+
 
     @Test
-    @DisplayName("✅ getVehicleById - should return correct vehicle")
+    @DisplayName(" getVehicleById - should return correct vehicle")
     void getVehicleById_ShouldReturnVehicle() {
         when(vehicleRepository.findById(1L)).thenReturn(Optional.of(sampleVehicle));
 
@@ -128,7 +128,7 @@ class VehicleServiceTest {
     }
 
     @Test
-    @DisplayName("❌ getVehicleById - should throw exception when not found")
+    @DisplayName(" getVehicleById - should throw exception when not found")
     void getVehicleById_WhenNotFound_ShouldThrowException() {
         when(vehicleRepository.findById(99L)).thenReturn(Optional.empty());
 
@@ -137,10 +137,10 @@ class VehicleServiceTest {
                 .hasMessageContaining("Vehicle not found");
     }
 
-    // ==================== ADD VEHICLE ====================
+
 
     @Test
-    @DisplayName("✅ addVehicle - should save and return vehicle")
+    @DisplayName(" addVehicle - should save and return vehicle")
     void addVehicle_ShouldSaveAndReturnVehicle() {
         when(vehicleRepository.save(any(Vehicle.class))).thenReturn(sampleVehicle);
 
@@ -152,7 +152,7 @@ class VehicleServiceTest {
     }
 
     @Test
-    @DisplayName("✅ addVehicle - default status should be AVAILABLE")
+    @DisplayName(" addVehicle - default status should be AVAILABLE")
     void addVehicle_WithNullStatus_ShouldDefaultToAvailable() {
         sampleDTO.setStatus(null); // No status provided
         when(vehicleRepository.save(any(Vehicle.class))).thenReturn(sampleVehicle);
@@ -163,10 +163,10 @@ class VehicleServiceTest {
         verify(vehicleRepository).save(argThat(v -> v.getStatus() == VehicleStatus.AVAILABLE));
     }
 
-    // ==================== UPDATE VEHICLE ====================
+
 
     @Test
-    @DisplayName("✅ updateVehicle - should update fields correctly")
+    @DisplayName(" updateVehicle - should update fields correctly")
     void updateVehicle_ShouldUpdateFields() {
         when(vehicleRepository.findById(1L)).thenReturn(Optional.of(sampleVehicle));
         when(vehicleRepository.save(any(Vehicle.class))).thenReturn(sampleVehicle);
@@ -181,7 +181,7 @@ class VehicleServiceTest {
     }
 
     @Test
-    @DisplayName("❌ updateVehicle - should throw when vehicle not found")
+    @DisplayName(" updateVehicle - should throw when vehicle not found")
     void updateVehicle_WhenNotFound_ShouldThrow() {
         when(vehicleRepository.findById(99L)).thenReturn(Optional.empty());
 
@@ -190,10 +190,10 @@ class VehicleServiceTest {
                 .hasMessageContaining("Vehicle not found");
     }
 
-    // ==================== DELETE VEHICLE ====================
+
 
     @Test
-    @DisplayName("✅ deleteVehicle - should delete existing vehicle")
+    @DisplayName(" deleteVehicle - should delete existing vehicle")
     void deleteVehicle_ShouldDeleteSuccessfully() {
         when(vehicleRepository.existsById(1L)).thenReturn(true);
         doNothing().when(vehicleRepository).deleteById(1L);
@@ -204,7 +204,7 @@ class VehicleServiceTest {
     }
 
     @Test
-    @DisplayName("❌ deleteVehicle - should throw when not found")
+    @DisplayName(" deleteVehicle - should throw when not found")
     void deleteVehicle_WhenNotFound_ShouldThrow() {
         when(vehicleRepository.existsById(99L)).thenReturn(false);
 

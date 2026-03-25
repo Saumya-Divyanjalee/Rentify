@@ -19,16 +19,14 @@ public class DriverServiceImpl implements DriverService {
 
     private final DriverRepository driverRepository;
 
-    // FIX: Ensure all fields including licenceExpiry are mapped to Entity
-    private Driver toEntity(DriverDTO dto) {
+     private Driver toEntity(DriverDTO dto) {
         return Driver.builder()
                 .name(dto.getName())
                 .phone(dto.getPhone())
                 .licenceNo(dto.getLicenceNo())
                 .licenceExpiry(dto.getLicenceExpiry())
                 .vehicleType(Driver.VehicleType.valueOf(dto.getVehicleType()))
-                // FIX: Replace spaces with underscores for Enum safety (e.g. "On Trip" -> "On_Trip")
-                .status(Driver.DriverStatus.valueOf(dto.getStatus().replace(" ", "_")))
+                 .status(Driver.DriverStatus.valueOf(dto.getStatus().replace(" ", "_")))
                 .profilePic(dto.getProfilePic())
                 .build();
     }
@@ -41,7 +39,7 @@ public class DriverServiceImpl implements DriverService {
                 .licenceNo(driver.getLicenceNo())
                 .licenceExpiry(driver.getLicenceExpiry())
                 .vehicleType(driver.getVehicleType().name())
-                .status(driver.getStatus().name().replace("_", " ")) // "On_Trip" → "On Trip"
+                .status(driver.getStatus().name().replace("_", " "))
                 .profilePic(driver.getProfilePic())
                 .build();
     }

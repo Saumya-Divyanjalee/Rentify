@@ -20,10 +20,7 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    /**
-     * Payment process karanawa.
-     * JWT token ekin logged-in user automatically gannawa — RequestParam epa.
-     */
+
     @PostMapping("/process")
     public ResponseEntity<APIResponse<PaymentResponseDTO>> processPayment(
             @Valid @RequestBody PaymentDTO dto,
@@ -36,9 +33,7 @@ public class PaymentController {
         return ResponseEntity.ok(new APIResponse<>(200, "Payment processed successfully", response));
     }
 
-    /**
-     * Booking ID ekata gatta payment details.
-     */
+
     @GetMapping("/booking/{bookingId}")
     public ResponseEntity<APIResponse<PaymentResponseDTO>> getByBooking(
             @PathVariable Long bookingId) {
@@ -47,9 +42,7 @@ public class PaymentController {
         return ResponseEntity.ok(new APIResponse<>(200, "Payment found", response));
     }
 
-    /**
-     * Logged-in user eke hela payments.
-     */
+
     @GetMapping("/my")
     public ResponseEntity<APIResponse<List<PaymentResponseDTO>>> getMyPayments(
             @AuthenticationPrincipal UserDetails userDetails) {
