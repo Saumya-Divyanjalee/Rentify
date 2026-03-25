@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Rentify — Payment Cancelled</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Roboto+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Roboto Mono',monospace;background:linear-gradient(135deg,#fff5f5,#fff,#f8f9fc);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+        .card{background:#fff;border:1.5px solid #e8eaf2;border-radius:24px;max-width:500px;width:100%;padding:48px 40px;box-shadow:0 16px 56px rgba(10,13,26,.12);text-align:center;animation:pop .5s cubic-bezier(.34,1.56,.64,1);}
+        @keyframes pop{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
+        .logo{font-family:"Bungee",sans-serif;font-size:20px;text-decoration:none;color:#0a0d1a;margin-bottom:28px;display:block;}
+        .logo span{color:#1a3fff;}
+        .icon{font-size:68px;margin-bottom:20px;}
+        h1{font-family:"Bungee",sans-serif;font-size:24px;color:#0a0d1a;margin-bottom:10px;}
+        .sub{font-size:13px;color:#4a5278;line-height:1.7;margin-bottom:24px;}
+        .alert-box{background:#fff5f5;border:1.5px solid rgba(255,59,92,.25);border-radius:12px;padding:16px 20px;margin-bottom:20px;font-size:12px;color:#b91c1c;line-height:1.7;text-align:left;}
+        .alert-box strong{font-family:"Bungee",sans-serif;font-size:9px;letter-spacing:1px;display:block;margin-bottom:4px;}
+        .info-box{background:#f8f9fc;border:1px solid #e8eaf2;border-radius:10px;padding:14px 18px;margin-bottom:24px;font-size:12px;color:#4a5278;line-height:1.8;text-align:left;}
+        .actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+        .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:12px;font-family:"Bungee",sans-serif;font-size:11px;letter-spacing:.8px;border:none;cursor:pointer;text-decoration:none;transition:.2s;}
+        .btn-primary{background:#0a0d1a;color:#fff;}
+        .btn-primary:hover{background:#1a3fff;}
+        .btn-secondary{background:#f8f9fc;border:1.5px solid #e8eaf2;color:#4a5278;}
+        .btn-secondary:hover{border-color:#0a0d1a;color:#0a0d1a;}
+    </style>
+</head>
+<body>
+<div class="card">
+    <a href="#" class="logo" id="logoLink">Rent<span>ify</span></a>
+
+    <div class="icon">❌</div>
+    <h1>Payment Cancelled</h1>
+    <p class="sub">You cancelled the payment. Your booking has not been confirmed.</p>
+
+    <div class="alert-box">
+        <strong>⚠️ What Happened?</strong>
+        Payment was not completed. Your booking is in PENDING status.
+        The vehicle reservation will be released if payment is not made.
+    </div>
+
+    <div class="info-box">
+        💡 Want to try again? Go back to vehicles page and book again. Your payment details were not saved.
+    </div>
+
+    <div class="actions">
+        <!-- ✅ Buttons use JavaScript redirect — no hardcoded paths -->
+        <button class="btn btn-primary" id="tryAgainBtn">🔄 Try Again</button>
+        <button class="btn btn-secondary" id="dashboardBtn">🏠 Dashboard</button>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        // ✅ Frontend base URL
+        function getFrontendBase() {
+            const saved = localStorage.getItem('rentify_frontend_base');
+            if (saved) return saved;
+            return 'http://localhost:63342/Rentify/FrontEnd/pages/user';
+        }
+
+        const base = getFrontendBase();
+
+        // Set logo link
+        $('#logoLink').attr('href', base + '/user-dashboard.html');
+
+        // ✅ Button click handlers
+        $('#tryAgainBtn').on('click', function () {
+            window.location.href = base + '/user-vehicle.html';
+        });
+
+        $('#dashboardBtn').on('click', function () {
+            window.location.href = base + '/user-dashboard.html';
+        });
+
+        // Clear pending booking
+        localStorage.removeItem('rentify_pendingBookingId');
+    });
+</script>
+</body>
+</html>
