@@ -64,18 +64,20 @@
         </div>
 
         <div class="actions">
-            <!-- ✅ Buttons use JavaScript redirect — no hardcoded paths -->
+            <!--  Buttons use JavaScript redirect — no hardcoded paths -->
             <button class="btn btn-primary" id="bookAnotherBtn">🚗 Book Another</button>
             <button class="btn btn-secondary" id="dashboardBtn">🏠 Dashboard</button>
         </div>
     </div>
 </div>
 
+<script src="../../../../../../Rentify/FrontEnd/js/jquery-3.7.1.min.js"></script>
+
 <script>
     $(function () {
         const API = 'http://localhost:8081/api/v1';
 
-        // ✅ Frontend base URL — IntelliJ server port
+        //  Frontend base URL — IntelliJ server port
         // This is read from localStorage where it was saved during booking
         // Falls back to detecting from referrer or using a known path
         function getFrontendBase() {
@@ -86,7 +88,7 @@
             return 'http://localhost:63342/Rentify/FrontEnd/pages/user';
         }
 
-        // ✅ Save frontend base when on any frontend page
+        //  Save frontend base when on any frontend page
         // (This is called from user-vehicle.html automatically)
 
         const base = getFrontendBase();
@@ -94,7 +96,7 @@
         // Set logo link
         $('#logoLink').attr('href', base + '/user-dashboard.html');
 
-        // ✅ Button click handlers — use full URL
+        //  Button click handlers — use full URL
         $('#bookAnotherBtn').on('click', function () {
             window.location.href = base + '/user-vehicle.html';
         });

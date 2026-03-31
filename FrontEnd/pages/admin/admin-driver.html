@@ -213,103 +213,322 @@
     </div>
 </div>
 <div id="toast"></div>
+<script src="../../js/jquery-3.7.1.min.js"></script>
 
 <script>
-    const BASE='http://localhost:8081/api/v1/drivers';
-    let editId=null,curPic='';
-    const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    function showToast(m,t){const $t=$('#toast');$t.text(m).attr('class','toast show '+(t||''));clearTimeout($t.data('tt'));$t.data('tt',setTimeout(()=>$t.attr('class','toast'),3400));}
-    function logout(){['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(k=>localStorage.removeItem(k));window.location.href='../sign-in.html';}
-    function getToken(){return localStorage.getItem('rentify_token')||'';}
-    function authH(){const t=getToken();return t?{Authorization:'Bearer '+t}:{};}
-    const fn=localStorage.getItem('rentify_fullName')||localStorage.getItem('rentify_username')||'Admin';
-    const ini=fn.trim().split(/\s+/).map(x=>x[0]?.toUpperCase()).join('').slice(0,2)||'AD';
-    $('#sbAv').text(ini);$('#sbName').text(fn);
+    // Base URL for the drivers API
+    const BASE = 'http://localhost:8081/api/v1/drivers';
 
-    function sc(s){return s==='Active'?'bg-g':s==='On Trip'?'bg-y':s==='Inactive'?'bg-gray':'bg-r';}
-    function isExpired(d){return d&&new Date(d)<new Date();}
-    function expiringSoon(d){if(!d)return false;const diff=(new Date(d)-new Date())/(1000*60*60*24);return diff<90&&diff>0;}
+    // Track which driver we're editing (null means we're adding a new one)
+    let editId = null;
+    // Store the current profile picture as base64 text
+    let curPic = '';
 
-    function renderTable(){
-        const q=$('#searchInput').val().toLowerCase(),vt=$('#filterType').val();
-        $.ajax({url:BASE,method:'GET',data:{query:q,vehicleType:vt},headers:authH(),
-            success:function(res){
-                const drivers=res.data||res||[];
-                $('#countBadge').text(drivers.length+' drivers');
+    // Escape special HTML characters to prevent broken HTML or attacks
+    const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    // Show a small popup message at the bottom of the screen
+    function showToast(m, t) {
+        const $t = $('#toast');
+        $t.text(m).attr('class', 'toast show ' + (t || ''));
+        clearTimeout($t.data('tt'));
+        // Hide the message after 3.4 seconds
+        $t.data('tt', setTimeout(() => $t.attr('class', 'toast'), 3400));
+    }
+
+    // Log the user out by clearing saved login data and going to the sign-in page
+    function logout() {
+        ['rentify_token', 'rentify_role', 'rentify_auth', 'rentify_username', 'rentify_fullName', 'rentify_email', 'rentify_userId']
+            .forEach(k => localStorage.removeItem(k));
+        window.location.href = '../sign-in.html';
+    }
+
+    // Get the saved login token from the browser
+    function getToken() {
+        return localStorage.getItem('rentify_token') || '';
+    }
+
+    // Build the Authorization header using the token
+    function authH() {
+        const t = getToken();
+        return t ? { Authorization: 'Bearer ' + t } : {};
+    }
+
+    // Show the user's initials in the sidebar avatar
+    const fn = localStorage.getItem('rentify_fullName') || localStorage.getItem('rentify_username') || 'Admin';
+    const ini = fn.trim().split(/\s+/).map(x => x[0]?.toUpperCase()).join('').slice(0, 2) || 'AD';
+    $('#sbAv').text(ini);
+    $('#sbName').text(fn);
+
+    // Return the right color class based on driver status
+    function sc(s) {
+        return s === 'Active' ? 'bg-g'
+            : s === 'On Trip' ? 'bg-y'
+                : s === 'Inactive' ? 'bg-gray'
+                    : 'bg-r';
+    }
+
+    // Check if a licence date has already passed
+    function isExpired(d) {
+        return d && new Date(d) < new Date();
+    }
+
+    // Check if a licence expires within the next 90 days
+    function expiringSoon(d) {
+        if (!d) return false;
+        const diff = (new Date(d) - new Date()) / (1000 * 60 * 60 * 24);
+        return diff < 90 && diff > 0;
+    }
+
+    // Load and display all drivers in the table
+    function renderTable() {
+        const q = $('#searchInput').val().toLowerCase(); // Search text
+        const vt = $('#filterType').val();               // Selected vehicle type filter
+
+        $.ajax({
+            url: BASE,
+            method: 'GET',
+            data: { query: q, vehicleType: vt },
+            headers: authH(),
+            success: function (res) {
+                const drivers = res.data || res || [];
+
+                // Update the count badge and stat numbers at the top
+                $('#countBadge').text(drivers.length + ' drivers');
                 $('#st-total').text(drivers.length);
-                $('#st-active').text(drivers.filter(d=>d.status==='Active').length);
-                $('#st-trip').text(drivers.filter(d=>d.status==='On Trip').length);
-                $('#st-exp').text(drivers.filter(d=>isExpired(d.licenceExpiry)).length);
-                if(!drivers.length){$('#driverTable').html('<tr class="erow"><td colspan="8">🔍 No drivers found.</td></tr>');return;}
-                $('#driverTable').html(drivers.map(d=>`<tr>
-        <td style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--ink4)">D${String(d.id).padStart(3,'0')}</td>
-        <td>${d.profilePic?`<img src="${esc(d.profilePic)}" class="dav">`:`<div class="dav-ph">${d.name[0]}</div>`}</td>
-        <td>
-          <div style="font-weight:700;color:var(--ink)">${esc(d.name)}</div>
-          <div style="margin-top:3px"><span class="badge ${sc(d.status)}">${esc(d.status)}</span></div>
-        </td>
-        <td style="font-family:'Roboto Mono',monospace;font-size:11px">${esc(d.phone)}</td>
-        <td style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--accent)">${esc(d.licenceNo)}</td>
-        <td>
-          <div style="font-size:11px">${d.licenceExpiry||'N/A'}</div>
-          ${isExpired(d.licenceExpiry)?'<div class="exp-warn">⚠️ EXPIRED</div>':expiringSoon(d.licenceExpiry)?'<div class="exp-soon">⚠️ Expiring soon</div>':''}
-        </td>
-        <td><span class="badge bg-b">${esc(d.vehicleType)}</span></td>
-        <td style="display:flex;gap:6px;align-items:center">
-          <button class="btn btn-sm" onclick="editDriver(${d.id})">✏️ Edit</button>
-          <button class="btn-del" onclick="deleteDriver(${d.id})">🗑️</button>
-        </td>
-      </tr>`).join(''));
+                $('#st-active').text(drivers.filter(d => d.status === 'Active').length);
+                $('#st-trip').text(drivers.filter(d => d.status === 'On Trip').length);
+                $('#st-exp').text(drivers.filter(d => isExpired(d.licenceExpiry)).length);
+
+                // Show a message if no drivers were found
+                if (!drivers.length) {
+                    $('#driverTable').html('<tr class="erow"><td colspan="8">🔍 No drivers found.</td></tr>');
+                    return;
+                }
+
+                // Build and insert a table row for each driver
+                $('#driverTable').html(drivers.map(d => `<tr>
+                    <td style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--ink4)">D${String(d.id).padStart(3, '0')}</td>
+                    <td>${d.profilePic
+                    ? `<img src="${esc(d.profilePic)}" class="dav">`
+                    : `<div class="dav-ph">${d.name[0]}</div>`
+                }</td>
+                    <td>
+                        <div style="font-weight:700;color:var(--ink)">${esc(d.name)}</div>
+                        <div style="margin-top:3px"><span class="badge ${sc(d.status)}">${esc(d.status)}</span></div>
+                    </td>
+                    <td style="font-family:'Roboto Mono',monospace;font-size:11px">${esc(d.phone)}</td>
+                    <td style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--accent)">${esc(d.licenceNo)}</td>
+                    <td>
+                        <div style="font-size:11px">${d.licenceExpiry || 'N/A'}</div>
+                        ${isExpired(d.licenceExpiry)
+                    ? '<div class="exp-warn">⚠️ EXPIRED</div>'
+                    : expiringSoon(d.licenceExpiry)
+                        ? '<div class="exp-soon">⚠️ Expiring soon</div>'
+                        : ''
+                }
+                    </td>
+                    <td><span class="badge bg-b">${esc(d.vehicleType)}</span></td>
+                    <td style="display:flex;gap:6px;align-items:center">
+                        <button class="btn btn-sm" onclick="editDriver(${d.id})">✏️ Edit</button>
+                        <button class="btn-del" onclick="deleteDriver(${d.id})">🗑️</button>
+                    </td>
+                </tr>`).join(''));
             },
-            error:function(){$('#driverTable').html('<tr class="erow"><td colspan="8">⚠️ Could not load drivers — check backend connection.</td></tr>');}
+            error: function () {
+                // Show an error row if the API call fails
+                $('#driverTable').html('<tr class="erow"><td colspan="8">⚠️ Could not load drivers — check backend connection.</td></tr>');
+            }
         });
     }
 
-    function saveDriver(){
-        const dto={name:$('#f-name').val(),phone:$('#f-phone').val(),licenceNo:$('#f-lic').val(),licenceExpiry:$('#f-exp').val(),vehicleType:$('#f-vtype').val(),status:$('#f-status').val(),profilePic:curPic};
-        if(!dto.name||!dto.licenceNo){showToast('Fill required fields','error');return;}
-        const isEdit=editId!==null;
-        $.ajax({url:isEdit?`${BASE}/${editId}`:BASE,method:isEdit?'PUT':'POST',contentType:'application/json',headers:authH(),data:JSON.stringify(dto),
-            success:function(){showToast(isEdit?'Driver updated ✅':'Driver added ✅','success');closeModal();renderTable();},
-            error:function(x){showToast(x.responseJSON?.message||'Error','error');}
+    // Save a new driver or update an existing one
+    function saveDriver() {
+        // Collect all form field values into one object
+        const dto = {
+            name: $('#f-name').val(),
+            phone: $('#f-phone').val(),
+            licenceNo: $('#f-lic').val(),
+            licenceExpiry: $('#f-exp').val(),
+            vehicleType: $('#f-vtype').val(),
+            status: $('#f-status').val(),
+            profilePic: curPic
+        };
+
+        // Stop if required fields are empty
+        if (!dto.name || !dto.licenceNo) {
+            showToast('Fill required fields', 'error');
+            return;
+        }
+
+        const isEdit = editId !== null; // true = update, false = create new
+
+        $.ajax({
+            url: isEdit ? `${BASE}/${editId}` : BASE,
+            method: isEdit ? 'PUT' : 'POST',
+            contentType: 'application/json',
+            headers: authH(),
+            data: JSON.stringify(dto),
+            success: function () {
+                showToast(isEdit ? 'Driver updated ✅' : 'Driver added ✅', 'success');
+                closeModal();
+                renderTable(); // Refresh the table after saving
+            },
+            error: function (x) {
+                showToast(x.responseJSON?.message || 'Error', 'error');
+            }
         });
     }
-    function editDriver(id){
-        $.get(`${BASE}/${id}`,function(res){
-            const d=res.data||res;editId=d.id;curPic=d.profilePic||'';
-            $('#f-name').val(d.name);$('#f-phone').val(d.phone);$('#f-lic').val(d.licenceNo);$('#f-exp').val(d.licenceExpiry);$('#f-vtype').val(d.vehicleType);$('#f-status').val(d.status);
-            if(curPic){$('#picPrev').attr('src',curPic).show();$('#picPh').hide();}
-            $('#mTitle').text('EDIT DRIVER');$('#modalOv').addClass('open');
+
+    // Load a driver's details into the form so the user can edit them
+    function editDriver(id) {
+        $.get(`${BASE}/${id}`, function (res) {
+            const d = res.data || res;
+            editId = d.id;     // Remember which driver we're editing
+            curPic = d.profilePic || '';
+
+            // Fill each form field with the driver's current data
+            $('#f-name').val(d.name);
+            $('#f-phone').val(d.phone);
+            $('#f-lic').val(d.licenceNo);
+            $('#f-exp').val(d.licenceExpiry);
+            $('#f-vtype').val(d.vehicleType);
+            $('#f-status').val(d.status);
+
+            // Show the existing profile picture if there is one
+            if (curPic) {
+                $('#picPrev').attr('src', curPic).show();
+                $('#picPh').hide();
+            }
+
+            $('#mTitle').text('EDIT DRIVER');
+            $('#modalOv').addClass('open'); // Open the modal dialog
         });
     }
-    function deleteDriver(id){
-        if(confirm('Delete this driver?')){
-            $.ajax({url:`${BASE}/${id}`,method:'DELETE',headers:authH(),success:function(){renderTable();showToast('Driver deleted','success');},error:function(x){showToast(x.responseJSON?.message||'Delete failed','error');}});
+
+    // Delete a driver after asking the user to confirm
+    function deleteDriver(id) {
+        if (confirm('Delete this driver?')) {
+            $.ajax({
+                url: `${BASE}/${id}`,
+                method: 'DELETE',
+                headers: authH(),
+                success: function () {
+                    renderTable();
+                    showToast('Driver deleted', 'success');
+                },
+                error: function (x) {
+                    showToast(x.responseJSON?.message || 'Delete failed', 'error');
+                }
+            });
         }
     }
-    function handlePic(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{curPic=ev.target.result;$('#picPrev').attr('src',curPic).show();$('#picPh').hide();};r.readAsDataURL(file);}
-    function openModal(){editId=null;curPic='';$('.fi').val('');$('#picPrev').hide();$('#picPh').show();$('#mTitle').text('ADD DRIVER');$('#modalOv').addClass('open');}
-    function closeModal(){$('#modalOv').removeClass('open');}
-    function exportCSV(){
-        let csv='ID,Name,Phone,Licence,Expiry,Vehicle,Status\n';
-        $('#driverTable tr').each(function(){const r=$(this).find('td');if(r.length>0)csv+=`${r.eq(0).text()},${r.eq(2).find('div:first').text()},${r.eq(3).text()},${r.eq(4).text()},${r.eq(5).find('div:first').text()},${r.eq(6).text()},${r.eq(2).find('.badge').text()}\n`;});
-        const a=document.createElement('a');a.href='data:text/csv,'+encodeURIComponent(csv);a.download='drivers.csv';a.click();
+
+    // Read the chosen image file and show it as a preview
+    function handlePic(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const r = new FileReader();
+        r.onload = ev => {
+            curPic = ev.target.result; // Save the image as base64 text
+            $('#picPrev').attr('src', curPic).show();
+            $('#picPh').hide();
+        };
+        r.readAsDataURL(file);
     }
-    function exportPDF(){
-        const{jsPDF}=window.jspdf;const doc=new jsPDF('p','mm','a4');
-        doc.setFillColor(11,14,26);doc.rect(0,0,210,16,'F');
-        doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(110,143,255);doc.text('Rentify',14,11);
-        doc.setTextColor(255,255,255);doc.text('Driver Fleet Report',105,11,{align:'center'});
-        const rows=[];
-        $('#driverTable tr').each(function(){const r=$(this).find('td');if(r.length>0)rows.push([r.eq(0).text().trim(),r.eq(2).find('div:first').text().trim(),r.eq(3).text().trim(),r.eq(4).text().trim(),r.eq(5).find('div:first').text().trim(),r.eq(6).text().trim(),r.eq(2).find('.badge').text().trim()]);});
-        doc.autoTable({startY:22,head:[['ID','Name','Phone','Licence','Expiry','Vehicle','Status']],body:rows,headStyles:{fillColor:[26,63,255],textColor:[255,255,255],fontStyle:'bold',fontSize:8},bodyStyles:{textColor:[45,51,80],fontSize:8},alternateRowStyles:{fillColor:[247,248,252]},margin:{left:14,right:14}});
-        doc.setFontSize(8);doc.setTextColor(155,163,187);doc.text('© '+new Date().getFullYear()+' Rentify · Sri Lanka',105,doc.internal.pageSize.getHeight()-8,{align:'center'});
-        doc.save('Rentify_Drivers_'+new Date().toISOString().slice(0,10)+'.pdf');
-        showToast('PDF downloaded ✅','success');
+
+    // Open the modal to add a brand-new driver (reset all fields first)
+    function openModal() {
+        editId = null;
+        curPic = '';
+        $('.fi').val('');             // Clear all form inputs
+        $('#picPrev').hide();
+        $('#picPh').show();
+        $('#mTitle').text('ADD DRIVER');
+        $('#modalOv').addClass('open');
     }
-    $('#modalOv').on('click',function(e){if(e.target===this)closeModal();});
-    $('#searchInput,#filterType').on('input change',renderTable);
-    $(function(){renderTable();});
+
+    // Close the modal dialog
+    function closeModal() {
+        $('#modalOv').removeClass('open');
+    }
+
+    // Export the current table data as a CSV file
+    function exportCSV() {
+        let csv = 'ID,Name,Phone,Licence,Expiry,Vehicle,Status\n';
+        $('#driverTable tr').each(function () {
+            const r = $(this).find('td');
+            if (r.length > 0)
+                csv += `${r.eq(0).text()},${r.eq(2).find('div:first').text()},${r.eq(3).text()},${r.eq(4).text()},${r.eq(5).find('div:first').text()},${r.eq(6).text()},${r.eq(2).find('.badge').text()}\n`;
+        });
+        // Trigger a file download in the browser
+        const a = document.createElement('a');
+        a.href = 'data:text/csv,' + encodeURIComponent(csv);
+        a.download = 'drivers.csv';
+        a.click();
+    }
+
+    // Export the current table data as a formatted PDF file
+    function exportPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+
+        // Draw a dark header bar at the top of the page
+        doc.setFillColor(11, 14, 26);
+        doc.rect(0, 0, 210, 16, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(110, 143, 255);
+        doc.text('Rentify', 14, 11);
+        doc.setTextColor(255, 255, 255);
+        doc.text('Driver Fleet Report', 105, 11, { align: 'center' });
+
+        // Collect each row from the table for the PDF
+        const rows = [];
+        $('#driverTable tr').each(function () {
+            const r = $(this).find('td');
+            if (r.length > 0)
+                rows.push([
+                    r.eq(0).text().trim(),
+                    r.eq(2).find('div:first').text().trim(),
+                    r.eq(3).text().trim(),
+                    r.eq(4).text().trim(),
+                    r.eq(5).find('div:first').text().trim(),
+                    r.eq(6).text().trim(),
+                    r.eq(2).find('.badge').text().trim()
+                ]);
+        });
+
+        // Draw the data table inside the PDF
+        doc.autoTable({
+            startY: 22,
+            head: [['ID', 'Name', 'Phone', 'Licence', 'Expiry', 'Vehicle', 'Status']],
+            body: rows,
+            headStyles: { fillColor: [26, 63, 255], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
+            bodyStyles: { textColor: [45, 51, 80], fontSize: 8 },
+            alternateRowStyles: { fillColor: [247, 248, 252] },
+            margin: { left: 14, right: 14 }
+        });
+
+        // Add a small footer at the bottom of the page
+        doc.setFontSize(8);
+        doc.setTextColor(155, 163, 187);
+        doc.text('© ' + new Date().getFullYear() + ' Rentify · Sri Lanka', 105, doc.internal.pageSize.getHeight() - 8, { align: 'center' });
+
+        doc.save('Rentify_Drivers_' + new Date().toISOString().slice(0, 10) + '.pdf');
+        showToast('PDF downloaded ✅', 'success');
+    }
+
+    // Close the modal if the user clicks the dark background behind it
+    $('#modalOv').on('click', function (e) {
+        if (e.target === this) closeModal();
+    });
+
+    // Re-run the table search whenever the search box or filter changes
+    $('#searchInput, #filterType').on('input change', renderTable);
+
+    // Load the driver table as soon as the page is ready
+    $(function () { renderTable(); });
 </script>
 </body>
 </html>

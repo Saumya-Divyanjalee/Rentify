@@ -33,44 +33,44 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
 
-                        // ── Swagger ─────────────────────────────────────────────
+                        //  Swagger
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        // ── Auth ─────────────────────────────────────────────────
+                        //  Auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
-                        // ── Vehicles: public GET ──────────────────────────────────
+                        //  Vehicles: public GET
                         .requestMatchers(HttpMethod.GET, "/api/v1/vehicles/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/vehicles/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,  "/api/v1/vehicles/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/vehicles/**").hasRole("ADMIN")
 
-                        // ── PayHere notify: PUBLIC ────────────────────────────────
-                        // ⚠️ MUST be BEFORE the broad /api/v1/payments/** rule
+                        // PayHere notify: PUBLIC
+                        //  MUST be BEFORE the broad /api/v1/payments/** rule
                         // PayHere servers POST here — they have no JWT token
                         // Security is done by MD5 hash verification in service
                         .requestMatchers(HttpMethod.POST, "/api/v1/payments/payhere/notify").permitAll()
                         .requestMatchers(HttpMethod.GET,  "/api/v1/payments/payhere/status").permitAll()
 
-                        // ── All other payments: authenticated ─────────────────────
+                        //  All other payments: authenticated
                         .requestMatchers("/api/v1/payments/**").authenticated()
 
-                        // ── Bookings: authenticated ───────────────────────────────
+                        //  Bookings: authenticated
                         .requestMatchers("/api/v1/bookings/**").authenticated()
 
-                        // ── Admin only ────────────────────────────────────────────
+                        // Admin only
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/insurances/**").hasRole("ADMIN")
 
-                        // ── User profile ──────────────────────────────────────────
+                        //  User profile
                         .requestMatchers("/api/v1/user/profile").authenticated()
                         .requestMatchers("/payment-success.html", "/payment-cancel.html").permitAll()
 
-                        // ── Everything else ───────────────────────────────────────
+                        //  Everything else
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

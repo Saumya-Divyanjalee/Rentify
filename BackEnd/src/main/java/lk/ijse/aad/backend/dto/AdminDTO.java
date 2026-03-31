@@ -13,7 +13,7 @@ public class AdminDTO {
     private String email;
     private String phone;
 
-    // receive only — never returned
+
     private String password;
 
     private String profileImageBase64;

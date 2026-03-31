@@ -27,7 +27,7 @@ public class AuthService {
     private final JWTUtil jwtUtil;
     private final EmailService emailService;
 
-    // SIGNUP - Logic to separate Admin and User storage
+
     public String signup(RegisterDTO dto) {
         String role = (dto.getRole() != null) ? dto.getRole().toUpperCase() : "USER";
 
@@ -41,7 +41,7 @@ public class AuthService {
             admin.setPhone(dto.getPhone());
             admin.setPassword(passwordEncoder.encode(dto.getPassword()));
             admin.setRole(Role.ADMIN);
-            adminRepository.save(admin); // Saves to 'admin' table
+            adminRepository.save(admin);
 
             emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
             return "Admin registered successfully!";
@@ -55,20 +55,18 @@ public class AuthService {
             user.setPhone(dto.getPhone());
             user.setPassword(passwordEncoder.encode(dto.getPassword()));
             user.setRole(Role.USER);
-            userRepository.save(user); // Saves to 'user' table
+            userRepository.save(user);
 
             emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
             return "User registered successfully!";
         }
     }
 
-    // SIGNIN - Logic to check both tables and send Login Email
-    public AuthResponseDTO signin(SignInDTO dto) {
-        // This triggers the UserDetailsService which checks both tables
-        authManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
 
-        // Check Admin table first for response data
-        var adminOpt = adminRepository.findByUsername(dto.getUsername());
+    public AuthResponseDTO signin(SignInDTO dto) {
+         authManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
+
+         var adminOpt = adminRepository.findByUsername(dto.getUsername());
         if (adminOpt.isPresent()) {
             Admin a = adminOpt.get();
             String token = jwtUtil.generateToken(a.getUsername(), "ADMIN");
@@ -76,8 +74,7 @@ public class AuthService {
             return new AuthResponseDTO(token, "ADMIN", a.getAdminId(), a.getFullName(), a.getEmail(), a.getUsername());
         }
 
-        // Check User table
-        var userOpt = userRepository.findByUsername(dto.getUsername());
+         var userOpt = userRepository.findByUsername(dto.getUsername());
         if (userOpt.isPresent()) {
             User u = userOpt.get();
             String token = jwtUtil.generateToken(u.getUsername(), "USER");

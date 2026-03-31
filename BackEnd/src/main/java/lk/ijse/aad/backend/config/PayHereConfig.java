@@ -4,19 +4,25 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+//generate getters for all fields
 @Getter
+//register this class in spring container as a configuration class
 @Configuration
 public class PayHereConfig {
 
+    //merchant id from payhere dashboard(used to identify merchant account)
     @Value("${payhere.merchant-id}")
     private String merchantId;
 
+    //secret key used for security(hash generation and verification)
     @Value("${payhere.merchant-secret}")
     private String merchantSecret;
 
+    // Environment flag → true = sandbox (testing), false = live (real payments)
     @Value("${payhere.sandbox:true}")
     private boolean sandbox;
 
+    //payhere will send payment status to this url (backend endpoint)
     @Value("${payhere.notify-url}")
     private String notifyUrl;
 
@@ -32,11 +38,7 @@ public class PayHereConfig {
                 : "https://www.payhere.lk/pay/checkout";
     }
 
-    /**
-     * ✅ Strip any IntelliJ ?_ijt= or ?_ij_reload= parameters from URLs
-     * IntelliJ automatically appends these when opening HTML files
-     * PayHere rejects URLs with unknown query parameters
-     */
+
     public String getCleanReturnUrl() {
         return stripIntelliJParams(returnUrl);
     }

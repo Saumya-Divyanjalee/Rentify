@@ -26,7 +26,7 @@ public class PaymentController {
             @Valid @RequestBody PaymentDTO dto,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        // @AuthenticationPrincipal → JWTAuthFilter set karat username directly gannawa
+
         String username = userDetails.getUsername();
         PaymentResponseDTO response = paymentService.processPayment(dto, username);
 

@@ -16,7 +16,7 @@ public class PaymentDTO {
     private Long bookingId;
 
     @NotNull(message = "Payment method is required")
-    private String paymentMethod;   // "CARD", "CASH", "ONLINE"
+    private String paymentMethod;
 
     @NotNull(message = "Amount is required")
     @Positive(message = "Amount must be positive")
@@ -24,7 +24,7 @@ public class PaymentDTO {
 
     private String currency = "LKR";
 
-    // Card details — only required when paymentMethod == CARD
+
     private String cardName;
     private String cardNumber;
     private String expiryDate;

@@ -294,154 +294,783 @@
 </div>
 
 <div id="toast"></div>
-
+<script src="../../js/jquery-3.7.1.min.js"></script>
 <script>
-    const API='http://localhost:8081/api/v1';
-    let allBookings=[];
-    const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    const fmtP=p=>'Rs '+Number(p||0).toLocaleString('en-LK');
-    const fmtD=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-LK',{year:'numeric',month:'short',day:'2-digit'}):'—';
 
-    function showToast(m,t){const $t=$('#toast');$t.text(m).attr('class','toast show '+(t||''));clearTimeout($t.data('tt'));$t.data('tt',setTimeout(()=>$t.attr('class','toast'),3400));}
-    function logout(){['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(k=>localStorage.removeItem(k));window.location.href='../sign-in.html';}
 
-    // Init user
-    const fn=localStorage.getItem('rentify_fullName')||localStorage.getItem('rentify_username')||'Admin';
-    const ini=fn.trim().split(/\s+/).map(x=>x[0]?.toUpperCase()).join('').slice(0,2)||'AD';
-    $('#sbAv').text(ini);$('#sbName').text(fn);
+    // API BASE URL
+    // This is the address of the Spring Boot backend server.
+    // All API requests are sent to this URL.
 
-    function getToken(){return localStorage.getItem('rentify_token')||'';}
-    function authH(){const t=getToken();return t?{Authorization:'Bearer '+t}:{};}
+    const API = 'http://localhost:8081/api/v1';
 
-    function checkApi(){$.ajax({url:API+'/vehicles',method:'GET',timeout:5000,success:()=>{$('#apiDot').addClass('online').removeClass('offline');$('#apiTxt').text('API Online — localhost:8081');},error:()=>{$('#apiDot').addClass('offline').removeClass('online');$('#apiTxt').text('API Offline');}});}
 
-    function fetchBookings(){
-        $('#bookingTable').html('<tr class="lrow"><td colspan="10"><span class="spin"></span>Loading…</td></tr>');
-        $.ajax({url:API+'/bookings',headers:authH(),
-            success:function(r){allBookings=Array.isArray(r)?r:(r.data||[]);updateStats();renderTable();updPdf();$('#lastFetch').text('Updated: '+new Date().toLocaleTimeString('en-LK'));},
-            error:function(x){let m=x.responseJSON?.message||'Failed.';if(x.status===401)m='401 — Sign in as ADMIN';if(x.status===0)m='Cannot reach server';$('#bookingTable').html(`<tr class="erow"><td colspan="10">⚠️ ${esc(m)}</td></tr>`);showToast(m,'error');}
+
+    // GLOBAL BOOKING ARRAY
+    // Stores all bookings fetched from the server in memory.
+    // Filters, stats, search, and PDF all use this array.
+    // No extra API calls needed after the first fetch.
+     let allBookings = [];
+
+
+
+    // HTML ESCAPE FUNCTION
+    // Converts dangerous characters like < > & into safe text.
+    // This stops hackers from injecting scripts into the page.
+    // Example: <script> becomes &lt;script&gt;
+
+    const esc = s => String(s || '')
+        .replace(/&/g, '&amp;')   // & → &amp;
+        .replace(/</g, '&lt;')    // < → &lt;
+        .replace(/>/g, '&gt;');   // > → &gt;
+
+
+
+    // PRICE FORMATTER
+    // Turns a plain number into Sri Lankan Rupee format.
+    // Example: 15000 → "Rs 15,000"
+    // Uses 'en-LK' locale to add correct comma separators.
+
+    const fmtP = p => 'Rs ' + Number(p || 0).toLocaleString('en-LK');
+
+
+
+    // DATE FORMATTER
+    // Turns a raw date string into a readable format.
+    // Example: "2025-01-15" → "15 Jan 2025"
+    // T00:00:00 is added to avoid timezone shifting the date.
+    // Returns a dash "—" if no date is given.
+
+    const fmtD = d => d
+        ? new Date(d + 'T00:00:00').toLocaleDateString('en-LK', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit'
+        })
+        : '—';
+
+
+
+    // SHOW TOAST NOTIFICATION
+    // Shows a small popup message at the bottom of the screen.
+    // @param m = message text to display
+    // @param t = type — 'success' (green) or 'error' (red)
+    // The popup disappears automatically after 3.4 seconds.
+
+    function showToast(m, t) {
+        const $t = $('#toast');
+
+        // Set the message text and apply the correct color class
+        $t.text(m).attr('class', 'toast show ' + (t || ''));
+
+        // Clear any previous timer so it does not hide too early
+        clearTimeout($t.data('tt'));
+
+        // Hide the toast after 3400 milliseconds (3.4 seconds)
+        $t.data('tt', setTimeout(() => $t.attr('class', 'toast'), 3400));
+    }
+
+
+
+    // LOGOUT
+    // Removes all saved login data from the browser storage.
+    // Then sends the user back to the sign-in page.
+
+    function logout() {
+        // Remove every auth-related item from localStorage
+        [
+            'rentify_token',
+            'rentify_role',
+            'rentify_auth',
+            'rentify_username',
+            'rentify_fullName',
+            'rentify_email',
+            'rentify_userId'
+        ].forEach(k => localStorage.removeItem(k));
+
+        // Go to the login page
+        window.location.href = '../sign-in.html';
+    }
+
+
+
+    // INIT USER — SIDEBAR PROFILE
+    // Reads the logged-in admin name from browser storage.
+    // Creates initials from the name (e.g. "Saumya D" → "SD").
+    // Puts the initials and name into the sidebar.
+
+
+    // Try fullName first, then username, then fall back to 'Admin'
+    const fn = localStorage.getItem('rentify_fullName')
+        || localStorage.getItem('rentify_username')
+        || 'Admin';
+
+    // Split name by spaces, take first letter of each word, uppercase
+    // "Saumya Divyanjalee" → ["S", "D"] → "SD"
+    const ini = fn.trim()
+        .split(/\s+/)
+        .map(x => x[0]?.toUpperCase())
+        .join('')
+        .slice(0, 2) || 'AD';
+
+    // Put initials inside the avatar circle in the sidebar
+    $('#sbAv').text(ini);
+
+    // Put the full name in the sidebar name label
+    $('#sbName').text(fn);
+
+
+
+    // GET TOKEN
+    // Reads the saved JWT token from browser storage.
+    // Returns an empty string if no token is found.
+
+    function getToken() {
+        return localStorage.getItem('rentify_token') || '';
+    }
+
+
+
+    // AUTH HEADER
+    // Builds the Authorization header for API requests.
+    // The backend uses this to check if the user is logged in.
+    // Returns empty object if no token exists (not logged in).
+
+    function authH() {
+        const t = getToken();
+        return t ? { Authorization: 'Bearer ' + t } : {};
+    }
+
+
+
+    // CHECK API STATUS
+    // Sends a quick request to the backend to check if it is on.
+    // Success → shows a green dot and "API Online" message.
+    // Failure → shows a red dot and "API Offline" message.
+    // Timeout is set to 5 seconds (5000ms).
+
+    function checkApi() {
+        $.ajax({
+            url: API + '/vehicles',
+            method: 'GET',
+            timeout: 5000,  // Give up after 5 seconds
+
+            success: () => {
+                // Backend is reachable — show green dot
+                $('#apiDot').addClass('online').removeClass('offline');
+                $('#apiTxt').text('API Online — localhost:8081');
+            },
+
+            error: () => {
+                // Backend is not reachable — show red dot
+                $('#apiDot').addClass('offline').removeClass('online');
+                $('#apiTxt').text('API Offline');
+            }
         });
     }
 
-    function updateStats(){
-        const rev=allBookings.filter(b=>b.status!=='CANCELLED').reduce((s,b)=>s+(b.totalPrice||0),0);
+
+
+    // FETCH ALL BOOKINGS
+    // Sends a GET request to the backend to load all bookings.
+    // Attaches the JWT token so the backend can verify the admin.
+    //
+    // Success → saves data to allBookings, updates stats and table
+    // Error   → 401 means not logged in or not an admin
+    //           Status 0 means the server cannot be reached
+
+    function fetchBookings() {
+
+        // Show a loading spinner in the table while waiting
+        $('#bookingTable').html(
+            '<tr class="lrow"><td colspan="10"><span class="spin"></span>Loading…</td></tr>'
+        );
+
+        $.ajax({
+            url: API + '/bookings',
+            headers: authH(),   // Send JWT token in the header
+
+            success: function(r) {
+                // Save the data — handle both array and object responses
+                allBookings = Array.isArray(r) ? r : (r.data || []);
+
+                // Refresh stats cards, table rows, and PDF preview
+                updateStats();
+                renderTable();
+                updPdf();
+
+                // Show the time of the last successful fetch
+                $('#lastFetch').text('Updated: ' + new Date().toLocaleTimeString('en-LK'));
+            },
+
+            error: function(x) {
+                // Start with a default error message
+                let m = x.responseJSON?.message || 'Failed.';
+
+                // 401 = token is invalid or user is not an admin
+                if (x.status === 401) m = '401 — Sign in as ADMIN';
+
+                // Status 0 = server is off or not reachable
+                if (x.status === 0) m = 'Cannot reach server';
+
+                // Show the error message inside the table
+                $('#bookingTable').html(
+                    `<tr class="erow"><td colspan="10">⚠️ ${esc(m)}</td></tr>`
+                );
+
+                // Also show a red toast popup
+                showToast(m, 'error');
+            }
+        });
+    }
+
+
+
+    // UPDATE STATS CARDS
+    // Counts bookings by status and calculates total revenue.
+    // Updates the five stat boxes at the top of the page.
+    // No API call needed — works directly with allBookings array.
+    // CANCELLED bookings are excluded from revenue.
+
+    function updateStats() {
+
+        // Add up prices, but skip CANCELLED bookings
+        const rev = allBookings
+            .filter(b => b.status !== 'CANCELLED')
+            .reduce((s, b) => s + (b.totalPrice || 0), 0);
+
+        // Total number of all bookings
         $('#st-total').text(allBookings.length);
-        $('#st-pending').text(allBookings.filter(b=>b.status==='PENDING').length);
-        $('#st-confirmed').text(allBookings.filter(b=>b.status==='CONFIRMED').length);
-        $('#st-completed').text(allBookings.filter(b=>b.status==='COMPLETED').length);
-        $('#st-revenue').text('Rs '+Number(rev).toLocaleString('en-LK'));
+
+        // Count each status type
+        $('#st-pending').text(allBookings.filter(b => b.status === 'PENDING').length);
+        $('#st-confirmed').text(allBookings.filter(b => b.status === 'CONFIRMED').length);
+        $('#st-completed').text(allBookings.filter(b => b.status === 'COMPLETED').length);
+
+        // Show revenue in "Rs 125,000" format
+        $('#st-revenue').text('Rs ' + Number(rev).toLocaleString('en-LK'));
     }
 
-    function getFiltered(){
-        const q=$('#searchInput').val().toLowerCase().trim(),st=$('#filterStatus').val(),fr=$('#filterFrom').val(),to=$('#filterTo').val();
-        return allBookings.filter(b=>{
-            if(st&&b.status!==st)return false;
-            if(fr&&b.startDate<fr)return false;
-            if(to&&b.startDate>to)return false;
-            if(q){const h=[b.vehicleModel,b.vehiclePlate,b.pickupLocation,b.dropLocation,String(b.id),String(b.userId)].join(' ').toLowerCase();if(!h.includes(q))return false;}
-            return true;
+
+
+    // GET FILTERED BOOKINGS
+    // Reads all four filter inputs and returns matching bookings.
+    // Works entirely in memory — no API call is made.
+    //
+    // Filters applied:
+    //   q  = search text (checks vehicle, plate, location, ID)
+    //   st = status dropdown (PENDING, CONFIRMED, etc.)
+    //   fr = bookings on or after this date
+    //   to = bookings on or before this date
+
+    function getFiltered() {
+
+        // Read current values from the four filter inputs
+        const q  = $('#searchInput').val().toLowerCase().trim(); // search text
+        const st = $('#filterStatus').val();                      // status value
+        const fr = $('#filterFrom').val();                        // from date
+        const to = $('#filterTo').val();                          // to date
+
+        return allBookings.filter(b => {
+
+            // Skip this booking if status does not match
+            if (st && b.status !== st) return false;
+
+            // Skip if booking starts before the 'from' date
+            if (fr && b.startDate < fr) return false;
+
+            // Skip if booking starts after the 'to' date
+            if (to && b.startDate > to) return false;
+
+            // Search text check — look inside multiple fields at once
+            if (q) {
+                // Join all searchable fields into one long string
+                const h = [
+                    b.vehicleModel,
+                    b.vehiclePlate,
+                    b.pickupLocation,
+                    b.dropLocation,
+                    String(b.id),
+                    String(b.userId)
+                ].join(' ').toLowerCase();
+
+                // Skip this booking if the search text is not found
+                if (!h.includes(q)) return false;
+            }
+
+            return true; // This booking passed all filters
         });
     }
-    function clearFilters(){$('#searchInput').val('');$('#filterStatus').val('');$('#filterFrom,#filterTo').val('');renderTable();}
 
-    function renderTable(){
-        const list=getFiltered();
-        $('#countBadge').text(list.length+' records');
-        if(!list.length){$('#bookingTable').html('<tr class="erow"><td colspan="10">🔍 No bookings match your filters.</td></tr>');return;}
-        $('#bookingTable').html(list.map(b=>{
-            const d=b.startDate&&b.endDate?Math.max(1,Math.round((new Date(b.endDate)-new Date(b.startDate))/86400000)):'—';
-            return`<tr>
+
+
+    // CLEAR ALL FILTERS
+    // Resets all four filter inputs back to empty.
+    // Then re-renders the table to show all bookings again.
+
+    function clearFilters() {
+        $('#searchInput').val('');            // Clear search box
+        $('#filterStatus').val('');           // Reset status dropdown
+        $('#filterFrom, #filterTo').val('');  // Clear date inputs
+        renderTable();                         // Rebuild the table
+    }
+
+
+
+    // RENDER TABLE
+    // Builds the HTML table rows from the filtered booking list.
+    // Calculates trip duration in days for each booking.
+    // All data from the server is passed through esc() for safety.
+    // Shows an empty message if no bookings match the filters.
+
+    function renderTable() {
+
+        // Get the filtered list of bookings
+        const list = getFiltered();
+
+        // Update the record count badge (e.g. "24 records")
+        $('#countBadge').text(list.length + ' records');
+
+        // If the list is empty, show a "no results" message
+        if (!list.length) {
+            $('#bookingTable').html(
+                '<tr class="erow"><td colspan="10">🔍 No bookings match your filters.</td></tr>'
+            );
+            return;
+        }
+
+        // Build one HTML table row for each booking
+        $('#bookingTable').html(list.map(b => {
+
+            // Calculate how many days the booking lasts
+            // 86400000 = number of milliseconds in one day
+            const d = b.startDate && b.endDate
+                ? Math.max(1, Math.round(
+                    (new Date(b.endDate) - new Date(b.startDate)) / 86400000
+                ))
+                : '—';
+
+            // Return the full row HTML — server data is escaped
+            return `<tr>
       <td><span class="tdm" style="color:var(--accent);font-weight:700">#${b.id}</span></td>
       <td><span class="tdb">User #${b.userId}</span></td>
-      <td><div class="tdb">${esc(b.vehicleModel||'—')}</div><div class="tdm">${esc(b.vehiclePlate||'')}</div></td>
+      <td>
+        <div class="tdb">${esc(b.vehicleModel || '—')}</div>
+        <div class="tdm">${esc(b.vehiclePlate || '')}</div>
+      </td>
       <td style="white-space:nowrap">${fmtD(b.startDate)}</td>
-      <td style="white-space:nowrap">${fmtD(b.endDate)} <span style="font-size:9px;color:var(--ink4)">·${d}d</span></td>
-      <td style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">📍${esc(b.pickupLocation||'—')}</td>
-      <td style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">🏁${esc(b.dropLocation||'—')}</td>
-      <td style="font-family:'Bungee',sans-serif;font-size:12px;color:var(--green)">${fmtP(b.totalPrice)}</td>
+      <td style="white-space:nowrap">
+        ${fmtD(b.endDate)}
+        <span style="font-size:9px;color:var(--ink4)">·${d}d</span>
+      </td>
+      <td style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">
+        📍${esc(b.pickupLocation || '—')}
+      </td>
+      <td style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">
+        🏁${esc(b.dropLocation || '—')}
+      </td>
+      <td style="font-family:'Bungee',sans-serif;font-size:12px;color:var(--green)">
+        ${fmtP(b.totalPrice)}
+      </td>
       <td><span class="badge badge-${esc(b.status)}">${esc(b.status)}</span></td>
       <td><button class="btn btn-sm" onclick="openDetail(${b.id})">👁 View</button></td>
     </tr>`;
-        }).join(''));
+
+        }).join('')); // Join all rows and put them in the table body
     }
 
-    function openDetail(id){
-        const b=allBookings.find(x=>x.id===id);if(!b)return;
-        const d=b.startDate&&b.endDate?Math.max(1,Math.round((new Date(b.endDate)-new Date(b.startDate))/86400000)):1;
+
+
+    // OPEN DETAIL MODAL
+    // Finds the booking by ID from the in-memory array.
+    // Builds the detail popup and shows it on screen.
+    // No API call is needed — data already in allBookings.
+
+    function openDetail(id) {
+
+        // Find the booking with the matching ID
+        const b = allBookings.find(x => x.id === id);
+
+        // Stop if no booking was found
+        if (!b) return;
+
+        // Calculate trip duration — minimum is 1 day
+        const d = b.startDate && b.endDate
+            ? Math.max(1, Math.round(
+                (new Date(b.endDate) - new Date(b.startDate)) / 86400000
+            ))
+            : 1;
+
+        // Build and inject the detail grid HTML into the modal
         $('#detailGrid').html(`
-    <div class="ditem"><div class="dl">Booking ID</div><div class="dv" style="font-family:'Roboto Mono',monospace;color:var(--accent)">#${b.id}</div></div>
-    <div class="ditem"><div class="dl">Status</div><div class="dv"><span class="badge badge-${esc(b.status)}">${esc(b.status)}</span></div></div>
-    <div class="ditem"><div class="dl">Customer</div><div class="dv">User #${b.userId}</div></div>
-    <div class="ditem"><div class="dl">Vehicle</div><div class="dv">${esc(b.vehicleModel||'—')}</div></div>
-    <div class="ditem"><div class="dl">Duration</div><div class="dv">${d} day${d!==1?'s':''}</div></div>
-    <div class="ditem"><div class="dl">Plate</div><div class="dv" style="font-family:'Roboto Mono',monospace">${esc(b.vehiclePlate||'—')}</div></div>
-    <div class="ditem"><div class="dl">Start Date</div><div class="dv">${fmtD(b.startDate)}</div></div>
-    <div class="ditem"><div class="dl">End Date</div><div class="dv">${fmtD(b.endDate)}</div></div>
-    <div class="ditem full"><div class="dl">Pickup Location</div><div class="dv">📍 ${esc(b.pickupLocation||'—')}</div></div>
-    <div class="ditem full"><div class="dl">Drop Location</div><div class="dv">🏁 ${esc(b.dropLocation||'—')}</div></div>
-    <div class="ditem full" style="background:var(--green-l);border-color:rgba(0,184,107,.2)"><div class="dl">Total Price</div><div class="dv price-big">${fmtP(b.totalPrice)}</div></div>
+    <div class="ditem">
+      <div class="dl">Booking ID</div>
+      <div class="dv" style="font-family:'Roboto Mono',monospace;color:var(--accent)">#${b.id}</div>
+    </div>
+    <div class="ditem">
+      <div class="dl">Status</div>
+      <div class="dv"><span class="badge badge-${esc(b.status)}">${esc(b.status)}</span></div>
+    </div>
+    <div class="ditem">
+      <div class="dl">Customer</div>
+      <div class="dv">User #${b.userId}</div>
+    </div>
+    <div class="ditem">
+      <div class="dl">Vehicle</div>
+      <div class="dv">${esc(b.vehicleModel || '—')}</div>
+    </div>
+    <div class="ditem">
+      <div class="dl">Duration</div>
+      <div class="dv">${d} day${d !== 1 ? 's' : ''}</div>
+    </div>
+    <div class="ditem">
+      <div class="dl">Plate</div>
+      <div class="dv" style="font-family:'Roboto Mono',monospace">${esc(b.vehiclePlate || '—')}</div>
+    </div>
+    <div class="ditem">
+      <div class="dl">Start Date</div>
+      <div class="dv">${fmtD(b.startDate)}</div>
+    </div>
+    <div class="ditem">
+      <div class="dl">End Date</div>
+      <div class="dv">${fmtD(b.endDate)}</div>
+    </div>
+    <div class="ditem full">
+      <div class="dl">Pickup Location</div>
+      <div class="dv">📍 ${esc(b.pickupLocation || '—')}</div>
+    </div>
+    <div class="ditem full">
+      <div class="dl">Drop Location</div>
+      <div class="dv">🏁 ${esc(b.dropLocation || '—')}</div>
+    </div>
+    <div class="ditem full" style="background:var(--green-l);border-color:rgba(0,184,107,.2)">
+      <div class="dl">Total Price</div>
+      <div class="dv price-big">${fmtP(b.totalPrice)}</div>
+    </div>
   `);
+
+        // Add the 'open' class to make the modal visible
         $('#detailOv').addClass('open');
     }
 
-    function updPdf(){
-        const fr=$('#pdf-from').val(),to=$('#pdf-to').val();
-        let d=allBookings;
-        if(fr)d=d.filter(b=>b.startDate>=fr);if(to)d=d.filter(b=>b.startDate<=to);
-        const rev=d.filter(b=>b.status!=='CANCELLED').reduce((s,b)=>s+(b.totalPrice||0),0);
-        $('#pdfPrev').html([['Total Bookings',d.length],['Pending',d.filter(b=>b.status==='PENDING').length],['Confirmed',d.filter(b=>b.status==='CONFIRMED').length],['Completed',d.filter(b=>b.status==='COMPLETED').length],['Cancelled',d.filter(b=>b.status==='CANCELLED').length],['Total Revenue','Rs '+Number(rev).toLocaleString('en-LK')]].map(([k,v])=>`<div class="srow"><span>${k}</span><span>${v}</span></div>`).join(''));
+
+
+    // UPDATE PDF PREVIEW
+    // Filters bookings by the selected date range in the PDF modal.
+    // Counts each status and calculates revenue for the preview.
+    // Updates the small summary table shown before generating PDF.
+    // No API call — uses allBookings array directly.
+
+    function updPdf() {
+
+        // Read the date range inputs in the PDF modal
+        const fr = $('#pdf-from').val();
+        const to = $('#pdf-to').val();
+
+        // Start with all bookings, then apply date filters
+        let d = allBookings;
+        if (fr) d = d.filter(b => b.startDate >= fr);
+        if (to) d = d.filter(b => b.startDate <= to);
+
+        // Add up revenue but skip CANCELLED bookings
+        const rev = d
+            .filter(b => b.status !== 'CANCELLED')
+            .reduce((s, b) => s + (b.totalPrice || 0), 0);
+
+        // Build the preview rows and put them in the modal
+        $('#pdfPrev').html([
+            ['Total Bookings', d.length],
+            ['Pending',   d.filter(b => b.status === 'PENDING').length],
+            ['Confirmed', d.filter(b => b.status === 'CONFIRMED').length],
+            ['Completed', d.filter(b => b.status === 'COMPLETED').length],
+            ['Cancelled', d.filter(b => b.status === 'CANCELLED').length],
+            ['Total Revenue', 'Rs ' + Number(rev).toLocaleString('en-LK')]
+        ].map(([k, v]) =>
+            `<div class="srow"><span>${k}</span><span>${v}</span></div>`
+        ).join(''));
     }
 
-    function generatePDF(){
-        const{jsPDF}=window.jspdf;
-        const fr=$('#pdf-from').val(),to=$('#pdf-to').val();
-        let data=allBookings;if(fr)data=data.filter(b=>b.startDate>=fr);if(to)data=data.filter(b=>b.startDate<=to);
-        const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-        const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
-        const now=new Date();
-        // Cover
-        doc.setFillColor(11,14,26);doc.rect(0,0,W,H,'F');
-        doc.setFillColor(26,63,255);doc.rect(0,0,6,H,'F');
-        doc.setFont('helvetica','bold');doc.setFontSize(42);doc.setTextColor(255,255,255);doc.text('Rent',28,60);
-        doc.setTextColor(110,143,255);doc.text('ify',69,60);
-        doc.setFont('helvetica','normal');doc.setFontSize(13);doc.setTextColor(155,163,187);doc.text('Booking Management Report',28,75);
-        doc.setDrawColor(45,51,80);doc.setLineWidth(0.5);doc.line(28,82,W-20,82);
-        doc.setFontSize(9);doc.setTextColor(94,102,128);
-        doc.text('Generated: '+now.toLocaleDateString('en-LK',{year:'numeric',month:'long',day:'numeric'}),28,92);
-        doc.text('By: '+fn,28,100);
-        if(fr||to)doc.text('Period: '+(fr||'All time')+' → '+(to||'Present'),28,108);
-        const rev=data.filter(b=>b.status!=='CANCELLED').reduce((s,b)=>s+(b.totalPrice||0),0);
-        const boxes=[{l:'Total',v:data.length,c:[26,63,255]},{l:'Pending',v:data.filter(b=>b.status==='PENDING').length,c:[255,122,0]},{l:'Completed',v:data.filter(b=>b.status==='COMPLETED').length,c:[0,184,107]},{l:'Revenue',v:'Rs '+rev.toLocaleString('en-LK'),c:[124,58,237]}];
-        const bx=28,by=130,bw=(W-52)/4-4,bh=36;
-        boxes.forEach((box,i)=>{const xi=bx+i*(bw+5);doc.setFillColor(20,22,35);doc.roundedRect(xi,by,bw,bh,3,3,'F');doc.setFillColor(...box.c);doc.roundedRect(xi,by,bw,2,1,1,'F');doc.setFont('helvetica','bold');doc.setFontSize(typeof box.v==='string'?7:16);doc.setTextColor(255,255,255);doc.text(String(box.v),xi+bw/2,by+20,{align:'center'});doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(94,102,128);doc.text(box.l,xi+bw/2,by+30,{align:'center'});});
-        doc.setFontSize(8);doc.setTextColor(45,51,80);doc.text('© '+now.getFullYear()+' Rentify · Sri Lanka · Confidential',W/2,H-10,{align:'center'});
+
+
+    // GENERATE PDF
+    // Creates a professional PDF report using the jsPDF library.
+    // Uses the autoTable plugin to draw data tables.
+    // Everything happens in the browser — no server call needed.
+    //
+    // Page 1 — Cover page with brand, stats, and date info
+    // Page 2 — Summary stats table and full booking history table
+
+    function generatePDF() {
+
+        // Get the jsPDF class from the CDN library loaded on the page
+        const { jsPDF } = window.jspdf;
+
+        // Apply the same date filter as the PDF modal
+        const fr = $('#pdf-from').val();
+        const to = $('#pdf-to').val();
+        let data = allBookings;
+        if (fr) data = data.filter(b => b.startDate >= fr);
+        if (to) data = data.filter(b => b.startDate <= to);
+
+        // Create a new A4 PDF document in portrait mode
+        // All positions and sizes use millimeters (mm)
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        // Get the width and height of the page (210mm x 297mm for A4)
+        const W = doc.internal.pageSize.getWidth();
+        const H = doc.internal.pageSize.getHeight();
+
+        // Save the current date and time for use in the report
+        const now = new Date();
+
+
+        /* ---- PAGE 1: COVER ---- */
+
+        // Fill the whole page with a dark navy color (RGB 11, 14, 26)
+        doc.setFillColor(11, 14, 26);
+        doc.rect(0, 0, W, H, 'F');  // 'F' means fill the rectangle
+
+        // Draw a 6mm wide blue bar on the left edge of the page
+        doc.setFillColor(26, 63, 255);
+        doc.rect(0, 0, 6, H, 'F');
+
+        // Write "Rent" in white with a large bold font
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(42);
+        doc.setTextColor(255, 255, 255);
+        doc.text('Rent', 28, 60);
+
+        // Write "ify" right after in a lighter blue color
+        doc.setTextColor(110, 143, 255);
+        doc.text('ify', 69, 60);
+
+        // Write the report subtitle in a smaller, muted font
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(13);
+        doc.setTextColor(155, 163, 187);
+        doc.text('Booking Management Report', 28, 75);
+
+        // Draw a thin horizontal line below the subtitle
+        doc.setDrawColor(45, 51, 80);
+        doc.setLineWidth(0.5);
+        doc.line(28, 82, W - 20, 82);
+
+        // Write who made the report and when
+        doc.setFontSize(9);
+        doc.setTextColor(94, 102, 128);
+        doc.text(
+            'Generated: ' + now.toLocaleDateString('en-LK', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            }),
+            28, 92
+        );
+        doc.text('By: ' + fn, 28, 100); // fn is the admin name saved at login
+
+        // Show the date range only if a filter was set
+        if (fr || to) {
+            doc.text(
+                'Period: ' + (fr || 'All time') + ' → ' + (to || 'Present'),
+                28, 108
+            );
+        }
+
+        // Calculate total revenue again for the cover stat boxes
+        const rev = data
+            .filter(b => b.status !== 'CANCELLED')
+            .reduce((s, b) => s + (b.totalPrice || 0), 0);
+
+        // Define the four stat boxes to draw on the cover page
+        const boxes = [
+            { l: 'Total',     v: data.length,                                       c: [26, 63, 255]  },
+            { l: 'Pending',   v: data.filter(b => b.status === 'PENDING').length,   c: [255, 122, 0]  },
+            { l: 'Completed', v: data.filter(b => b.status === 'COMPLETED').length, c: [0, 184, 107]  },
+            { l: 'Revenue',   v: 'Rs ' + rev.toLocaleString('en-LK'),               c: [124, 58, 237] }
+        ];
+
+        // Layout settings for the four boxes
+        const bx = 28;                  // Starting X position
+        const by = 130;                 // Starting Y position
+        const bw = (W - 52) / 4 - 4;   // Width of each box (evenly split)
+        const bh = 36;                  // Height of each box
+
+        // Draw each stat box one by one
+        boxes.forEach((box, i) => {
+            const xi = bx + i * (bw + 5);  // Move right by box width + 5mm gap
+
+            // Draw the dark background of the box
+            doc.setFillColor(20, 22, 35);
+            doc.roundedRect(xi, by, bw, bh, 3, 3, 'F');
+
+            // Draw a thin colored bar at the top of the box
+            doc.setFillColor(...box.c);
+            doc.roundedRect(xi, by, bw, 2, 1, 1, 'F');
+
+            // Write the value in the center (smaller font for long text)
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(typeof box.v === 'string' ? 7 : 16);
+            doc.setTextColor(255, 255, 255);
+            doc.text(String(box.v), xi + bw / 2, by + 20, { align: 'center' });
+
+            // Write the label below the value in a small muted font
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7);
+            doc.setTextColor(94, 102, 128);
+            doc.text(box.l, xi + bw / 2, by + 30, { align: 'center' });
+        });
+
+        // Write a copyright footer at the very bottom of the cover
+        doc.setFontSize(8);
+        doc.setTextColor(45, 51, 80);
+        doc.text(
+            '© ' + now.getFullYear() + ' Rentify · Sri Lanka · Confidential',
+            W / 2, H - 10,
+            { align: 'center' }
+        );
+
+
+        /* ---- PAGE 2: DATA TABLES ---- */
+
+        // Add a new page — everything below goes on page 2
         doc.addPage();
-        const TH={fillColor:[26,63,255],textColor:[255,255,255],fontStyle:'bold',fontSize:8};
-        const TB={textColor:[45,51,80],fontSize:8};const TA={fillColor:[247,248,252]};
-        if($('#opt-s').prop('checked')){
-            doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(11,14,26);doc.text('Summary Statistics',14,20);
-            doc.autoTable({startY:26,head:[['Metric','Value']],body:[['Total',data.length],['Pending',data.filter(b=>b.status==='PENDING').length],['Confirmed',data.filter(b=>b.status==='CONFIRMED').length],['Completed',data.filter(b=>b.status==='COMPLETED').length],['Cancelled',data.filter(b=>b.status==='CANCELLED').length],['Total Revenue','Rs '+Number(rev).toLocaleString('en-LK')]],theme:'grid',headStyles:TH,bodyStyles:TB,alternateRowStyles:TA,margin:{left:14,right:14}});
+
+        // Shared style objects to keep table styling consistent
+        const TH = { fillColor: [26, 63, 255], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 }; // Table header style
+        const TB = { textColor: [45, 51, 80], fontSize: 8 };   // Table body style
+        const TA = { fillColor: [247, 248, 252] };              // Alternate row color
+
+
+        // Draw the Summary Stats table if that checkbox is checked
+        if ($('#opt-s').prop('checked')) {
+
+            // Section heading above the table
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10);
+            doc.setTextColor(11, 14, 26);
+            doc.text('Summary Statistics', 14, 20);
+
+            // autoTable draws the table automatically with correct spacing
+            doc.autoTable({
+                startY: 26,
+                head: [['Metric', 'Value']],
+                body: [
+                    ['Total',         data.length],
+                    ['Pending',       data.filter(b => b.status === 'PENDING').length],
+                    ['Confirmed',     data.filter(b => b.status === 'CONFIRMED').length],
+                    ['Completed',     data.filter(b => b.status === 'COMPLETED').length],
+                    ['Cancelled',     data.filter(b => b.status === 'CANCELLED').length],
+                    ['Total Revenue', 'Rs ' + Number(rev).toLocaleString('en-LK')]
+                ],
+                theme: 'grid',
+                headStyles: TH,
+                bodyStyles: TB,
+                alternateRowStyles: TA,
+                margin: { left: 14, right: 14 }
+            });
         }
-        if($('#opt-b').prop('checked')){
-            const y=doc.lastAutoTable?.finalY+14||26;
-            doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(11,14,26);doc.text('Booking History ('+data.length+' records)',14,y);
-            const br=data.map(b=>['#'+b.id,'#'+b.userId,(b.vehicleModel||'—').slice(0,14),b.startDate||'—',b.endDate||'—',(b.pickupLocation||'—').slice(0,13),b.status,'Rs '+Number(b.totalPrice||0).toLocaleString('en-LK')]);
-            doc.autoTable({startY:y+6,head:[['ID','User','Vehicle','Start','End','Pickup','Status','Price']],body:br.length?br:[['—','—','—','—','—','—','—','—']],theme:'grid',headStyles:TH,bodyStyles:{...TB,fontSize:7},alternateRowStyles:TA,margin:{left:14,right:14}});
+
+
+        // Draw the Booking History table if that checkbox is checked
+        if ($('#opt-b').prop('checked')) {
+
+            // Start this table just below where the last table ended
+            // finalY gives the Y position where the previous table finished
+            const y = doc.lastAutoTable?.finalY + 14 || 26;
+
+            // Section heading with the total record count
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10);
+            doc.setTextColor(11, 14, 26);
+            doc.text('Booking History (' + data.length + ' records)', 14, y);
+
+            // Build the table rows from booking data
+            // Long text is trimmed to stop it overflowing the column
+            const br = data.map(b => [
+                '#' + b.id,
+                '#' + b.userId,
+                (b.vehicleModel || '—').slice(0, 14),    // Max 14 characters
+                b.startDate || '—',
+                b.endDate || '—',
+                (b.pickupLocation || '—').slice(0, 13),  // Max 13 characters
+                b.status,
+                'Rs ' + Number(b.totalPrice || 0).toLocaleString('en-LK')
+            ]);
+
+            // Draw the bookings table
+            doc.autoTable({
+                startY: y + 6,  // Leave 6mm gap after the heading
+                head: [['ID', 'User', 'Vehicle', 'Start', 'End', 'Pickup', 'Status', 'Price']],
+                body: br.length ? br : [['—', '—', '—', '—', '—', '—', '—', '—']], // Show dashes if empty
+                theme: 'grid',
+                headStyles: TH,
+                bodyStyles: { ...TB, fontSize: 7 },  // Slightly smaller text in body
+                alternateRowStyles: TA,
+                margin: { left: 14, right: 14 }
+            });
         }
-        doc.save('Rentify_Bookings_'+now.toISOString().slice(0,10)+'.pdf');
-        showToast('✅ PDF downloaded!','success');
+
+
+        // Save the PDF file — the browser will download it automatically
+        // The filename includes today's date e.g. Rentify_Bookings_2025-01-15.pdf
+        doc.save('Rentify_Bookings_' + now.toISOString().slice(0, 10) + '.pdf');
+
+        // Show a green success toast message
+        showToast('✅ PDF downloaded!', 'success');
+
+        // Close the PDF modal
         $('#pdfOv').removeClass('open');
     }
 
-    $(function(){
-        checkApi();fetchBookings();
-        $('#refreshBtn').on('click',fetchBookings);
-        $('#pdfBtn').on('click',()=>{updPdf();$('#pdfOv').addClass('open');});
-        $('#genBtn').on('click',function(){$(this).prop('disabled',true).text('Generating…');setTimeout(()=>{generatePDF();$(this).prop('disabled',false).text('📄 Generate & Download');},100);});
-        $('#dClose,#dClose2').on('click',()=>$('#detailOv').removeClass('open'));
-        $('#pClose,#pCancel').on('click',()=>$('#pdfOv').removeClass('open'));
-        $('.ov').on('click',function(e){if(e.target===this)$(this).removeClass('open');});
+
+
+    // DOM READY — START THE APP
+    // This runs as soon as the page has fully loaded.
+    // Sets up all button click events and loads the initial data.
+
+    $(function() {
+
+        // Check if the backend is online and load all bookings
+        checkApi();
+        fetchBookings();
+
+        // Refresh button — reload bookings from the server
+        $('#refreshBtn').on('click', fetchBookings);
+
+        // PDF button — update the preview and open the PDF modal
+        $('#pdfBtn').on('click', () => {
+            updPdf();
+            $('#pdfOv').addClass('open');
+        });
+
+        // Generate button — disable it while the PDF is being made
+        // The 100ms delay lets the browser update the button text
+        // before the heavy PDF work starts and blocks the screen
+        $('#genBtn').on('click', function() {
+            $(this).prop('disabled', true).text('Generating…');
+            setTimeout(() => {
+                generatePDF();
+                $(this).prop('disabled', false).text('📄 Generate & Download');
+            }, 100);
+        });
+
+        // Close the booking detail modal when X or Close is clicked
+        $('#dClose, #dClose2').on('click', () => $('#detailOv').removeClass('open'));
+
+        // Close the PDF modal when Cancel or X is clicked
+        $('#pClose, #pCancel').on('click', () => $('#pdfOv').removeClass('open'));
+
+        // Close any modal when the dark background area is clicked
+        // e.target === this checks that the click was on the overlay
+        // and not on the modal box itself inside it
+        $('.ov').on('click', function(e) {
+            if (e.target === this) $(this).removeClass('open');
+        });
+
     });
+
 </script>
 </body>
 </html>

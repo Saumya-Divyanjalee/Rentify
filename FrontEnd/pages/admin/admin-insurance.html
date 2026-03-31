@@ -290,213 +290,589 @@
     </div>
 </div>
 <div id="toast"></div>
+<script src="../../js/jquery-3.7.1.min.js"></script>
 
 <script>
-    const API='http://localhost:8081/api/v1';
-    let allPolicies=[],allVehicles=[],editId=null,cancelId=null,delId=null,detailViewId=null;
-    const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    const fmtLKR=n=>'Rs '+Number(n||0).toLocaleString('en-LK');
-    function showToast(m,t){const $t=$('#toast');$t.text(m).attr('class','toast show '+(t||''));clearTimeout($t.data('tt'));$t.data('tt',setTimeout(()=>$t.attr('class','toast'),3500));}
-    function logout(){['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(k=>localStorage.removeItem(k));window.location.href='../sign-in.html';}
-    function getToken(){return localStorage.getItem('rentify_token')||'';}
-    function authH(){const t=getToken();return t?{Authorization:'Bearer '+t,'Content-Type':'application/json'}:{'Content-Type':'application/json'};}
-    function parseErr(xhr,fb){if(!xhr.responseJSON)return fb||'Network error';const j=xhr.responseJSON;if(j.errors)return Object.values(j.errors).join(', ');return j.message||j.error||fb||'Error';}
+    // Base URL for all API calls
+    const API = 'http://localhost:8081/api/v1';
 
-    const fn=localStorage.getItem('rentify_fullName')||localStorage.getItem('rentify_username')||'Admin';
-    const ini=fn.trim().split(/\s+/).map(x=>x[0]?.toUpperCase()).join('').slice(0,2)||'AD';
-    $('#sbAv').text(ini);$('#sbName').text(fn);
+    // Global lists and tracking variables
+    let allPolicies = [];      // All insurance policies loaded from the server
+    let allVehicles = [];      // All vehicles loaded from the server
+    let editId = null;         // ID of the policy currently being edited (null = adding new)
+    let cancelId = null;       // ID of the policy the user wants to cancel
+    let delId = null;          // ID of the policy the user wants to delete
+    let detailViewId = null;   // ID of the policy currently shown in the detail popup
 
-    function daysUntil(d){if(!d)return null;const n=new Date();n.setHours(0,0,0,0);return Math.ceil((new Date(d)-n)/86400000);}
-    function expiryClass(d,s){if(s!=='ACTIVE')return'';const v=daysUntil(d);if(v===null)return'';if(v<0||v<=7)return'exp-warn';if(v<=30)return'exp-caution';return'exp-ok';}
-    function expiryLabel(d,s){
-        if(!d)return'—';const v=daysUntil(d);
-        if(s!=='ACTIVE'||v===null)return d;
-        if(v<0)return d+` <span style="font-size:9px;font-weight:700;color:var(--red)">(${Math.abs(v)}d ago)</span>`;
-        if(v===0)return d+` <span style="font-size:9px;font-weight:700;color:var(--red)">(Today!)</span>`;
-        if(v<=30)return d+` <span style="font-size:9px;font-weight:700;color:var(--orange)">(${v}d left)</span>`;
-        return d;
+    // Escape special HTML characters to prevent broken HTML or attacks
+    const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    // Format a number as Sri Lankan Rupees (e.g. Rs 12,500)
+    const fmtLKR = n => 'Rs ' + Number(n || 0).toLocaleString('en-LK');
+
+    // Show a small popup message at the bottom of the screen
+    function showToast(m, t) {
+        const $t = $('#toast');
+        $t.text(m).attr('class', 'toast show ' + (t || ''));
+        clearTimeout($t.data('tt'));
+        // Hide the message after 3.5 seconds
+        $t.data('tt', setTimeout(() => $t.attr('class', 'toast'), 3500));
     }
 
-    function checkApi(){$.ajax({url:API+'/vehicles',method:'GET',timeout:5000,success:()=>{$('#apiDot').addClass('online').removeClass('offline');$('#apiTxt').text('API Online');},error:()=>{$('#apiDot').addClass('offline').removeClass('online');$('#apiTxt').text('API Offline');}});}
-    function loadVehicles(cb){$.ajax({url:API+'/vehicles',method:'GET',headers:authH(),success:function(r){allVehicles=Array.isArray(r)?r:(r.data||[]);if(cb)cb();},error:function(){allVehicles=[];}});}
+    // Log the user out by clearing saved login data and going back to the sign-in page
+    function logout() {
+        ['rentify_token', 'rentify_role', 'rentify_auth', 'rentify_username', 'rentify_fullName', 'rentify_email', 'rentify_userId']
+            .forEach(k => localStorage.removeItem(k));
+        window.location.href = '../sign-in.html';
+    }
 
-    function fetchPolicies(){
-        $('#insTable').html('<tr class="lrow"><td colspan="10"><span class="spin"></span>Loading…</td></tr>');
-        $.ajax({url:API+'/insurances',method:'GET',headers:authH(),
-            success:function(r){allPolicies=Array.isArray(r)?r:(r.data||[]);updateStats();renderTable(getFiltered());checkExpiryBanner();$('#lastFetch').text('Updated: '+new Date().toLocaleTimeString('en-LK'));},
-            error:function(xhr){const m=parseErr(xhr,'Failed');$('#insTable').html(`<tr class="erow"><td colspan="10">⚠️ ${esc(m)}</td></tr>`);showToast(m,'error');}
+    // Get the saved login token from the browser
+    function getToken() {
+        return localStorage.getItem('rentify_token') || '';
+    }
+
+    // Build request headers including the login token and content type
+    function authH() {
+        const t = getToken();
+        return t
+            ? { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }
+            : { 'Content-Type': 'application/json' };
+    }
+
+    // Pull a readable error message from a failed API response
+    function parseErr(xhr, fb) {
+        if (!xhr.responseJSON) return fb || 'Network error';
+        const j = xhr.responseJSON;
+        if (j.errors) return Object.values(j.errors).join(', ');
+        return j.message || j.error || fb || 'Error';
+    }
+
+    // Show the logged-in user's initials and name in the sidebar
+    const fn = localStorage.getItem('rentify_fullName') || localStorage.getItem('rentify_username') || 'Admin';
+    const ini = fn.trim().split(/\s+/).map(x => x[0]?.toUpperCase()).join('').slice(0, 2) || 'AD';
+    $('#sbAv').text(ini);
+    $('#sbName').text(fn);
+
+    // Calculate how many days are left until a given date (negative = already passed)
+    function daysUntil(d) {
+        if (!d) return null;
+        const n = new Date();
+        n.setHours(0, 0, 0, 0); // Compare dates only, not times
+        return Math.ceil((new Date(d) - n) / 86400000);
+    }
+
+    // Return a CSS class for the expiry date cell based on how close it is
+    function expiryClass(d, s) {
+        if (s !== 'ACTIVE') return ''; // Only color-code active policies
+        const v = daysUntil(d);
+        if (v === null) return '';
+        if (v < 0 || v <= 7) return 'exp-warn';     // Red: already expired or within 7 days
+        if (v <= 30) return 'exp-caution';            // Orange: within 30 days
+        return 'exp-ok';                              // Green: plenty of time left
+    }
+
+    // Build the expiry date display text, with a small countdown note if expiring soon
+    function expiryLabel(d, s) {
+        if (!d) return '—';
+        const v = daysUntil(d);
+        if (s !== 'ACTIVE' || v === null) return d;
+        if (v < 0)  return d + ` <span style="font-size:9px;font-weight:700;color:var(--red)">(${Math.abs(v)}d ago)</span>`;
+        if (v === 0) return d + ` <span style="font-size:9px;font-weight:700;color:var(--red)">(Today!)</span>`;
+        if (v <= 30) return d + ` <span style="font-size:9px;font-weight:700;color:var(--orange)">(${v}d left)</span>`;
+        return d; // More than 30 days left — just show the date
+    }
+
+    // Ping the vehicles endpoint to check if the API server is reachable
+    function checkApi() {
+        $.ajax({
+            url: API + '/vehicles',
+            method: 'GET',
+            timeout: 5000,
+            success: () => { $('#apiDot').addClass('online').removeClass('offline'); $('#apiTxt').text('API Online'); },
+            error:   () => { $('#apiDot').addClass('offline').removeClass('online'); $('#apiTxt').text('API Offline'); }
         });
     }
 
-    function updateStats(){
-        const e=p=>p.status==='ACTIVE'&&daysUntil(p.expiryDate)!==null&&daysUntil(p.expiryDate)<=30&&daysUntil(p.expiryDate)>=0;
+    // Load the full list of vehicles from the server (used to populate the vehicle picker)
+    function loadVehicles(cb) {
+        $.ajax({
+            url: API + '/vehicles',
+            method: 'GET',
+            headers: authH(),
+            success: function (r) {
+                allVehicles = Array.isArray(r) ? r : (r.data || []);
+                if (cb) cb(); // Run a follow-up function if one was passed in
+            },
+            error: function () { allVehicles = []; }
+        });
+    }
+
+    // Load all insurance policies from the server and refresh the page
+    function fetchPolicies() {
+        $('#insTable').html('<tr class="lrow"><td colspan="10"><span class="spin"></span>Loading…</td></tr>');
+        $.ajax({
+            url: API + '/insurances',
+            method: 'GET',
+            headers: authH(),
+            success: function (r) {
+                allPolicies = Array.isArray(r) ? r : (r.data || []);
+                updateStats();
+                renderTable(getFiltered());
+                checkExpiryBanner();
+                $('#lastFetch').text('Updated: ' + new Date().toLocaleTimeString('en-LK'));
+            },
+            error: function (xhr) {
+                const m = parseErr(xhr, 'Failed');
+                $('#insTable').html(`<tr class="erow"><td colspan="10">⚠️ ${esc(m)}</td></tr>`);
+                showToast(m, 'error');
+            }
+        });
+    }
+
+    // Update the summary numbers at the top of the page
+    function updateStats() {
+        // A policy counts as "expiring soon" if it's active and expires within 30 days
+        const e = p => p.status === 'ACTIVE' && daysUntil(p.expiryDate) !== null && daysUntil(p.expiryDate) <= 30 && daysUntil(p.expiryDate) >= 0;
         $('#st-total').text(allPolicies.length);
-        $('#st-active').text(allPolicies.filter(p=>p.status==='ACTIVE').length);
-        $('#st-expired').text(allPolicies.filter(p=>p.status==='EXPIRED').length);
-        $('#st-cancelled').text(allPolicies.filter(p=>p.status==='CANCELLED').length);
+        $('#st-active').text(allPolicies.filter(p => p.status === 'ACTIVE').length);
+        $('#st-expired').text(allPolicies.filter(p => p.status === 'EXPIRED').length);
+        $('#st-cancelled').text(allPolicies.filter(p => p.status === 'CANCELLED').length);
         $('#st-expiring').text(allPolicies.filter(e).length);
     }
 
-    function checkExpiryBanner(){
-        const e=allPolicies.filter(p=>p.status==='ACTIVE'&&daysUntil(p.expiryDate)!==null&&daysUntil(p.expiryDate)<=14&&daysUntil(p.expiryDate)>=0);
-        if(e.length>0)$('#expiryBanner').html(`⏰ <strong>${e.length} active polic${e.length>1?'ies are':'y is'} expiring within 14 days.</strong> Please renew them.`).addClass('show');
-        else $('#expiryBanner').removeClass('show');
+    // Show or hide the warning banner for policies expiring within 14 days
+    function checkExpiryBanner() {
+        const e = allPolicies.filter(p =>
+            p.status === 'ACTIVE' &&
+            daysUntil(p.expiryDate) !== null &&
+            daysUntil(p.expiryDate) <= 14 &&
+            daysUntil(p.expiryDate) >= 0
+        );
+        if (e.length > 0)
+            $('#expiryBanner')
+                .html(`⏰ <strong>${e.length} active polic${e.length > 1 ? 'ies are' : 'y is'} expiring within 14 days.</strong> Please renew them.`)
+                .addClass('show');
+        else
+            $('#expiryBanner').removeClass('show');
     }
 
-    function getFiltered(){
-        const q=$('#tSearch').val().toLowerCase().trim(),st=$('#tStatus').val(),cov=$('#tCoverage').val();
-        return allPolicies.filter(p=>{
-            if(st&&p.status!==st)return false;
-            if(cov&&p.coverageType!==cov)return false;
-            if(q){const hay=[p.policyNumber,p.providerName,p.vehiclePlateNumber,p.coverageType,p.notes].join(' ').toLowerCase();if(!hay.includes(q))return false;}
+    // Apply the current search text and dropdown filters to the full policy list
+    function getFiltered() {
+        const q   = $('#tSearch').val().toLowerCase().trim();
+        const st  = $('#tStatus').val();
+        const cov = $('#tCoverage').val();
+        return allPolicies.filter(p => {
+            if (st  && p.status       !== st)  return false; // Filter by status
+            if (cov && p.coverageType !== cov) return false; // Filter by coverage type
+            if (q) {
+                // Search across several fields at once
+                const hay = [p.policyNumber, p.providerName, p.vehiclePlateNumber, p.coverageType, p.notes].join(' ').toLowerCase();
+                if (!hay.includes(q)) return false;
+            }
             return true;
         });
     }
 
-    function renderTable(list){
+    // Build and display the rows of the insurance table
+    function renderTable(list) {
         $('#tCount').text(list.length);
-        if(!list.length){$('#insTable').html('<tr class="erow"><td colspan="10">🔍 No policies match.</td></tr>');return;}
-        $('#insTable').html(list.map(p=>{
-            const expCls=expiryClass(p.expiryDate,p.status),expLbl=expiryLabel(p.expiryDate,p.status);
-            return`<tr>
-      <td><span class="tdm" style="color:var(--accent);font-weight:700">${esc(p.policyNumber)}</span></td>
-      <td><div style="font-weight:700;color:var(--ink)">${esc(p.vehiclePlateNumber||'—')}</div></td>
-      <td style="font-weight:600">${esc(p.providerName)}</td>
-      <td><span style="font-size:11px">${esc(p.coverageType)}</span></td>
-      <td style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--green);font-weight:700">${fmtLKR(p.premiumAmount)}</td>
-      <td style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--accent)">${fmtLKR(p.coverageAmount)}</td>
-      <td><span class="tdm">${p.startDate||'—'}</span></td>
-      <td><span class="tdm ${expCls}">${expLbl}</span></td>
-      <td><span class="badge badge-${esc(p.status)}">${esc(p.status)}</span></td>
-      <td><div style="display:flex;gap:4px;flex-wrap:wrap">
-        <button class="btn btn-sm btn-view" data-id="${p.id}">👁</button>
-        <button class="btn btn-sm btn-edit-row" data-id="${p.id}">✏️</button>
-        ${p.status==='ACTIVE'?`<button class="btn-warn-sm btn-cancel-row" data-id="${p.id}" data-pnum="${esc(p.policyNumber)}">🚫</button>`:''}
-        <button class="btn-del btn-del-row" data-id="${p.id}" data-pnum="${esc(p.policyNumber)}">🗑️</button>
-      </div></td>
-    </tr>`;
+        if (!list.length) {
+            $('#insTable').html('<tr class="erow"><td colspan="10">🔍 No policies match.</td></tr>');
+            return;
+        }
+        $('#insTable').html(list.map(p => {
+            const expCls = expiryClass(p.expiryDate, p.status);
+            const expLbl = expiryLabel(p.expiryDate, p.status);
+            return `<tr>
+                <td><span class="tdm" style="color:var(--accent);font-weight:700">${esc(p.policyNumber)}</span></td>
+                <td><div style="font-weight:700;color:var(--ink)">${esc(p.vehiclePlateNumber || '—')}</div></td>
+                <td style="font-weight:600">${esc(p.providerName)}</td>
+                <td><span style="font-size:11px">${esc(p.coverageType)}</span></td>
+                <td style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--green);font-weight:700">${fmtLKR(p.premiumAmount)}</td>
+                <td style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--accent)">${fmtLKR(p.coverageAmount)}</td>
+                <td><span class="tdm">${p.startDate || '—'}</span></td>
+                <td><span class="tdm ${expCls}">${expLbl}</span></td>
+                <td><span class="badge badge-${esc(p.status)}">${esc(p.status)}</span></td>
+                <td><div style="display:flex;gap:4px;flex-wrap:wrap">
+                    <button class="btn btn-sm btn-view"       data-id="${p.id}">👁</button>
+                    <button class="btn btn-sm btn-edit-row"   data-id="${p.id}">✏️</button>
+                    ${p.status === 'ACTIVE'
+                ? `<button class="btn-warn-sm btn-cancel-row" data-id="${p.id}" data-pnum="${esc(p.policyNumber)}">🚫</button>`
+                : ''
+            }
+                    <button class="btn-del btn-del-row" data-id="${p.id}" data-pnum="${esc(p.policyNumber)}">🗑️</button>
+                </div></td>
+            </tr>`;
         }).join(''));
     }
 
-    // Vehicle selector
-    function buildVsel(f){const q=(f||'').toLowerCase();const m=allVehicles.filter(v=>!q||(v.model||'').toLowerCase().includes(q)||(v.plateNumber||'').toLowerCase().includes(q));if(!m.length)$('#vselDrop').html('<div class="vsel-none">No vehicles found</div>');else $('#vselDrop').html(m.map(v=>`<div class="vsel-opt" data-id="${v.id}" data-label="${esc(v.model)} — ${esc(v.plateNumber)}"><span class="vsel-opt-name">${esc(v.model)}</span><span class="vsel-opt-plate">${esc(v.plateNumber)}</span></div>`).join(''));}
-    function openVsel(){buildVsel($('#vselInput').val());$('#vselDrop').addClass('open');$('#vselSearch').addClass('open');}
-    function closeVsel(){$('#vselDrop').removeClass('open');$('#vselSearch').removeClass('open');}
-    function setVehicle(id,label){$('#f_vehicleId').val(id);$('#vselInput').val(label);closeVsel();$('#e_vehicleId').removeClass('show');}
+    // --- Vehicle Selector (custom searchable dropdown) ---
 
-    function clearForm(){$('#f_vehicleId').val('');$('#vselInput').val('');$('#f_policyNumber,#f_providerName,#f_coverageType,#f_premiumAmount,#f_coverageAmount,#f_startDate,#f_expiryDate,#f_notes').val('');$('#f_status').val('ACTIVE');$('.ferr').removeClass('show');}
+    // Rebuild the vehicle dropdown list, filtering by the text the user typed
+    function buildVsel(f) {
+        const q = (f || '').toLowerCase();
+        const m = allVehicles.filter(v =>
+            !q ||
+            (v.model || '').toLowerCase().includes(q) ||
+            (v.plateNumber || '').toLowerCase().includes(q)
+        );
+        if (!m.length)
+            $('#vselDrop').html('<div class="vsel-none">No vehicles found</div>');
+        else
+            $('#vselDrop').html(m.map(v =>
+                `<div class="vsel-opt" data-id="${v.id}" data-label="${esc(v.model)} — ${esc(v.plateNumber)}">
+                    <span class="vsel-opt-name">${esc(v.model)}</span>
+                    <span class="vsel-opt-plate">${esc(v.plateNumber)}</span>
+                </div>`
+            ).join(''));
+    }
 
-    function openAdd(){editId=null;clearForm();$('#mTitle').text('ADD INSURANCE POLICY');$('#mSave').text('Add Policy').prop('disabled',false);loadVehicles();$('#insModal').addClass('open');}
+    // Show the vehicle dropdown
+    function openVsel() {
+        buildVsel($('#vselInput').val());
+        $('#vselDrop').addClass('open');
+        $('#vselSearch').addClass('open');
+    }
 
-    function openEdit(id){
-        const p=allPolicies.find(x=>x.id===id);if(!p){showToast('Policy not found','error');return;}
-        editId=id;clearForm();$('#mTitle').text('EDIT INSURANCE POLICY');$('#mSave').prop('disabled',true).text('Loading…');$('#insModal').addClass('open');
-        loadVehicles(function(){
+    // Hide the vehicle dropdown
+    function closeVsel() {
+        $('#vselDrop').removeClass('open');
+        $('#vselSearch').removeClass('open');
+    }
+
+    // Save the selected vehicle ID and show its label in the input box
+    function setVehicle(id, label) {
+        $('#f_vehicleId').val(id);
+        $('#vselInput').val(label);
+        closeVsel();
+        $('#e_vehicleId').removeClass('show'); // Hide the "vehicle required" error
+    }
+
+    // Clear all form fields and hide any validation error messages
+    function clearForm() {
+        $('#f_vehicleId').val('');
+        $('#vselInput').val('');
+        $('#f_policyNumber, #f_providerName, #f_coverageType, #f_premiumAmount, #f_coverageAmount, #f_startDate, #f_expiryDate, #f_notes').val('');
+        $('#f_status').val('ACTIVE');
+        $('.ferr').removeClass('show');
+    }
+
+    // Open the modal dialog to add a brand-new policy
+    function openAdd() {
+        editId = null;
+        clearForm();
+        $('#mTitle').text('ADD INSURANCE POLICY');
+        $('#mSave').text('Add Policy').prop('disabled', false);
+        loadVehicles();
+        $('#insModal').addClass('open');
+    }
+
+    // Open the modal dialog to edit an existing policy, pre-filled with its data
+    function openEdit(id) {
+        const p = allPolicies.find(x => x.id === id);
+        if (!p) { showToast('Policy not found', 'error'); return; }
+
+        editId = id;
+        clearForm();
+        $('#mTitle').text('EDIT INSURANCE POLICY');
+        $('#mSave').prop('disabled', true).text('Loading…');
+        $('#insModal').addClass('open');
+
+        // Load vehicles first, then fill in all the form fields
+        loadVehicles(function () {
             $('#f_vehicleId').val(p.vehicleId);
-            const v=allVehicles.find(x=>x.id===p.vehicleId);
-            $('#vselInput').val(v?v.model+' — '+v.plateNumber:p.vehiclePlateNumber||'');
-            $('#f_policyNumber').val(p.policyNumber||'');$('#f_providerName').val(p.providerName||'');$('#f_coverageType').val(p.coverageType||'');$('#f_status').val(p.status||'ACTIVE');$('#f_premiumAmount').val(p.premiumAmount||'');$('#f_coverageAmount').val(p.coverageAmount||'');$('#f_startDate').val(p.startDate||'');$('#f_expiryDate').val(p.expiryDate||'');$('#f_notes').val(p.notes||'');
-            $('#mSave').prop('disabled',false).text('Save Changes');
+
+            // Show the vehicle model and plate number in the search box
+            const v = allVehicles.find(x => x.id === p.vehicleId);
+            $('#vselInput').val(v ? v.model + ' — ' + v.plateNumber : p.vehiclePlateNumber || '');
+
+            $('#f_policyNumber').val(p.policyNumber  || '');
+            $('#f_providerName').val(p.providerName  || '');
+            $('#f_coverageType').val(p.coverageType  || '');
+            $('#f_status').val(p.status              || 'ACTIVE');
+            $('#f_premiumAmount').val(p.premiumAmount || '');
+            $('#f_coverageAmount').val(p.coverageAmount || '');
+            $('#f_startDate').val(p.startDate        || '');
+            $('#f_expiryDate').val(p.expiryDate      || '');
+            $('#f_notes').val(p.notes                || '');
+
+            $('#mSave').prop('disabled', false).text('Save Changes');
         });
     }
 
-    function validateForm(){
-        let ok=true;
-        function chk(c,id){if(!c){$('#'+id).addClass('show');ok=false;}else{$('#'+id).removeClass('show');}}
-        chk(!!$('#f_vehicleId').val(),'e_vehicleId');
-        chk(($('#f_policyNumber').val()||'').trim().length>=1&&($('#f_policyNumber').val()||'').trim().length<=50,'e_policyNumber');
-        chk(($('#f_providerName').val()||'').trim().length>=1,'e_providerName');
-        chk(($('#f_coverageType').val()||'').trim().length>=1,'e_coverageType');
-        chk(parseFloat($('#f_premiumAmount').val())>0,'e_premiumAmount');
-        chk(parseFloat($('#f_coverageAmount').val())>0,'e_coverageAmount');
-        chk(!!$('#f_startDate').val(),'e_startDate');
-        const sd=$('#f_startDate').val(),ed=$('#f_expiryDate').val();
-        chk(!!ed&&new Date(ed)>new Date(sd),'e_expiryDate');
+    // Check all form fields and show error messages for anything invalid
+    function validateForm() {
+        let ok = true;
+
+        // Helper: show an error element if the condition is false, hide it if true
+        function chk(condition, errorId) {
+            if (!condition) { $('#' + errorId).addClass('show'); ok = false; }
+            else              $('#' + errorId).removeClass('show');
+        }
+
+        chk(!!$('#f_vehicleId').val(), 'e_vehicleId');                                        // Vehicle must be selected
+        chk(($('#f_policyNumber').val() || '').trim().length >= 1 &&
+            ($('#f_policyNumber').val() || '').trim().length <= 50, 'e_policyNumber');         // 1–50 characters
+        chk(($('#f_providerName').val() || '').trim().length >= 1, 'e_providerName');          // Cannot be empty
+        chk(($('#f_coverageType').val() || '').trim().length >= 1, 'e_coverageType');          // Cannot be empty
+        chk(parseFloat($('#f_premiumAmount').val()) > 0, 'e_premiumAmount');                   // Must be a positive number
+        chk(parseFloat($('#f_coverageAmount').val()) > 0, 'e_coverageAmount');                 // Must be a positive number
+        chk(!!$('#f_startDate').val(), 'e_startDate');                                         // Start date is required
+
+        // Expiry date must exist and come after the start date
+        const sd = $('#f_startDate').val(), ed = $('#f_expiryDate').val();
+        chk(!!ed && new Date(ed) > new Date(sd), 'e_expiryDate');
+
         return ok;
     }
 
-    function buildPayload(){return{vehicleId:parseInt($('#f_vehicleId').val()),policyNumber:$('#f_policyNumber').val().trim(),providerName:$('#f_providerName').val().trim(),coverageType:$('#f_coverageType').val().trim(),status:$('#f_status').val(),premiumAmount:parseFloat($('#f_premiumAmount').val()),coverageAmount:parseFloat($('#f_coverageAmount').val()),startDate:$('#f_startDate').val(),expiryDate:$('#f_expiryDate').val(),notes:$('#f_notes').val().trim()||null};}
+    // Collect all form values into one object ready to send to the server
+    function buildPayload() {
+        return {
+            vehicleId:      parseInt($('#f_vehicleId').val()),
+            policyNumber:   $('#f_policyNumber').val().trim(),
+            providerName:   $('#f_providerName').val().trim(),
+            coverageType:   $('#f_coverageType').val().trim(),
+            status:         $('#f_status').val(),
+            premiumAmount:  parseFloat($('#f_premiumAmount').val()),
+            coverageAmount: parseFloat($('#f_coverageAmount').val()),
+            startDate:      $('#f_startDate').val(),
+            expiryDate:     $('#f_expiryDate').val(),
+            notes:          $('#f_notes').val().trim() || null
+        };
+    }
 
-    function savePolicy(){
-        if(!validateForm())return;if(!getToken()){showToast('Not logged in','error');return;}
-        const isEdit=editId!==null,url=isEdit?`${API}/insurances/${editId}`:`${API}/insurances`,method=isEdit?'PUT':'POST';
-        $('#mSave').prop('disabled',true).text(isEdit?'Saving…':'Adding…');
-        $.ajax({url,method,headers:authH(),data:JSON.stringify(buildPayload()),
-            success:function(r){const saved=r.data||r;if(isEdit){const idx=allPolicies.findIndex(p=>p.id===editId);if(idx>=0)allPolicies[idx]=saved;else allPolicies.push(saved);}else allPolicies.push(saved);updateStats();renderTable(getFiltered());checkExpiryBanner();$('#insModal').removeClass('open');showToast((isEdit?'Policy updated':'Policy added')+' ✅','success');},
-            error:function(xhr){let m=parseErr(xhr,isEdit?'Update failed':'Add failed');if(xhr.status===401)m='401 — Token expired';if(xhr.status===403)m='403 — ADMIN required';if(xhr.status===0)m='Cannot reach server';showToast(m,'error');},
-            complete:function(){$('#mSave').prop('disabled',false).text(editId!==null?'Save Changes':'Add Policy');}
+    // Save the policy to the server (either add new or update existing)
+    function savePolicy() {
+        if (!validateForm()) return;
+        if (!getToken()) { showToast('Not logged in', 'error'); return; }
+
+        const isEdit = editId !== null;
+        const url    = isEdit ? `${API}/insurances/${editId}` : `${API}/insurances`;
+        const method = isEdit ? 'PUT' : 'POST';
+
+        $('#mSave').prop('disabled', true).text(isEdit ? 'Saving…' : 'Adding…');
+
+        $.ajax({
+            url, method,
+            headers: authH(),
+            data: JSON.stringify(buildPayload()),
+            success: function (r) {
+                const saved = r.data || r;
+
+                // Update the local list so the table reflects the change immediately
+                if (isEdit) {
+                    const idx = allPolicies.findIndex(p => p.id === editId);
+                    if (idx >= 0) allPolicies[idx] = saved;
+                    else allPolicies.push(saved);
+                } else {
+                    allPolicies.push(saved);
+                }
+
+                updateStats();
+                renderTable(getFiltered());
+                checkExpiryBanner();
+                $('#insModal').removeClass('open');
+                showToast((isEdit ? 'Policy updated' : 'Policy added') + ' ✅', 'success');
+            },
+            error: function (xhr) {
+                // Give a specific message for common HTTP errors
+                let m = parseErr(xhr, isEdit ? 'Update failed' : 'Add failed');
+                if (xhr.status === 401) m = '401 — Token expired';
+                if (xhr.status === 403) m = '403 — ADMIN required';
+                if (xhr.status === 0)   m = 'Cannot reach server';
+                showToast(m, 'error');
+            },
+            complete: function () {
+                // Re-enable the save button regardless of success or failure
+                $('#mSave').prop('disabled', false).text(editId !== null ? 'Save Changes' : 'Add Policy');
+            }
         });
     }
 
-    function openDetail(id){
-        const p=allPolicies.find(x=>x.id===id);if(!p)return;
-        detailViewId=id;
-        $('#detailTitle').text('🛡️ '+esc(p.policyNumber||'Policy Details'));
-        const d=daysUntil(p.expiryDate),expCls=expiryClass(p.expiryDate,p.status);
-        const expLabel=p.expiryDate+(p.status==='ACTIVE'&&d!==null?(d<0?` (expired ${Math.abs(d)}d ago)`:` (${d}d remaining)`):'');
+    // Open the detail popup showing all information about one policy
+    function openDetail(id) {
+        const p = allPolicies.find(x => x.id === id);
+        if (!p) return;
+        detailViewId = id;
+
+        $('#detailTitle').text('🛡️ ' + esc(p.policyNumber || 'Policy Details'));
+
+        const d      = daysUntil(p.expiryDate);
+        const expCls = expiryClass(p.expiryDate, p.status);
+
+        // Build the expiry label with a remaining-days note for active policies
+        const expLabel = p.expiryDate + (
+            p.status === 'ACTIVE' && d !== null
+                ? (d < 0 ? ` (expired ${Math.abs(d)}d ago)` : ` (${d}d remaining)`)
+                : ''
+        );
+
+        // Fill the detail panel with all policy fields
         $('#detailBody').html(`<div class="detail-grid">
-    <div class="dg-item"><div class="dg-lbl">Policy Number</div><div class="dg-val mono" style="color:var(--accent);font-weight:700">${esc(p.policyNumber)}</div></div>
-    <div class="dg-item"><div class="dg-lbl">Status</div><div class="dg-val"><span class="badge badge-${esc(p.status)}">${esc(p.status)}</span></div></div>
-    <div class="dg-item"><div class="dg-lbl">Vehicle Plate</div><div class="dg-val mono">${esc(p.vehiclePlateNumber||'—')}</div></div>
-    <div class="dg-item"><div class="dg-lbl">Vehicle ID</div><div class="dg-val mono">#${p.vehicleId||'—'}</div></div>
-    <div class="dg-item"><div class="dg-lbl">Provider</div><div class="dg-val">${esc(p.providerName)}</div></div>
-    <div class="dg-item"><div class="dg-lbl">Coverage Type</div><div class="dg-val">${esc(p.coverageType)}</div></div>
-    <div class="dg-item"><div class="dg-lbl">Annual Premium</div><div class="dg-val" style="color:var(--green);font-weight:700">${fmtLKR(p.premiumAmount)}</div></div>
-    <div class="dg-item"><div class="dg-lbl">Max Coverage</div><div class="dg-val" style="color:var(--accent);font-weight:700">${fmtLKR(p.coverageAmount)}</div></div>
-    <div class="dg-item"><div class="dg-lbl">Start Date</div><div class="dg-val mono">${p.startDate||'—'}</div></div>
-    <div class="dg-item"><div class="dg-lbl">Expiry Date</div><div class="dg-val mono ${expCls}">${expLabel}</div></div>
-    <div class="dg-item" style="grid-column:1/-1"><div class="dg-lbl">Notes</div><div class="dg-val">${esc(p.notes||'—')}</div></div>
-  </div>`);
+            <div class="dg-item"><div class="dg-lbl">Policy Number</div><div class="dg-val mono" style="color:var(--accent);font-weight:700">${esc(p.policyNumber)}</div></div>
+            <div class="dg-item"><div class="dg-lbl">Status</div><div class="dg-val"><span class="badge badge-${esc(p.status)}">${esc(p.status)}</span></div></div>
+            <div class="dg-item"><div class="dg-lbl">Vehicle Plate</div><div class="dg-val mono">${esc(p.vehiclePlateNumber || '—')}</div></div>
+            <div class="dg-item"><div class="dg-lbl">Vehicle ID</div><div class="dg-val mono">#${p.vehicleId || '—'}</div></div>
+            <div class="dg-item"><div class="dg-lbl">Provider</div><div class="dg-val">${esc(p.providerName)}</div></div>
+            <div class="dg-item"><div class="dg-lbl">Coverage Type</div><div class="dg-val">${esc(p.coverageType)}</div></div>
+            <div class="dg-item"><div class="dg-lbl">Annual Premium</div><div class="dg-val" style="color:var(--green);font-weight:700">${fmtLKR(p.premiumAmount)}</div></div>
+            <div class="dg-item"><div class="dg-lbl">Max Coverage</div><div class="dg-val" style="color:var(--accent);font-weight:700">${fmtLKR(p.coverageAmount)}</div></div>
+            <div class="dg-item"><div class="dg-lbl">Start Date</div><div class="dg-val mono">${p.startDate || '—'}</div></div>
+            <div class="dg-item"><div class="dg-lbl">Expiry Date</div><div class="dg-val mono ${expCls}">${expLabel}</div></div>
+            <div class="dg-item" style="grid-column:1/-1"><div class="dg-lbl">Notes</div><div class="dg-val">${esc(p.notes || '—')}</div></div>
+        </div>`);
+
         $('#detailModal').addClass('open');
     }
 
-    function doCancel(){
-        if(!cancelId)return;$('#cancelConfirm').prop('disabled',true).text('Cancelling…');
-        $.ajax({url:`${API}/insurances/${cancelId}/cancel`,method:'PATCH',headers:authH(),
-            success:function(r){const saved=r.data||r;const idx=allPolicies.findIndex(p=>p.id===cancelId);if(idx>=0)allPolicies[idx]=saved;updateStats();renderTable(getFiltered());checkExpiryBanner();$('#cancelModal').removeClass('open');showToast('Policy cancelled ✅','warn');},
-            error:function(xhr){showToast(parseErr(xhr,'Cancel failed'),'error');},
-            complete:function(){$('#cancelConfirm').prop('disabled',false).text('Yes, Cancel Policy');}
+    // Send a cancel request to the server for the selected policy
+    function doCancel() {
+        if (!cancelId) return;
+        $('#cancelConfirm').prop('disabled', true).text('Cancelling…');
+        $.ajax({
+            url: `${API}/insurances/${cancelId}/cancel`,
+            method: 'PATCH',
+            headers: authH(),
+            success: function (r) {
+                const saved = r.data || r;
+                // Replace the old policy data with the updated (cancelled) version
+                const idx = allPolicies.findIndex(p => p.id === cancelId);
+                if (idx >= 0) allPolicies[idx] = saved;
+                updateStats();
+                renderTable(getFiltered());
+                checkExpiryBanner();
+                $('#cancelModal').removeClass('open');
+                showToast('Policy cancelled ✅', 'warn');
+            },
+            error:    function (xhr) { showToast(parseErr(xhr, 'Cancel failed'), 'error'); },
+            complete: function ()    { $('#cancelConfirm').prop('disabled', false).text('Yes, Cancel Policy'); }
         });
     }
 
-    function doDelete(){
-        if(!delId)return;$('#delConfirm').prop('disabled',true).text('Deleting…');
-        $.ajax({url:`${API}/insurances/${delId}`,method:'DELETE',headers:authH(),
-            success:function(){allPolicies=allPolicies.filter(p=>p.id!==delId);updateStats();renderTable(getFiltered());checkExpiryBanner();$('#delModal').removeClass('open');showToast('Policy deleted ✅','success');},
-            error:function(xhr){showToast(parseErr(xhr,'Delete failed'),'error');},
-            complete:function(){$('#delConfirm').prop('disabled',false).text('Delete Permanently');}
+    // Send a delete request to the server and remove the policy from the local list
+    function doDelete() {
+        if (!delId) return;
+        $('#delConfirm').prop('disabled', true).text('Deleting…');
+        $.ajax({
+            url: `${API}/insurances/${delId}`,
+            method: 'DELETE',
+            headers: authH(),
+            success: function () {
+                allPolicies = allPolicies.filter(p => p.id !== delId); // Remove from local list
+                updateStats();
+                renderTable(getFiltered());
+                checkExpiryBanner();
+                $('#delModal').removeClass('open');
+                showToast('Policy deleted ✅', 'success');
+            },
+            error:    function (xhr) { showToast(parseErr(xhr, 'Delete failed'), 'error'); },
+            complete: function ()    { $('#delConfirm').prop('disabled', false).text('Delete Permanently'); }
         });
     }
 
-    function showExpiringOnly(){
-        $('#tStatus').val('ACTIVE');$('#tSearch').val('');
-        const e=allPolicies.filter(p=>p.status==='ACTIVE'&&daysUntil(p.expiryDate)!==null&&daysUntil(p.expiryDate)<=30&&daysUntil(p.expiryDate)>=0);
+    // Filter the table to show only active policies expiring within 30 days
+    function showExpiringOnly() {
+        $('#tStatus').val('ACTIVE');
+        $('#tSearch').val('');
+        const e = allPolicies.filter(p =>
+            p.status === 'ACTIVE' &&
+            daysUntil(p.expiryDate) !== null &&
+            daysUntil(p.expiryDate) <= 30 &&
+            daysUntil(p.expiryDate) >= 0
+        );
         $('#tCount').text(e.length);
-        if(!e.length){showToast('No policies expiring within 30 days 🎉','success');renderTable(getFiltered());return;}
-        renderTable(e);showToast(`Showing ${e.length} expiring polic${e.length>1?'ies':'y'}…`,'warn');
+        if (!e.length) {
+            showToast('No policies expiring within 30 days 🎉', 'success');
+            renderTable(getFiltered());
+            return;
+        }
+        renderTable(e);
+        showToast(`Showing ${e.length} expiring polic${e.length > 1 ? 'ies' : 'y'}…`, 'warn');
     }
 
-    $(function(){
-        checkApi();fetchPolicies();
-        $('#addBtn').on('click',openAdd);$('#refreshBtn').on('click',fetchPolicies);$('#expiringBtn').on('click',showExpiringOnly);
-        let sT;$('#tSearch').on('input',function(){clearTimeout(sT);sT=setTimeout(()=>renderTable(getFiltered()),260);});
-        $('#tStatus,#tCoverage').on('change',()=>renderTable(getFiltered()));
-        $(document).on('click','.btn-view',function(e){e.stopPropagation();openDetail(parseInt($(this).data('id')));});
-        $(document).on('click','.btn-edit-row',function(e){e.stopPropagation();openEdit(parseInt($(this).data('id')));});
-        $(document).on('click','.btn-cancel-row',function(e){e.stopPropagation();cancelId=parseInt($(this).data('id'));$('#cancelPolicyNum').text($(this).data('pnum'));$('#cancelModal').addClass('open');});
-        $(document).on('click','.btn-del-row',function(e){e.stopPropagation();delId=parseInt($(this).data('id'));$('#delPolicyNum').text($(this).data('pnum'));$('#delModal').addClass('open');});
-        $('#mSave').on('click',savePolicy);
-        $('#mClose,#mCancel').on('click',()=>{$('#insModal').removeClass('open');editId=null;});
-        $('#insModal').on('click',function(e){if(e.target===this){$(this).removeClass('open');editId=null;}});
-        $('#detailClose,#detailCloseBtn').on('click',()=>$('#detailModal').removeClass('open'));
-        $('#detailModal').on('click',function(e){if(e.target===this)$(this).removeClass('open');});
-        $('#detailEdit').on('click',()=>{$('#detailModal').removeClass('open');if(detailViewId)openEdit(detailViewId);});
-        $('#cancelConfirm').on('click',doCancel);$('#cancelClose,#cancelAbort').on('click',()=>$('#cancelModal').removeClass('open'));$('#cancelModal').on('click',function(e){if(e.target===this)$(this).removeClass('open');});
-        $('#delConfirm').on('click',doDelete);$('#delClose,#delAbort').on('click',()=>$('#delModal').removeClass('open'));$('#delModal').on('click',function(e){if(e.target===this)$(this).removeClass('open');});
-        $('#vselInput').on('focus click',function(){buildVsel($(this).val());openVsel();});
-        $('#vselInput').on('input',function(){buildVsel($(this).val());$('#vselDrop').addClass('open');$('#f_vehicleId').val('');});
-        $(document).on('click','.vsel-opt',function(){setVehicle($(this).data('id'),$(this).data('label'));});
-        $(document).on('click',function(e){if(!$(e.target).closest('#vselWrap').length)closeVsel();});
+    // --- Page Setup: runs once the page has fully loaded ---
+    $(function () {
+
+        checkApi();       // Check if the backend server is reachable
+        fetchPolicies();  // Load and display all policies
+
+        // Toolbar buttons
+        $('#addBtn').on('click', openAdd);
+        $('#refreshBtn').on('click', fetchPolicies);
+        $('#expiringBtn').on('click', showExpiringOnly);
+
+        // Wait 260ms after the user stops typing before re-filtering (avoids too many updates)
+        let sT;
+        $('#tSearch').on('input', function () {
+            clearTimeout(sT);
+            sT = setTimeout(() => renderTable(getFiltered()), 260);
+        });
+
+        // Re-filter immediately when the status or coverage dropdowns change
+        $('#tStatus, #tCoverage').on('change', () => renderTable(getFiltered()));
+
+        // Table row action buttons (attached to the document because rows are added dynamically)
+        $(document).on('click', '.btn-view',       function (e) { e.stopPropagation(); openDetail(parseInt($(this).data('id'))); });
+        $(document).on('click', '.btn-edit-row',   function (e) { e.stopPropagation(); openEdit(parseInt($(this).data('id'))); });
+        $(document).on('click', '.btn-cancel-row', function (e) {
+            e.stopPropagation();
+            cancelId = parseInt($(this).data('id'));
+            $('#cancelPolicyNum').text($(this).data('pnum'));
+            $('#cancelModal').addClass('open');
+        });
+        $(document).on('click', '.btn-del-row', function (e) {
+            e.stopPropagation();
+            delId = parseInt($(this).data('id'));
+            $('#delPolicyNum').text($(this).data('pnum'));
+            $('#delModal').addClass('open');
+        });
+
+        // Add/Edit modal buttons
+        $('#mSave').on('click', savePolicy);
+        $('#mClose, #mCancel').on('click', () => { $('#insModal').removeClass('open'); editId = null; });
+        $('#insModal').on('click', function (e) { if (e.target === this) { $(this).removeClass('open'); editId = null; } });
+
+        // Detail view modal buttons
+        $('#detailClose, #detailCloseBtn').on('click', () => $('#detailModal').removeClass('open'));
+        $('#detailModal').on('click', function (e) { if (e.target === this) $(this).removeClass('open'); });
+        $('#detailEdit').on('click', () => {
+            $('#detailModal').removeClass('open');
+            if (detailViewId) openEdit(detailViewId); // Switch straight to the edit form
+        });
+
+        // Cancel confirmation modal buttons
+        $('#cancelConfirm').on('click', doCancel);
+        $('#cancelClose, #cancelAbort').on('click', () => $('#cancelModal').removeClass('open'));
+        $('#cancelModal').on('click', function (e) { if (e.target === this) $(this).removeClass('open'); });
+
+        // Delete confirmation modal buttons
+        $('#delConfirm').on('click', doDelete);
+        $('#delClose, #delAbort').on('click', () => $('#delModal').removeClass('open'));
+        $('#delModal').on('click', function (e) { if (e.target === this) $(this).removeClass('open'); });
+
+        // Vehicle selector: open the dropdown when the user clicks or focuses the input
+        $('#vselInput').on('focus click', function () {
+            buildVsel($(this).val());
+            openVsel();
+        });
+
+        // Vehicle selector: filter the dropdown list as the user types
+        $('#vselInput').on('input', function () {
+            buildVsel($(this).val());
+            $('#vselDrop').addClass('open');
+            $('#f_vehicleId').val(''); // Clear the hidden ID because the selection changed
+        });
+
+        // Vehicle selector: set the chosen vehicle when the user clicks a dropdown option
+        $(document).on('click', '.vsel-opt', function () {
+            setVehicle($(this).data('id'), $(this).data('label'));
+        });
+
+        // Vehicle selector: close the dropdown when the user clicks anywhere outside it
+        $(document).on('click', function (e) {
+            if (!$(e.target).closest('#vselWrap').length) closeVsel();
+        });
     });
 </script>
 </body>

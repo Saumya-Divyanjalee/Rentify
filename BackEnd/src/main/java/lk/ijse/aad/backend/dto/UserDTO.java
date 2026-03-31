@@ -11,7 +11,7 @@ public class UserDTO {
     private String username;
     private String email;
     private String phone;
-    private String password;          // receive only — never returned
+    private String password;
     private String role;
     private String profileImageBase64;
     private String imageType;

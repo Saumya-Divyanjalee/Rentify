@@ -12,8 +12,7 @@ public class PayHereHashUtil {
 
     private PayHereHashUtil() {}
 
-    // ── MD5 helper ───────────────────────────────────────────────
-    public static String md5(String input) {
+     public static String md5(String input) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] hash = md.digest(input.getBytes(StandardCharsets.UTF_8));
@@ -30,16 +29,11 @@ public class PayHereHashUtil {
         }
     }
 
-    // ── Format amount exactly like PayHere requires ───────────────
-    public static String formatAmount(BigDecimal amount) {
+     public static String formatAmount(BigDecimal amount) {
         return amount.setScale(2, RoundingMode.HALF_UP).toPlainString();
     }
 
-    // ── Generate checkout hash ────────────────────────────────────
-    /*
-       PayHere Formula:
-       MD5(merchant_id + order_id + amount + currency + MD5(secret).toUpperCase()).toUpperCase()
-    */
+
     public static String generateCheckoutHash(
             String merchantId,
             String orderId,
@@ -71,11 +65,7 @@ public class PayHereHashUtil {
         return finalHash;
     }
 
-    // ── Verify notify hash ────────────────────────────────────────
-    /*
-       PayHere Notify Formula:
-       MD5(merchant_id + order_id + payhere_amount + payhere_currency + status_code + MD5(secret).toUpperCase())
-    */
+
     public static boolean verifyNotifyHash(
             String merchantId,
             String orderId,

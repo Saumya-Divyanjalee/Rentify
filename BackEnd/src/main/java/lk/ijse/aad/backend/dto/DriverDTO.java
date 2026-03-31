@@ -17,7 +17,7 @@ public class DriverDTO {
     private String phone;
     private String licenceNo;
     private LocalDate licenceExpiry;
-    private String vehicleType;   // String for easy JSON binding
+    private String vehicleType;
     private String status;
-    private String profilePic;   // Base64
+    private String profilePic;
 }

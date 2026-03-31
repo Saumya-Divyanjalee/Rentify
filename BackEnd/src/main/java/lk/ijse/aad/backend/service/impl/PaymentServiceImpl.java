@@ -34,9 +34,9 @@ import java.util.stream.Collectors;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final BookingRepository  bookingRepository;
-    private final UserRepository   userRepository;
-    private final VehicleRepository  vehicleRepository;
+    private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
+    private final VehicleRepository vehicleRepository;
     private final EmailService emailService;
 
 
@@ -44,36 +44,30 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public PaymentResponseDTO processPayment(PaymentDTO dto, String username) {
 
-        // Step 1 - User gannawa (JWT token ekin aawa username use karanawa)
-        User user = userRepository.findByUsername(username)
+         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
 
-        // Step 2 - Booking gannawa
-        Booking booking = bookingRepository.findById(dto.getBookingId())
+         Booking booking = bookingRepository.findById(dto.getBookingId())
                 .orElseThrow(() -> new RuntimeException("Booking not found: " + dto.getBookingId()));
 
-        // Step 3 - Booking user-ta belong wenawada check karanawa
-        if (!booking.getUser().getUserId().equals(user.getUserId())) {
+         if (!booking.getUser().getUserId().equals(user.getUserId())) {
             throw new RuntimeException("This booking does not belong to you.");
         }
 
-        // Step 4 - Already paid check
-        paymentRepository.findByBooking_Id(booking.getId()).ifPresent(p -> {
+         paymentRepository.findByBooking_Id(booking.getId()).ifPresent(p -> {
             if (p.getStatus() == PaymentStatus.COMPLETED) {
                 throw new RuntimeException("This booking is already paid. Transaction: " + p.getTransactionId());
             }
         });
 
-        // Step 5 - Payment entity hada gannawa
-        Payment payment = new Payment();
+         Payment payment = new Payment();
         payment.setBooking(booking);
         payment.setUser(user);
         payment.setAmount(dto.getAmount());
         payment.setCurrency(dto.getCurrency() != null ? dto.getCurrency() : "LKR");
         payment.setTransactionId("TXN-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase());
 
-        // Step 6 - Payment method anuwata handle karanawa
-        PaymentMethod method = PaymentMethod.valueOf(dto.getPaymentMethod().toUpperCase());
+         PaymentMethod method = PaymentMethod.valueOf(dto.getPaymentMethod().toUpperCase());
         payment.setPaymentMethod(method);
 
         switch (method) {
@@ -86,8 +80,7 @@ public class PaymentServiceImpl implements PaymentService {
                 payment.setStatus(PaymentStatus.COMPLETED);
             }
             case CASH -> {
-                // Cash ekedi driver thamai genawa — PENDING thenawa
-                payment.setStatus(PaymentStatus.PENDING);
+                 payment.setStatus(PaymentStatus.PENDING);
             }
             case ONLINE -> {
                 // Real gateway nattam PENDING, gateway use karat COMPLETED
@@ -95,23 +88,20 @@ public class PaymentServiceImpl implements PaymentService {
             }
         }
 
-        // Step 7  Save
+
         Payment saved = paymentRepository.save(payment);
 
-        // Step 8 ── Payment COMPLETED nattam booking CONFIRMED + Vehicle BOOKED karanawa
-        if (saved.getStatus() == PaymentStatus.COMPLETED) {
+         if (saved.getStatus() == PaymentStatus.COMPLETED) {
             booking.setStatus(BookingStatus.CONFIRMED);
             bookingRepository.save(booking);
 
-            // Vehicle status BOOKED karanawa — available naha kiyala dekhennawa
-            if (booking.getVehicle() != null) {
+             if (booking.getVehicle() != null) {
                 booking.getVehicle().setStatus(VehicleStatus.BOOKED);
                 vehicleRepository.save(booking.getVehicle());
             }
         }
 
-        // Step 9 - Success email send karanawa
-        if (saved.getStatus() == PaymentStatus.COMPLETED) {
+         if (saved.getStatus() == PaymentStatus.COMPLETED) {
             emailService.sendPaymentSuccessEmail(
                     user.getEmail(),
                     user.getFullName(),

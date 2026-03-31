@@ -46,15 +46,16 @@
     </div>
 
     <div class="actions">
-        <!-- ✅ Buttons use JavaScript redirect — no hardcoded paths -->
+        <!-- Buttons use JavaScript redirect — no hardcoded paths -->
         <button class="btn btn-primary" id="tryAgainBtn">🔄 Try Again</button>
         <button class="btn btn-secondary" id="dashboardBtn">🏠 Dashboard</button>
     </div>
 </div>
-
+<script src="../../../../../../Rentify/FrontEnd/js/jquery-3.7.1.min.js"></script>
 <script>
+
     $(function () {
-        // ✅ Frontend base URL
+        //  Frontend base URL
         function getFrontendBase() {
             const saved = localStorage.getItem('rentify_frontend_base');
             if (saved) return saved;
@@ -66,7 +67,7 @@
         // Set logo link
         $('#logoLink').attr('href', base + '/user-dashboard.html');
 
-        // ✅ Button click handlers
+        //  Button click handlers
         $('#tryAgainBtn').on('click', function () {
             window.location.href = base + '/user-vehicle.html';
         });

@@ -30,7 +30,7 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        // lambda function → takes username and returns UserDetails
+        // lambda function -> takes username and returns UserDetails
         return username -> {
 
             // 1. Check admin table first
@@ -44,7 +44,7 @@ public class ApplicationConfig {
                 );
             }
 
-            // 2.  If not admin → check USER table
+            // 2.  If not admin  check USER table
             var userOpt = userRepository.findByUsername(username);
             if (userOpt.isPresent()) {
                 var u = userOpt.get();
@@ -79,13 +79,13 @@ public class ApplicationConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // BCrypt → secure password hashing algorithm
+        // BCrypt -> secure password hashing algorithm
         return new BCryptPasswordEncoder();
     }
 
     @Bean
     public ModelMapper modelMapper() {
-        // used to map DTO ↔ Entity
+        // used to map DTO <-> Entity
         return new ModelMapper();
     }
 }

@@ -10,11 +10,11 @@ public interface AdminService {
     //  Admin self-service
     AdminDTO getProfile(String username);
     AdminDTO updateProfile(String username, AdminDTO dto);
-    void     changePassword(String username, ChangePasswordDTO dto);
+    void  changePassword(String username, ChangePasswordDTO dto);
 
     //  Admin CRUD
     List<AdminDTO> getAllAdmins();
-    AdminDTO       getAdminById(Integer id);
-    AdminDTO       updateAdmin(Integer id, AdminDTO dto);
-    void           deleteAdmin(Integer id);
+    AdminDTO getAdminById(Integer id);
+    AdminDTO updateAdmin(Integer id, AdminDTO dto);
+    void deleteAdmin(Integer id);
 }

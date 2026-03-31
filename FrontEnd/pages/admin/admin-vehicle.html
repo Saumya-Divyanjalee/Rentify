@@ -266,182 +266,263 @@
 
 <div id="toast"></div>
 
+<script src="../../js/jquery-3.7.1.min.js"></script>
 <script>
+    // Base URL for all API calls
     const API = 'http://localhost:8081/api/v1';
-    let allV = [], editId = null, delId = null;
-    const ICON = {CAB:'🚕', VAN:'🚐', BUS:'🚌', WHEEL:'🛺'};
-    const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    const fmtP = p => 'Rs ' + Number(p||0).toLocaleString('en-LK');
 
-    function showToast(m, t){
+    // Global variables
+    let allV   = [];       // All vehicles loaded from the server
+    let editId = null;     // ID of the vehicle being edited (null = adding a new one)
+    let delId  = null;     // ID of the vehicle waiting to be deleted
+
+    // Emoji icon for each vehicle type
+    const ICON = { CAB: '🚕', VAN: '🚐', BUS: '🚌', WHEEL: '🛺' };
+
+    // Escape special HTML characters to prevent broken HTML or attacks
+    const esc  = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    // Format a number as Sri Lankan Rupees (e.g. Rs 3,500)
+    const fmtP = p => 'Rs ' + Number(p || 0).toLocaleString('en-LK');
+
+    // Show a small popup message at the bottom of the screen
+    function showToast(m, t) {
         const $t = $('#toast');
-        $t.text(m).attr('class','toast show '+(t||''));
+        $t.text(m).attr('class', 'toast show ' + (t || ''));
         clearTimeout($t.data('tt'));
-        $t.data('tt', setTimeout(()=>$t.attr('class','toast'), 3400));
+        // Automatically hide the message after 3.4 seconds
+        $t.data('tt', setTimeout(() => $t.attr('class', 'toast'), 3400));
     }
-    function logout(){
-        ['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(k=>localStorage.removeItem(k));
-        window.location.href='../sign-in.html';
+
+    // Log the user out by clearing all saved login data and going to the sign-in page
+    function logout() {
+        ['rentify_token', 'rentify_role', 'rentify_auth', 'rentify_username', 'rentify_fullName', 'rentify_email', 'rentify_userId']
+            .forEach(k => localStorage.removeItem(k));
+        window.location.href = '../sign-in.html';
     }
-    function getToken(){ return localStorage.getItem('rentify_token') || ''; }
-    function authH(){ const t=getToken(); return t ? {'Authorization':'Bearer '+t} : {}; }
-    function parseErr(x, fb){
-        if(!x?.responseJSON) return fb || 'Network error';
+
+    // Get the saved login token from the browser
+    function getToken() { return localStorage.getItem('rentify_token') || ''; }
+
+    // Build the Authorization header using the token
+    function authH() { const t = getToken(); return t ? { 'Authorization': 'Bearer ' + t } : {}; }
+
+    // Pull a readable error message from a failed API response
+    function parseErr(x, fb) {
+        if (!x?.responseJSON) return fb || 'Network error';
         const j = x.responseJSON;
-        if(j.errors) return Object.values(j.errors).join(', ');
+        if (j.errors) return Object.values(j.errors).join(', ');
         return j.message || j.error || fb || 'Error';
     }
 
-    // ✅ FK Constraint error check
-    function isFKError(x){
+    // Check if a failed request was caused by a database foreign key constraint
+    // (This means the vehicle has bookings linked to it and cannot be deleted)
+    function isFKError(x) {
         const msg = (x?.responseJSON?.message || x?.responseText || '').toLowerCase();
         return msg.includes('foreign key') || msg.includes('constraint') || msg.includes('a parent row');
     }
 
+    // Show the logged-in user's initials and name in the sidebar
     const fn  = localStorage.getItem('rentify_fullName') || localStorage.getItem('rentify_username') || 'Admin';
-    const ini = fn.trim().split(/\s+/).map(x=>x[0]?.toUpperCase()).join('').slice(0,2) || 'AD';
-    $('#sbAv').text(ini); $('#sbName').text(fn);
-    const role = localStorage.getItem('rentify_role') || '';
-    if(!getToken()) $('#banner').addClass('show');
-    else if(role !== 'ADMIN') $('#banner').html('⚠️ Logged in as USER. Write operations require ADMIN.').addClass('show');
+    const ini = fn.trim().split(/\s+/).map(x => x[0]?.toUpperCase()).join('').slice(0, 2) || 'AD';
+    $('#sbAv').text(ini);
+    $('#sbName').text(fn);
 
-    function checkApi(){
-        $.ajax({url:API+'/vehicles',method:'GET',timeout:5000,
-            success:()=>{ $('#apiDot').addClass('online').removeClass('offline'); $('#apiTxt').text('API Online'); },
-            error: ()=>{ $('#apiDot').addClass('offline').removeClass('online'); $('#apiTxt').text('API Offline'); }
+    // Show a warning banner if the user is not logged in or does not have ADMIN role
+    const role = localStorage.getItem('rentify_role') || '';
+    if (!getToken())
+        $('#banner').addClass('show');
+    else if (role !== 'ADMIN')
+        $('#banner').html('⚠️ Logged in as USER. Write operations require ADMIN.').addClass('show');
+
+    // Ping the vehicles endpoint to check if the API server is reachable
+    function checkApi() {
+        $.ajax({
+            url: API + '/vehicles', method: 'GET', timeout: 5000,
+            success: () => { $('#apiDot').addClass('online').removeClass('offline'); $('#apiTxt').text('API Online'); },
+            error:   () => { $('#apiDot').addClass('offline').removeClass('online'); $('#apiTxt').text('API Offline'); }
         });
     }
 
-    function fetchV(){
+    // Load all vehicles from the server and refresh the table
+    function fetchV() {
         $('#vTable').html('<tr class="lrow"><td colspan="10"><span class="spin"></span>Loading…</td></tr>');
         $.ajax({
-            url: API+'/vehicles', headers: authH(),
-            success: function(r){
+            url: API + '/vehicles', headers: authH(),
+            success: function (r) {
+                // Handle different response shapes the API might return
                 allV = Array.isArray(r) ? r : (r.data || r.content || []);
-                updStats(); renderTable(getFiltered());
-                $('#lastFetch').text('Updated: '+new Date().toLocaleTimeString('en-LK'));
+                updStats();
+                renderTable(getFiltered());
+                $('#lastFetch').text('Updated: ' + new Date().toLocaleTimeString('en-LK'));
             },
-            error: function(x){
-                const m = parseErr(x,'Failed');
+            error: function (x) {
+                const m = parseErr(x, 'Failed');
                 $('#vTable').html(`<tr class="erow"><td colspan="10">⚠️ ${esc(m)}</td></tr>`);
-                showToast(m,'error');
+                showToast(m, 'error');
             }
         });
     }
 
-    function updStats(){
+    // Update the summary stat numbers at the top of the page
+    function updStats() {
         $('#st-total').text(allV.length);
-        $('#st-avail').text(allV.filter(v=>v.status==='AVAILABLE').length);
-        $('#st-booked').text(allV.filter(v=>v.status==='BOOKED').length);
-        $('#st-maint').text(allV.filter(v=>v.status==='MAINTENANCE').length);
+        $('#st-avail').text(allV.filter(v => v.status === 'AVAILABLE').length);
+        $('#st-booked').text(allV.filter(v => v.status === 'BOOKED').length);
+        $('#st-maint').text(allV.filter(v => v.status === 'MAINTENANCE').length);
     }
 
-    function getFiltered(){
-        const q=$('#tSearch').val().toLowerCase().trim(), ty=$('#tType').val(), st=$('#tStatus').val();
-        return allV.filter(v=>{
-            if(ty && v.type!==ty) return false;
-            if(st && v.status!==st) return false;
-            if(q && !v.model.toLowerCase().includes(q) && !(v.plateNumber||'').toLowerCase().includes(q) && !(v.description||'').toLowerCase().includes(q)) return false;
+    // Apply the current search text and dropdown filters to the full vehicle list
+    function getFiltered() {
+        const q  = $('#tSearch').val().toLowerCase().trim();
+        const ty = $('#tType').val();
+        const st = $('#tStatus').val();
+
+        return allV.filter(v => {
+            if (ty && v.type   !== ty) return false; // Filter by vehicle type
+            if (st && v.status !== st) return false; // Filter by status
+            // Filter by search text — checks model, plate number, and description
+            if (q && !v.model.toLowerCase().includes(q) &&
+                !(v.plateNumber  || '').toLowerCase().includes(q) &&
+                !(v.description || '').toLowerCase().includes(q))
+                return false;
             return true;
         });
     }
 
-    function renderTable(list){
+    // Build and display the rows of the vehicle table
+    function renderTable(list) {
         $('#tCount').text(list.length);
-        if(!list.length){ $('#vTable').html('<tr class="erow"><td colspan="10">🔍 No vehicles match.</td></tr>'); return; }
-        $('#vTable').html(list.map(v=>{
+
+        if (!list.length) {
+            $('#vTable').html('<tr class="erow"><td colspan="10">🔍 No vehicles match.</td></tr>');
+            return;
+        }
+
+        $('#vTable').html(list.map(v => {
+            // Use the vehicle's image if it has one, otherwise show a fallback emoji icon
             const ico = ICON[v.type] || '🚗';
             const img = v.image
                 ? `<img class="tdi" src="${esc(v.image)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=\\'tdi-fb\\'>${ico}</div>'">`
                 : `<div class="tdi-fb">${ico}</div>`;
+
+            // Show the insurance expiry date in red if it expires within 30 days
             const insExp = v.insuranceExpiryDate
-                ? `<div style="font-size:10px;color:${new Date(v.insuranceExpiryDate)<new Date(Date.now()+30*86400000)?'var(--red)':'var(--ink4)'};margin-top:2px;font-family:'Roboto Mono',monospace">${v.insuranceExpiryDate}</div>`
+                ? `<div style="font-size:10px;color:${
+                    new Date(v.insuranceExpiryDate) < new Date(Date.now() + 30 * 86400000)
+                        ? 'var(--red)' : 'var(--ink4)'
+                };margin-top:2px;font-family:'Roboto Mono',monospace">${v.insuranceExpiryDate}</div>`
                 : '';
+
             return `<tr>
-      <td>${img}</td>
-      <td style="font-weight:700;color:var(--ink)">${esc(v.model)}</td>
-      <td><span class="tdm">${esc(v.plateNumber||'—')}</span></td>
-      <td><span class="badge badge-${esc(v.type)}">${esc(v.type)}</span></td>
-      <td>${v.capacity}</td>
-      <td>${v.year||'—'}</td>
-      <td style="font-family:'Bungee',sans-serif;font-size:12px;color:var(--green)">${fmtP(v.pricePerDay)}</td>
-      <td><span class="badge badge-${esc(v.status||'AVAILABLE')}">${esc(v.status||'AVAILABLE')}</span></td>
-      <td>${v.insuranceActive
+                <td>${img}</td>
+                <td style="font-weight:700;color:var(--ink)">${esc(v.model)}</td>
+                <td><span class="tdm">${esc(v.plateNumber || '—')}</span></td>
+                <td><span class="badge badge-${esc(v.type)}">${esc(v.type)}</span></td>
+                <td>${v.capacity}</td>
+                <td>${v.year || '—'}</td>
+                <td style="font-family:'Bungee',sans-serif;font-size:12px;color:var(--green)">${fmtP(v.pricePerDay)}</td>
+                <td><span class="badge badge-${esc(v.status || 'AVAILABLE')}">${esc(v.status || 'AVAILABLE')}</span></td>
+                <td>${v.insuranceActive
                 ? `<span style="color:var(--green);font-size:11px;font-weight:700">✓ Active</span>${insExp}`
                 : `<span style="color:var(--red);font-size:11px;font-weight:700">✗ Inactive</span>${insExp}`
             }</td>
-      <td><div style="display:flex;gap:5px">
-        <button class="btn btn-sm btn-edit" data-id="${v.id}">✏️ Edit</button>
-        <button class="btn-del btn-del-v" data-id="${v.id}" data-name="${esc(v.model)}">🗑️</button>
-      </div></td>
-    </tr>`;
+                <td><div style="display:flex;gap:5px">
+                    <button class="btn btn-sm btn-edit"  data-id="${v.id}">✏️ Edit</button>
+                    <button class="btn-del btn-del-v" data-id="${v.id}" data-name="${esc(v.model)}">🗑️</button>
+                </div></td>
+            </tr>`;
         }).join(''));
     }
 
-    function openAdd(){
-        editId=null;
+    // Open the modal dialog to add a brand-new vehicle
+    function openAdd() {
+        editId = null;
         $('#mTitle').text('ADD NEW VEHICLE');
-        $('#vSave').text('Add Vehicle').prop('disabled',false);
+        $('#vSave').text('Add Vehicle').prop('disabled', false);
         clearForm();
         $('#vModal').addClass('open');
     }
 
-    function openEdit(id){
-        editId=id;
+    // Open the modal dialog to edit an existing vehicle, pre-filled with its current data
+    function openEdit(id) {
+        editId = id;
         $('#mTitle').text('EDIT VEHICLE');
-        $('#vSave').prop('disabled',true).text('Loading…');
+        $('#vSave').prop('disabled', true).text('Loading…'); // Disable save until data loads
         clearForm();
         $('#vModal').addClass('open');
+
+        // Fetch the vehicle's full details from the server
         $.ajax({
-            url: API+'/vehicles/'+id, headers: authH(),
-            success: function(r){
-                const v = (r&&r.data) ? r.data : r;
-                $('#v_model').val(v.model||'');
-                $('#v_plate').val(v.plateNumber||'');
-                $('#v_type').val(v.type||'');
-                $('#v_cap').val(v.capacity||'');
-                $('#v_year').val(v.year||'');
-                $('#v_price').val(v.pricePerDay||'');
-                $('#v_status').val(v.status||'AVAILABLE');
-                $('#v_desc').val(v.description||'');
-                $('#v_ins').prop('checked', v.insuranceActive!==false);
-                $('#v_exp').val(v.insuranceExpiryDate||'');
-                $('#v_img').val(v.image||'');
-                if(v.image) $('#imgPrev').attr('src',v.image).addClass('show');
-                $('#vSave').prop('disabled',false).text('Save Changes');
+            url: API + '/vehicles/' + id, headers: authH(),
+            success: function (r) {
+                const v = (r && r.data) ? r.data : r;
+
+                // Fill each form field with the vehicle's current values
+                $('#v_model').val(v.model          || '');
+                $('#v_plate').val(v.plateNumber    || '');
+                $('#v_type').val(v.type            || '');
+                $('#v_cap').val(v.capacity         || '');
+                $('#v_year').val(v.year            || '');
+                $('#v_price').val(v.pricePerDay    || '');
+                $('#v_status').val(v.status        || 'AVAILABLE');
+                $('#v_desc').val(v.description     || '');
+                $('#v_ins').prop('checked', v.insuranceActive !== false); // Default to checked
+                $('#v_exp').val(v.insuranceExpiryDate || '');
+                $('#v_img').val(v.image            || '');
+
+                // Show the existing image preview if there is one
+                if (v.image) $('#imgPrev').attr('src', v.image).addClass('show');
+
+                $('#vSave').prop('disabled', false).text('Save Changes');
             },
-            error: function(x){ showToast(parseErr(x,'Failed'),'error'); $('#vModal').removeClass('open'); }
+            error: function (x) {
+                showToast(parseErr(x, 'Failed'), 'error');
+                $('#vModal').removeClass('open'); // Close the modal if loading fails
+            }
         });
     }
 
-    function clearForm(){
-        $('#v_model,#v_plate,#v_type,#v_cap,#v_year,#v_price,#v_desc,#v_exp,#v_img').val('');
+    // Clear all form fields and hide any validation error messages
+    function clearForm() {
+        $('#v_model, #v_plate, #v_type, #v_cap, #v_year, #v_price, #v_desc, #v_exp, #v_img').val('');
         $('#v_status').val('AVAILABLE');
-        $('#v_ins').prop('checked',true);
-        $('#imgPrev').removeClass('show').attr('src','');
+        $('#v_ins').prop('checked', true); // Default insurance to active
+        $('#imgPrev').removeClass('show').attr('src', '');
         $('.ferr').removeClass('show');
     }
 
-    function validate(){
-        let ok=true;
-        const model=$('#v_model').val().trim();
-        const plate=$('#v_plate').val().trim().toUpperCase();
-        const type=$('#v_type').val();
-        const cap=parseInt($('#v_cap').val());
-        const year=parseInt($('#v_year').val());
-        const price=parseFloat($('#v_price').val());
-        const chk=(c,id)=>{ if(!c){ $('#'+id).addClass('show'); ok=false; } else { $('#'+id).removeClass('show'); } };
-        chk(model && model.length>=2 && model.length<=100, 'e_model');
-        chk(plate && /^[A-Z]{2,3}-\d{4}$/.test(plate), 'e_plate');
-        if(plate) $('#v_plate').val(plate);
-        chk(!!type, 'e_type');
-        chk(cap && cap>=1 && cap<=60, 'e_cap');
-        chk(year && year>=1990 && year<=2030, 'e_year');
-        chk(!isNaN(price) && price>0, 'e_price');
+    // Validate all form fields and show error messages for anything invalid
+    function validate() {
+        let ok = true;
+
+        // Read and clean each field value
+        const model = $('#v_model').val().trim();
+        const plate = $('#v_plate').val().trim().toUpperCase();
+        const type  = $('#v_type').val();
+        const cap   = parseInt($('#v_cap').val());
+        const year  = parseInt($('#v_year').val());
+        const price = parseFloat($('#v_price').val());
+
+        // Helper: show the error element if condition is false, hide it if true
+        const chk = (c, id) => {
+            if (!c) { $('#' + id).addClass('show'); ok = false; }
+            else      $('#' + id).removeClass('show');
+        };
+
+        chk(model && model.length >= 2 && model.length <= 100, 'e_model');      // 2–100 characters
+        chk(plate && /^[A-Z]{2,3}-\d{4}$/.test(plate), 'e_plate');             // Format: AB-1234 or ABC-1234
+        if (plate) $('#v_plate').val(plate);                                     // Save the uppercase version
+        chk(!!type, 'e_type');                                                   // Must select a type
+        chk(cap && cap >= 1 && cap <= 60, 'e_cap');                             // 1–60 seats
+        chk(year && year >= 1990 && year <= 2030, 'e_year');                    // Reasonable year range
+        chk(!isNaN(price) && price > 0, 'e_price');                             // Must be a positive number
+
         return ok;
     }
 
-    function buildDTO(){
+    // Collect all form values into one object ready to send to the server
+    function buildDTO() {
         return {
             model:               $('#v_model').val().trim(),
             plateNumber:         $('#v_plate').val().trim().toUpperCase(),
@@ -457,97 +538,150 @@
         };
     }
 
-    function saveV(){
-        if(!validate()) return;
-        if(!getToken()){ showToast('Not logged in','error'); return; }
-        const dto=buildDTO(), isEdit=editId!==null;
-        const url  = isEdit ? `${API}/vehicles/${editId}` : `${API}/vehicles`;
+    // Save the vehicle to the server (either add new or update existing)
+    function saveV() {
+        if (!validate()) return;
+        if (!getToken()) { showToast('Not logged in', 'error'); return; }
+
+        const dto    = buildDTO();
+        const isEdit = editId !== null;
+        const url    = isEdit ? `${API}/vehicles/${editId}` : `${API}/vehicles`;
         const method = isEdit ? 'PUT' : 'POST';
-        $('#vSave').prop('disabled',true).text(isEdit?'Saving…':'Adding…');
+
+        $('#vSave').prop('disabled', true).text(isEdit ? 'Saving…' : 'Adding…');
+
         $.ajax({
-            url, method, contentType:'application/json', headers:authH(), data:JSON.stringify(dto),
-            success: function(r){
-                const sv = (r&&r.data) ? r.data : r;
-                if(isEdit){ const i=allV.findIndex(v=>v.id===editId); if(i>=0) allV[i]=sv; else allV.push(sv); }
-                else allV.push(sv);
-                updStats(); renderTable(getFiltered());
+            url, method,
+            contentType: 'application/json',
+            headers: authH(),
+            data: JSON.stringify(dto),
+            success: function (r) {
+                const sv = (r && r.data) ? r.data : r;
+
+                // Update the local list so the table reflects the change without a full reload
+                if (isEdit) {
+                    const i = allV.findIndex(v => v.id === editId);
+                    if (i >= 0) allV[i] = sv;
+                    else allV.push(sv);
+                } else {
+                    allV.push(sv);
+                }
+
+                updStats();
+                renderTable(getFiltered());
                 $('#vModal').removeClass('open');
-                showToast((isEdit?'"'+sv.model+'" updated':'New vehicle added ✅ — User side eke auto refresh වෙනවා'),'success');
+                showToast((isEdit ? '"' + sv.model + '" updated' : 'New vehicle added ✅'), 'success');
             },
-            error: function(x){
-                let m=parseErr(x,isEdit?'Update failed':'Add failed');
-                if(x.status===401) m='401 — Token expired';
-                if(x.status===403) m='403 — ADMIN required';
-                if(x.status===0)   m='Cannot reach server';
-                showToast(m,'error');
+            error: function (x) {
+                // Give a specific message for common HTTP error codes
+                let m = parseErr(x, isEdit ? 'Update failed' : 'Add failed');
+                if (x.status === 401) m = '401 — Token expired';
+                if (x.status === 403) m = '403 — ADMIN required';
+                if (x.status === 0)   m = 'Cannot reach server';
+                showToast(m, 'error');
             },
-            complete: function(){ $('#vSave').prop('disabled',false).text(editId!==null?'Save Changes':'Add Vehicle'); }
+            complete: function () {
+                // Re-enable the save button regardless of success or failure
+                $('#vSave').prop('disabled', false).text(editId !== null ? 'Save Changes' : 'Add Vehicle');
+            }
         });
     }
 
-    function openDel(id, name){
-        delId=id;
+    // Open the delete confirmation popup for the chosen vehicle
+    function openDel(id, name) {
+        delId = id;
         $('#delName').text(name);
-        $('#fkWarn').removeClass('show'); // ✅ Warning hide කරනවා initially
-        $('#delConfirm').prop('disabled',false).text('Delete Permanently');
+        $('#fkWarn').removeClass('show');                          // Hide the FK warning from any previous attempt
+        $('#delConfirm').prop('disabled', false).text('Delete Permanently');
         $('#delModal').addClass('open');
     }
 
-    // ✅ FIX: Delete function — FK error properly handle කරනවා
-    function doDelete(){
-        if(!delId) return;
-        if(!getToken()){ showToast('Not logged in','error'); return; }
-        $('#delConfirm').prop('disabled',true).text('Deleting…');
+    // Send the delete request to the server and handle the result
+    function doDelete() {
+        if (!delId) return;
+        if (!getToken()) { showToast('Not logged in', 'error'); return; }
+
+        $('#delConfirm').prop('disabled', true).text('Deleting…');
         $('#fkWarn').removeClass('show');
 
         $.ajax({
-            url: `${API}/vehicles/${delId}`, method:'DELETE', headers:authH(),
-            success: function(){
-                allV = allV.filter(v=>v.id!==delId);
-                updStats(); renderTable(getFiltered());
+            url: `${API}/vehicles/${delId}`, method: 'DELETE', headers: authH(),
+            success: function () {
+                // Remove the deleted vehicle from the local list
+                allV = allV.filter(v => v.id !== delId);
+                updStats();
+                renderTable(getFiltered());
                 $('#delModal').removeClass('open');
-                showToast('Vehicle deleted ✅','success');
+                showToast('Vehicle deleted ✅', 'success');
             },
-            error: function(x){
-                // ✅ FIX: FK constraint error detect කරනවා
-                if(isFKError(x)){
-                    // FK error නම් — friendly warning show කරනවා
+            error: function (x) {
+                if (isFKError(x)) {
+                    // The vehicle has bookings linked to it — show a friendly warning instead
                     $('#fkWarn').addClass('show');
-                    $('#delConfirm').prop('disabled',true).text('Cannot Delete');
-                    showToast('⚠️ Bookings linked — delete failed. See warning below.','error');
+                    $('#delConfirm').prop('disabled', true).text('Cannot Delete');
+                    showToast('⚠️ Bookings linked — delete failed. See warning below.', 'error');
                 } else {
-                    showToast(parseErr(x,'Delete failed'),'error');
-                    $('#delConfirm').prop('disabled',false).text('Delete Permanently');
+                    // Some other error — show the message and let the user try again
+                    showToast(parseErr(x, 'Delete failed'), 'error');
+                    $('#delConfirm').prop('disabled', false).text('Delete Permanently');
                 }
             }
         });
     }
 
-    $(function(){
-        checkApi(); fetchV();
+    // ── Page Setup: runs once the page has fully loaded ──
+    $(function () {
+        checkApi(); // Check if the backend server is reachable
+        fetchV();   // Load and display all vehicles
+
+        // Toolbar buttons
         $('#addBtn').on('click', openAdd);
         $('#refreshBtn').on('click', fetchV);
+
+        // Wait 280ms after the user stops typing before re-filtering (avoids too many updates)
         let sT;
-        $('#tSearch').on('input', function(){ clearTimeout(sT); sT=setTimeout(()=>renderTable(getFiltered()),280); });
-        $('#tType,#tStatus').on('change', ()=>renderTable(getFiltered()));
-        $(document).on('click','.btn-edit', function(e){ e.stopPropagation(); openEdit(parseInt($(this).data('id'))); });
-        $(document).on('click','.btn-del-v', function(e){ e.stopPropagation(); openDel(parseInt($(this).data('id')),$(this).data('name')); });
-        $('#vmClose,#vmCancel').on('click', ()=>{ $('#vModal').removeClass('open'); editId=null; });
-        $('#vModal').on('click', function(e){ if(e.target===this){ $(this).removeClass('open'); editId=null; } });
-        $('#vSave').on('click', saveV);
-        $('#delClose,#delCancel').on('click', ()=>{ $('#delModal').removeClass('open'); $('#fkWarn').removeClass('show'); });
-        $('#delModal').on('click', function(e){ if(e.target===this){ $(this).removeClass('open'); $('#fkWarn').removeClass('show'); } });
-        $('#delConfirm').on('click', doDelete);
-        let imgT;
-        $('#v_img').on('input', function(){
-            clearTimeout(imgT);
-            const u=$(this).val().trim();
-            imgT=setTimeout(()=>{
-                if(u) $('#imgPrev').attr('src',u).addClass('show').off('error').on('error',function(){ $(this).removeClass('show'); });
-                else $('#imgPrev').removeClass('show').attr('src','');
-            },600);
+        $('#tSearch').on('input', function () {
+            clearTimeout(sT);
+            sT = setTimeout(() => renderTable(getFiltered()), 280);
         });
-        $('#v_plate').on('input', function(){ $(this).val($(this).val().toUpperCase()); });
+
+        // Re-filter immediately when the type or status dropdowns change
+        $('#tType, #tStatus').on('change', () => renderTable(getFiltered()));
+
+        // Table row action buttons (attached to the document because rows are added dynamically)
+        $(document).on('click', '.btn-edit',  function (e) { e.stopPropagation(); openEdit(parseInt($(this).data('id'))); });
+        $(document).on('click', '.btn-del-v', function (e) { e.stopPropagation(); openDel(parseInt($(this).data('id')), $(this).data('name')); });
+
+        // Add/Edit modal close buttons
+        $('#vmClose, #vmCancel').on('click', () => { $('#vModal').removeClass('open'); editId = null; });
+        $('#vModal').on('click', function (e) { if (e.target === this) { $(this).removeClass('open'); editId = null; } });
+
+        // Save button inside the add/edit modal
+        $('#vSave').on('click', saveV);
+
+        // Delete modal close buttons — also hide the FK warning when closing
+        $('#delClose, #delCancel').on('click', () => { $('#delModal').removeClass('open'); $('#fkWarn').removeClass('show'); });
+        $('#delModal').on('click', function (e) { if (e.target === this) { $(this).removeClass('open'); $('#fkWarn').removeClass('show'); } });
+
+        // Confirm delete button
+        $('#delConfirm').on('click', doDelete);
+
+        // Image URL preview — wait 600ms after the user stops typing before loading the image
+        let imgT;
+        $('#v_img').on('input', function () {
+            clearTimeout(imgT);
+            const u = $(this).val().trim();
+            imgT = setTimeout(() => {
+                if (u)
+                    $('#imgPrev').attr('src', u).addClass('show')
+                        .off('error').on('error', function () { $(this).removeClass('show'); }); // Hide if the image fails to load
+                else
+                    $('#imgPrev').removeClass('show').attr('src', '');
+            }, 600);
+        });
+
+        // Auto-convert the plate number field to uppercase as the user types
+        $('#v_plate').on('input', function () { $(this).val($(this).val().toUpperCase()); });
     });
 </script>
 </body>

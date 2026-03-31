@@ -26,7 +26,7 @@ public class InsuranceDTO {
     private Long vehicleId;
 
     @Schema(description = "Vehicle plate number (read-only, returned in responses)", example = "CAB-1234")
-    private String vehiclePlateNumber;   // populated on read, ignored on write
+    private String vehiclePlateNumber;
 
     @NotBlank(message = "Policy number is required")
     @Size(max = 50, message = "Policy number cannot exceed 50 characters")

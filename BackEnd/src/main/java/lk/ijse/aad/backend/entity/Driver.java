@@ -40,8 +40,7 @@ public class Driver {
     @Column(name = "profile_pic", columnDefinition = "LONGTEXT")
     private String profilePic;
 
-    // Unified Enums to match Frontend options
-    public enum VehicleType {
+     public enum VehicleType {
         Sedan, SUV, Mini, Van, Luxury, CAR, THREE_WHEEL, CAB, BUS
     }
 

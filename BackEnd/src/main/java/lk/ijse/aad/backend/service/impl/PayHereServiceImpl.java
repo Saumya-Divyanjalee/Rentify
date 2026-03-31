@@ -31,17 +31,17 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PayHereServiceImpl implements PayHereService {
 
-    private final PayHereConfig     payHereConfig;
+    private final PayHereConfig payHereConfig;
     private final PaymentRepository paymentRepository;
     private final BookingRepository bookingRepository;
-    private final UserRepository    userRepository;
+    private final UserRepository userRepository;
     private final VehicleRepository vehicleRepository;
-    private final EmailService      emailService;
+    private final EmailService emailService;
 
-    private static final String STATUS_SUCCESS     = "2";
-    private static final String STATUS_PENDING     = "0";
-    private static final String STATUS_CANCELLED   = "-1";
-    private static final String STATUS_FAILED      = "-2";
+    private static final String STATUS_SUCCESS = "2";
+    private static final String STATUS_PENDING = "0";
+    private static final String STATUS_CANCELLED = "-1";
+    private static final String STATUS_FAILED = "-2";
     private static final String STATUS_CHARGEDBACK = "-3";
 
     @Override
@@ -115,7 +115,7 @@ public class PayHereServiceImpl implements PayHereService {
         String[] nameParts = splitName(user.getFullName());
         String phone = (user.getPhone() != null && !user.getPhone().isBlank()) ? user.getPhone() : "0771234567";
 
-        // 11. ✅ Use clean URLs (strips IntelliJ ?_ijt= parameters)
+        // 11.  Use clean URLs (strips IntelliJ ?_ijt= parameters)
         String returnUrl = payHereConfig.getCleanReturnUrl();
         String cancelUrl = payHereConfig.getCleanCancelUrl();
         log.info("Return URL: {}", returnUrl);
@@ -124,8 +124,8 @@ public class PayHereServiceImpl implements PayHereService {
         // 12. Build DTO
         PayHereInitDTO dto = new PayHereInitDTO();
         dto.setMerchantId(payHereConfig.getMerchantId());
-        dto.setReturnUrl(returnUrl);   // ✅ clean URL
-        dto.setCancelUrl(cancelUrl);   // ✅ clean URL
+        dto.setReturnUrl(returnUrl);
+        dto.setCancelUrl(cancelUrl);
         dto.setNotifyUrl(payHereConfig.getNotifyUrl());
         dto.setOrderId(orderId);
         dto.setItems(itemDesc);
@@ -181,7 +181,7 @@ public class PayHereServiceImpl implements PayHereService {
             case STATUS_SUCCESS -> {
                 payment.setStatus(PaymentStatus.COMPLETED);
                 confirmBookingAndVehicle(payment.getBooking());
-                log.info("✅ Payment COMPLETED: orderId={}", notify.getOrder_id());
+                log.info(" Payment COMPLETED: orderId={}", notify.getOrder_id());
                 try {
                     emailService.sendPaymentSuccessEmail(
                             payment.getUser().getEmail(),

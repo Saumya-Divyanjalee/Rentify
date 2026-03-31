@@ -19,7 +19,6 @@ public class UserController {
 
     private final UserService userService;
 
-    //  USER SELF-SERVICE
 
     // GET /api/v1/user/profile
     @GetMapping("/profile")

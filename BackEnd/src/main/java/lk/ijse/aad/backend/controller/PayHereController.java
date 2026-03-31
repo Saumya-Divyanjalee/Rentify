@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@RestController   // ✅ FIXED — was missing, that's why 500 error came
+@RestController
 @RequestMapping("/api/v1/payments/payhere")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
@@ -24,10 +24,7 @@ public class PayHereController {
 
     private final PayHereService payHereService;
 
-    /**
-     * POST /api/v1/payments/payhere/initiate?bookingId=5
-     * USER calls this → creates PENDING payment → returns hash + fields for PayHere form
-     */
+
     @Operation(summary = "Initiate PayHere payment",
             security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/initiate")
@@ -45,11 +42,7 @@ public class PayHereController {
         }
     }
 
-    /**
-     * POST /api/v1/payments/payhere/notify
-     * PayHere servers call this after payment — PUBLIC endpoint (no JWT)
-     * Security = MD5 hash verification inside service
-     */
+
     @Operation(summary = "PayHere notify webhook — called by PayHere servers")
     @PostMapping("/notify")
     public ResponseEntity<String> notify(@ModelAttribute PayHereNotifyDTO notify) {
@@ -66,10 +59,6 @@ public class PayHereController {
         }
     }
 
-    /**
-     * GET /api/v1/payments/payhere/status?orderId=RNT-XXXX
-     * Frontend polls this after PayHere return redirect
-     */
 
     @GetMapping("/status")
     public ResponseEntity<APIResponse<String>> checkStatus(@RequestParam String orderId) {

@@ -465,114 +465,476 @@
     </div>
 </div>
 <div id="toast"></div>
-
+<script src="../../js/jquery-3.7.1.min.js"></script>
 <script>
-    const API='http://localhost:8081/api/v1';
-    // Init user
-    const fname=localStorage.getItem('rentify_fullName')||localStorage.getItem('rentify_username')||'Admin User';
-    const initials=fname.trim().split(/\s+/).map(x=>x[0]?.toUpperCase()).join('').slice(0,2)||'AD';
-    $('#sbAv').text(initials);$('#sbName').text(fname);
-    const now=new Date();
-    document.getElementById('pageDate').textContent=now.toLocaleDateString('en-LK',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
-    // Toast
-    function showToast(m,t){const $t=$('#toast');$t.text(m).attr('class','toast show '+(t||''));clearTimeout($t.data('tt'));$t.data('tt',setTimeout(()=>$t.attr('class','toast'),3400));}
+    // ============================================================
+    // API BASE URL
+    // This is the address of the Spring Boot backend server.
+    // All API requests will be sent to this base URL.
+    // ============================================================
+    const API = 'http://localhost:8081/api/v1';
 
-    // Logout
-    $('#logoutBtn').on('click',()=>$('#overlay').addClass('show'));
-    $('#cancelBtn').on('click',()=>$('#overlay').removeClass('show'));
-    $('#overlay').on('click',function(e){if(e.target===this)$(this).removeClass('show');});
-    $('#confirmBtn').on('click',()=>{
-        ['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(k=>localStorage.removeItem(k));
-        showToast('Signing out...','');
-        setTimeout(()=>{window.location.href='../sign-in.html';},800);
+
+    // ============================================================
+    // INIT USER — SIDEBAR PROFILE SETUP
+    // Reads the logged-in admin name from browser storage.
+    // Tries fullName first, then username, then falls back to 'Admin User'.
+    // Creates initials from the name (e.g. "Saumya D" → "SD").
+    // Puts the initials and full name into the sidebar elements.
+    // ============================================================
+
+    // Try fullName → username → fallback 'Admin User'
+    const fname = localStorage.getItem('rentify_fullName')
+        || localStorage.getItem('rentify_username')
+        || 'Admin User';
+
+    // Split name by spaces, take first letter of each word, uppercase
+    // Example: "Saumya Divyanjalee" → ["S","D"] → "SD"
+    const initials = fname.trim()
+        .split(/\s+/)
+        .map(x => x[0]?.toUpperCase())
+        .join('')
+        .slice(0, 2) || 'AD';
+
+    // Put initials into the avatar circle in the sidebar
+    $('#sbAv').text(initials);
+
+    // Put the full name into the sidebar name label
+    $('#sbName').text(fname);
+
+
+    // ============================================================
+    // PAGE DATE — Display Today's Date on the Dashboard
+    // Gets the current date and formats it in a long readable style.
+    // Example output: "Monday, 15 January 2025"
+    // Puts it into the element with id="pageDate".
+    // ============================================================
+    const now = new Date();
+    document.getElementById('pageDate').textContent = now.toLocaleDateString('en-LK', {
+        weekday: 'long',   // Full day name e.g. "Monday"
+        year: 'numeric',   // 4-digit year e.g. "2025"
+        month: 'long',     // Full month name e.g. "January"
+        day: 'numeric'     // Day number e.g. "15"
     });
 
-    // Bar chart
-    const days=['MON','TUE','WED','THU','FRI','SAT','SUN'];
-    const revs=[4200,6800,5300,7900,6100,9200,7400];
-    const maxR=Math.max(...revs);
-    revs.forEach((v,i)=>{
-        const pct=(v/maxR*100);const isTop=v===maxR;
-        $('#barChart').append(`<div class="bar-wrap"><div class="bar-col" style="height:${pct}%;background:${isTop?'var(--green)':'var(--accent)'};opacity:${isTop?1:.6+i*.05}"><div class="bar-tip">Rs ${v.toLocaleString()}</div></div></div>`);
-        $('#barLabels').append(`<div style="flex:1;text-align:center;font-size:9px;color:var(--ink4);letter-spacing:.5px">${days[i]}</div>`);
-    });
 
-    // Calc
-    let cStr='',cNew=true;
-    function ca(v){
-        const $e=$('#calcExpr'),$r=$('#calcResult');
-        if(v==='C'){cStr='';$r.text('0');$e.text('');cNew=true;return;}
-        if(v==='⌫'){cStr=cStr.slice(0,-1);$r.text(cStr||'0');return;}
-        if(v==='='){try{const r=Function('"use strict";return ('+cStr+')')();$e.text(cStr+' =');cStr=String(parseFloat(r.toFixed(10)));$r.text(cStr);}catch{$r.text('ERR');}cNew=true;return;}
-        if(v==='%'){try{cStr=String(parseFloat(cStr)/100);$r.text(cStr);}catch{}return;}
-        cStr+=v;$r.text(cStr);$e.text('');
+    // ============================================================
+    // SHOW TOAST NOTIFICATION
+    // Shows a small popup message at the bottom of the screen.
+    // @param m = message text to show
+    // @param t = type — 'success' (green) or 'error' (red) or ''
+    // The popup disappears automatically after 3.4 seconds.
+    // ============================================================
+    function showToast(m, t) {
+        const $t = $('#toast');
+
+        // Set the message and apply the correct color class
+        $t.text(m).attr('class', 'toast show ' + (t || ''));
+
+        // Clear any existing timer to avoid hiding too early
+        clearTimeout($t.data('tt'));
+
+        // Auto-hide the toast after 3400 milliseconds (3.4 seconds)
+        $t.data('tt', setTimeout(() => $t.attr('class', 'toast'), 3400));
     }
-    document.addEventListener('keydown',e=>{
-        if('0123456789+-*/.'.includes(e.key))ca(e.key);
-        if(e.key==='Enter')ca('=');if(e.key==='Backspace')ca('⌫');if(e.key==='Escape')ca('C');
+
+
+    // ============================================================
+    // LOGOUT — Confirm Before Signing Out
+    // When the logout button is clicked, a confirm overlay appears.
+    // Cancel button or clicking the dark background closes it.
+    // Confirm button clears all auth data and redirects to login.
+    // ============================================================
+
+    // Logout button click → show the confirm overlay
+    $('#logoutBtn').on('click', () => $('#overlay').addClass('show'));
+
+    // Cancel button click → hide the confirm overlay
+    $('#cancelBtn').on('click', () => $('#overlay').removeClass('show'));
+
+    // Clicking the dark background area also closes the overlay
+    // e.target === this checks the click was on the overlay itself
+    // and not on the dialog box inside it
+    $('#overlay').on('click', function(e) {
+        if (e.target === this) $(this).removeClass('show');
     });
 
-    // Calendar
-    let calDate=new Date();
-    function renderCal(){
-        const yr=calDate.getFullYear(),mo=calDate.getMonth();
-        const months=['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
-        $('#calMonth').text(months[mo]+' '+yr);
-        const $g=$('#calGrid');$g.empty();
-        const first=new Date(yr,mo,1).getDay(),dim=new Date(yr,mo+1,0).getDate(),prev=new Date(yr,mo,0).getDate();
-        const today=new Date(),events=[3,7,12,18,22,25,28];
-        for(let i=0;i<first;i++)$g.append(`<div class="cal-day other">${prev-first+1+i}</div>`);
-        for(let d=1;d<=dim;d++){
-            const isTd=d===today.getDate()&&mo===today.getMonth()&&yr===today.getFullYear();
-            $g.append(`<div class="cal-day ${isTd?'today':''} ${events.includes(d)?'has-event':''}">${d}</div>`);
+    // Confirm button → clear all saved login data and redirect
+    $('#confirmBtn').on('click', () => {
+
+        // Remove every auth-related key from browser storage
+        [
+            'rentify_token',
+            'rentify_role',
+            'rentify_auth',
+            'rentify_username',
+            'rentify_fullName',
+            'rentify_email',
+            'rentify_userId'
+        ].forEach(k => localStorage.removeItem(k));
+
+        // Show a "Signing out..." message briefly
+        showToast('Signing out...', '');
+
+        // Wait 800ms then redirect to the sign-in page
+        setTimeout(() => { window.location.href = '../sign-in.html'; }, 800);
+    });
+
+
+    // ============================================================
+    // BAR CHART — Weekly Revenue Chart
+    // Draws a simple bar chart showing revenue for each day.
+    // The tallest bar (highest revenue day) is shown in green.
+    // All other bars are shown in the accent blue color.
+    // Each bar has a tooltip showing the exact Rs amount.
+    // ============================================================
+
+    // Day labels for the X axis (Monday to Sunday)
+    const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+
+    // Revenue values for each day in Sri Lankan Rupees
+    const revs = [4200, 6800, 5300, 7900, 6100, 9200, 7400];
+
+    // Find the highest value to calculate bar heights as percentages
+    const maxR = Math.max(...revs);
+
+    // Loop through each day and draw its bar
+    revs.forEach((v, i) => {
+
+        // Calculate the bar height as a percentage of the tallest bar
+        const pct = (v / maxR * 100);
+
+        // Check if this is the highest revenue day
+        const isTop = v === maxR;
+
+        // Add the bar column — green for top, blue for others
+        // Opacity increases slightly for each bar for visual interest
+        $('#barChart').append(`
+            <div class="bar-wrap">
+                <div class="bar-col"
+                     style="height:${pct}%;
+                            background:${isTop ? 'var(--green)' : 'var(--accent)'};
+                            opacity:${isTop ? 1 : .6 + i * .05}">
+                    <div class="bar-tip">Rs ${v.toLocaleString()}</div>
+                </div>
+            </div>
+        `);
+
+        // Add the day label below the bar
+        $('#barLabels').append(`
+            <div style="flex:1;text-align:center;font-size:9px;
+                        color:var(--ink4);letter-spacing:.5px">
+                ${days[i]}
+            </div>
+        `);
+    });
+
+
+    // ============================================================
+    // CALCULATOR — Simple In-Page Calculator
+    // Handles button clicks and keyboard input.
+    // cStr holds the current expression being typed.
+    // cNew flag indicates if the next key starts a fresh entry.
+    // ============================================================
+
+    let cStr = '';     // The current calculator expression string
+    let cNew = true;   // Flag — true means start a fresh input
+
+    // Main calculator action handler
+    // Called by button clicks and keyboard events
+    function ca(v) {
+        const $e = $('#calcExpr');    // Expression display (top line)
+        const $r = $('#calcResult');  // Result display (main number)
+
+        // C = Clear everything and reset
+        if (v === 'C') {
+            cStr = '';
+            $r.text('0');
+            $e.text('');
+            cNew = true;
+            return;
+        }
+
+        // ⌫ = Backspace — remove the last character typed
+        if (v === '⌫') {
+            cStr = cStr.slice(0, -1);
+            $r.text(cStr || '0');
+            return;
+        }
+
+        // = Equals — evaluate the expression and show the result
+        if (v === '=') {
+            try {
+                // Safely evaluate the math expression using Function()
+                // "use strict" prevents access to global scope
+                const r = Function('"use strict";return (' + cStr + ')')();
+
+                // Show the expression with equals sign on the top line
+                $e.text(cStr + ' =');
+
+                // Round to 10 decimal places to avoid floating point errors
+                // Convert back to string for display and future use
+                cStr = String(parseFloat(r.toFixed(10)));
+                $r.text(cStr);
+            } catch {
+                // If the expression is invalid, show ERR
+                $r.text('ERR');
+            }
+            cNew = true;
+            return;
+        }
+
+        // % = Percentage — divide current number by 100
+        if (v === '%') {
+            try {
+                cStr = String(parseFloat(cStr) / 100);
+                $r.text(cStr);
+            } catch {}
+            return;
+        }
+
+        // Any other key (number or operator) — add it to the expression
+        cStr += v;
+        $r.text(cStr);
+        $e.text('');  // Clear the expression line while typing
+    }
+
+    // Keyboard support — listen for key presses anywhere on the page
+    document.addEventListener('keydown', e => {
+        // Allow digits and math operators: 0-9 + - * / .
+        if ('0123456789+-*/.'.includes(e.key)) ca(e.key);
+
+        // Enter key = same as pressing Equals
+        if (e.key === 'Enter') ca('=');
+
+        // Backspace key = delete last character
+        if (e.key === 'Backspace') ca('⌫');
+
+        // Escape key = clear everything (same as C button)
+        if (e.key === 'Escape') ca('C');
+    });
+
+
+    // ============================================================
+    // CALENDAR — Mini Monthly Calendar Widget
+    // Renders a calendar grid for the current month.
+    // Highlights today's date with a special style.
+    // Shows dots on hardcoded event dates.
+    // Prev/Next buttons let the user navigate between months.
+    // ============================================================
+
+    // Tracks the currently displayed month and year
+    let calDate = new Date();
+
+    function renderCal() {
+        const yr = calDate.getFullYear();  // e.g. 2025
+        const mo = calDate.getMonth();     // 0 = January, 11 = December
+
+        // Month names array for the calendar header display
+        const months = [
+            'JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE',
+            'JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'
+        ];
+
+        // Update the calendar header with month name and year
+        $('#calMonth').text(months[mo] + ' ' + yr);
+
+        // Clear the existing calendar grid before rebuilding
+        const $g = $('#calGrid');
+        $g.empty();
+
+        // Calculate layout values for the grid
+        const first = new Date(yr, mo, 1).getDay();       // Weekday of the 1st (0=Sun, 6=Sat)
+        const dim   = new Date(yr, mo + 1, 0).getDate();  // Total days in this month
+        const prev  = new Date(yr, mo, 0).getDate();       // Total days in the previous month
+
+        const today  = new Date();
+        const events = [3, 7, 12, 18, 22, 25, 28]; // Hardcoded event dates for this demo
+
+        // Fill in the empty slots at the start with last month's dates
+        for (let i = 0; i < first; i++) {
+            $g.append(`<div class="cal-day other">${prev - first + 1 + i}</div>`);
+        }
+
+        // Fill in the actual days of this month
+        for (let d = 1; d <= dim; d++) {
+
+            // Check if this day is today
+            const isTd = d === today.getDate()
+                && mo === today.getMonth()
+                && yr === today.getFullYear();
+
+            // Add the day cell — 'today' class highlights it, 'has-event' adds a dot
+            $g.append(`
+                <div class="cal-day ${isTd ? 'today' : ''} ${events.includes(d) ? 'has-event' : ''}">
+                    ${d}
+                </div>
+            `);
         }
     }
-    renderCal();
-    $('#calPrev').on('click',()=>{calDate.setMonth(calDate.getMonth()-1);renderCal();});
-    $('#calNext').on('click',()=>{calDate.setMonth(calDate.getMonth()+1);renderCal();});
 
-    // Activity
-    const activities=[
-        {c:'#00b86b',t:'New booking #BK-089 confirmed',m:'2 min ago'},
-        {c:'#f5c518',t:'Payment Rs 3,200 received',m:'14 min ago'},
-        {c:'#1a3fff',t:'Driver Karim account verified',m:'1 hr ago'},
-        {c:'#ff3b5c',t:'Booking #BK-042 cancelled',m:'3 hr ago'},
-        {c:'#00b86b',t:'New user registered: S. Perera',m:'5 hr ago'},
-        {c:'#7c3aed',t:'Insurance policy #IP-33 renewed',m:'8 hr ago'},
-    ];
-    activities.forEach(a=>{
-        $('#actList').append(`<li class="act-item"><div class="act-dot" style="background:${a.c}"></div><div class="act-text">${a.t}</div><div class="act-time">${a.m}</div></li>`);
+    // Render the calendar when the page loads
+    renderCal();
+
+    // Previous month button — go back one month and re-render
+    $('#calPrev').on('click', () => {
+        calDate.setMonth(calDate.getMonth() - 1);
+        renderCal();
     });
 
-    // API
-    function authH(){const t=localStorage.getItem('rentify_token')||'';return t?{Authorization:'Bearer '+t}:{};}
-    function badge(s){return s==='COMPLETED'?'b-green':s==='CONFIRMED'?'b-blue':s==='PENDING'?'b-orange':'b-red';}
+    // Next month button — go forward one month and re-render
+    $('#calNext').on('click', () => {
+        calDate.setMonth(calDate.getMonth() + 1);
+        renderCal();
+    });
 
-    $.ajax({url:API+'/vehicles',headers:authH(),success:function(r){
-            const v=Array.isArray(r)?r:(r.data||[]);
-            $('#s-cabs').text(v.filter(x=>x.status==='AVAILABLE').length+' avail');
-        },error:()=>$('#s-cabs').text('—')});
 
-    $.ajax({url:API+'/bookings',headers:authH(),success:function(r){
-            const b=Array.isArray(r)?r:(r.data||[]);
+    // ============================================================
+    // ACTIVITY FEED — Recent System Events List
+    // A hardcoded list of recent events shown in the dashboard.
+    // Each item has a color dot, a description, and a time label.
+    // Items are looped and added to the activity list element.
+    // ============================================================
+
+    // Each activity has: c = dot color, t = text, m = time ago
+    const activities = [
+        { c: '#00b86b', t: 'New booking #BK-089 confirmed',        m: '2 min ago'  },
+        { c: '#f5c518', t: 'Payment Rs 3,200 received',             m: '14 min ago' },
+        { c: '#1a3fff', t: 'Driver Karim account verified',         m: '1 hr ago'   },
+        { c: '#ff3b5c', t: 'Booking #BK-042 cancelled',             m: '3 hr ago'   },
+        { c: '#00b86b', t: 'New user registered: S. Perera',        m: '5 hr ago'   },
+        { c: '#7c3aed', t: 'Insurance policy #IP-33 renewed',       m: '8 hr ago'   },
+    ];
+
+    // Loop through each activity and build a list item for it
+    activities.forEach(a => {
+        $('#actList').append(`
+            <li class="act-item">
+                <div class="act-dot" style="background:${a.c}"></div>
+                <div class="act-text">${a.t}</div>
+                <div class="act-time">${a.m}</div>
+            </li>
+        `);
+    });
+
+
+    // ============================================================
+    // AUTH HEADER HELPER
+    // Reads the saved JWT token from browser storage.
+    // Returns an Authorization header object for API requests.
+    // Returns an empty object if no token is found.
+    // ============================================================
+    function authH() {
+        const t = localStorage.getItem('rentify_token') || '';
+        return t ? { Authorization: 'Bearer ' + t } : {};
+    }
+
+
+    // ============================================================
+    // BADGE CLASS HELPER
+    // Returns the correct CSS class name for a booking status badge.
+    // Used to color-code the status labels in the bookings table.
+    // COMPLETED → green   CONFIRMED → blue
+    // PENDING   → orange  anything else → red
+    // ============================================================
+    function badge(s) {
+        return s === 'COMPLETED' ? 'b-green'
+            : s === 'CONFIRMED' ? 'b-blue'
+                : s === 'PENDING'   ? 'b-orange'
+                    : 'b-red';
+    }
+
+
+    // ============================================================
+    // API CALL 1 — LOAD VEHICLES
+    // Fetches all vehicles from the backend.
+    // Counts how many have status 'AVAILABLE'.
+    // Shows that count in the stat card labeled "Cabs".
+    // Shows a dash if the API call fails.
+    // ============================================================
+    $.ajax({
+        url: API + '/vehicles',
+        headers: authH(),  // Send JWT token for authentication
+
+        success: function(r) {
+            // Handle both array response and object with .data field
+            const v = Array.isArray(r) ? r : (r.data || []);
+
+            // Count vehicles with status AVAILABLE and show in stat card
+            $('#s-cabs').text(v.filter(x => x.status === 'AVAILABLE').length + ' avail');
+        },
+
+        // If the request fails, show a dash in the stat card
+        error: () => $('#s-cabs').text('—')
+    });
+
+
+    // ============================================================
+    // API CALL 2 — LOAD BOOKINGS
+    // Fetches all bookings from the backend.
+    // Updates the total booking count and revenue stat cards.
+    // Calculates total revenue by adding prices of non-cancelled bookings.
+    // Shows the 5 most recent bookings in the dashboard table.
+    // Shows placeholder text if the API call fails.
+    // ============================================================
+    $.ajax({
+        url: API + '/bookings',
+        headers: authH(),  // Send JWT token for authentication
+
+        success: function(r) {
+            // Handle both array response and object with .data field
+            const b = Array.isArray(r) ? r : (r.data || []);
+
+            // Show total number of all bookings in the stat card
             $('#s-bookings').text(b.length);
-            const rev=b.filter(x=>x.status!=='CANCELLED').reduce((s,x)=>s+(x.totalPrice||0),0);
-            $('#s-revenue').text('Rs '+Number(rev).toLocaleString('en-LK'));
+
+            // Calculate revenue — skip CANCELLED bookings
+            // reduce() adds up all totalPrice values starting from 0
+            const rev = b
+                .filter(x => x.status !== 'CANCELLED')
+                .reduce((s, x) => s + (x.totalPrice || 0), 0);
+
+            // Show revenue formatted as "Rs 125,000" in the stat card
+            $('#s-revenue').text('Rs ' + Number(rev).toLocaleString('en-LK'));
+
+            // Show a hardcoded trend label below the revenue card
             $('#rev-change').text('↑ 12% vs last month');
-            const recent=b.slice(-5).reverse();
-            $('#dashTbl').html(recent.length?recent.map(x=>`
-    <tr>
-      <td><strong style="color:var(--ink)">User #${x.userId}</strong></td>
-      <td>${x.vehicleModel||'—'}</td>
-      <td style="color:var(--ink3)">${x.pickupLocation||'—'}</td>
-      <td><span class="badge ${badge(x.status)}">${x.status}</span></td>
-      <td style="font-family:'Bungee',sans-serif;font-size:12px;color:var(--green)">Rs ${Number(x.totalPrice||0).toLocaleString('en-LK')}</td>
-    </tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--ink4)">No bookings yet</td></tr>');
-        },error:()=>{
-            $('#s-bookings,#s-revenue').text('—');
-            $('#dashTbl').html('<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--ink4)">Connect to API to see bookings</td></tr>');
-        }});
+
+            // Take the last 5 bookings and reverse to show newest first
+            const recent = b.slice(-5).reverse();
+
+            // Build and inject the table rows into the dashboard table
+            $('#dashTbl').html(
+                recent.length
+                    ? recent.map(x => `
+                        <tr>
+                          <td><strong style="color:var(--ink)">User #${x.userId}</strong></td>
+                          <td>${x.vehicleModel || '—'}</td>
+                          <td style="color:var(--ink3)">${x.pickupLocation || '—'}</td>
+                          <td>
+                            <span class="badge ${badge(x.status)}">${x.status}</span>
+                          </td>
+                          <td style="font-family:'Bungee',sans-serif;font-size:12px;color:var(--green)">
+                            Rs ${Number(x.totalPrice || 0).toLocaleString('en-LK')}
+                          </td>
+                        </tr>
+                    `).join('')
+
+                    // If no bookings exist, show a centered message
+                    : '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--ink4)">No bookings yet</td></tr>'
+            );
+        },
+
+        // If the API call fails, show dashes and a help message
+        error: () => {
+            $('#s-bookings, #s-revenue').text('—');
+            $('#dashTbl').html(
+                '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--ink4)">Connect to API to see bookings</td></tr>'
+            );
+        }
+    });
+
 </script>
 </body>
 </html>

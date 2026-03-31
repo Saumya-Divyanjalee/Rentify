@@ -802,70 +802,123 @@
 </div>
 
 <div id="toast"></div>
+<script src="../../js/jquery-3.7.1.min.js"></script>
 
 <script>
+    // Base URL for all API calls
     const API = 'http://localhost:8081/api/v1';
-    let allBookings = [], allVehicles = [], pendingAction = null;
 
-    // ── INIT ──
-    const fname = localStorage.getItem('rentify_fullName') || localStorage.getItem('rentify_username') || 'Admin User';
+    // Global lists and state variables
+    let allBookings = [];      // All bookings loaded from the server
+    let allVehicles = [];      // All vehicles loaded from the server
+    let pendingAction = null;  // The action waiting to be confirmed in the confirm popup
+
+    // ── INIT: Set up the sidebar and profile panel with the logged-in user's info ──
+    const fname  = localStorage.getItem('rentify_fullName') || localStorage.getItem('rentify_username') || 'Admin User';
     const femail = localStorage.getItem('rentify_email') || 'admin@rentify.lk';
+
+    // Build initials from the first letter of each word in the name (e.g. "John Doe" → "JD")
     const fini = fname.trim().split(/\s+/).map(x => x[0]?.toUpperCase()).join('').slice(0, 2) || 'AD';
-    $('#sbAv, #profileAv').text(fini);
-    $('#sbName, #profileName').text(fname);
-    $('#profileEmail').text(femail);
-    $('#pf-name').val(fname);
-    $('#pf-email').val(femail);
-    $('#pf-username').val(localStorage.getItem('rentify_username') || 'admin');
 
+    $('#sbAv, #profileAv').text(fini);          // Show initials in sidebar and profile avatars
+    $('#sbName, #profileName').text(fname);      // Show full name in sidebar and profile panel
+    $('#profileEmail').text(femail);             // Show email in profile panel
+    $('#pf-name').val(fname);                    // Pre-fill the name field in the profile form
+    $('#pf-email').val(femail);                  // Pre-fill the email field
+    $('#pf-username').val(localStorage.getItem('rentify_username') || 'admin'); // Pre-fill username
+
+    // Get the saved login token from the browser
     function getToken() { return localStorage.getItem('rentify_token') || ''; }
-    function authH() { const t = getToken(); return t ? { Authorization: 'Bearer ' + t } : {}; }
-    function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-    function fmtP(p) { return 'Rs ' + Number(p || 0).toLocaleString('en-LK'); }
-    function logout() { ['rentify_token','rentify_role','rentify_auth','rentify_username','rentify_fullName','rentify_email','rentify_userId'].forEach(k => localStorage.removeItem(k)); window.location.href = '../sign-in.html'; }
 
-    // ── TOAST ──
+    // Build the Authorization header using the token
+    function authH() { const t = getToken(); return t ? { Authorization: 'Bearer ' + t } : {}; }
+
+    // Escape special HTML characters to prevent broken HTML or attacks
+    function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+    // Format a number as Sri Lankan Rupees (e.g. Rs 12,500)
+    function fmtP(p) { return 'Rs ' + Number(p || 0).toLocaleString('en-LK'); }
+
+    // Log the user out by clearing all saved login data and going to the sign-in page
+    function logout() {
+        ['rentify_token', 'rentify_role', 'rentify_auth', 'rentify_username', 'rentify_fullName', 'rentify_email', 'rentify_userId']
+            .forEach(k => localStorage.removeItem(k));
+        window.location.href = '../sign-in.html';
+    }
+
+    // ── TOAST: Show a small popup message at the bottom of the screen ──
     function showToast(m, t) {
         const $t = $('#toast');
         $t.text(m).attr('class', 'toast show ' + (t || ''));
         clearTimeout($t.data('tt'));
+        // Automatically hide the message after 3.4 seconds
         $t.data('tt', setTimeout(() => $t.attr('class', 'toast'), 3400));
     }
 
-    // ── TABS ──
+    // ── TABS: Switch between the different settings/analytics tab panels ──
     function switchTab(id) {
+        // Remove the active class from all tabs and panels
         $('.tab').removeClass('active');
         $('.panel').removeClass('active');
-        $(`.tab:contains(${id === 'analytics' ? '📊' : id === 'profile' ? '👤' : id === 'system' ? '⚙️' : id === 'notifications' ? '🔔' : id === 'security' ? '🔐' : '🔌'})`).addClass('active');
+
+        // Find the right tab by its emoji icon and mark it as active
+        $(`.tab:contains(${
+            id === 'analytics'     ? '📊' :
+                id === 'profile'       ? '👤' :
+                    id === 'system'        ? '⚙️' :
+                        id === 'notifications' ? '🔔' :
+                            id === 'security'      ? '🔐' : '🔌'
+        })`).addClass('active');
+
+        // Show the matching panel
         $(`#tab-${id}`).addClass('active');
+
+        // Load analytics data when the analytics tab is opened
         if (id === 'analytics') loadAnalytics();
     }
 
-    // ── ANALYTICS ──
+    // ── ANALYTICS: Load bookings and vehicles data then build all charts ──
     function loadAnalytics() {
         const h = authH();
-        $.ajax({ url: API + '/bookings', headers: h,
-            success: function(r) {
+
+        // Load all bookings and build the analytics section
+        $.ajax({
+            url: API + '/bookings',
+            headers: h,
+            success: function (r) {
                 allBookings = Array.isArray(r) ? r : (r.data || []);
                 buildAnalytics();
-            }, error: () => buildAnalytics()
+            },
+            error: () => buildAnalytics() // Build with empty data if the request fails
         });
-        $.ajax({ url: API + '/vehicles', headers: h,
-            success: function(r) {
+
+        // Load all vehicles and build the vehicle stats section
+        $.ajax({
+            url: API + '/vehicles',
+            headers: h,
+            success: function (r) {
                 allVehicles = Array.isArray(r) ? r : (r.data || []);
                 buildVehicleStats();
                 buildTopVehicles();
-            }, error: () => {}
+            },
+            error: () => {}
         });
     }
 
+    // Calculate summary numbers and render all charts from the bookings data
     function buildAnalytics() {
         const bk = allBookings;
+
+        // Add up the total revenue, ignoring cancelled bookings
         const rev = bk.filter(b => b.status !== 'CANCELLED').reduce((s, b) => s + (b.totalPrice || 0), 0);
+
         const completed = bk.filter(b => b.status === 'COMPLETED').length;
         const cancelled = bk.filter(b => b.status === 'CANCELLED').length;
+
+        // Completion rate = completed bookings as a percentage of all bookings
         const rate = bk.length ? Math.round((completed / bk.length) * 100) : 0;
 
+        // Update the summary stat boxes at the top of the analytics panel
         $('#an-revenue').text('Rs ' + Number(rev).toLocaleString('en-LK', { notation: rev >= 1000000 ? 'compact' : 'standard' }));
         $('#an-bookings').text(bk.length);
         $('#an-rate').text(rate + '%');
@@ -874,126 +927,208 @@
         $('#an-bk-chg').text('↑ All records');
         $('#an-cc-chg').text(cancelled > 0 ? '↓ ' + cancelled + ' cancelled' : '✓ None');
 
+        // Draw all the charts
         renderBarChart();
         renderDonut(bk);
         renderRevenueChart();
         buildActivityLog(bk);
     }
 
-    const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    // Short month name labels used in charts
+    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
+    // Draw the monthly bookings bar chart
     function renderBarChart() {
-        const n = parseInt($('#chartRange').val()) || 8;
+        const n   = parseInt($('#chartRange').val()) || 8; // Number of months to show
         const now = new Date();
         const data = [];
+
+        // Build one data point per month going back n months from today
         for (let i = n - 1; i >= 0; i--) {
-            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const d     = new Date(now.getFullYear(), now.getMonth() - i, 1);
             const label = months[d.getMonth()];
+
+            // Count bookings that started in this month
             const count = allBookings.filter(b => {
                 if (!b.startDate) return false;
                 const bd = new Date(b.startDate);
                 return bd.getMonth() === d.getMonth() && bd.getFullYear() === d.getFullYear();
             }).length;
-            // Add some variation if data is empty
+
+            // If there are no real bookings, use a random demo value so the chart isn't empty
             const val = count || Math.floor(Math.random() * 18 + 4);
             data.push({ label, val });
         }
+
         const maxV = Math.max(...data.map(d => d.val), 1);
-        $('#barChart').empty(); $('#barLabels').empty();
+
+        // Clear the old chart before redrawing
+        $('#barChart').empty();
+        $('#barLabels').empty();
+
+        // Draw one bar per month
         data.forEach((d, i) => {
-            const pct = (d.val / maxV * 100);
+            const pct   = (d.val / maxV * 100);
             const isMax = d.val === maxV;
-            const color = isMax ? 'var(--green)' : i % 3 === 0 ? 'var(--accent)' : i % 3 === 1 ? '#6e8fff' : 'var(--purple)';
+
+            // The tallest bar is green; others cycle through accent colors
+            const color = isMax          ? 'var(--green)'   :
+                i % 3 === 0    ? 'var(--accent)'  :
+                    i % 3 === 1    ? '#6e8fff'        : 'var(--purple)';
+
             $('#barChart').append(`<div class="bar-wrap"><div class="bar-col" style="height:${pct}%;background:${color}"><div class="bar-tip">${d.label}: ${d.val} bookings</div></div></div>`);
             $('#barLabels').append(`<div style="flex:1;text-align:center;font-size:9px;color:var(--ink4);letter-spacing:.5px">${d.label}</div>`);
         });
     }
 
+    // Draw the booking status donut chart using inline SVG
     function renderDonut(bk) {
+        // Group bookings by status with a matching color for each
         const statuses = [
             { label: 'Completed', count: bk.filter(b => b.status === 'COMPLETED').length, color: '#00b86b' },
             { label: 'Confirmed', count: bk.filter(b => b.status === 'CONFIRMED').length, color: '#1a3fff' },
             { label: 'Pending',   count: bk.filter(b => b.status === 'PENDING').length,   color: '#ff7a00' },
             { label: 'Cancelled', count: bk.filter(b => b.status === 'CANCELLED').length, color: '#ff3b5c' },
         ];
+
         const total = statuses.reduce((s, x) => s + x.count, 0) || 4;
+
+        // If all counts are zero, use sample data so the chart isn't blank
         if (statuses.every(s => s.count === 0)) {
-            statuses[0].count = 8; statuses[1].count = 5; statuses[2].count = 3; statuses[3].count = 2;
+            statuses[0].count = 8;
+            statuses[1].count = 5;
+            statuses[2].count = 3;
+            statuses[3].count = 2;
         }
-        const r = 50, cx = 65, cy = 65, circumference = 2 * Math.PI * r;
+
+        // Donut geometry settings
+        const r = 50, cx = 65, cy = 65;
+        const circumference = 2 * Math.PI * r;
         let offset = 0;
+
+        // Build one SVG arc (circle segment) per status
         const svgCircles = statuses.map(s => {
-            const pct = s.count / (total || 1);
-            const dash = pct * circumference;
-            const c = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="18" stroke-dasharray="${dash} ${circumference - dash}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})" style="transition:all .6s ease;cursor:pointer"><title>${s.label}: ${s.count}</title></circle>`;
-            offset += dash;
+            const pct  = s.count / (total || 1);
+            const dash = pct * circumference; // How long this segment's stroke should be
+            const c = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="18"
+                stroke-dasharray="${dash} ${circumference - dash}"
+                stroke-dashoffset="${-offset}"
+                transform="rotate(-90 ${cx} ${cy})"
+                style="transition:all .6s ease;cursor:pointer">
+                <title>${s.label}: ${s.count}</title>
+            </circle>`;
+            offset += dash; // Move the start point for the next segment
             return c;
         });
-        const svg = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--bg2)" stroke-width="18"/>${svgCircles.join('')}<text x="${cx}" y="${cy - 6}" text-anchor="middle" font-family="Bungee,sans-serif" font-size="16" fill="var(--ink)">${total}</text><text x="${cx}" y="${cy + 10}" text-anchor="middle" font-size="9" fill="var(--ink4)" font-family="Roboto Mono,monospace">TOTAL</text>`;
+
+        // Combine all SVG elements: background ring, colored arcs, and centre text
+        const svg = `
+            <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--bg2)" stroke-width="18"/>
+            ${svgCircles.join('')}
+            <text x="${cx}" y="${cy - 6}" text-anchor="middle" font-family="Bungee,sans-serif" font-size="16" fill="var(--ink)">${total}</text>
+            <text x="${cx}" y="${cy + 10}" text-anchor="middle" font-size="9" fill="var(--ink4)" font-family="Roboto Mono,monospace">TOTAL</text>`;
+
         $('#donutSvg').html(svg);
-        $('#donutLegend').html(statuses.map(s => `<div class="dl-item"><div class="dl-dot" style="background:${s.color}"></div><span class="dl-label">${s.label}</span><span class="dl-val">${s.count}</span></div>`).join(''));
+
+        // Build the colour legend below the donut
+        $('#donutLegend').html(statuses.map(s =>
+            `<div class="dl-item">
+                <div class="dl-dot" style="background:${s.color}"></div>
+                <span class="dl-label">${s.label}</span>
+                <span class="dl-val">${s.count}</span>
+            </div>`
+        ).join(''));
     }
 
+    // Draw the weekly revenue bar chart (uses static sample data)
     function renderRevenueChart() {
-        const days = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
-        const revs = [3200, 5800, 4100, 7200, 5600, 9100, 6800];
+        const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+        const revs = [3200, 5800, 4100, 7200, 5600, 9100, 6800]; // Sample revenue per day
         const maxR = Math.max(...revs);
-        $('#revenueChart').empty(); $('#revenueLabels').empty();
+
+        $('#revenueChart').empty();
+        $('#revenueLabels').empty();
+
         revs.forEach((v, i) => {
             const pct = (v / maxR * 100);
-            const c = v === maxR ? 'var(--orange)' : 'var(--accent)';
+            const c   = v === maxR ? 'var(--orange)' : 'var(--accent)'; // Highlight the highest bar
             $('#revenueChart').append(`<div class="bar-wrap"><div class="bar-col" style="height:${pct}%;background:${c};opacity:.85"><div class="bar-tip">Rs ${v.toLocaleString()}</div></div></div>`);
             $('#revenueLabels').append(`<div style="flex:1;text-align:center;font-size:9px;color:var(--ink4)">${days[i]}</div>`);
         });
     }
 
+    // Update the vehicle fleet stats section with counts and progress bars
     function buildVehicleStats() {
         const v = allVehicles;
-        const total = v.length || 20;
-        const cabs = v.filter(x => x.type === 'CAB').length || 10;
-        const vans = v.filter(x => x.type === 'VAN').length || 5;
-        const suv = v.filter(x => x.type === 'WHEEL' || x.type === 'BUS').length || 3;
-        const bus = v.filter(x => x.type === 'BUS').length || 2;
 
+        // Count vehicles by type (fall back to sample numbers if the list is empty)
+        const total = v.length || 20;
+        const cabs  = v.filter(x => x.type === 'CAB').length  || 10;
+        const vans  = v.filter(x => x.type === 'VAN').length  || 5;
+        const suv   = v.filter(x => x.type === 'WHEEL' || x.type === 'BUS').length || 3;
+        const bus   = v.filter(x => x.type === 'BUS').length  || 2;
+
+        // Show how many vehicles are currently available
         $('#an-vehicles').text(v.filter(x => x.status === 'AVAILABLE').length || v.length || '—');
         $('#an-veh-chg').text('Fleet: ' + total + ' total');
 
-        [['cab', cabs, total], ['van', vans, total], ['suv', suv, total], ['bus', bus, total]].forEach(([k, n, t]) => {
-            const pct = t ? Math.round((n / t) * 100) : 0;
-            $(`#pv-${k}`).text(n + ' (' + pct + '%)');
-            setTimeout(() => $(`#pf-${k}`).css('width', pct + '%'), 200);
-        });
+        // Update each vehicle type label and fill its progress bar after a short delay
+        [['cab', cabs, total], ['van', vans, total], ['suv', suv, total], ['bus', bus, total]]
+            .forEach(([k, n, t]) => {
+                const pct = t ? Math.round((n / t) * 100) : 0;
+                $(`#pv-${k}`).text(n + ' (' + pct + '%)');
+                setTimeout(() => $(`#pf-${k}`).css('width', pct + '%'), 200); // Small delay for a smooth animation
+            });
     }
 
+    // Build the top vehicles performance table
     function buildTopVehicles() {
-        const v = allVehicles.slice(0, 6);
+        const v = allVehicles.slice(0, 6); // Use up to 6 vehicles
+
         if (!v.length) {
+            // No real data — use hard-coded sample rows so the table isn't empty
             const sample = [
-                { rank: 1, model: 'Toyota Prius', type: 'CAB', plate: 'CAB-1234', bookings: 24, revenue: 72000, util: 85, status: 'AVAILABLE' },
-                { rank: 2, model: 'Toyota HiAce', type: 'VAN', plate: 'VAN-5678', bookings: 18, revenue: 108000, util: 70, status: 'BOOKED' },
-                { rank: 3, model: 'Honda Fit', type: 'CAB', plate: 'CAB-9012', bookings: 15, revenue: 37500, util: 60, status: 'AVAILABLE' },
-                { rank: 4, model: 'Suzuki Alto', type: 'CAB', plate: 'CAB-3456', bookings: 12, revenue: 24000, util: 50, status: 'MAINTENANCE' },
-                { rank: 5, model: 'Toyota KDH', type: 'VAN', plate: 'VAN-7890', bookings: 9, revenue: 54000, util: 38, status: 'AVAILABLE' },
+                { rank: 1, model: 'Toyota Prius',  type: 'CAB', plate: 'CAB-1234', bookings: 24, revenue: 72000,  util: 85, status: 'AVAILABLE' },
+                { rank: 2, model: 'Toyota HiAce',  type: 'VAN', plate: 'VAN-5678', bookings: 18, revenue: 108000, util: 70, status: 'BOOKED' },
+                { rank: 3, model: 'Honda Fit',      type: 'CAB', plate: 'CAB-9012', bookings: 15, revenue: 37500,  util: 60, status: 'AVAILABLE' },
+                { rank: 4, model: 'Suzuki Alto',    type: 'CAB', plate: 'CAB-3456', bookings: 12, revenue: 24000,  util: 50, status: 'MAINTENANCE' },
+                { rank: 5, model: 'Toyota KDH',     type: 'VAN', plate: 'VAN-7890', bookings:  9, revenue: 54000,  util: 38, status: 'AVAILABLE' },
             ];
             renderTopVehicles(sample);
         } else {
-            const rows = v.map((x, i) => ({ rank: i + 1, model: x.model, type: x.type, plate: x.plateNumber, bookings: Math.floor(Math.random() * 20 + 3), revenue: (x.pricePerDay || 2000) * Math.floor(Math.random() * 20 + 3), util: Math.floor(Math.random() * 60 + 30), status: x.status }));
+            // Build rows from real vehicle data, using random numbers for bookings/revenue/utilisation
+            const rows = v.map((x, i) => ({
+                rank:     i + 1,
+                model:    x.model,
+                type:     x.type,
+                plate:    x.plateNumber,
+                bookings: Math.floor(Math.random() * 20 + 3),
+                revenue:  (x.pricePerDay || 2000) * Math.floor(Math.random() * 20 + 3),
+                util:     Math.floor(Math.random() * 60 + 30),
+                status:   x.status
+            }));
             renderTopVehicles(rows);
         }
     }
 
+    // Render the top vehicles rows into the HTML table
     function renderTopVehicles(rows) {
+        // Map each status to a badge colour class
         const badges = { AVAILABLE: 'b-green', BOOKED: 'b-red', MAINTENANCE: 'b-orange' };
+
         $('#topVehiclesTable').html(rows.map(r => `<tr>
-            <td><span style="font-family:'Bungee',sans-serif;color:${r.rank <= 3 ? 'var(--yellow)' : 'var(--ink4)'}">
-                ${r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : '#' + r.rank}
-            </span></td>
+            <td>
+                <span style="font-family:'Bungee',sans-serif;color:${r.rank <= 3 ? 'var(--yellow)' : 'var(--ink4)'}">
+                    ${r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : '#' + r.rank}
+                </span>
+            </td>
             <td style="font-weight:700;color:var(--ink)">${esc(r.model)}</td>
             <td><span class="badge b-blue">${esc(r.type)}</span></td>
             <td style="font-family:'Bungee',sans-serif;font-size:12px">${r.bookings}</td>
             <td style="font-family:'Bungee',sans-serif;font-size:11px;color:var(--green)">Rs ${r.revenue.toLocaleString('en-LK')}</td>
             <td>
                 <div style="display:flex;align-items:center;gap:8px">
+                    <!-- Utilisation progress bar — colour changes from orange to green as % increases -->
                     <div style="flex:1;height:5px;background:var(--bg2);border-radius:10px;overflow:hidden;min-width:60px">
                         <div style="height:100%;width:${r.util}%;background:${r.util > 70 ? 'var(--green)' : r.util > 40 ? 'var(--accent)' : 'var(--orange)'};border-radius:10px"></div>
                     </div>
@@ -1004,67 +1139,91 @@
         </tr>`).join(''));
     }
 
+    // Build the recent activity log from the last 8 bookings (newest first)
     function buildActivityLog(bk) {
-        const items = bk.length ? bk.slice(-8).reverse().map(b => ({
-            color: b.status === 'COMPLETED' ? 'var(--green)' : b.status === 'CANCELLED' ? 'var(--red)' : b.status === 'CONFIRMED' ? 'var(--accent)' : 'var(--orange)',
-            text: `Booking #${b.id} for User #${b.userId} — ${b.vehicleModel || 'Vehicle'} — <strong>${b.status}</strong>`,
-            time: b.startDate || '—',
-            badge: b.status
-        })) : [
-            { color: 'var(--green)', text: 'New booking #BK-089 confirmed for User #12', time: '2 min ago', badge: 'CONFIRMED' },
-            { color: 'var(--yellow)', text: 'Payment Rs 3,200 received — Booking #BK-087', time: '14 min ago', badge: 'COMPLETED' },
-            { color: 'var(--accent)', text: 'Driver Karim account verified by admin', time: '1 hr ago', badge: 'INFO' },
-            { color: 'var(--red)', text: 'Booking #BK-042 cancelled by customer', time: '3 hr ago', badge: 'CANCELLED' },
-            { color: 'var(--green)', text: 'New user registered: S. Perera', time: '5 hr ago', badge: 'NEW' },
-            { color: 'var(--purple)', text: 'Insurance policy #IP-33 renewed', time: '8 hr ago', badge: 'RENEWED' },
-        ];
-        const badgeCls = { CONFIRMED: 'b-blue', COMPLETED: 'b-green', CANCELLED: 'b-red', INFO: 'b-purple', NEW: 'b-green', RENEWED: 'b-blue', PENDING: 'b-orange' };
+        const items = bk.length
+            // Use real booking data if available
+            ? bk.slice(-8).reverse().map(b => ({
+                color: b.status === 'COMPLETED' ? 'var(--green)'  :
+                    b.status === 'CANCELLED' ? 'var(--red)'    :
+                        b.status === 'CONFIRMED' ? 'var(--accent)' : 'var(--orange)',
+                text:  `Booking #${b.id} for User #${b.userId} — ${b.vehicleModel || 'Vehicle'} — <strong>${b.status}</strong>`,
+                time:  b.startDate || '—',
+                badge: b.status
+            }))
+            // Fall back to static sample entries when there are no real bookings
+            : [
+                { color: 'var(--green)',  text: 'New booking #BK-089 confirmed for User #12',        time: '2 min ago',  badge: 'CONFIRMED' },
+                { color: 'var(--yellow)', text: 'Payment Rs 3,200 received — Booking #BK-087',        time: '14 min ago', badge: 'COMPLETED' },
+                { color: 'var(--accent)', text: 'Driver Karim account verified by admin',              time: '1 hr ago',   badge: 'INFO' },
+                { color: 'var(--red)',    text: 'Booking #BK-042 cancelled by customer',               time: '3 hr ago',   badge: 'CANCELLED' },
+                { color: 'var(--green)',  text: 'New user registered: S. Perera',                      time: '5 hr ago',   badge: 'NEW' },
+                { color: 'var(--purple)', text: 'Insurance policy #IP-33 renewed',                     time: '8 hr ago',   badge: 'RENEWED' },
+            ];
+
+        // Map each badge type to its colour class
+        const badgeCls = {
+            CONFIRMED: 'b-blue', COMPLETED: 'b-green', CANCELLED: 'b-red',
+            INFO: 'b-purple', NEW: 'b-green', RENEWED: 'b-blue', PENDING: 'b-orange'
+        };
+
         $('#activityLog').html(items.map(a =>
             `<div class="log-item">
                 <div class="log-dot" style="background:${a.color}"></div>
-                <div class="log-text">${a.text} <span class="badge ${badgeCls[a.badge] || 'b-blue'}" style="padding:2px 6px;font-size:7px">${a.badge}</span></div>
+                <div class="log-text">
+                    ${a.text}
+                    <span class="badge ${badgeCls[a.badge] || 'b-blue'}" style="padding:2px 6px;font-size:7px">${a.badge}</span>
+                </div>
                 <div class="log-time">${a.time}</div>
             </div>`
         ).join(''));
     }
 
-    // ── LOGIN HISTORY (static) ──
+    // ── LOGIN HISTORY: Display a static list of recent login attempts ──
     function buildLoginHistory() {
         const history = [
-            { device: 'Chrome 122 · Windows 11', ip: '192.168.1.45', time: 'Today, 09:14 AM', status: 'success', current: true },
-            { device: 'Safari · iPhone 15', ip: '112.134.XX.XX', time: 'Yesterday, 06:32 PM', status: 'success', current: false },
-            { device: 'Firefox · Ubuntu', ip: '192.168.1.22', time: '15 Mar 2026, 11:00 AM', status: 'success', current: false },
-            { device: 'Unknown · Android', ip: '203.12.XX.XX', time: '12 Mar 2026, 02:18 AM', status: 'fail', current: false },
+            { device: 'Chrome 122 · Windows 11', ip: '192.168.1.45',  time: 'Today, 09:14 AM',         status: 'success', current: true  },
+            { device: 'Safari · iPhone 15',       ip: '112.134.XX.XX', time: 'Yesterday, 06:32 PM',     status: 'success', current: false },
+            { device: 'Firefox · Ubuntu',          ip: '192.168.1.22',  time: '15 Mar 2026, 11:00 AM',  status: 'success', current: false },
+            { device: 'Unknown · Android',         ip: '203.12.XX.XX',  time: '12 Mar 2026, 02:18 AM',  status: 'fail',    current: false },
         ];
+
         $('#loginHistory').html(history.map(h =>
             `<div class="log-item">
                 <div class="log-dot" style="background:${h.status === 'success' ? 'var(--green)' : 'var(--red)'}"></div>
                 <div class="log-text">
-                    <strong>${h.device}</strong> ${h.current ? '<span class="badge b-green" style="padding:1px 6px;font-size:7px">CURRENT</span>' : ''}
+                    <strong>${h.device}</strong>
+                    ${h.current ? '<span class="badge b-green" style="padding:1px 6px;font-size:7px">CURRENT</span>' : ''}
                     <div style="font-size:10px;color:var(--ink4);margin-top:2px">IP: ${h.ip}</div>
                 </div>
                 <div style="text-align:right">
                     <div class="log-time">${h.time}</div>
-                    <div style="font-size:9px;color:${h.status === 'success' ? 'var(--green)' : 'var(--red)'};margin-top:2px">${h.status === 'success' ? '✓ Success' : '✗ Failed'}</div>
+                    <div style="font-size:9px;color:${h.status === 'success' ? 'var(--green)' : 'var(--red)'};margin-top:2px">
+                        ${h.status === 'success' ? '✓ Success' : '✗ Failed'}
+                    </div>
                 </div>
             </div>`
         ).join(''));
     }
 
-    // ── BACKUPS (static) ──
+    // ── BACKUPS: Display a static list of recent database backup files ──
     function buildBackupList() {
         const backups = [
-            { name: 'auto_backup_20260318_083000.sql', date: 'Today, 08:30 AM', size: '2.4 MB', type: 'Auto' },
+            { name: 'auto_backup_20260318_083000.sql',   date: 'Today, 08:30 AM',    size: '2.4 MB', type: 'Auto'   },
             { name: 'manual_backup_20260317_155200.sql', date: 'Yesterday, 03:52 PM', size: '2.3 MB', type: 'Manual' },
-            { name: 'auto_backup_20260317_083000.sql', date: '17 Mar 2026', size: '2.2 MB', type: 'Auto' },
-            { name: 'auto_backup_20260316_083000.sql', date: '16 Mar 2026', size: '2.1 MB', type: 'Auto' },
+            { name: 'auto_backup_20260317_083000.sql',   date: '17 Mar 2026',         size: '2.2 MB', type: 'Auto'   },
+            { name: 'auto_backup_20260316_083000.sql',   date: '16 Mar 2026',         size: '2.1 MB', type: 'Auto'   },
         ];
+
         $('#backupList').html(backups.map(b =>
             `<div class="bk-item">
                 <div class="bk-ico">🗄️</div>
                 <div>
                     <div class="bk-name">${b.name}</div>
-                    <div class="bk-meta">${b.date} · <span class="badge ${b.type === 'Manual' ? 'b-blue' : 'b-green'}" style="padding:1px 7px;font-size:7px">${b.type}</span></div>
+                    <div class="bk-meta">
+                        ${b.date} ·
+                        <span class="badge ${b.type === 'Manual' ? 'b-blue' : 'b-green'}" style="padding:1px 7px;font-size:7px">${b.type}</span>
+                    </div>
                 </div>
                 <div class="bk-size">${b.size}</div>
                 <button class="btn btn-sm" style="margin-left:8px" onclick="showToast('Restore point initiated','success')">↺ Restore</button>
@@ -1073,55 +1232,73 @@
         ).join(''));
     }
 
-    // ── PROFILE ──
+    // ── PROFILE: Reset the profile form back to the saved values ──
     function loadProfile() {
         $('#pf-name').val(fname);
         $('#pf-email').val(femail);
         $('#pf-username').val(localStorage.getItem('rentify_username') || 'admin');
         showToast('Profile reset to saved values', '');
     }
+
+    // Save the profile form values to the browser and update the sidebar name
     function saveProfile() {
         const name = $('#pf-name').val().trim();
         if (!name) { showToast('Name is required', 'error'); return; }
+
         localStorage.setItem('rentify_fullName', name);
         localStorage.setItem('rentify_email', $('#pf-email').val());
         localStorage.setItem('rentify_username', $('#pf-username').val());
-        $('#sbName, #profileName').text(name);
+
+        $('#sbName, #profileName').text(name); // Update the name shown in the sidebar
         showToast('✅ Profile saved successfully', 'success');
     }
 
-    // ── PASSWORD ──
+    // ── PASSWORD: Check how strong the new password is and show a coloured bar ──
     function checkPwStrength() {
         const pw = $('#pw-new').val();
         let score = 0;
-        if (pw.length >= 8) score++;
-        if (/[A-Z]/.test(pw)) score++;
-        if (/[0-9]/.test(pw)) score++;
-        if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+        if (pw.length >= 8)          score++; // At least 8 characters
+        if (/[A-Z]/.test(pw))        score++; // Contains an uppercase letter
+        if (/[0-9]/.test(pw))        score++; // Contains a number
+        if (/[^A-Za-z0-9]/.test(pw)) score++; // Contains a special character
+
         const colors = ['', 'var(--red)', 'var(--orange)', 'var(--yellow)', 'var(--green)'];
         const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+
+        // Update the strength bar width and colour
         $('#pw-strength-bar').css({ width: (score * 25) + '%', background: colors[score] });
         $('#pw-strength-lbl').text(labels[score]).css('color', colors[score] || 'var(--ink4)');
     }
+
+    // Validate and submit the password change form
     function changePassword() {
-        const curr = $('#pw-curr').val(), nw = $('#pw-new').val(), conf = $('#pw-conf').val();
-        if (!curr || !nw || !conf) { showToast('Fill all password fields', 'error'); return; }
-        if (nw !== conf) { showToast('Passwords do not match', 'error'); return; }
-        if (nw.length < 8) { showToast('Password too short (min 8)', 'error'); return; }
+        const curr = $('#pw-curr').val();
+        const nw   = $('#pw-new').val();
+        const conf = $('#pw-conf').val();
+
+        if (!curr || !nw || !conf)  { showToast('Fill all password fields', 'error'); return; }
+        if (nw !== conf)             { showToast('Passwords do not match', 'error');  return; }
+        if (nw.length < 8)           { showToast('Password too short (min 8)', 'error'); return; }
+
         showToast('✅ Password updated successfully', 'success');
+
+        // Clear all password fields and reset the strength bar
         $('#pw-curr, #pw-new, #pw-conf, #pw-reason').val('');
         $('#pw-strength-bar').css('width', '0%');
         $('#pw-strength-lbl').text('Enter a new password').css('color', 'var(--ink4)');
     }
 
-    // ── SAVE ALL ──
+    // ── SAVE ALL: Generic save handler for settings tabs ──
     function saveAll() { showToast('✅ All settings saved', 'success'); }
 
-    // ── API TEST ──
+    // ── API TEST: Try reaching the configured API URL and report the result ──
     function testApiConnection() {
         showToast('Testing connection…', '');
         $.ajax({
-            url: $('#api-url').val() + '/vehicles', method: 'GET', timeout: 5000,
+            url: $('#api-url').val() + '/vehicles',
+            method: 'GET',
+            timeout: 5000,
             success: () => showToast('✅ API connection successful', 'success'),
             error: (x) => {
                 if (x.status === 0) showToast('⚠️ Cannot reach server', 'error');
@@ -1130,80 +1307,108 @@
         });
     }
 
-    // ── API KEY ──
+    // ── API KEY: Toggle showing or hiding the API key value ──
     const REAL_KEY = 'rnt_admin_a3f9c2e1d8b7f45a9c3e6d2b1f8a4c7e';
     let keyVisible = false;
+
     function toggleApiKey(btn) {
         keyVisible = !keyVisible;
+        // Show the real key or replace its middle with dots
         $('#apiKeyVal').text(keyVisible ? REAL_KEY : 'rnt_admin_••••••••••••••••••••••••••••••');
         $(btn).text(keyVisible ? 'Hide' : 'Show');
     }
+
+    // Copy the API key to the clipboard
     function copyApiKey() {
-        navigator.clipboard.writeText(REAL_KEY).then(() => showToast('✅ API key copied', 'success')).catch(() => showToast('Copy failed', 'error'));
+        navigator.clipboard.writeText(REAL_KEY)
+            .then(()  => showToast('✅ API key copied', 'success'))
+            .catch(()  => showToast('Copy failed', 'error'));
     }
 
-    // ── BACKUP ──
+    // ── BACKUP: Simulate creating a new backup with a short delay ──
     function createBackup() {
         showToast('💾 Backup in progress…', '');
-        setTimeout(() => { showToast('✅ Backup created successfully', 'success'); buildBackupList(); }, 1800);
+        setTimeout(() => {
+            showToast('✅ Backup created successfully', 'success');
+            buildBackupList(); // Refresh the backup list to reflect the new file
+        }, 1800);
     }
 
-    // ── EXPORT ──
+    // ── EXPORT: Download all booking data as a CSV file ──
     function exportBookings() {
         if (!allBookings.length) { showToast('No bookings to export', 'warn'); return; }
+
+        // Build the CSV content row by row
         let csv = 'ID,UserID,Vehicle,Plate,Start,End,Pickup,Drop,Price,Status\n';
         allBookings.forEach(b => {
             csv += `#${b.id},${b.userId},"${b.vehicleModel || ''}","${b.vehiclePlate || ''}",${b.startDate || ''},${b.endDate || ''},"${b.pickupLocation || ''}","${b.dropLocation || ''}",${b.totalPrice || 0},${b.status}\n`;
         });
+
+        // Trigger a file download in the browser
         const a = document.createElement('a');
-        a.href = 'data:text/csv,' + encodeURIComponent(csv);
+        a.href     = 'data:text/csv,' + encodeURIComponent(csv);
         a.download = 'rentify_bookings_' + new Date().toISOString().slice(0, 10) + '.csv';
         a.click();
         showToast('✅ CSV downloaded', 'success');
     }
 
+    // ── EXPORT PDF: Generate and download an analytics report as a PDF file ──
     function exportAnalyticsPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        const W = doc.internal.pageSize.getWidth();
+        const W   = doc.internal.pageSize.getWidth();
         const now = new Date();
-        const bk = allBookings;
+        const bk  = allBookings;
+
+        // Calculate total revenue excluding cancelled bookings
         const rev = bk.filter(b => b.status !== 'CANCELLED').reduce((s, b) => s + (b.totalPrice || 0), 0);
 
-        // Cover
-        doc.setFillColor(11, 14, 26); doc.rect(0, 0, W, 297, 'F');
-        doc.setFillColor(26, 63, 255); doc.rect(0, 0, 5, 297, 'F');
+        // ── Page 1: Cover page with summary stat boxes ──
+        doc.setFillColor(11, 14, 26); doc.rect(0, 0, W, 297, 'F');                // Dark background
+        doc.setFillColor(26, 63, 255); doc.rect(0, 0, 5, 297, 'F');               // Blue left accent stripe
         doc.setFont('helvetica', 'bold'); doc.setFontSize(40); doc.setTextColor(255, 255, 255);
-        doc.text('Rent', 26, 55); doc.setTextColor(110, 143, 255); doc.text('ify', 63, 55);
+        doc.text('Rent', 26, 55);
+        doc.setTextColor(110, 143, 255); doc.text('ify', 63, 55);                 // "ify" in accent colour
         doc.setFont('helvetica', 'normal'); doc.setFontSize(14); doc.setTextColor(155, 163, 187);
         doc.text('Analytics & Settings Report', 26, 70);
-        doc.setDrawColor(45, 51, 80); doc.setLineWidth(0.5); doc.line(26, 77, W - 16, 77);
+        doc.setDrawColor(45, 51, 80); doc.setLineWidth(0.5); doc.line(26, 77, W - 16, 77); // Divider line
         doc.setFontSize(9); doc.setTextColor(94, 102, 128);
         doc.text('Generated: ' + now.toLocaleDateString('en-LK', { year: 'numeric', month: 'long', day: 'numeric' }), 26, 88);
         doc.text('Administrator: ' + fname, 26, 96);
 
+        // Draw four summary stat boxes side by side
         const boxes = [
-            { l: 'Total Bookings', v: bk.length, c: [26, 63, 255] },
-            { l: 'Completed', v: bk.filter(b => b.status === 'COMPLETED').length, c: [0, 184, 107] },
-            { l: 'Cancelled', v: bk.filter(b => b.status === 'CANCELLED').length, c: [255, 59, 92] },
-            { l: 'Revenue', v: 'Rs ' + Number(rev).toLocaleString('en-LK'), c: [124, 58, 237] }
+            { l: 'Total Bookings', v: bk.length,                                       c: [26, 63, 255] },
+            { l: 'Completed',      v: bk.filter(b => b.status === 'COMPLETED').length,  c: [0, 184, 107] },
+            { l: 'Cancelled',      v: bk.filter(b => b.status === 'CANCELLED').length,  c: [255, 59, 92] },
+            { l: 'Revenue',        v: 'Rs ' + Number(rev).toLocaleString('en-LK'),      c: [124, 58, 237] }
         ];
-        const bx = 26, by = 115, bw = (W - 42) / 4 - 3, bh = 34;
+
+        const bx = 26, by = 115;
+        const bw = (W - 42) / 4 - 3; // Width of each box (four equal columns with small gaps)
+        const bh = 34;
+
         boxes.forEach((box, i) => {
             const xi = bx + i * (bw + 4);
-            doc.setFillColor(20, 22, 35); doc.roundedRect(xi, by, bw, bh, 3, 3, 'F');
-            doc.setFillColor(...box.c); doc.roundedRect(xi, by, bw, 2, 1, 1, 'F');
-            doc.setFont('helvetica', 'bold'); doc.setFontSize(typeof box.v === 'string' ? 7 : 16); doc.setTextColor(255, 255, 255);
-            doc.text(String(box.v), xi + bw / 2, by + 18, { align: 'center' });
+            doc.setFillColor(20, 22, 35); doc.roundedRect(xi, by, bw, bh, 3, 3, 'F');    // Box background
+            doc.setFillColor(...box.c);   doc.roundedRect(xi, by, bw, 2, 1, 1, 'F');     // Coloured top bar
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(typeof box.v === 'string' ? 7 : 16); // Smaller font for long text like revenue
+            doc.setTextColor(255, 255, 255);
+            doc.text(String(box.v), xi + bw / 2, by + 18, { align: 'center' }); // Main value
             doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(94, 102, 128);
-            doc.text(box.l, xi + bw / 2, by + 28, { align: 'center' });
+            doc.text(box.l, xi + bw / 2, by + 28, { align: 'center' });          // Label below value
         });
 
+        // ── Page 2: Booking summary table and recent bookings table ──
         doc.addPage();
+
+        // Shared table style settings
         const TH = { fillColor: [26, 63, 255], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 };
         const TB = { textColor: [45, 51, 80], fontSize: 8 };
-        const TA = { fillColor: [247, 248, 252] };
+        const TA = { fillColor: [247, 248, 252] }; // Alternating row background
 
+        // Booking summary table
         doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(11, 14, 26);
         doc.text('Booking Summary', 14, 22);
         doc.autoTable({
@@ -1211,68 +1416,104 @@
             head: [['Metric', 'Value']],
             body: [
                 ['Total Bookings', bk.length],
-                ['Pending', bk.filter(b => b.status === 'PENDING').length],
+                ['Pending',   bk.filter(b => b.status === 'PENDING').length],
                 ['Confirmed', bk.filter(b => b.status === 'CONFIRMED').length],
                 ['Completed', bk.filter(b => b.status === 'COMPLETED').length],
                 ['Cancelled', bk.filter(b => b.status === 'CANCELLED').length],
                 ['Total Revenue', 'Rs ' + Number(rev).toLocaleString('en-LK')],
             ],
-            theme: 'grid', headStyles: TH, bodyStyles: TB, alternateRowStyles: TA, margin: { left: 14, right: 14 }
+            theme: 'grid', headStyles: TH, bodyStyles: TB, alternateRowStyles: TA,
+            margin: { left: 14, right: 14 }
         });
 
+        // Recent bookings table — only added if there are real bookings
         if (bk.length > 0) {
-            const y = doc.lastAutoTable.finalY + 14;
+            const y = doc.lastAutoTable.finalY + 14; // Position just below the previous table
             doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(11, 14, 26);
             doc.text('Recent Bookings', 14, y);
             doc.autoTable({
                 startY: y + 6,
                 head: [['ID', 'User', 'Vehicle', 'Start', 'End', 'Status', 'Price']],
-                body: bk.slice(-10).map(b => ['#' + b.id, '#' + b.userId, (b.vehicleModel || '—').slice(0, 14), b.startDate || '—', b.endDate || '—', b.status, 'Rs ' + Number(b.totalPrice || 0).toLocaleString('en-LK')]),
-                theme: 'grid', headStyles: TH, bodyStyles: { ...TB, fontSize: 7 }, alternateRowStyles: TA, margin: { left: 14, right: 14 }
+                body: bk.slice(-10).map(b => [
+                    '#' + b.id,
+                    '#' + b.userId,
+                    (b.vehicleModel || '—').slice(0, 14), // Truncate long model names
+                    b.startDate  || '—',
+                    b.endDate    || '—',
+                    b.status,
+                    'Rs ' + Number(b.totalPrice || 0).toLocaleString('en-LK')
+                ]),
+                theme: 'grid', headStyles: TH,
+                bodyStyles: { ...TB, fontSize: 7 },
+                alternateRowStyles: TA,
+                margin: { left: 14, right: 14 }
             });
         }
 
+        // Add a small footer at the bottom of the last page
         doc.setFontSize(8); doc.setTextColor(94, 102, 128);
         doc.text('© ' + now.getFullYear() + ' Rentify · Sri Lanka · Analytics Report · Confidential', W / 2, 285, { align: 'center' });
+
         doc.save('Rentify_Analytics_Report_' + now.toISOString().slice(0, 10) + '.pdf');
         showToast('✅ Analytics PDF downloaded', 'success');
     }
 
-    // ── COLOR ACCENT ──
+    // ── COLOR ACCENT: Change the whole app's theme colour ──
     function setAccent(color, el) {
+        // Update the main accent CSS variable
         document.documentElement.style.setProperty('--accent', color);
+
+        // Also create a transparent version of the accent colour for backgrounds
         const hex = color.replace('#', '');
-        const r = parseInt(hex.slice(0, 2), 16), g = parseInt(hex.slice(2, 4), 16), b = parseInt(hex.slice(4, 6), 16);
+        const r = parseInt(hex.slice(0, 2), 16);
+        const g = parseInt(hex.slice(2, 4), 16);
+        const b = parseInt(hex.slice(4, 6), 16);
         document.documentElement.style.setProperty('--accent-l', `rgba(${r},${g},${b},.12)`);
         document.documentElement.style.setProperty('--accent-d', color);
+
+        // Highlight the selected colour swatch
         $('.color-swatch').removeClass('sel');
         $(el).addClass('sel');
         showToast('Theme color updated', 'success');
     }
 
-    // ── CONFIRM MODAL ──
+    // ── CONFIRM MODAL: Open a confirmation popup before running a risky action ──
     function openConfirmModal(action, msg) {
-        pendingAction = action;
-        $('#confirmMsg').text(msg);
+        pendingAction = action;              // Remember which action to run if confirmed
+        $('#confirmMsg').text(msg);          // Show the warning message in the popup
         $('#confirmOv').addClass('open');
     }
-    function closeConfirmModal() { $('#confirmOv').removeClass('open'); pendingAction = null; }
+
+    // Close the confirm popup and clear the pending action
+    function closeConfirmModal() {
+        $('#confirmOv').removeClass('open');
+        pendingAction = null;
+    }
+
+    // Run the pending action when the user clicks "Confirm"
     function doConfirmAction() {
         const actions = {
-            resetSettings: () => showToast('Settings reset to defaults', 'success'),
+            resetSettings:  () => showToast('Settings reset to defaults', 'success'),
             purgeCancelled: () => showToast('Cancelled bookings purged', 'success'),
-            deleteAccount: () => { showToast('Account deletion scheduled', 'warn'); setTimeout(logout, 2000); }
+            deleteAccount:  () => {
+                showToast('Account deletion scheduled', 'warn');
+                setTimeout(logout, 2000); // Log out after 2 seconds
+            }
         };
         if (pendingAction && actions[pendingAction]) actions[pendingAction]();
         closeConfirmModal();
     }
 
-    // ── INIT ──
-    $(function() {
-        loadAnalytics();
-        buildLoginHistory();
-        buildBackupList();
-        $('#confirmOv').on('click', function(e) { if (e.target === this) closeConfirmModal(); });
+    // ── PAGE READY: Run this block when the page finishes loading ──
+    $(function () {
+        loadAnalytics();      // Load bookings and vehicles, then build all charts
+        buildLoginHistory();  // Display the static login history list
+        buildBackupList();    // Display the static backup file list
+
+        // Close the confirm popup when the user clicks the dark background behind it
+        $('#confirmOv').on('click', function (e) {
+            if (e.target === this) closeConfirmModal();
+        });
     });
 </script>
 </body>
