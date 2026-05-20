@@ -241,7 +241,7 @@
     </div>
 </div>
 
-<!-- ✅ IMPROVED DELETE CONFIRM — FK warning included -->
+<!--  IMPROVED DELETE CONFIRM — FK warning included -->
 <div class="ov" id="delModal">
     <div class="modal modal-sm">
         <div class="mhd"><div class="mhd-title">CONFIRM DELETE</div><button class="mclose" id="delClose">✕</button></div>
@@ -250,12 +250,13 @@
             <div class="conf-h">Delete this vehicle?</div>
             <div class="conf-p">Remove <strong id="delName">—</strong>.<br>This action cannot be undone.</div>
         </div>
-        <!-- ✅ FK Error warning — booking ඇත්නම් show වෙනවා -->
-        <div class="fk-warn" id="fkWarn">
+         <div class="fk-warn" id="fk Warn">
             <strong>⚠️ Cannot Delete — Active Bookings Exist</strong>
-            මේ vehicle එකට linked bookings database එකේ තියෙනවා.<br>
-            Delete කරන්න කලින් backend developer ලාට කියන්න:<br>
-            <code style="background:rgba(255,122,0,.1);padding:2px 6px;border-radius:4px;font-size:10px;">ON DELETE SET NULL</code> constraint එක bookings table එකට add කරන්න.
+            This vehicle has linked bookings in the database.<br>
+            Before deleting, inform the backend developer to:<br>
+            <code style="background:rgba(255,122,0,.1);padding:2px 6px;border-radius:4px;font-size:10px;">
+                add an ON DELETE SET NULL constraint to the bookings table
+            </code>.
         </div>
         <div class="mft">
             <button class="btn" id="delCancel">Cancel</button>

@@ -13,6 +13,7 @@
     <title>Destinations — Rentify Sri Lanka</title>
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <style>
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
         :root{
@@ -25,7 +26,7 @@
         html{scroll-behavior:smooth;font-size:14px;}
         body{font-family:'Roboto Mono',monospace;background:var(--white);color:var(--ink);overflow-x:hidden;}
 
-        /* ── NAV ── */
+        /*   NAV   */
         nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;padding:0 48px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.96);backdrop-filter:blur(20px);border-bottom:1.5px solid var(--border);box-shadow:0 2px 16px rgba(10,13,26,.05);}
         .logo{font-family:"Bungee",sans-serif;font-size:22px;text-decoration:none;color:var(--ink);letter-spacing:.5px;}
         .logo span{color:var(--accent);}
@@ -50,7 +51,7 @@
         .signin-btn{padding:8px 16px;border:1.5px solid var(--border);border-radius:9px;font-size:12px;color:var(--ink3);background:#fff;cursor:pointer;font-family:'Roboto Mono',monospace;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:.18s;}
         .signin-btn:hover{border-color:var(--accent);color:var(--accent);}
 
-        /* ── HERO VIDEO ── */
+        /*   HERO VIDEO   */
         .hero{position:relative;height:88vh;min-height:520px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-top:68px;}
         .hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
         .hero-overlay{position:absolute;inset:0;background:linear-gradient(160deg,rgba(10,13,26,.82) 0%,rgba(26,63,255,.18) 60%,rgba(10,13,26,.5) 100%);z-index:1;}
@@ -64,7 +65,7 @@
         .hero-scroll{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:2;color:rgba(255,255,255,.45);font-size:10px;letter-spacing:2px;text-transform:uppercase;text-align:center;animation:bounce 2s infinite;}
         @keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
 
-        /* ── FILTER BAR ── */
+        /*   FILTER BAR   */
         .filter-bar{background:#fff;padding:16px 48px;border-bottom:1.5px solid var(--border);position:sticky;top:68px;z-index:500;display:flex;gap:8px;align-items:center;flex-wrap:wrap;box-shadow:0 2px 12px rgba(10,13,26,.04);}
         .filter-label{font-family:"Bungee",sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--ink4);text-transform:uppercase;margin-right:4px;}
         .f-btn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--ink3);font-size:11px;font-family:'Roboto Mono',monospace;cursor:pointer;transition:.18s;letter-spacing:.2px;}
@@ -75,7 +76,7 @@
         .f-search input{border:none;outline:none;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--ink);background:transparent;width:200px;}
         .f-search button{background:none;border:none;cursor:pointer;color:var(--ink4);font-size:13px;}
 
-        /* ── DEST SECTION ── */
+        /*  DEST SECTION  */
         .dest-section{padding:56px 48px;}
         .dest-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:36px;}
         .sec-tag{font-family:"Bungee",sans-serif;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);background:var(--accent-l);padding:5px 12px;border-radius:20px;display:inline-block;margin-bottom:10px;}
@@ -106,7 +107,7 @@
         .btn-sm{padding:9px 18px;background:var(--ink);color:#fff;border-radius:9px;font-family:"Bungee",sans-serif;font-size:9px;letter-spacing:.8px;border:none;cursor:pointer;transition:.18s;}
         .btn-sm:hover{background:var(--accent);}
 
-        /* ── MAP SECTION ── */
+        /*  MAP SECTION  */
         .map-section{padding:0 48px 56px;}
         .map-inner{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:40px;display:grid;grid-template-columns:1fr 1.3fr;gap:40px;align-items:start;box-shadow:var(--shadow);}
         .map-text p{font-size:12px;color:var(--ink3);line-height:1.7;margin-bottom:24px;}
@@ -120,7 +121,7 @@
         .map-embed{border-radius:var(--r-lg);overflow:hidden;height:420px;border:1.5px solid var(--border);box-shadow:var(--shadow);}
         .map-embed iframe{width:100%;height:100%;border:none;display:block;}
 
-        /* ── TOURS ── */
+        /*   TOURS   */
         .tours-section{padding:56px 48px;background:var(--bg);}
         .tours-header{text-align:center;margin-bottom:48px;}
         .tours-header .sec-sub{font-size:12px;color:var(--ink3);max-width:500px;margin:8px auto 0;line-height:1.7;}
@@ -141,14 +142,14 @@
         .btn-y{background:var(--yellow);color:var(--ink);padding:9px 20px;border-radius:9px;font-family:"Bungee",sans-serif;font-size:10px;letter-spacing:.8px;border:none;cursor:pointer;transition:.18s;}
         .btn-y:hover{background:#e0b200;transform:translateY(-1px);}
 
-        /* ── AD ── */
+        /*   AD   */
         .dest-ad{background:var(--ink);padding:64px 48px;display:flex;justify-content:space-between;align-items:center;gap:40px;}
         .dest-ad h2{font-family:"Bungee",sans-serif;font-size:clamp(22px,3vw,34px);color:#fff;letter-spacing:-1px;line-height:1.1;}
         .dest-ad p{font-size:12px;color:rgba(255,255,255,.55);max-width:480px;line-height:1.7;margin-top:10px;}
         .btn-blk{background:var(--yellow);color:var(--ink);padding:14px 30px;border-radius:10px;font-family:"Bungee",sans-serif;font-size:12px;letter-spacing:1px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:.18s;white-space:nowrap;flex-shrink:0;}
         .btn-blk:hover{background:#e0b200;transform:translateY(-1px);}
 
-        /* ── MODAL ── */
+        /*   MODAL  */
         .modal-overlay{position:fixed;inset:0;z-index:9999;background:rgba(10,13,26,.65);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:20px;}
         .modal-overlay.show{display:flex;animation:fadein .2s ease;}
         @keyframes fadein{from{opacity:0}to{opacity:1}}
@@ -170,7 +171,7 @@
         .btn-ghost{padding:11px 20px;border:1.5px solid var(--border);border-radius:10px;background:transparent;cursor:pointer;font-size:12px;font-family:'Roboto Mono',monospace;color:var(--ink3);transition:.15s;}
         .btn-ghost:hover{border-color:var(--ink3);}
 
-        /* ── FOOTER ── */
+        /*   FOOTER   */
         footer{background:var(--ink);padding:60px 48px 0;}
         .ft-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;}
         .ft-logo{font-family:"Bungee",sans-serif;font-size:22px;color:#fff;margin-bottom:12px;letter-spacing:.5px;}
@@ -188,7 +189,7 @@
         .ft-ct-txt strong{display:block;color:rgba(255,255,255,.6);font-family:"Bungee",sans-serif;font-size:9px;letter-spacing:.5px;margin-bottom:2px;}
         .ft-bottom{border-top:1px solid rgba(255,255,255,.06);padding:18px 0;display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.3px;}
 
-        /* ── WA ── */
+        /*   WA   */
         .wa{position:fixed;bottom:28px;right:28px;z-index:998;width:56px;height:56px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:26px;color:#fff;box-shadow:0 8px 28px rgba(37,211,102,.4);transition:.2s;}
         .wa:hover{transform:scale(1.12);}
         .wa-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(37,211,102,.4);animation:ring 2s infinite;}
@@ -337,7 +338,7 @@
 <a class="wa" href="https://wa.me/94771234567" target="_blank"><span class="wa-ring"></span><i class="fab fa-whatsapp"></i></a>
 
 <script>
-    // ── NAV ──────────────────────────────────────────────────────
+    //  NAV
     (function(){
         const token=localStorage.getItem('rentify_token'),role=localStorage.getItem('rentify_role'),
             username=localStorage.getItem('rentify_username')||'User',
@@ -366,7 +367,7 @@
         }
     })();
 
-    // ── DESTINATIONS DATA ────────────────────────────────────────
+    //   DESTINATIONS DATA
     const destinations=[
         {id:1,name:"Sigiriya",cat:"heritage",loc:"Central Province",dist:"~170km from Colombo",dur:"Full Day Trip",rating:"4.9 ★ (2.3K reviews)",price:"From LKR 8,500",img:"https://i.pinimg.com/736x/a9/88/96/a9889662df121d3d87cd727a9fa62ad4.jpg",desc:"The iconic Lion Rock fortress rising 200m above the jungle — a UNESCO World Heritage Site dating back to 477 AD. Explore ancient frescoes, water gardens and breathtaking summit views."},
         {id:2,name:"Mirissa Beach",cat:"beach",loc:"Southern Province",dist:"~150km from Colombo",dur:"1-2 Days",rating:"4.8 ★ (1.9K reviews)",price:"From LKR 12,000",img:"https://i.pinimg.com/1200x/c3/0d/18/c30d183a39004b0324743b8b4eac00f2.jpg",desc:"Crystal-clear turquoise waters, golden sands, fresh seafood and whale watching make Mirissa the crown jewel of Sri Lanka's south coast beach escapes."},

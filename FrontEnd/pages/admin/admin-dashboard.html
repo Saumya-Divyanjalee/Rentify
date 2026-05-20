@@ -6,6 +6,7 @@
     <meta name="keywords" content="Rentify,HTML,CSS,JavaScript,Spring,SpringBoot,ORM,Mysql">
     <meta name="description" content="Rentify-Smart Cab Renting Platform">
     <meta name="author" content="Saumya Divyanjalee">
+
     <title>Rentify Admin — Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -468,21 +469,21 @@
 <script src="../../js/jquery-3.7.1.min.js"></script>
 <script>
 
-    // ============================================================
+
     // API BASE URL
     // This is the address of the Spring Boot backend server.
     // All API requests will be sent to this base URL.
-    // ============================================================
+
     const API = 'http://localhost:8081/api/v1';
 
 
-    // ============================================================
+
     // INIT USER — SIDEBAR PROFILE SETUP
     // Reads the logged-in admin name from browser storage.
     // Tries fullName first, then username, then falls back to 'Admin User'.
     // Creates initials from the name (e.g. "Saumya D" → "SD").
     // Puts the initials and full name into the sidebar elements.
-    // ============================================================
+
 
     // Try fullName → username → fallback 'Admin User'
     const fname = localStorage.getItem('rentify_fullName')
@@ -504,12 +505,12 @@
     $('#sbName').text(fname);
 
 
-    // ============================================================
+
     // PAGE DATE — Display Today's Date on the Dashboard
     // Gets the current date and formats it in a long readable style.
     // Example output: "Monday, 15 January 2025"
     // Puts it into the element with id="pageDate".
-    // ============================================================
+
     const now = new Date();
     document.getElementById('pageDate').textContent = now.toLocaleDateString('en-LK', {
         weekday: 'long',   // Full day name e.g. "Monday"
@@ -519,13 +520,13 @@
     });
 
 
-    // ============================================================
+
     // SHOW TOAST NOTIFICATION
     // Shows a small popup message at the bottom of the screen.
     // @param m = message text to show
     // @param t = type — 'success' (green) or 'error' (red) or ''
     // The popup disappears automatically after 3.4 seconds.
-    // ============================================================
+
     function showToast(m, t) {
         const $t = $('#toast');
 
@@ -540,12 +541,12 @@
     }
 
 
-    // ============================================================
+
     // LOGOUT — Confirm Before Signing Out
     // When the logout button is clicked, a confirm overlay appears.
     // Cancel button or clicking the dark background closes it.
     // Confirm button clears all auth data and redirects to login.
-    // ============================================================
+
 
     // Logout button click → show the confirm overlay
     $('#logoutBtn').on('click', () => $('#overlay').addClass('show'));
@@ -582,13 +583,13 @@
     });
 
 
-    // ============================================================
+
     // BAR CHART — Weekly Revenue Chart
     // Draws a simple bar chart showing revenue for each day.
     // The tallest bar (highest revenue day) is shown in green.
     // All other bars are shown in the accent blue color.
     // Each bar has a tooltip showing the exact Rs amount.
-    // ============================================================
+
 
     // Day labels for the X axis (Monday to Sunday)
     const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
@@ -631,12 +632,12 @@
     });
 
 
-    // ============================================================
+
     // CALCULATOR — Simple In-Page Calculator
     // Handles button clicks and keyboard input.
     // cStr holds the current expression being typed.
     // cNew flag indicates if the next key starts a fresh entry.
-    // ============================================================
+
 
     let cStr = '';     // The current calculator expression string
     let cNew = true;   // Flag — true means start a fresh input
@@ -716,13 +717,13 @@
     });
 
 
-    // ============================================================
+
     // CALENDAR — Mini Monthly Calendar Widget
     // Renders a calendar grid for the current month.
     // Highlights today's date with a special style.
     // Shows dots on hardcoded event dates.
     // Prev/Next buttons let the user navigate between months.
-    // ============================================================
+
 
     // Tracks the currently displayed month and year
     let calDate = new Date();
@@ -790,12 +791,12 @@
     });
 
 
-    // ============================================================
+
     // ACTIVITY FEED — Recent System Events List
     // A hardcoded list of recent events shown in the dashboard.
     // Each item has a color dot, a description, and a time label.
     // Items are looped and added to the activity list element.
-    // ============================================================
+
 
     // Each activity has: c = dot color, t = text, m = time ago
     const activities = [
@@ -819,25 +820,25 @@
     });
 
 
-    // ============================================================
+
     // AUTH HEADER HELPER
     // Reads the saved JWT token from browser storage.
     // Returns an Authorization header object for API requests.
     // Returns an empty object if no token is found.
-    // ============================================================
+
     function authH() {
         const t = localStorage.getItem('rentify_token') || '';
         return t ? { Authorization: 'Bearer ' + t } : {};
     }
 
 
-    // ============================================================
+
     // BADGE CLASS HELPER
     // Returns the correct CSS class name for a booking status badge.
     // Used to color-code the status labels in the bookings table.
     // COMPLETED → green   CONFIRMED → blue
     // PENDING   → orange  anything else → red
-    // ============================================================
+
     function badge(s) {
         return s === 'COMPLETED' ? 'b-green'
             : s === 'CONFIRMED' ? 'b-blue'
@@ -846,13 +847,13 @@
     }
 
 
-    // ============================================================
+
     // API CALL 1 — LOAD VEHICLES
     // Fetches all vehicles from the backend.
     // Counts how many have status 'AVAILABLE'.
     // Shows that count in the stat card labeled "Cabs".
     // Shows a dash if the API call fails.
-    // ============================================================
+
     $.ajax({
         url: API + '/vehicles',
         headers: authH(),  // Send JWT token for authentication
@@ -870,14 +871,14 @@
     });
 
 
-    // ============================================================
+
     // API CALL 2 — LOAD BOOKINGS
     // Fetches all bookings from the backend.
     // Updates the total booking count and revenue stat cards.
     // Calculates total revenue by adding prices of non-cancelled bookings.
     // Shows the 5 most recent bookings in the dashboard table.
     // Shows placeholder text if the API call fails.
-    // ============================================================
+
     $.ajax({
         url: API + '/bookings',
         headers: authH(),  // Send JWT token for authentication

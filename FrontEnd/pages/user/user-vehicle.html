@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="keywords" content="Rentify,HTML,CSS,JavaScript,Spring,SpringBoot,ORM,Mysql">
+    <meta name="description" content="Rentify-Smart Cab Renting Platform">
+    <meta name="author" content="Saumya Divyanjalee">
+
     <title>Rentify — Browse Vehicles</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -19,14 +24,14 @@
         html{scroll-behavior:smooth;font-size:14px;}
         body{font-family:'Roboto Mono',monospace;background:var(--white);color:var(--ink);overflow-x:hidden;}
 
-        /* ── TOAST ── */
+        /*  TOAST   */
         .toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column-reverse;gap:8px;align-items:center;pointer-events:none;}
         .toast{background:var(--ink);color:#fff;padding:12px 24px;border-radius:12px;font-size:12px;font-weight:500;box-shadow:var(--shadow-lg);animation:toastIn .3s ease;min-width:240px;text-align:center;font-family:'Roboto Mono',monospace;}
         .toast.success{background:var(--green);}.toast.error{background:var(--red);}.toast.warning{background:var(--orange);}
         @keyframes toastIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
         @keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateY(16px)}}
 
-        /* ── NAV ── */
+        /* NAV   */
         nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;padding:0 48px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.96);backdrop-filter:blur(20px);border-bottom:1.5px solid var(--border);box-shadow:0 2px 16px rgba(10,13,26,.05);}
         .logo{font-family:"Bungee",sans-serif;font-size:22px;text-decoration:none;color:var(--ink);}
         .logo span{color:var(--accent);}
@@ -55,7 +60,7 @@
         .api-dot.online{background:var(--green);box-shadow:0 0 6px rgba(0,184,107,.4);}
         .api-dot.offline{background:var(--red);}
 
-        /* ── HERO ── */
+        /*   HERO   */
         .hero{position:relative;height:80vh;min-height:500px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-top:68px;}
         .hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
         .hero-overlay{position:absolute;inset:0;background:linear-gradient(160deg,rgba(10,13,26,.82) 0%,rgba(26,63,255,.2) 60%,rgba(10,13,26,.4) 100%);z-index:1;}
@@ -72,7 +77,7 @@
         .h-stat .num{font-family:"Bungee",sans-serif;font-size:24px;color:#fff;letter-spacing:-1px;display:block;}
         .h-stat .lbl{font-size:9px;color:rgba(255,255,255,.55);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;}
 
-        /* ── FILTER ZONE ── */
+        /*   FILTER ZONE  */
         .filter-zone{background:#fff;padding:18px 48px;border-bottom:1.5px solid var(--border);position:sticky;top:68px;z-index:900;box-shadow:0 4px 16px rgba(10,13,26,.04);}
         .search-row{display:flex;gap:12px;align-items:center;margin-bottom:14px;}
         .search-wrap{flex:1;position:relative;}
@@ -87,7 +92,7 @@
         .pill.active{background:var(--ink);color:#fff;border-color:var(--ink);}
         .divider-v{width:1px;height:20px;background:var(--border);margin:0 4px;}
 
-        /* ── MAIN LAYOUT ── */
+        /*  MAIN LAYOUT   */
         .main-wrap{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 68px);background:var(--bg);}
         .sidebar{padding:24px 20px;border-right:1.5px solid var(--border);position:sticky;top:calc(68px + 120px);height:fit-content;background:#fff;}
         .sb-title{font-family:"Bungee",sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink);margin-bottom:24px;display:flex;align-items:center;gap:8px;}
@@ -105,7 +110,7 @@
         .check-label input:checked~.check-box{background:var(--accent);border-color:var(--accent);}
         .check-label input:checked~.check-box::after{content:'✓';font-size:10px;color:#fff;font-weight:700;}
 
-        /* ── CONTENT ZONE ── */
+        /*   CONTENT ZONE   */
         .content-zone{padding:28px;background:var(--bg);}
         .content-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
         .result-meta{font-size:12px;color:var(--ink3);}
@@ -113,7 +118,7 @@
         .refresh-bar{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--ink4);background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:4px 12px;margin-left:10px;}
         .refresh-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite;}
 
-        /* ── SKELETON ── */
+        /*   SKELETON   */
         .loading-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
         .skeleton{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;}
         .skel-img{height:200px;background:linear-gradient(90deg,#f0ede9 25%,#e8e5e1 50%,#f0ede9 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;}
@@ -122,7 +127,7 @@
         .skel-line.w60{width:60%;}.skel-line.w40{width:40%;}
         @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-        /* ── VEHICLE CARDS ── */
+        /*   VEHICLE CARDS   */
         .v-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;}
         .v-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;transition:all .28s;cursor:pointer;box-shadow:var(--shadow);}
         .v-card:hover{border-color:var(--accent);transform:translateY(-5px);box-shadow:var(--shadow-lg);}
@@ -156,7 +161,7 @@
         .no-results h3{font-family:"Bungee",sans-serif;font-size:18px;color:var(--ink3);margin-bottom:8px;}
         .no-results p{font-size:12px;color:var(--ink4);}
 
-        /* ── BOOKING MODAL ── */
+        /*   BOOKING MODAL   */
         .modal-overlay{position:fixed;inset:0;z-index:9999;background:rgba(10,13,26,.6);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:20px;}
         .modal-overlay.open{display:flex;animation:fadein .2s ease;}
         @keyframes fadein{from{opacity:0}to{opacity:1}}
@@ -203,7 +208,7 @@
         .btn-next:not(:disabled):hover{background:var(--accent);transform:scale(1.02);}
         .btn-next:disabled{opacity:.5;cursor:not-allowed;}
 
-        /* ── PAYHERE STEP ── */
+        /*   PAYHERE STEP   */
         .payhere-step{text-align:center;padding:20px;}
         .payhere-logo{font-size:48px;margin-bottom:16px;}
         .payhere-step h3{font-family:"Bungee",sans-serif;font-size:18px;color:var(--ink);margin-bottom:10px;}
@@ -227,7 +232,7 @@
         .test-card-info .tci-row{display:flex;justify-content:space-between;color:var(--ink3);padding:3px 0;}
         .test-card-info .tci-val{font-weight:600;color:var(--ink);font-family:'Roboto Mono',monospace;}
 
-        /* ── FOOTER ── */
+        /*   FOOTER   */
         .feats-strip{background:var(--ink);padding:56px 48px;display:grid;grid-template-columns:repeat(4,1fr);gap:30px;}
         .feat-item{text-align:center;}
         .feat-icon{font-size:32px;margin-bottom:14px;}
@@ -401,9 +406,7 @@
 
 <a class="wa" href="https://wa.me/94771234567" target="_blank"><span class="wa-ring"></span><i class="fab fa-whatsapp"></i></a>
 
-<!-- ══════════════════════════════════════
-     BOOKING MODAL
-══════════════════════════════════════ -->
+
 <div class="modal-overlay" id="bookingModal">
     <div class="modal">
         <div class="modal-header">
@@ -533,10 +536,9 @@
     <input type="hidden" name="custom_2"     id="ph_custom_2">
 </form>
 
+<script src="../../js/jquery-3.7.1.min.js"></script>
 <script>
-    // ══════════════════════════════════════════════════════════════
-    // RENTIFY — user-vehicle.html  |  jQuery + Ajax Version
-    // ══════════════════════════════════════════════════════════════
+
 
     const API = 'http://localhost:8081/api/v1';
     const ICON = {CAB:'🚕', VAN:'🚐', BUS:'🚌', WHEEL:'🛺'};
@@ -553,7 +555,7 @@
     let countdownSeconds = 30;
     let countdownTimer   = null;
 
-    // ── Helpers ──────────────────────────────────────────────────
+    // Helpers
     const esc  = s => $('<div>').text(String(s||'')).html();
     const fmtP = p => 'Rs\u00a0' + Number(p||0).toLocaleString('en-LK');
     const ini  = n => (n||'?').trim().split(/\s+/).map(x=>x[0]?.toUpperCase()).join('').slice(0,2)||'?';
@@ -564,7 +566,7 @@
     function isLoggedIn()  { return !!getToken(); }
     function authH()       { return isLoggedIn() ? { Authorization: 'Bearer ' + getToken() } : {}; }
 
-    // ── Toast ─────────────────────────────────────────────────────
+    //  Toast
     function toast(msg, type) {
         const el = $('<div class="toast ' + (type||'') + '">').text(msg).appendTo('#toastContainer');
         setTimeout(() => {
@@ -573,7 +575,7 @@
         }, 3200);
     }
 
-    // ── API status check ──────────────────────────────────────────
+    // API status check
     function checkApi() {
         $.ajax({
             url: API + '/vehicles', method: 'GET', timeout: 5000,
@@ -582,7 +584,7 @@
         });
     }
 
-    // ── Nav ───────────────────────────────────────────────────────
+    //  Nav
     function updateNav() {
         const $el = $('#navRight');
         const apiHtml = `<div class="api-status"><div class="api-dot" id="apiDot"></div><span id="apiStatusText">Connecting…</span></div>`;
@@ -625,7 +627,7 @@
         });
     }
 
-    // ── Auto refresh ──────────────────────────────────────────────
+    //  Auto refresh
     function startAutoRefresh() {
         if (countdownTimer) clearInterval(countdownTimer);
         countdownSeconds = 30;
@@ -654,7 +656,7 @@
         });
     }
 
-    // ── Fetch vehicles ────────────────────────────────────────────
+    //  Fetch vehicles
     function fetchVehicles() {
         $('#loadingGrid').removeClass('hidden');
         $('#vehicleGrid').addClass('hidden').empty();
@@ -684,7 +686,7 @@
         });
     }
 
-    // ── Filters ───────────────────────────────────────────────────
+    //  Filters
     function applyFilters() {
         const q    = $('#searchInput').val().toLowerCase().trim();
         const maxP = parseInt($('#priceRange').val());
@@ -767,7 +769,7 @@
         $('#vehicleGrid').removeClass('hidden').html(html);
     }
 
-    // ── Booking Modal ─────────────────────────────────────────────
+    //   Booking Modal
     function openBooking(id) {
         if (!isLoggedIn()) {
             toast('Please sign in to book a vehicle.', 'warning');
@@ -945,11 +947,11 @@
         });
     }
 
-    // ── Redirect to PayHere ───────────────────────────────────────
+    //  Redirect to PayHere
     function redirectToPayhere() {
         if (!payhereInitData) { toast('Payment data missing. Please try again.', 'error'); return; }
 
-        // ✅ Save bookingId — payment-success.html uses this to load payment details
+        //  Save bookingId — payment-success.html uses this to load payment details
         localStorage.setItem('rentify_pendingBookingId', createdBookingId);
 
         $('#redirectToPayhereBtn').prop('disabled', true);
@@ -960,7 +962,7 @@
         setTimeout(() => { $('#payHereForm').submit(); }, 800);
     }
 
-    // ── jQuery Document Ready ─────────────────────────────────────
+    // jQuery Document Ready
     $(function () {
 
         updateNav();

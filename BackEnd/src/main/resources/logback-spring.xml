@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <!--
-         RENTIFY - Logback Logging Configuration
-         Console + File logging
-      -->
+
 
     <!-- Log file path -->
     <property name="LOG_PATH" value="logs"/>
@@ -54,14 +51,14 @@
 
     <!--   LOGGER LEVELS   -->
 
-    <!-- Rentify app logs → DEBUG level (full detail) -->
+    <!-- Rentify app logs - DEBUG level (full detail) -->
     <logger name="com.rentify" level="DEBUG" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
         <appender-ref ref="ERROR_FILE"/>
     </logger>
 
-    <!-- Spring framework → INFO level -->
+    <!-- Spring framework - INFO level -->
     <logger name="org.springframework" level="INFO"/>
 
     <!-- Hibernate SQL → DEBUG (shows SQL queries) -->
@@ -70,7 +67,7 @@
         <appender-ref ref="FILE"/>
     </logger>
 
-    <!-- Hibernate SQL params → TRACE -->
+    <!-- Hibernate SQL params - TRACE -->
     <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
 
     <!-- Security logs → INFO -->

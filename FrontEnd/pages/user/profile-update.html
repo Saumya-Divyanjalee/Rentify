@@ -7,7 +7,9 @@
   <meta name="description" content="Rentify — My Profile">
   <meta name="author" content="Saumya Divyanjalee">
   <link rel="icon" type="image/x-icon" href="../../assets/icons/favicon.ico">
+
   <title>Rentify — My Profile</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -468,23 +470,11 @@
     </div>
   </div>
 </div>
-
+<script src="../../js/jquery-3.7.1.min.js"></script>
 <script>
-  /* ═══════════════════════════════════════════════════════════
-     RENTIFY — profile-update.html
-     Location : FrontEnd/pages/user/profile-update.html
-     Sign-in  : FrontEnd/pages/sign-in.html  →  ../sign-in.html
-     Backend  : http://localhost:8081/api/v1
 
-     API ENDPOINTS USED:
-     GET  /user/profile          ← returns UserDTO (with profileImageBase64)
-     PUT  /user/profile          ← body: UserDTO fields + optional image
-     POST /user/change-password  ← body: { currentPassword, newPassword }
-     GET  /bookings/user/{id}    ← returns List<BookingDTO>
-     DEL  /bookings/{id}/cancel  ← ?userId={id}
-  ═══════════════════════════════════════════════════════════ */
 
-  /* ── SINGLE source of truth for API base URL ── */
+  /*   SINGLE source of truth for API base URL  */
   const API = 'http://localhost:8081/api/v1';
 
   /* ── localStorage helpers ── */
@@ -498,7 +488,7 @@
   const isLoggedIn = () => !!getToken();
   const authH      = () => ({ Authorization: 'Bearer ' + getToken() });
 
-  /* ── Utilities ── */
+  /*   Utilities   */
   const esc   = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const ini   = n => (n||'U').trim().split(/\s+/).map(x => x[0]?.toUpperCase()||'').join('').slice(0,2) || 'U';
   const fmtD  = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-LK', {year:'numeric',month:'short',day:'numeric'}) : '—';
@@ -509,7 +499,7 @@
     setTimeout(() => { el.css('animation','toastOut .3s ease forwards'); setTimeout(() => el.remove(), 300); }, 3500);
   }
 
-  /* ── GUARD: must be logged in ── */
+  /*  GUARD: must be logged in   */
   if (!isLoggedIn()) {
     /* sign-in.html is one folder up from /user/ */
     window.location.href = '../sign-in.html';
@@ -523,9 +513,7 @@
   let pendingImgB64   = null;  /* pure base64, no data: prefix */
   let pendingImgType  = null;  /* e.g. 'image/jpeg' */
 
-  /* ═══════════════════════════════════════════════════════
-     NAV
-  ═══════════════════════════════════════════════════════ */
+
   function renderNav() {
     const fn      = getFname();
     const role    = getRole();
@@ -558,9 +546,7 @@
     window.location.href = '../sign-in.html';
   }
 
-  /* ═══════════════════════════════════════════════════════
-     TABS
-  ═══════════════════════════════════════════════════════ */
+
   $(document).on('click', '.snav-item', function () {
     const tab = $(this).data('tab');
     $('.snav-item').removeClass('active');
@@ -575,11 +561,11 @@
     }
   });
 
-  /* ═══════════════════════════════════════════════════════
+  /*
      IMAGE UPLOAD
      - Single hidden <input> avoids all duplicate-ID / event conflicts
      - Sidebar avatar + upload zone both trigger the same input
-  ═══════════════════════════════════════════════════════ */
+   */
   $('#avatarWrap').on('click', () => $('#hiddenFileInput').trigger('click'));
   $('#uploadZone').on('click',  () => $('#hiddenFileInput').trigger('click'));
 
@@ -614,11 +600,11 @@
     this.value = ''; /* allow re-selecting same file */
   });
 
-  /* ═══════════════════════════════════════════════════════
-     FETCH PROFILE  →  GET /api/v1/user/profile
+  /*
+     FETCH PROFILE  - GET /api/v1/user/profile
      Spring Security extracts the username from the JWT
      and calls UserService.getProfile(username)
-  ═══════════════════════════════════════════════════════ */
+    */
   function fetchProfile() {
     $.ajax({
       url: `${API}/user/profile`, method: 'GET', headers: authH(),
@@ -669,11 +655,11 @@
     localStorage.setItem('rentify_fullName', fn);
   }
 
-  /* ═══════════════════════════════════════════════════════
-     SAVE PROFILE  →  PUT /api/v1/user/profile
+  /*
+     SAVE PROFILE  - PUT /api/v1/user/profile
      Body matches UserDTO: fullName, email, phone,
      profileImageBase64 (optional), imageType (optional)
-  ═══════════════════════════════════════════════════════ */
+   */
   $('#saveProfileBtn').on('click', function () {
     const fullName = $('#fullName').val().trim();
     const email    = $('#email').val().trim();
@@ -738,10 +724,10 @@
     toast('Changes discarded.', '');
   });
 
-  /* ═══════════════════════════════════════════════════════
+  /*
      BOOKINGS  →  GET /api/v1/bookings/user/{userId}
      userId stored in localStorage as rentify_userId
-  ═══════════════════════════════════════════════════════ */
+    */
   function fetchBookings() {
     const uid = getUid();
     if (!uid) {
@@ -857,9 +843,9 @@
 
   $('#refreshBkBtn').on('click', fetchBookings);
 
-  /* ═══════════════════════════════════════════════════════
-     CANCEL MODAL  →  DELETE /api/v1/bookings/{id}/cancel?userId={uid}
-  ═══════════════════════════════════════════════════════ */
+  /*
+     CANCEL MODAL  -  DELETE /api/v1/bookings/{id}/cancel?userId={uid}
+    */
   function openCancelModal(id) { pendingCancelId = id; $('#cancelBkLabel').text('BK-' + id); $('#cancelModal').addClass('open'); }
   function closeCancelModal()  { pendingCancelId = null; $('#cancelModal').removeClass('open'); }
 
@@ -889,10 +875,10 @@
     });
   });
 
-  /* ═══════════════════════════════════════════════════════
+  /*
      PASSWORD  →  POST /api/v1/user/change-password
      Body: { currentPassword, newPassword }
-  ═══════════════════════════════════════════════════════ */
+   */
   $(document).on('click', '.pwd-toggle', function () {
     const inp  = document.getElementById($(this).data('target'));
     const show = inp.type === 'password';
@@ -942,14 +928,14 @@
     });
   });
 
-  /* ═══════════════════════════════════════════════════════
+  /*
      SETTINGS
-  ═══════════════════════════════════════════════════════ */
+   */
   $('#signOutAllBtn').on('click', () => { toast('Signing out…', ''); setTimeout(doLogout, 800); });
 
-  /* ═══════════════════════════════════════════════════════
+  /*
      INIT — runs when DOM is ready
-  ═══════════════════════════════════════════════════════ */
+    */
   $(function () {
     renderNav();
 

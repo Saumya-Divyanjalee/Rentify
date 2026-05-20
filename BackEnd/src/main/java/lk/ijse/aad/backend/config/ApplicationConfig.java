@@ -56,6 +56,7 @@ public class ApplicationConfig {
             }
 
             throw new UsernameNotFoundException("User not found: " + username);
+            //401 response
         };
     }
 

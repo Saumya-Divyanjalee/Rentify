@@ -2,7 +2,7 @@
     $(function () {
     const API_BASE = 'http://localhost:8081/api/v1';
 
-    // ── CRITICAL FIX: Clear any stale login session on page load ──
+
     // Without this, after signup the sign-in page sees a valid token
     // and auto-redirects to dashboard before the user even signs in.
     ['rentify_token','rentify_role','rentify_auth','rentify_username',
@@ -45,7 +45,7 @@
     // Remove error class on input
     $(document).on('input', 'input', function () { $(this).removeClass('error'); });
 
-    // ── REDIRECT: always go to sign-in with ?redirect=1 ──
+        // Redirect with Flag
     // The ?redirect=1 flag tells sign-in.html to skip auto-redirect
     // so the user sees the login form and can sign in manually.
     function goToSignIn() {
@@ -74,6 +74,7 @@
     const pw1       = $('#pw1').val();
     const pw2       = $('#pw2').val();
 
+        // Form Validation - password strength calculate
     let valid = true;
     $.each(['firstName','lastName','email','phone','username','pw1','pw2'], function (_, id) {
     if (!$.trim($('#' + id).val())) { $('#' + id).addClass('error'); valid = false; }
@@ -84,14 +85,14 @@
 }
     if (pw1 && pw2 && pw1 !== pw2) {
     $('#pw2').addClass('error');
-    showToast('❌ Passwords do not match.', true); return;
+    showToast(' Passwords do not match.', true); return;
 }
     if (!$('#agreeCheck').prop('checked')) {
-    showToast('❌ Please agree to the Terms of Service.', true); return;
+    showToast(' Please agree to the Terms of Service.', true); return;
 }
     if (!valid) {
     $('.error').first()[0]?.scrollIntoView({ behavior:'smooth', block:'center' });
-    showToast('❌ Please fill all required fields.', true); return;
+    showToast(' Please fill all required fields.', true); return;
 }
 
     const payload = {
@@ -112,7 +113,7 @@
     success: function (result) {
     if (result && (result.code === 200 || result.code === undefined)) {
     $('#formView').fadeOut(300, () => $('#successView').fadeIn(400));
-    showToast('✅ Account created! Redirecting to sign in...', false);
+    showToast(' Account created! Redirecting to sign in...', false);
     setTimeout(goToSignIn, 3000);
 } else {
     resetBtn();
