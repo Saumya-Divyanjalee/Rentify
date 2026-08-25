@@ -211,6 +211,7 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> month3 = bookingRepository
                 .findByStartDateBetween(m3Start, m3End);
 
+
         log.info("Month1 count: {}", month1.size());
         log.info("Month2 count: {}", month2.size());
         log.info("Month3 count: {}", month3.size());

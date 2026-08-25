@@ -355,6 +355,9 @@
     }
 
     function blendForecast(wma, linear) {
+        if (linear <= 0) {
+            return wma * 0.85;
+        }
         return (wma * 0.6) + (linear * 0.4);
     }
 
@@ -460,9 +463,16 @@
         const wMult = wPct > 60 ? 1.15
             : wPct > 40 ? 1.08 : 1.0;
 
-        const revFinal = Math.max(0,
+        const revFloor = Math.min(
+            d.rev1, d.rev2, d.rev3) / 2;
+        const bkFloor = Math.min(
+            d.bk1, d.bk2, d.bk3) / 2;
+
+        const revFinal = Math.max(
+            revFloor,
             Math.round(revBlend * wMult));
-        const bkFinal  = Math.max(0,
+        const bkFinal = Math.max(
+            bkFloor,
             Math.round(bkBlend * wMult));
 
         forecastCalc = {
