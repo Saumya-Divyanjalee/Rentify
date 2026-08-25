@@ -38,5 +38,12 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("cancelled")  BookingStatus cancelled,
             @Param("completed")  BookingStatus completed
     );
+
+    List<Booking> findByStartDateBetween(
+            LocalDate start, LocalDate end);
+
+    List<Booking> findByStartDateBetweenAndStatusNot(
+            LocalDate start, LocalDate end,
+            BookingStatus status);
 }
 

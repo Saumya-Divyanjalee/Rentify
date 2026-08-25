@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -104,5 +104,14 @@ public class BookingController {
             @Parameter(description = "User ID requesting cancellation") @RequestParam Long userId) {
         bookingService.cancelBooking(id, userId);
         return ResponseEntity.ok(new APIResponse<>(200, "Booking cancelled.", null));
+    }
+
+    @GetMapping("/analytics")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<APIResponse<Map<String, Object>>>
+    getAnalytics() {
+        return ResponseEntity.ok(
+                new APIResponse<>(200, "Success",
+                        bookingService.getAnalytics()));
     }
 }

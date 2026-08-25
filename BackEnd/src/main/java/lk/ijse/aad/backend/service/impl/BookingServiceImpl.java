@@ -23,6 +23,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.time.DayOfWeek;
+import java.time.format.TextStyle;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -170,6 +177,160 @@ public class BookingServiceImpl implements BookingService {
         return toDTO(b);
     }
 
+    @Override
+    public Map<String, Object> getAnalytics() {
+        Map<String, Object> result = new HashMap<>();
+
+        LocalDate now = LocalDate.now();
+
+        // Last 3 months date ranges
+        LocalDate m1Start = now.minusMonths(3)
+                .withDayOfMonth(1);
+        LocalDate m1End = now.minusMonths(2)
+                .withDayOfMonth(1).minusDays(1);
+
+        LocalDate m2Start = now.minusMonths(2)
+                .withDayOfMonth(1);
+        LocalDate m2End = now.minusMonths(1)
+                .withDayOfMonth(1).minusDays(1);
+
+        LocalDate m3Start = now.minusMonths(1)
+                .withDayOfMonth(1);
+        LocalDate m3End = now.withDayOfMonth(1)
+                .minusDays(1);
+
+        log.info("Month 1: {} to {}", m1Start, m1End);
+        log.info("Month 2: {} to {}", m2Start, m2End);
+        log.info("Month 3: {} to {}", m3Start, m3End);
+
+        // Load bookings per month
+        List<Booking> month1 = bookingRepository
+                .findByStartDateBetween(m1Start, m1End);
+        List<Booking> month2 = bookingRepository
+                .findByStartDateBetween(m2Start, m2End);
+        List<Booking> month3 = bookingRepository
+                .findByStartDateBetween(m3Start, m3End);
+
+        log.info("Month1 count: {}", month1.size());
+        log.info("Month2 count: {}", month2.size());
+        log.info("Month3 count: {}", month3.size());
+
+        // Revenue per month (exclude CANCELLED)
+        double rev1 = month1.stream()
+                .filter(b -> b.getStatus() !=
+                        BookingStatus.CANCELLED)
+                .mapToDouble(Booking::getTotalPrice)
+                .sum();
+
+        double rev2 = month2.stream()
+                .filter(b -> b.getStatus() !=
+                        BookingStatus.CANCELLED)
+                .mapToDouble(Booking::getTotalPrice)
+                .sum();
+
+        double rev3 = month3.stream()
+                .filter(b -> b.getStatus() !=
+                        BookingStatus.CANCELLED)
+                .mapToDouble(Booking::getTotalPrice)
+                .sum();
+
+        // Booking counts per month
+        long bk1 = month1.stream()
+                .filter(b -> b.getStatus() !=
+                        BookingStatus.CANCELLED)
+                .count();
+
+        long bk2 = month2.stream()
+                .filter(b -> b.getStatus() !=
+                        BookingStatus.CANCELLED)
+                .count();
+
+        long bk3 = month3.stream()
+                .filter(b -> b.getStatus() !=
+                        BookingStatus.CANCELLED)
+                .count();
+
+        // Vehicle type breakdown (month 3)
+        Map<String, Long> vehicleTypeCounts =
+                month3.stream()
+                        .filter(b -> b.getStatus() !=
+                                BookingStatus.CANCELLED)
+                        .filter(b -> b.getVehicle() != null)
+                        .collect(Collectors.groupingBy(
+                                b -> b.getVehicle()
+                                        .getType().name(),
+                                Collectors.counting()
+                        ));
+
+        // Weekend bookings (month 3)
+        long weekendBk = month3.stream()
+                .filter(b -> b.getStatus() !=
+                        BookingStatus.CANCELLED)
+                .filter(b -> {
+                    DayOfWeek day = b.getStartDate()
+                            .getDayOfWeek();
+                    return day == DayOfWeek.FRIDAY
+                            || day == DayOfWeek.SATURDAY
+                            || day == DayOfWeek.SUNDAY;
+                }).count();
+
+        // High frequency vehicle
+        Map<String, Long> vehicleFreq = month3.stream()
+                .filter(b -> b.getVehicle() != null)
+                .collect(Collectors.groupingBy(
+                        b -> "Vehicle #" +
+                                b.getVehicle().getId(),
+                        Collectors.counting()
+                ));
+
+        String highFreqVehicle = vehicleFreq
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse("N/A");
+
+        // Total vehicles
+        long totalVehicles = vehicleRepository.count();
+
+        // Month name helper
+        String m1Name = m1Start.getMonth()
+                .getDisplayName(TextStyle.SHORT,
+                        Locale.ENGLISH)
+                + " " + m1Start.getYear();
+        String m2Name = m2Start.getMonth()
+                .getDisplayName(TextStyle.SHORT,
+                        Locale.ENGLISH)
+                + " " + m2Start.getYear();
+        String m3Name = m3Start.getMonth()
+                .getDisplayName(TextStyle.SHORT,
+                        Locale.ENGLISH)
+                + " " + m3Start.getYear();
+        String nextName = now.getMonth()
+                .getDisplayName(TextStyle.SHORT,
+                        Locale.ENGLISH)
+                + " " + now.getYear();
+
+        // Build result map
+        result.put("month1Name", m1Name);
+        result.put("month2Name", m2Name);
+        result.put("month3Name", m3Name);
+        result.put("nextMonthName", nextName);
+        result.put("rev1", rev1);
+        result.put("rev2", rev2);
+        result.put("rev3", rev3);
+        result.put("bk1", bk1);
+        result.put("bk2", bk2);
+        result.put("bk3", bk3);
+        result.put("totalBk3", bk3);
+        result.put("vehicleTypeCounts",
+                vehicleTypeCounts);
+        result.put("weekendBk", weekendBk);
+        result.put("totalVehicles", totalVehicles);
+        result.put("highFreqVehicle", highFreqVehicle);
+
+        return result;
+    }
+
 
     @Override
     @Transactional
@@ -213,5 +374,7 @@ public class BookingServiceImpl implements BookingService {
 
         log.info("Booking {} cancelled. Vehicle {} now AVAILABLE", bookingId, vehicle.getId());
     }
+
+
 }
 

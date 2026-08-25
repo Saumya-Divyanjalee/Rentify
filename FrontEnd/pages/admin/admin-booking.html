@@ -172,6 +172,9 @@
         .srow:last-child{border:none;font-weight:700;color:var(--ink);}
         .srow span:last-child{color:var(--green);font-weight:700;}
 
+        /* AI MODAL */
+        #aiModal.active{display:flex;}
+
         @media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;padding:16px;}.sc-row{grid-template-columns:repeat(3,1fr);}}
     </style>
 </head>
@@ -219,6 +222,10 @@
         <div class="ph-btns">
             <button class="btn" id="refreshBtn">↺ Refresh</button>
             <button class="btn btn-pdf" id="pdfBtn">📄 PDF Report</button>
+            <button onclick="openAiModal()"
+                    style="background:linear-gradient(135deg,#7C3AED,#1A3FFF);color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">
+                🤖 AI Forecast
+            </button>
         </div>
     </div>
 
@@ -294,9 +301,612 @@
     </div>
 </div>
 
+<!-- AI MODAL -->
+<div id="aiModal"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:#161B2E;border:1px solid #2A2A3A;border-radius:16px;padding:28px;width:90%;max-width:540px;position:relative;">
+        <button onclick="closeAiModal()"
+                style="position:absolute;top:16px;right:16px;background:none;border:none;color:#8890B0;font-size:20px;cursor:pointer;">
+            ✕
+        </button>
+        <div style="font-size:18px;font-weight:700;margin-bottom:20px;color:#fff;">
+            🤖 AI Forecast Preview
+        </div>
+        <div id="aiModalContent"></div>
+        <button id="aiDownloadBtn"
+                onclick="generateAIPDF()"
+                disabled
+                style="width:100%;margin-top:16px;background:linear-gradient(135deg,#7C3AED,#1A3FFF);color:#fff;border:none;padding:12px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;">
+            📥 Download AI Forecast PDF
+        </button>
+    </div>
+</div>
+
 <div id="toast"></div>
 <script src="../../js/jquery-3.7.1.min.js"></script>
 <script>
+    // ════════════════════════════════════
+    // AI CONFIG
+    // ════════════════════════════════════
+    let analyticsData = null;
+    let forecastCalc  = null;
+
+    // ════════════════════════════════════
+    // AI ALGORITHMS
+    // ════════════════════════════════════
+    function calcSMA(v1, v2, v3) {
+        return (v1 + v2 + v3) / 3;
+    }
+
+    function calcWMA(v1, v2, v3) {
+        return (v1 * 0.20) +
+            (v2 * 0.30) +
+            (v3 * 0.50);
+    }
+
+    function calcLinearTrend(v1, v2, v3) {
+        const n = 3, sumX = 6, sumX2 = 14;
+        const sumY  = v1 + v2 + v3;
+        const sumXY = v1*1 + v2*2 + v3*3;
+        const m = (n*sumXY - sumX*sumY) /
+            (n*sumX2 - sumX*sumX);
+        const c = (sumY - m*sumX) / n;
+        return m * 4 + c;
+    }
+
+    function blendForecast(wma, linear) {
+        return (wma * 0.6) + (linear * 0.4);
+    }
+
+    function calcConfidence(v1, v2, v3) {
+        const avg = (v1 + v2 + v3) / 3;
+        if (!avg) return 50;
+        const variance = (
+            Math.pow(v1-avg, 2) +
+            Math.pow(v2-avg, 2) +
+            Math.pow(v3-avg, 2)) / 3;
+        const cv = (Math.sqrt(variance)/avg)*100;
+        if (cv < 10) return 92;
+        if (cv < 20) return 85;
+        if (cv < 30) return 78;
+        if (cv < 40) return 70;
+        return 62;
+    }
+
+    function calcGrowth(oldVal, newVal) {
+        if (!oldVal) return 0;
+        return ((newVal - oldVal) / oldVal) * 100;
+    }
+
+    function calcUtil(bk, vehicles) {
+        if (!vehicles) return 0;
+        return (bk / (vehicles * 30)) * 100;
+    }
+
+    function revFmt(n) {
+        return Number(n).toLocaleString('en-LK');
+    }
+    // ════════════════════════════════════
+    // AI MODAL OPEN
+    // ════════════════════════════════════
+    function openAiModal() {
+        $('#aiModal').css('display', 'flex');
+        $('#aiDownloadBtn').prop('disabled', true);
+        $('#aiModalContent').html(
+            '<div style="text-align:center;' +
+            'padding:30px;color:#8890B0;">' +
+            '⏳ Calculating forecast...</div>'
+        );
+
+        $.ajax({
+            url: API + '/bookings/analytics',
+            method: 'GET',
+            headers: authH(),
+            success: res => {
+                analyticsData = res.data || res;
+                runForecast(analyticsData);
+            },
+            error: () => {
+                $('#aiModalContent').html(
+                    '<div style="color:#FF3B5C;' +
+                    'padding:20px;">' +
+                    '❌ Analytics endpoint not found.' +
+                    '</div>'
+                );
+            }
+        });
+    }
+
+    function closeAiModal() {
+        $('#aiModal').css('display', 'none');
+    }
+
+    // ════════════════════════════════════
+    // RUN FORECAST
+    // ════════════════════════════════════
+    function runForecast(d) {
+
+        const revSMA  = calcSMA(
+            d.rev1, d.rev2, d.rev3);
+        const revWMA  = calcWMA(
+            d.rev1, d.rev2, d.rev3);
+        const revLin  = calcLinearTrend(
+            d.rev1, d.rev2, d.rev3);
+        const revBlend = blendForecast(
+            revWMA, revLin);
+        const revConf = calcConfidence(
+            d.rev1, d.rev2, d.rev3);
+
+        const bkSMA  = calcSMA(
+            d.bk1, d.bk2, d.bk3);
+        const bkWMA  = calcWMA(
+            d.bk1, d.bk2, d.bk3);
+        const bkLin  = calcLinearTrend(
+            d.bk1, d.bk2, d.bk3);
+        const bkBlend = blendForecast(
+            bkWMA, bkLin);
+        const bkConf = calcConfidence(
+            d.bk1, d.bk2, d.bk3);
+
+        const revGrowth = calcGrowth(
+            d.rev1, d.rev3);
+        const util = calcUtil(
+            d.bk3, d.totalVehicles);
+
+        const wPct = d.totalBk3 > 0
+            ? (d.weekendBk / d.totalBk3 * 100)
+                .toFixed(1)
+            : 0;
+        const wMult = wPct > 60 ? 1.15
+            : wPct > 40 ? 1.08 : 1.0;
+
+        const revFinal = Math.max(0,
+            Math.round(revBlend * wMult));
+        const bkFinal  = Math.max(0,
+            Math.round(bkBlend * wMult));
+
+        forecastCalc = {
+            revSMA, revWMA, revLin,
+            revForecast: revFinal, revConf,
+            bkSMA, bkWMA, bkLin,
+            bkForecast: bkFinal, bkConf,
+            revGrowth, util,
+            weekendPct: wPct, wMult
+        };
+
+        const growthColor = revGrowth >= 0
+            ? '#00B86B' : '#FF3B5C';
+        const growthSign = revGrowth >= 0
+            ? '+' : '';
+        const utilColor = util > 85
+            ? '#FF3B5C' : '#00B86B';
+
+        $('#aiModalContent').html(`
+        <div style="display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:10px;">
+
+          <div style="background:#1E2340;
+            border:1px solid #2A2A3A;
+            border-radius:10px;padding:16px;">
+            <div style="font-size:11px;
+              color:#8890B0;
+              text-transform:uppercase;
+              margin-bottom:6px;">
+              Projected Revenue</div>
+            <div style="font-size:20px;
+              font-weight:800;
+              color:#00B86B;">
+              LKR ${revFmt(revFinal)}</div>
+            <div style="font-size:11px;
+              color:#8890B0;margin-top:4px;">
+              ±${100-revConf}% variance ·
+              ${revConf}% confidence</div>
+          </div>
+
+          <div style="background:#1E2340;
+            border:1px solid #2A2A3A;
+            border-radius:10px;padding:16px;">
+            <div style="font-size:11px;
+              color:#8890B0;
+              text-transform:uppercase;
+              margin-bottom:6px;">
+              Projected Bookings</div>
+            <div style="font-size:20px;
+              font-weight:800;
+              color:#1A3FFF;">
+              ${bkFinal}</div>
+            <div style="font-size:11px;
+              color:#8890B0;margin-top:4px;">
+              ${bkConf}% confidence</div>
+          </div>
+
+          <div style="background:#1E2340;
+            border:1px solid #2A2A3A;
+            border-radius:10px;padding:16px;">
+            <div style="font-size:11px;
+              color:#8890B0;
+              text-transform:uppercase;
+              margin-bottom:6px;">
+              Revenue Growth</div>
+            <div style="font-size:20px;
+              font-weight:800;
+              color:${growthColor};">
+              ${growthSign}
+              ${revGrowth.toFixed(1)}%</div>
+            <div style="font-size:11px;
+              color:#8890B0;margin-top:4px;">
+              ${d.month1Name} →
+              ${d.month3Name}</div>
+          </div>
+
+          <div style="background:#1E2340;
+            border:1px solid #2A2A3A;
+            border-radius:10px;padding:16px;">
+            <div style="font-size:11px;
+              color:#8890B0;
+              text-transform:uppercase;
+              margin-bottom:6px;">
+              Fleet Utilization</div>
+            <div style="font-size:20px;
+              font-weight:800;
+              color:${utilColor};">
+              ${util.toFixed(1)}%</div>
+            <div style="font-size:11px;
+              color:#8890B0;margin-top:4px;">
+              ${util > 85
+            ? '⚠ Bottleneck Risk!'
+            : '✓ Healthy capacity'}</div>
+          </div>
+
+        </div>
+
+        <div style="background:#1E2340;
+          border:1px solid #2A2A3A;
+          border-radius:10px;padding:14px;
+          margin-top:10px;">
+          <div style="font-size:11px;
+            color:#8890B0;margin-bottom:6px;">
+            Next Month: ${d.nextMonthName}
+          </div>
+          <div style="font-size:12px;
+            color:#8890B0;">
+            SMA: LKR ${revFmt(
+            Math.round(revSMA))}
+            &nbsp;·&nbsp;
+            WMA: LKR ${revFmt(
+            Math.round(revWMA))}
+            &nbsp;·&nbsp;
+            Linear: LKR ${revFmt(Math.round(
+            Math.max(0, revLin)))}
+            <br>Weekend: ${wPct}%
+            (×${wMult.toFixed(2)})
+            &nbsp;·&nbsp;
+            High freq: ${d.highFreqVehicle}
+          </div>
+        </div>
+    `);
+
+        $('#aiDownloadBtn')
+            .prop('disabled', false);
+    }
+    // ════════════════════════════════════
+    // GENERATE AI PDF
+    // ════════════════════════════════════
+    function generateAIPDF() {
+        if (!analyticsData || !forecastCalc) {
+            toast('Load forecast first.','warning');
+            return;
+        }
+
+        const d = analyticsData;
+        const c = forecastCalc;
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p','mm','a4');
+
+        const DARK  = [10,13,26];
+        const NAVY  = [30,35,64];
+        const BLUE  = [26,63,255];
+        const YELL  = [245,197,24];
+        const GREEN = [0,184,107];
+        const RED   = [255,59,92];
+        const WHITE = [255,255,255];
+        const MUTED = [136,144,176];
+
+        // PAGE 1
+        doc.setFillColor(...DARK);
+        doc.rect(0,0,210,297,'F');
+        doc.setFillColor(...YELL);
+        doc.rect(0,0,210,2,'F');
+        doc.setFillColor(...BLUE);
+        doc.rect(0,0,3,297,'F');
+
+        doc.setTextColor(...WHITE);
+        doc.setFontSize(28);
+        doc.setFont('helvetica','bold');
+        doc.text('RENT',18,28);
+        doc.setTextColor(...YELL);
+        doc.text('ify',48,28);
+        doc.setTextColor(...MUTED);
+        doc.setFontSize(8);
+        doc.setFont('helvetica','normal');
+        doc.text('AI-POWERED FLEET INTELLIGENCE',
+            18,34);
+
+        doc.setTextColor(...WHITE);
+        doc.setFontSize(20);
+        doc.setFont('helvetica','bold');
+        doc.text('Executive Predictive',18,50);
+        doc.text('Intelligence Report',18,60);
+        doc.setTextColor(...MUTED);
+        doc.setFontSize(9);
+        doc.setFont('helvetica','normal');
+        doc.text('30-Day Revenue & Booking Forecast',
+            18,68);
+        doc.text('Based on: '+d.month1Name+
+            ' — '+d.month3Name, 18,74);
+        doc.setDrawColor(...YELL);
+        doc.setLineWidth(0.5);
+        doc.line(18,78,195,78);
+
+        // Stat boxes
+        const boxes = [
+            {label:'Predicted Revenue',
+                val:'LKR '+revFmt(c.revForecast),
+                sub:'±'+(100-c.revConf)+'% variance',
+                col:GREEN},
+            {label:'Predicted Bookings',
+                val:c.bkForecast+' bookings',
+                sub:c.bkConf+'% confidence',
+                col:BLUE},
+            {label:'Revenue Growth',
+                val:(c.revGrowth>=0?'+':'')+
+                    c.revGrowth.toFixed(1)+'%',
+                sub:d.month1Name+' → '+d.month3Name,
+                col:c.revGrowth>=0?GREEN:RED},
+            {label:'Fleet Utilization',
+                val:c.util.toFixed(1)+'%',
+                sub:c.util>85
+                    ?'⚠ Bottleneck!'
+                    :'✓ Healthy',
+                col:c.util>85?RED:GREEN}
+        ];
+
+        boxes.forEach((b,i)=>{
+            const x=15+(i%2)*97;
+            const y=84+Math.floor(i/2)*42;
+            doc.setFillColor(...NAVY);
+            doc.roundedRect(x,y,90,36,3,3,'F');
+            doc.setFillColor(...b.col);
+            doc.roundedRect(x,y,90,2,1,1,'F');
+            doc.setTextColor(...MUTED);
+            doc.setFontSize(8);
+            doc.setFont('helvetica','normal');
+            doc.text(b.label,x+5,y+9);
+            doc.setTextColor(...b.col);
+            doc.setFontSize(13);
+            doc.setFont('helvetica','bold');
+            doc.text(b.val,x+5,y+21);
+            doc.setTextColor(...MUTED);
+            doc.setFontSize(7);
+            doc.setFont('helvetica','normal');
+            doc.text(b.sub,x+5,y+30);
+        });
+
+        // Recommendations
+        const recs = [];
+        if(c.revGrowth>10) recs.push({
+            tag:'HIGH GROWTH',
+            text:'Revenue grew '+
+                c.revGrowth.toFixed(1)+
+                '% last quarter.',col:GREEN});
+        else if(c.revGrowth<0) recs.push({
+            tag:'DECLINING',
+            text:'Revenue dropped '+
+                Math.abs(c.revGrowth).toFixed(1)+
+                '%. Review strategy.',col:RED});
+        if(c.util>85) recs.push({
+            tag:'FLEET BOTTLENECK',
+            text:'Utilization '+
+                c.util.toFixed(1)+
+                '%. Add 2 vehicles.',col:RED});
+        if(d.highFreqVehicle!=='N/A') recs.push({
+            tag:'MAINTENANCE',
+            text:d.highFreqVehicle+
+                ' — schedule service.',col:YELL});
+        recs.push({
+            tag:'FORECAST',
+            text:'Projected '+d.nextMonthName+
+                ': LKR '+revFmt(c.revForecast)+
+                ', '+c.bkForecast+
+                ' bookings.',col:GREEN});
+
+        doc.setFillColor(...NAVY);
+        doc.roundedRect(15,172,180,18,3,3,'F');
+        doc.setTextColor(...YELL);
+        doc.setFontSize(8);
+        doc.setFont('helvetica','bold');
+        doc.text('ALGORITHMS: SMA · WMA(20/30/50%)'+
+            ' · Linear(y=mx+c) · Blend(60/40)'+
+            ' · Weekend×'+c.wMult.toFixed(2),
+            20,183);
+
+        doc.setTextColor(...WHITE);
+        doc.setFontSize(11);
+        doc.setFont('helvetica','bold');
+        doc.text('Recommendations',15,200);
+
+        recs.slice(0,4).forEach((r,i)=>{
+            const y=206+i*13;
+            doc.setFillColor(...NAVY);
+            doc.roundedRect(15,y-3,180,10,
+                2,2,'F');
+            doc.setFillColor(...r.col);
+            doc.roundedRect(15,y-3,3,10,
+                1,1,'F');
+            doc.setTextColor(...r.col);
+            doc.setFontSize(7);
+            doc.setFont('helvetica','bold');
+            doc.text(r.tag,21,y+1);
+            doc.setTextColor(...WHITE);
+            doc.setFont('helvetica','normal');
+            doc.text(r.text,21,y+5.5);
+        });
+
+        doc.setTextColor(...MUTED);
+        doc.setFontSize(7);
+        doc.text('Rentify AI v1.0 | '+
+            new Date().toLocaleString('en-LK'),
+            15,290);
+
+        // PAGE 2
+        doc.addPage();
+        doc.setFillColor(...DARK);
+        doc.rect(0,0,210,297,'F');
+        doc.setFillColor(...YELL);
+        doc.rect(0,0,210,2,'F');
+        doc.setFillColor(...BLUE);
+        doc.rect(0,0,3,297,'F');
+
+        doc.setTextColor(...WHITE);
+        doc.setFontSize(14);
+        doc.setFont('helvetica','bold');
+        doc.text('Forecast Deep Analysis',15,18);
+        doc.setTextColor(...MUTED);
+        doc.setFontSize(8);
+        doc.setFont('helvetica','normal');
+        doc.text(d.month1Name+' · '+
+            d.month2Name+' · '+d.month3Name+
+            '  →  '+d.nextMonthName, 15,25);
+
+        doc.setTextColor(...YELL);
+        doc.setFontSize(10);
+        doc.setFont('helvetica','bold');
+        doc.text('Revenue Forecast (LKR)',15,34);
+
+        doc.autoTable({
+            startY:37,
+            head:[['Model',d.month1Name,
+                d.month2Name,d.month3Name,
+                'Projected ('+
+                d.nextMonthName+')']],
+            body:[
+                ['Actual',
+                    'LKR '+revFmt(Math.round(d.rev1)),
+                    'LKR '+revFmt(Math.round(d.rev2)),
+                    'LKR '+revFmt(Math.round(d.rev3)),
+                    '—'],
+                ['SMA','20%','30%','50%',
+                    'LKR '+revFmt(
+                        Math.round(c.revSMA))],
+                ['WMA (20/30/50)','20%','30%','50%',
+                    'LKR '+revFmt(
+                        Math.round(c.revWMA))],
+                ['Linear (y=mx+c)','—','—','—',
+                    'LKR '+revFmt(Math.round(
+                        Math.max(0,c.revLin)))],
+                ['✅ Blended+Weekend',
+                    'WMA×60%','+','Linear×40%',
+                    'LKR '+revFmt(c.revForecast)+
+                    ' (±'+(100-c.revConf)+'%)'],
+            ],
+            theme:'grid',
+            styles:{fillColor:NAVY,
+                textColor:WHITE,
+                fontSize:8,cellPadding:3},
+            headStyles:{fillColor:BLUE,
+                textColor:WHITE,
+                fontStyle:'bold'},
+            columnStyles:{4:{textColor:GREEN,
+                    fontStyle:'bold'}}
+        });
+
+        const y2=doc.lastAutoTable.finalY+8;
+        doc.setTextColor(...YELL);
+        doc.setFontSize(10);
+        doc.setFont('helvetica','bold');
+        doc.text('Booking Volume Forecast',15,y2);
+
+        doc.autoTable({
+            startY:y2+3,
+            head:[['Model',d.month1Name,
+                d.month2Name,d.month3Name,
+                'Projected']],
+            body:[
+                ['Actual',d.bk1,d.bk2,d.bk3,'—'],
+                ['SMA','—','—','—',
+                    Math.round(c.bkSMA)],
+                ['WMA','—','—','—',
+                    Math.round(c.bkWMA)],
+                ['Linear','—','—','—',
+                    Math.round(Math.max(0,c.bkLin))],
+                ['✅ Blended+Weekend',
+                    '—','—','—',
+                    c.bkForecast+' bookings'],
+            ],
+            theme:'grid',
+            styles:{fillColor:NAVY,
+                textColor:WHITE,
+                fontSize:8,cellPadding:3},
+            headStyles:{fillColor:[126,58,237],
+                textColor:WHITE,
+                fontStyle:'bold'},
+            columnStyles:{4:{textColor:GREEN,
+                    fontStyle:'bold'}}
+        });
+
+        const y3=doc.lastAutoTable.finalY+8;
+        doc.setTextColor(...YELL);
+        doc.setFontSize(10);
+        doc.setFont('helvetica','bold');
+        doc.text('Vehicle Category Affinity',15,y3);
+
+        const vcRows=Object.entries(
+            d.vehicleTypeCounts||{})
+            .map(([type,count])=>{
+                const pct=d.totalBk3>0
+                    ?((count/d.totalBk3)*100)
+                        .toFixed(1):0;
+                const projRev=Math.round(
+                    (count/Math.max(d.totalBk3,1))
+                    *c.revForecast);
+                return [type,count,pct+'%',
+                    'LKR '+revFmt(projRev),
+                    pct>40?'HIGH DEMAND'
+                        :pct>20?'GROWING'
+                            :'STABLE'];
+            });
+
+        doc.autoTable({
+            startY:y3+3,
+            head:[['Vehicle Type','Bookings','Share',
+                'Proj. Revenue','Signal']],
+            body:vcRows.length?vcRows:
+                [['—','—','—','—','—']],
+            theme:'grid',
+            styles:{fillColor:NAVY,
+                textColor:WHITE,
+                fontSize:8,cellPadding:3},
+            headStyles:{fillColor:[124,58,237],
+                textColor:WHITE,
+                fontStyle:'bold'},
+            columnStyles:{4:{textColor:YELL,
+                    fontStyle:'bold'}}
+        });
+
+        doc.setTextColor(...MUTED);
+        doc.setFontSize(7);
+        doc.text('Generated by Rentify AI Engine — '+
+            new Date().toLocaleString('en-LK'),
+            15,290);
+
+        doc.save('Rentify_AI_Forecast_'+
+            new Date().toISOString().slice(0,10)+'.pdf');
+
+        showToast('✅ AI Forecast PDF downloaded!','success');
+        closeAiModal();
+    }
+
 
 
     // API BASE URL
@@ -311,7 +921,7 @@
     // Stores all bookings fetched from the server in memory.
     // Filters, stats, search, and PDF all use this array.
     // No extra API calls needed after the first fetch.
-     let allBookings = [];
+    let allBookings = [];
 
 
 

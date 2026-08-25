@@ -4,6 +4,7 @@ import lk.ijse.aad.backend.dto.BookingDTO;
 import lk.ijse.aad.backend.enums.BookingStatus;
 
 import java.util.List;
+import java.util.Map;
 
 public interface BookingService {
 
@@ -24,5 +25,7 @@ public interface BookingService {
 
     // Get single booking
     BookingDTO getBookingById(Long id);
+
+    Map<String, Object> getAnalytics();
 }
 
