@@ -314,20 +314,23 @@ Administrators can generate booking reports directly in the browser.
 
 No server-side PDF processing is required.
 
-🤖 AI-Powered Forecasting
+# 🤖 AI-Powered Forecasting
+
 Rentify includes a browser-side AI forecasting engine that predicts next month's revenue and booking volume from historical trends.
 
-Forecasting capabilities
-Simple Moving Average (SMA) calculation
-Weighted Moving Average (WMA) with 20/30/50 weighting
-Linear trend regression (least-squares)
-Blended forecast model (WMA 60% + Linear 40%)
-Weekend-demand multiplier adjustment
-Confidence scoring based on data variance
-Fleet utilization analysis
-Revenue growth tracking (month-over-month)
-Vehicle category demand signals
-Downloadable AI Forecast PDF report
+### Forecasting capabilities
+
+* Simple Moving Average (SMA) calculation
+* Weighted Moving Average (WMA) with 20/30/50 weighting
+* Linear trend regression (least-squares)
+* Blended forecast model (WMA 60% + Linear 40%)
+* Weekend-demand multiplier adjustment
+* Confidence scoring based on data variance
+* Fleet utilization analysis
+* Revenue growth tracking (month-over-month)
+* Vehicle category demand signals
+* Downloadable AI Forecast PDF report
+
 No external AI API is required — all forecasting runs client-side using historical booking data pulled from the analytics endpoint.
 
 ---
@@ -665,7 +668,7 @@ The original project configuration uses port `63342` for the frontend during dev
 | `GET`  | `/api/v1/user`            | Admin  |
 | `GET`  | `/api/v1/insurances`      | Admin  |
 | `POST` | `/api/v1/insurances`      | Admin  |
-
+| `GET`  | `/api/v1/bookings/analytics` | Admin  |
 ---
 
 ## 📖 API Documentation
