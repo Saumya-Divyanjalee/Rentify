@@ -1,4 +1,4 @@
-# 🚗 Rentify - Vehicle Rental Platform with PayHere Payment Gateway Integratio
+# 🚗 Rentify - Vehicle Rental Platform with PayHere Payment Gateway Integration
 
 <p align="center">
   <strong>A full-stack vehicle rental platform with secure JWT authentication, PayHere payment integration, real-time availability validation, automated email notifications, interactive maps, and admin management.</strong>
